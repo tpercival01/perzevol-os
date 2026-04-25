@@ -5,7 +5,6 @@ import os
 RAW_DATA_PATH = '../data/raw/vct_data.csv'
 OUTPUT_JSON_PATH = '../data/processed/meta_matrix.json'
 
-# The Master Roster (Ensures the UI always shows every agent)
 MASTER_ROLES = {
     "Controller": ["Omen", "Viper", "Astra", "Brimstone", "Harbor", "Clove", "Miks"],
     "Initiator": ["Sova", "Fade", "Skye", "KAY/O", "Breach", "Gekko", "Tejo"],
@@ -34,7 +33,6 @@ def build_matrix():
         global_df['TotalPicks'] / global_df['MatchesPlayed']
     ) * 100
 
-    # Initialize matrix with the hardcoded MASTER_ROLES
     matrix = {
         "roles": MASTER_ROLES,
         "map_meta": {}
