@@ -1,0 +1,74 @@
+
+{
+    "roles": {
+        "Controller": ["Omen", "Viper", "Astra", "Brimstone", "Harbor", "Clove", "Miks"],
+        "Initiator": ["Sova", "Fade", "Skye", "KAY/O", "Breach", "Gekko", "Tejo"],
+        "Sentinel": ["Killjoy", "Cypher", "Chamber", "Sage", "Deadlock", "Vyse", "Veto"],
+        "Duelist": ["Jett", "Raze", "Reyna", "Phoenix", "Yoru", "Neon", "Iso", "Waylay"]
+    },
+    "map_meta": {
+        "Breeze": {
+            "core_agents": ["Sova", "Viper"],
+            "strong_flex": ["Tejo", "Killjoy", "Omen", "Astra", "Neon"],
+            "preferred_templates": [
+                ["Controller", "Initiator", "Sentinel", "Flex", "Flex"]
+            ],
+            "confidence": "medium_low",
+            "sample_size": 4
+        },
+        "Bind": {
+            "core_agents": ["Neon", "Viper", "Skye", "Brimstone"],
+            "strong_flex": ["Waylay", "Phoenix", "Astra", "Chamber"],
+            "preferred_templates": [
+                ["Controller", "Controller", "Initiator", "Duelist", "Flex"]
+            ],
+            "confidence": "medium",
+            "sample_size": 7
+        },
+        "Fracture": {
+            "core_agents": ["Neon", "Fade", "Brimstone"],
+            "strong_flex": ["Astra", "Cypher", "Skye", "Raze", "KAY/O", "Tejo"],
+            "preferred_templates": [
+                ["Controller", "Initiator", "Duelist", "Flex", "Flex"]
+            ],
+            "confidence": "medium_low",
+            "sample_size": 4
+        },
+        "Haven": {
+            "core_agents": ["Omen", "Neon", "Sova"],
+            "strong_flex": ["Cypher", "Phoenix", "Killjoy", "Fade", "Viper"],
+            "preferred_templates": [
+                ["Controller", "Initiator", "Duelist", "Flex", "Flex"]
+            ],
+            "confidence": "medium_high",
+            "sample_size": 8
+        },
+        "Lotus": {
+            "core_agents": ["Omen", "Neon", "Fade", "Viper"],
+            "strong_flex": ["Vyse", "Chamber", "Raze", "Killjoy", "Tejo"],
+            "preferred_templates": [
+                ["Controller", "Initiator", "Duelist", "Flex", "Flex"]
+            ],
+            "confidence": "high",
+            "sample_size": 9
+        },
+        "Pearl": {
+            "core_agents": ["Astra", "Neon", "Fade"],
+            "strong_flex": ["Cypher", "Waylay", "Phoenix", "Chamber", "Tejo", "Sova"],
+            "preferred_templates": [
+                ["Controller", "Initiator", "Duelist", "Flex", "Flex"]
+            ],
+            "confidence": "high",
+            "sample_size": 9
+        },
+        "Split": {
+            "core_agents": ["Viper", "Neon", "Raze", "Fade"],
+            "strong_flex": ["Astra", "Omen", "Waylay"],
+            "preferred_templates": [
+                ["Controller", "Controller", "Initiator", "Duelist", "Flex"]
+            ],
+            "confidence": "high",
+            "sample_size": 9
+        }
+    }
+}
