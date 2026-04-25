@@ -8,9 +8,9 @@ load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def load_meta_context():
-    file_path = '../data/processed/meta_matrix.json'
+    file_path = "../data/processed/meta_matrix.json"
     try:
-        with open(file_path, 'r') as file:
+        with open(file_path, "r") as file:
             return json.load(file)
     except FileNotFoundError:
         return {}
@@ -37,7 +37,7 @@ def get_missing_roles(team_comp, map_name, meta_dict):
     roles_dict = meta_dict.get("roles", {})
     map_meta = meta_dict.get("map_meta", {}).get(map_name, {})
     template = map_meta.get("preferred_templates", [[]])[0].copy()
-    
+
     for agent in team_comp:
         agent_title = agent.strip().title()
         role = None
@@ -45,19 +45,18 @@ def get_missing_roles(team_comp, map_name, meta_dict):
             if agent_title in agents:
                 role = r
                 break
-        
+
         if role in template:
             template.remove(role)
         elif "Flex" in template:
             template.remove("Flex")
-            
+
     return template
 
 def get_ai_recommendation(map_name, team_comp, roster, is_panic=False):
     meta_dict = load_meta_context()
     meta_data_string = json.dumps(meta_dict)
     
-    # Filter the roster to remove agents already locked by teammates
     available_roster = [agent for agent in roster if agent not in team_comp]
     roster_str = ', '.join(available_roster) if available_roster else "NONE"
     
@@ -66,12 +65,12 @@ def get_ai_recommendation(map_name, team_comp, roster, is_panic=False):
             f"Map: {map_name}\n"
             f"Task: PANIC MODE. Ignore team comp. "
             f"Available Roster: {roster_str}\n"
-            f"Give me the top 3 core agents for {map_name} from my Available Roster."
+            f"Give me the top 3 core agents for {map_name} from my roster."
         )
         system_prompt = (
-            "You output raw data. No markdown.\n"
+            "You are a ruthless Valorant Coach. No markdown.\n"
             "Line 1: 3 AGENT NAMES\n"
-            "Line 2: 1 sentence tactical justification."
+            "Line 2: A punchy 1-sentence tactical justification focusing ONLY on map geometry."
         )
     else:
         team_str = ', '.join(team_comp) if team_comp else 'None'
@@ -79,36 +78,35 @@ def get_ai_recommendation(map_name, team_comp, roster, is_panic=False):
         
         if is_unsalvageable:
             user_prompt = (
-                f"Map: {map_name}\n"
-                f"Current Team: {team_str}\n"
+                f"Map: {map_name}. Team: {team_str}.\n"
                 f"STATUS: UNSALVAGEABLE DRAFT.\n"
-                f"Available Roster: {roster_str}\n"
-                f"Task: Recommend the best self-sufficient carry for {map_name} from my Available Roster."
+                f"Allowed Agents: {roster_str}\n"
+                f"Task: Recommend the best self-sufficient carry to salvage this."
             )
             system_prompt = (
-                f"Use this dataset exclusively: {meta_data_string}. "
                 "Your response must be EXACTLY two lines. No markdown.\n"
-                "Line 1: [FAILSAFE OVERRIDE] AGENT NAME IN ALL CAPS\n"
-                "Line 2: A brutal 1 sentence justification for the failsafe."
+                "Line 1: [FAILSAFE OVERRIDE] followed by the AGENT NAME IN ALL CAPS.\n"
+                "Line 2: A brutal 1-sentence justification. You MUST start the sentence with 'As the failsafe choice,' and explain how this agent carries the map alone."
             )
         else:
             missing_roles = get_missing_roles(team_comp, map_name, meta_dict)
-            missing_str = ', '.join(missing_roles) if missing_roles else "Flex"
+            missing_str = ', '.join(missing_roles) if missing_roles else "Flex Pick"
             
             user_prompt = (
-                f"Map: {map_name}\n"
-                f"Current Team: {team_str}\n"
-                f"Available Roster: {roster_str}\n"
-                f"SYSTEM OVERRIDE: Missing roles: {missing_str}.\n"
-                f"Task: Select the best agent to fill {missing_str} ONLY from the Available Roster."
+                f"Map: {map_name}. Current Team: {team_str}.\n"
+                f"Tactical Void: The team desperately needs a {missing_str}.\n"
+                f"Allowed Agents: {roster_str}\n"
+                f"Task: Pick the best agent from the Allowed Agents to fill the void."
             )
             system_prompt = (
-                "You are a strict Valorant AI system. You output raw data. "
-                f"Use this dataset exclusively: {meta_data_string}. "
-                "CRITICAL: You MUST select an agent from the User's Available Roster. "
-                "Your response must be EXACTLY two lines. No markdown.\n"
-                "Line 1: The suggested AGENT NAME in ALL CAPS.\n"
-                "Line 2: A tactical justification based on the missing role."
+                "You are an elite, ruthless Valorant tactician. "
+                f"Use this dataset for meta knowledge: {meta_data_string}. "
+                "CRITICAL RULES:\n"
+                "1. Your response must be EXACTLY two lines. No markdown.\n"
+                "2. Line 1: ONLY the chosen AGENT NAME in ALL CAPS.\n"
+                "3. Line 2: A punchy, 1-sentence gameplay justification. You MUST explicitly state the role being filled (e.g., 'To fill the missing Controller role,' or 'As the required Flex pick,') and then explain what the agent does for the map geometry.\n"
+                "4. FOCUS EXCLUSIVELY on what your chosen agent does for the map. Do NOT list the current teammates.\n"
+                "5. NEVER invent or hallucinate agents."
             )
 
     try:

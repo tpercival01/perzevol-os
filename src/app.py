@@ -51,18 +51,21 @@ for agents in roles_dict.values():
     all_agents.extend(agents)
 all_agents = sorted(all_agents)
 
-# Initialize roster with free agents if completely empty
 if not st.session_state.roster and not os.path.exists(ROSTER_FILE):
     st.session_state.roster = ["Brimstone", "Jett", "Phoenix", "Sage", "Sova"]
     save_roster(st.session_state.roster)
 
 # 3. Main Dashboard UI
-st.title("⚡ VCT Draft Analyst v5")
+st.title("⚡ VCT Draft Analyst v6")
 st.markdown("### code. gaming. ai.")
 
 tab1, tab2 = st.tabs(["🚀 Draft Analysis", "⚙️ My Roster"])
 
 with tab1:
+    # 4. MASSIVE OUTPUT ZONE (Placed at the very top)
+    output_container = st.container()
+    st.divider()
+
     left_col, right_col = st.columns([1, 2], gap="large")
 
     with left_col:
@@ -75,26 +78,47 @@ with tab1:
                 st.code(agent)
         else:
             st.info("Awaiting lock-ins...")
-
-        st.divider()
+        
+        st.write("") # Spacer
         
         if st.button("🚀 EXECUTE ANALYSIS", type="primary", use_container_width=True):
-            with st.spinner("Querying constrained Llama-3.3-70B..."):
+            with st.spinner("Calculating optimal strategy..."):
                 response = get_ai_recommendation(
                     selected_map, 
                     st.session_state.team_comp, 
                     st.session_state.roster
                 )
-                st.success("Analysis Complete")
-                st.code(response, language="text")
+                
+                # Split response into Agent Name and Justification
+                lines = [line for line in response.split('\n') if line.strip()]
+                if len(lines) >= 2:
+                    agent_name = lines[0]
+                    reason = " ".join(lines[1:])
+                else:
+                    agent_name = "OVERRIDE"
+                    reason = response
+
+                # Inject massive HTML into the top container
+                with output_container:
+                    st.markdown(
+                        f"<h1 style='text-align: center; font-size: 5rem; color: #00e5ff; margin-bottom: 0;'>{agent_name}</h1>", 
+                        unsafe_allow_html=True
+                    )
+                    st.markdown(
+                        f"<h3 style='text-align: center; font-weight: normal; padding: 0 10%;'>{reason}</h3>", 
+                        unsafe_allow_html=True
+                    )
                 
         if st.button("🚨 PANIC (Top 3)", use_container_width=True):
             with st.spinner("Bypassing rules..."):
                 response = get_ai_recommendation(
                     selected_map, [], st.session_state.roster, is_panic=True
                 )
-                st.error("PANIC PROTOCOL ENGAGED")
-                st.code(response, language="text")
+                with output_container:
+                    st.markdown(
+                        f"<h2 style='text-align: center; color: #ff4b4b;'>{response}</h2>", 
+                        unsafe_allow_html=True
+                    )
 
         st.button("Reset Draft", on_click=reset_draft, use_container_width=True)
 
@@ -119,9 +143,6 @@ with tab1:
 
 with tab2:
     st.subheader("Account Unlocks")
-    st.write("Toggle the agents currently unlocked on your Valorant account. The AI will strictly limit recommendations to this list.")
-    
-    # Roster Management Grid
     roster_cols = st.columns(4)
     for idx, agent in enumerate(all_agents):
         col_idx = idx % 4
@@ -129,7 +150,6 @@ with tab2:
             is_owned = agent in st.session_state.roster
             new_status = st.toggle(agent, value=is_owned, key=f"roster_{agent}")
             
-            # Detect changes and save
             if new_status and agent not in st.session_state.roster:
                 st.session_state.roster.append(agent)
                 save_roster(st.session_state.roster)
