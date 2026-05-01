@@ -62,7 +62,6 @@ st.markdown("### code. gaming. ai.")
 tab1, tab2 = st.tabs(["🚀 Draft Analysis", "⚙️ My Roster"])
 
 with tab1:
-    # 4. MASSIVE OUTPUT ZONE (Placed at the very top)
     output_container = st.container()
     st.divider()
 
@@ -89,7 +88,6 @@ with tab1:
                     st.session_state.roster
                 )
                 
-                # Split response into Agent Name and Justification
                 lines = [line for line in response.split('\n') if line.strip()]
                 if len(lines) >= 2:
                     agent_name = lines[0]
@@ -98,7 +96,6 @@ with tab1:
                     agent_name = "OVERRIDE"
                     reason = response
 
-                # Inject massive HTML into the top container
                 with output_container:
                     st.markdown(
                         f"<h1 style='text-align: center; font-size: 5rem; color: #00e5ff; margin-bottom: 0;'>{agent_name}</h1>", 
@@ -108,6 +105,7 @@ with tab1:
                         f"<h3 style='text-align: center; font-weight: normal; padding: 0 10%;'>{reason}</h3>", 
                         unsafe_allow_html=True
                     )
+        
                 
         if st.button("🚨 PANIC (Top 3)", use_container_width=True):
             with st.spinner("Bypassing rules..."):

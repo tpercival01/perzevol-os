@@ -90,13 +90,37 @@ def get_ai_recommendation(map_name, team_comp, roster, is_panic=False):
             )
         else:
             missing_roles = get_missing_roles(team_comp, map_name, meta_dict)
-            missing_str = ', '.join(missing_roles) if missing_roles else "Flex Pick"
+
+            roles_dict = meta_dict.get("roles", {})
+            team_role_counts = {}
+            for agent in team_comp:
+                for r, agents in roles_dict.items():
+                    if agent.strip().title() in agents:
+                        team_role_counts[r] = team_role_counts.get(r, 0) + 1
+                        break
+
+            formatted_missing = []
+            for role in missing_roles:
+                count = team_role_counts.get(role, 0)
+                if count == 1:
+                    formatted_missing.append(f"Secondary {role}")
+                elif count >= 2:
+                    formatted_missing.append(f"Tertiary {role}")
+                else:
+                    formatted_missing.append(role)
+            
+            if formatted_missing:
+                missing_str = ', '.join(formatted_missing)
+                sentence_prefix = f"To fill the required {missing_str} role,"
+            else:
+                missing_str = "Flex Pick"
+                sentence_prefix = "As the optimal Flex Pick,"
             
             user_prompt = (
                 f"Map: {map_name}. Current Team: {team_str}.\n"
-                f"Tactical Void: The team desperately needs a {missing_str}.\n"
+                f"Tactical Void: The VCT data demands a {missing_str}.\n"
                 f"Allowed Agents: {roster_str}\n"
-                f"Task: Pick the best agent from the Allowed Agents to fill the void."
+                f"Task: Pick the mathematically optimal agent from Allowed Agents to fill this exact void."
             )
             system_prompt = (
                 "You are an elite, ruthless Valorant tactician. "
@@ -104,8 +128,7 @@ def get_ai_recommendation(map_name, team_comp, roster, is_panic=False):
                 "CRITICAL RULES:\n"
                 "1. Your response must be EXACTLY two lines. No markdown.\n"
                 "2. Line 1: ONLY the chosen AGENT NAME in ALL CAPS.\n"
-                "3. Line 2: A punchy, 1-sentence gameplay justification. You MUST explicitly state the role being filled (e.g., 'To fill the missing Controller role,' or 'As the required Flex pick,') and then explain what the agent does for the map geometry.\n"
-                "4. FOCUS EXCLUSIVELY on what your chosen agent does for the map. Do NOT list the current teammates.\n"
+                f"3. Line 2: MUST START EXACTLY WITH THE PHRASE: '{sentence_prefix}'. Following that phrase, explain exactly why this agent's utility dominates this map's geometry and synergizes with the current team.\n"
                 "5. NEVER invent or hallucinate agents."
             )
 
