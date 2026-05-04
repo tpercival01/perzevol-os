@@ -38,170 +38,5198 @@
             "Waylay"
         ]
     },
+    "source_type": "actual_team_compositions",
+    "raw_file": "../data/raw/vct_data.csv",
+    "total_team_comps": 530,
+    "total_maps": 265,
     "map_meta": {
         "Bind": {
-            "core_agents": [
-                "Skye",
-                "Viper",
-                "Neon",
-                "Brimstone"
+            "sample_size_team_comps": 64,
+            "maps_played": 32,
+            "confidence": "medium",
+            "region_breakdown": {
+                "China": 28,
+                "EMEA": 18,
+                "Pacific": 12,
+                "Americas": 6
+            },
+            "event_breakdown": {
+                "VCT 2026 China Stage 1": 28,
+                "VCT 2026 EMEA Stage 1": 18,
+                "VCT 2026 Pacific Stage 1": 12,
+                "VCT 2026 Americas Stage 1": 6
+            },
+            "top_team_comps": [
+                {
+                    "value": [
+                        "Brimstone",
+                        "Neon",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "count": 29,
+                    "rate": 45.31
+                },
+                {
+                    "value": [
+                        "Brimstone",
+                        "Chamber",
+                        "Neon",
+                        "Skye",
+                        "Viper"
+                    ],
+                    "count": 5,
+                    "rate": 7.81
+                },
+                {
+                    "value": [
+                        "Brimstone",
+                        "Neon",
+                        "Phoenix",
+                        "Skye",
+                        "Viper"
+                    ],
+                    "count": 5,
+                    "rate": 7.81
+                },
+                {
+                    "value": [
+                        "Brimstone",
+                        "Neon",
+                        "Raze",
+                        "Skye",
+                        "Viper"
+                    ],
+                    "count": 4,
+                    "rate": 6.25
+                },
+                {
+                    "value": [
+                        "Brimstone",
+                        "Neon",
+                        "Omen",
+                        "Skye",
+                        "Waylay"
+                    ],
+                    "count": 2,
+                    "rate": 3.12
+                },
+                {
+                    "value": [
+                        "Brimstone",
+                        "Neon",
+                        "Skye",
+                        "Viper",
+                        "Vyse"
+                    ],
+                    "count": 2,
+                    "rate": 3.12
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Chamber",
+                        "Neon",
+                        "Skye",
+                        "Viper"
+                    ],
+                    "count": 2,
+                    "rate": 3.12
+                },
+                {
+                    "value": [
+                        "Brimstone",
+                        "Gekko",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "count": 1,
+                    "rate": 1.56
+                },
+                {
+                    "value": [
+                        "Brimstone",
+                        "Gekko",
+                        "KAY/O",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "count": 1,
+                    "rate": 1.56
+                },
+                {
+                    "value": [
+                        "Brimstone",
+                        "Miks",
+                        "Neon",
+                        "Skye",
+                        "Waylay"
+                    ],
+                    "count": 1,
+                    "rate": 1.56
+                },
+                {
+                    "value": [
+                        "Brimstone",
+                        "Cypher",
+                        "Neon",
+                        "Skye",
+                        "Waylay"
+                    ],
+                    "count": 1,
+                    "rate": 1.56
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Neon",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "count": 1,
+                    "rate": 1.56
+                },
+                {
+                    "value": [
+                        "Brimstone",
+                        "Fade",
+                        "KAY/O",
+                        "Raze",
+                        "Viper"
+                    ],
+                    "count": 1,
+                    "rate": 1.56
+                },
+                {
+                    "value": [
+                        "Brimstone",
+                        "Skye",
+                        "Tejo",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "count": 1,
+                    "rate": 1.56
+                },
+                {
+                    "value": [
+                        "Brimstone",
+                        "Gekko",
+                        "Raze",
+                        "Skye",
+                        "Viper"
+                    ],
+                    "count": 1,
+                    "rate": 1.56
+                }
             ],
-            "strong_flex": [
-                "Raze"
+            "top_role_templates": [
+                {
+                    "value": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "count": 45,
+                    "rate": 70.31
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "count": 10,
+                    "rate": 15.62
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Initiator",
+                        "Duelist"
+                    ],
+                    "count": 6,
+                    "rate": 9.38
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "count": 2,
+                    "rate": 3.12
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Initiator",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "count": 1,
+                    "rate": 1.56
+                }
             ],
-            "preferred_templates": [
-                [
-                    "Initiator",
-                    "Controller",
-                    "Duelist",
-                    "Controller",
-                    "Duelist"
-                ]
-            ],
-            "confidence": "low",
-            "sample_size": 23
-        },
-        "Breeze": {
-            "core_agents": [
-                "Viper",
-                "Sova",
-                "Neon",
-                "Cypher"
-            ],
-            "strong_flex": [
-                "Jett"
-            ],
-            "preferred_templates": [
-                [
-                    "Controller",
-                    "Initiator",
-                    "Duelist",
-                    "Sentinel",
-                    "Duelist"
-                ]
-            ],
-            "confidence": "low",
-            "sample_size": 12
-        },
-        "Fracture": {
-            "core_agents": [
-                "Cypher",
+            "primary_team_comp": [
                 "Brimstone",
                 "Neon",
-                "Fade"
-            ],
-            "strong_flex": [
+                "Skye",
                 "Viper",
-                "Astra",
-                "Raze"
+                "Waylay"
             ],
-            "preferred_templates": [
-                [
-                    "Sentinel",
-                    "Controller",
-                    "Duelist",
-                    "Initiator",
-                    "Controller"
+            "primary_role_template": [
+                "Controller",
+                "Controller",
+                "Initiator",
+                "Duelist",
+                "Duelist"
+            ],
+            "agent_pick_rates": [
+                {
+                    "agent": "Brimstone",
+                    "role": "Controller",
+                    "count": 59,
+                    "pick_rate": 92.19
+                },
+                {
+                    "agent": "Skye",
+                    "role": "Initiator",
+                    "count": 58,
+                    "pick_rate": 90.62
+                },
+                {
+                    "agent": "Viper",
+                    "role": "Controller",
+                    "count": 58,
+                    "pick_rate": 90.62
+                },
+                {
+                    "agent": "Neon",
+                    "role": "Duelist",
+                    "count": 57,
+                    "pick_rate": 89.06
+                },
+                {
+                    "agent": "Waylay",
+                    "role": "Duelist",
+                    "count": 38,
+                    "pick_rate": 59.38
+                },
+                {
+                    "agent": "Raze",
+                    "role": "Duelist",
+                    "count": 8,
+                    "pick_rate": 12.5
+                },
+                {
+                    "agent": "Chamber",
+                    "role": "Sentinel",
+                    "count": 8,
+                    "pick_rate": 12.5
+                },
+                {
+                    "agent": "Phoenix",
+                    "role": "Duelist",
+                    "count": 6,
+                    "pick_rate": 9.38
+                },
+                {
+                    "agent": "Gekko",
+                    "role": "Initiator",
+                    "count": 4,
+                    "pick_rate": 6.25
+                },
+                {
+                    "agent": "Astra",
+                    "role": "Controller",
+                    "count": 4,
+                    "pick_rate": 6.25
+                },
+                {
+                    "agent": "Fade",
+                    "role": "Initiator",
+                    "count": 4,
+                    "pick_rate": 6.25
+                },
+                {
+                    "agent": "KAY/O",
+                    "role": "Initiator",
+                    "count": 3,
+                    "pick_rate": 4.69
+                },
+                {
+                    "agent": "Vyse",
+                    "role": "Sentinel",
+                    "count": 3,
+                    "pick_rate": 4.69
+                },
+                {
+                    "agent": "Omen",
+                    "role": "Controller",
+                    "count": 2,
+                    "pick_rate": 3.12
+                },
+                {
+                    "agent": "Tejo",
+                    "role": "Initiator",
+                    "count": 2,
+                    "pick_rate": 3.12
+                },
+                {
+                    "agent": "Miks",
+                    "role": "Controller",
+                    "count": 1,
+                    "pick_rate": 1.56
+                },
+                {
+                    "agent": "Cypher",
+                    "role": "Sentinel",
+                    "count": 1,
+                    "pick_rate": 1.56
+                },
+                {
+                    "agent": "Yoru",
+                    "role": "Duelist",
+                    "count": 1,
+                    "pick_rate": 1.56
+                },
+                {
+                    "agent": "Jett",
+                    "role": "Duelist",
+                    "count": 1,
+                    "pick_rate": 1.56
+                },
+                {
+                    "agent": "Deadlock",
+                    "role": "Sentinel",
+                    "count": 1,
+                    "pick_rate": 1.56
+                },
+                {
+                    "agent": "Harbor",
+                    "role": "Controller",
+                    "count": 1,
+                    "pick_rate": 1.56
+                }
+            ],
+            "role_pick_rates": [
+                {
+                    "role": "Controller",
+                    "count": 125,
+                    "slot_rate": 39.06
+                },
+                {
+                    "role": "Duelist",
+                    "count": 111,
+                    "slot_rate": 34.69
+                },
+                {
+                    "role": "Initiator",
+                    "count": 71,
+                    "slot_rate": 22.19
+                },
+                {
+                    "role": "Sentinel",
+                    "count": 13,
+                    "slot_rate": 4.06
+                }
+            ],
+            "top_agents_by_role": {
+                "Controller": [
+                    {
+                        "agent": "Brimstone",
+                        "role": "Controller",
+                        "count": 59,
+                        "pick_rate": 92.19
+                    },
+                    {
+                        "agent": "Viper",
+                        "role": "Controller",
+                        "count": 58,
+                        "pick_rate": 90.62
+                    },
+                    {
+                        "agent": "Astra",
+                        "role": "Controller",
+                        "count": 4,
+                        "pick_rate": 6.25
+                    },
+                    {
+                        "agent": "Omen",
+                        "role": "Controller",
+                        "count": 2,
+                        "pick_rate": 3.12
+                    },
+                    {
+                        "agent": "Miks",
+                        "role": "Controller",
+                        "count": 1,
+                        "pick_rate": 1.56
+                    }
+                ],
+                "Initiator": [
+                    {
+                        "agent": "Skye",
+                        "role": "Initiator",
+                        "count": 58,
+                        "pick_rate": 90.62
+                    },
+                    {
+                        "agent": "Gekko",
+                        "role": "Initiator",
+                        "count": 4,
+                        "pick_rate": 6.25
+                    },
+                    {
+                        "agent": "Fade",
+                        "role": "Initiator",
+                        "count": 4,
+                        "pick_rate": 6.25
+                    },
+                    {
+                        "agent": "KAY/O",
+                        "role": "Initiator",
+                        "count": 3,
+                        "pick_rate": 4.69
+                    },
+                    {
+                        "agent": "Tejo",
+                        "role": "Initiator",
+                        "count": 2,
+                        "pick_rate": 3.12
+                    }
+                ],
+                "Sentinel": [
+                    {
+                        "agent": "Chamber",
+                        "role": "Sentinel",
+                        "count": 8,
+                        "pick_rate": 12.5
+                    },
+                    {
+                        "agent": "Vyse",
+                        "role": "Sentinel",
+                        "count": 3,
+                        "pick_rate": 4.69
+                    },
+                    {
+                        "agent": "Cypher",
+                        "role": "Sentinel",
+                        "count": 1,
+                        "pick_rate": 1.56
+                    },
+                    {
+                        "agent": "Deadlock",
+                        "role": "Sentinel",
+                        "count": 1,
+                        "pick_rate": 1.56
+                    }
+                ],
+                "Duelist": [
+                    {
+                        "agent": "Neon",
+                        "role": "Duelist",
+                        "count": 57,
+                        "pick_rate": 89.06
+                    },
+                    {
+                        "agent": "Waylay",
+                        "role": "Duelist",
+                        "count": 38,
+                        "pick_rate": 59.38
+                    },
+                    {
+                        "agent": "Raze",
+                        "role": "Duelist",
+                        "count": 8,
+                        "pick_rate": 12.5
+                    },
+                    {
+                        "agent": "Phoenix",
+                        "role": "Duelist",
+                        "count": 6,
+                        "pick_rate": 9.38
+                    },
+                    {
+                        "agent": "Yoru",
+                        "role": "Duelist",
+                        "count": 1,
+                        "pick_rate": 1.56
+                    }
                 ]
+            },
+            "examples": [
+                {
+                    "match_id": "642917-map2",
+                    "team": "Xi Lai Gaming",
+                    "opponent": "Dragon Ranger Gaming",
+                    "result": "Win",
+                    "comp": [
+                        "Brimstone",
+                        "Neon",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642917/dragon-ranger-gaming-vs-xi-lai-gaming-vct-2026-china-stage-1-w1/?map=2"
+                },
+                {
+                    "match_id": "642924-map3",
+                    "team": "Xi Lai Gaming",
+                    "opponent": "Trace Esports",
+                    "result": "Win",
+                    "comp": [
+                        "Brimstone",
+                        "Neon",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642924/trace-esports-vs-xi-lai-gaming-vct-2026-china-stage-1-w1/?map=3"
+                },
+                {
+                    "match_id": "642929-map2",
+                    "team": "Xi Lai Gaming",
+                    "opponent": "Nova Esports",
+                    "result": "Win",
+                    "comp": [
+                        "Brimstone",
+                        "Neon",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642929/xi-lai-gaming-vs-nova-esports-vct-2026-china-stage-1-w2/?map=2"
+                },
+                {
+                    "match_id": "642938-map2",
+                    "team": "Xi Lai Gaming",
+                    "opponent": "Wolves Esports",
+                    "result": "Win",
+                    "comp": [
+                        "Brimstone",
+                        "Neon",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642938/xi-lai-gaming-vs-wolves-esports-vct-2026-china-stage-1-w2/?map=2"
+                },
+                {
+                    "match_id": "642945-map2",
+                    "team": "Xi Lai Gaming",
+                    "opponent": "All Gamers",
+                    "result": "Win",
+                    "comp": [
+                        "Brimstone",
+                        "Neon",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642945/all-gamers-vs-xi-lai-gaming-vct-2026-china-stage-1-seeding/?map=2"
+                },
+                {
+                    "match_id": "642919-map1",
+                    "team": "TYLOO",
+                    "opponent": "Bilibili Gaming",
+                    "result": "Win",
+                    "comp": [
+                        "Brimstone",
+                        "Neon",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642919/bilibili-gaming-vs-tyloo-vct-2026-china-stage-1-w1/?map=1"
+                },
+                {
+                    "match_id": "642927-map1",
+                    "team": "TYLOO",
+                    "opponent": "FunPlus Phoenix",
+                    "result": "Win",
+                    "comp": [
+                        "Brimstone",
+                        "Neon",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642927/funplus-phoenix-vs-tyloo-vct-2026-china-stage-1-w2/?map=1"
+                },
+                {
+                    "match_id": "642935-map1",
+                    "team": "TYLOO",
+                    "opponent": "All Gamers",
+                    "result": "Win",
+                    "comp": [
+                        "Brimstone",
+                        "Neon",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642935/all-gamers-vs-tyloo-vct-2026-china-stage-1-w2/?map=1"
+                },
+                {
+                    "match_id": "642939-map1",
+                    "team": "TYLOO",
+                    "opponent": "JDG Esports",
+                    "result": "Loss",
+                    "comp": [
+                        "Brimstone",
+                        "Neon",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642939/tyloo-vs-jdg-esports-vct-2026-china-stage-1-w3/?map=1"
+                },
+                {
+                    "match_id": "642939-map1",
+                    "team": "JDG Esports",
+                    "opponent": "TYLOO",
+                    "result": "Win",
+                    "comp": [
+                        "Brimstone",
+                        "Neon",
+                        "Omen",
+                        "Skye",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642939/tyloo-vs-jdg-esports-vct-2026-china-stage-1-w3/?map=1"
+                }
             ],
-            "confidence": "low",
-            "sample_size": 21
-        },
-        "Haven": {
             "core_agents": [
-                "Omen",
+                "Brimstone",
                 "Neon",
-                "Sova",
-                "Astra"
+                "Skye",
+                "Viper"
             ],
             "strong_flex": [
-                "Fade",
-                "Viper",
-                "Killjoy"
+                "Waylay"
             ],
             "preferred_templates": [
                 [
                     "Controller",
-                    "Duelist",
-                    "Initiator",
                     "Controller",
-                    "Initiator"
+                    "Initiator",
+                    "Duelist",
+                    "Duelist"
                 ]
-            ],
-            "confidence": "low",
-            "sample_size": 38
+            ]
         },
-        "Lotus": {
-            "core_agents": [
-                "Fade",
-                "Omen",
+        "Breeze": {
+            "sample_size_team_comps": 64,
+            "maps_played": 32,
+            "confidence": "medium",
+            "region_breakdown": {
+                "China": 26,
+                "EMEA": 16,
+                "Pacific": 10,
+                "Americas": 12
+            },
+            "event_breakdown": {
+                "VCT 2026 China Stage 1": 26,
+                "VCT 2026 EMEA Stage 1": 16,
+                "VCT 2026 Pacific Stage 1": 10,
+                "VCT 2026 Americas Stage 1": 12
+            },
+            "top_team_comps": [
+                {
+                    "value": [
+                        "Harbor",
+                        "Jett",
+                        "KAY/O",
+                        "Sova",
+                        "Viper"
+                    ],
+                    "count": 8,
+                    "rate": 12.5
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Jett",
+                        "KAY/O",
+                        "Sova",
+                        "Viper"
+                    ],
+                    "count": 6,
+                    "rate": 9.38
+                },
+                {
+                    "value": [
+                        "Jett",
+                        "Neon",
+                        "Omen",
+                        "Sova",
+                        "Viper"
+                    ],
+                    "count": 6,
+                    "rate": 9.38
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Neon",
+                        "Sova",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "count": 4,
+                    "rate": 6.25
+                },
+                {
+                    "value": [
+                        "Harbor",
+                        "Iso",
+                        "Neon",
+                        "Sova",
+                        "Viper"
+                    ],
+                    "count": 4,
+                    "rate": 6.25
+                },
+                {
+                    "value": [
+                        "Harbor",
+                        "KAY/O",
+                        "Neon",
+                        "Sova",
+                        "Viper"
+                    ],
+                    "count": 4,
+                    "rate": 6.25
+                },
+                {
+                    "value": [
+                        "Harbor",
+                        "Neon",
+                        "Phoenix",
+                        "Sova",
+                        "Viper"
+                    ],
+                    "count": 3,
+                    "rate": 4.69
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Neon",
+                        "Omen",
+                        "Skye",
+                        "Waylay"
+                    ],
+                    "count": 3,
+                    "rate": 4.69
+                },
+                {
+                    "value": [
+                        "Jett",
+                        "Omen",
+                        "Phoenix",
+                        "Sova",
+                        "Viper"
+                    ],
+                    "count": 3,
+                    "rate": 4.69
+                },
+                {
+                    "value": [
+                        "Chamber",
+                        "Neon",
+                        "Omen",
+                        "Sova",
+                        "Viper"
+                    ],
+                    "count": 3,
+                    "rate": 4.69
+                },
+                {
+                    "value": [
+                        "Jett",
+                        "KAY/O",
+                        "Omen",
+                        "Sova",
+                        "Viper"
+                    ],
+                    "count": 2,
+                    "rate": 3.12
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Neon",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "count": 2,
+                    "rate": 3.12
+                },
+                {
+                    "value": [
+                        "Neon",
+                        "Omen",
+                        "Skye",
+                        "Sova",
+                        "Viper"
+                    ],
+                    "count": 2,
+                    "rate": 3.12
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "KAY/O",
+                        "Neon",
+                        "Sova",
+                        "Viper"
+                    ],
+                    "count": 2,
+                    "rate": 3.12
+                },
+                {
+                    "value": [
+                        "Chamber",
+                        "Neon",
+                        "Sage",
+                        "Sova",
+                        "Viper"
+                    ],
+                    "count": 1,
+                    "rate": 1.56
+                }
+            ],
+            "top_role_templates": [
+                {
+                    "value": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Initiator",
+                        "Duelist"
+                    ],
+                    "count": 28,
+                    "rate": 43.75
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "count": 28,
+                    "rate": 43.75
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "count": 5,
+                    "rate": 7.81
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "count": 1,
+                    "rate": 1.56
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "count": 1,
+                    "rate": 1.56
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Initiator",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "count": 1,
+                    "rate": 1.56
+                }
+            ],
+            "primary_team_comp": [
+                "Harbor",
+                "Jett",
+                "KAY/O",
                 "Sova",
-                "KAY/O"
+                "Viper"
+            ],
+            "primary_role_template": [
+                "Controller",
+                "Controller",
+                "Initiator",
+                "Initiator",
+                "Duelist"
+            ],
+            "agent_pick_rates": [
+                {
+                    "agent": "Sova",
+                    "role": "Initiator",
+                    "count": 56,
+                    "pick_rate": 87.5
+                },
+                {
+                    "agent": "Viper",
+                    "role": "Controller",
+                    "count": 56,
+                    "pick_rate": 87.5
+                },
+                {
+                    "agent": "Neon",
+                    "role": "Duelist",
+                    "count": 42,
+                    "pick_rate": 65.62
+                },
+                {
+                    "agent": "Jett",
+                    "role": "Duelist",
+                    "count": 30,
+                    "pick_rate": 46.88
+                },
+                {
+                    "agent": "KAY/O",
+                    "role": "Initiator",
+                    "count": 25,
+                    "pick_rate": 39.06
+                },
+                {
+                    "agent": "Astra",
+                    "role": "Controller",
+                    "count": 24,
+                    "pick_rate": 37.5
+                },
+                {
+                    "agent": "Harbor",
+                    "role": "Controller",
+                    "count": 23,
+                    "pick_rate": 35.94
+                },
+                {
+                    "agent": "Omen",
+                    "role": "Controller",
+                    "count": 22,
+                    "pick_rate": 34.38
+                },
+                {
+                    "agent": "Skye",
+                    "role": "Initiator",
+                    "count": 11,
+                    "pick_rate": 17.19
+                },
+                {
+                    "agent": "Waylay",
+                    "role": "Duelist",
+                    "count": 10,
+                    "pick_rate": 15.62
+                },
+                {
+                    "agent": "Phoenix",
+                    "role": "Duelist",
+                    "count": 7,
+                    "pick_rate": 10.94
+                },
+                {
+                    "agent": "Chamber",
+                    "role": "Sentinel",
+                    "count": 5,
+                    "pick_rate": 7.81
+                },
+                {
+                    "agent": "Iso",
+                    "role": "Duelist",
+                    "count": 4,
+                    "pick_rate": 6.25
+                },
+                {
+                    "agent": "Cypher",
+                    "role": "Sentinel",
+                    "count": 2,
+                    "pick_rate": 3.12
+                },
+                {
+                    "agent": "Sage",
+                    "role": "Sentinel",
+                    "count": 1,
+                    "pick_rate": 1.56
+                },
+                {
+                    "agent": "Tejo",
+                    "role": "Initiator",
+                    "count": 1,
+                    "pick_rate": 1.56
+                },
+                {
+                    "agent": "Vyse",
+                    "role": "Sentinel",
+                    "count": 1,
+                    "pick_rate": 1.56
+                }
+            ],
+            "role_pick_rates": [
+                {
+                    "role": "Controller",
+                    "count": 125,
+                    "slot_rate": 39.06
+                },
+                {
+                    "role": "Duelist",
+                    "count": 93,
+                    "slot_rate": 29.06
+                },
+                {
+                    "role": "Initiator",
+                    "count": 93,
+                    "slot_rate": 29.06
+                },
+                {
+                    "role": "Sentinel",
+                    "count": 9,
+                    "slot_rate": 2.81
+                }
+            ],
+            "top_agents_by_role": {
+                "Controller": [
+                    {
+                        "agent": "Viper",
+                        "role": "Controller",
+                        "count": 56,
+                        "pick_rate": 87.5
+                    },
+                    {
+                        "agent": "Astra",
+                        "role": "Controller",
+                        "count": 24,
+                        "pick_rate": 37.5
+                    },
+                    {
+                        "agent": "Harbor",
+                        "role": "Controller",
+                        "count": 23,
+                        "pick_rate": 35.94
+                    },
+                    {
+                        "agent": "Omen",
+                        "role": "Controller",
+                        "count": 22,
+                        "pick_rate": 34.38
+                    }
+                ],
+                "Initiator": [
+                    {
+                        "agent": "Sova",
+                        "role": "Initiator",
+                        "count": 56,
+                        "pick_rate": 87.5
+                    },
+                    {
+                        "agent": "KAY/O",
+                        "role": "Initiator",
+                        "count": 25,
+                        "pick_rate": 39.06
+                    },
+                    {
+                        "agent": "Skye",
+                        "role": "Initiator",
+                        "count": 11,
+                        "pick_rate": 17.19
+                    },
+                    {
+                        "agent": "Tejo",
+                        "role": "Initiator",
+                        "count": 1,
+                        "pick_rate": 1.56
+                    }
+                ],
+                "Sentinel": [
+                    {
+                        "agent": "Chamber",
+                        "role": "Sentinel",
+                        "count": 5,
+                        "pick_rate": 7.81
+                    },
+                    {
+                        "agent": "Cypher",
+                        "role": "Sentinel",
+                        "count": 2,
+                        "pick_rate": 3.12
+                    },
+                    {
+                        "agent": "Sage",
+                        "role": "Sentinel",
+                        "count": 1,
+                        "pick_rate": 1.56
+                    },
+                    {
+                        "agent": "Vyse",
+                        "role": "Sentinel",
+                        "count": 1,
+                        "pick_rate": 1.56
+                    }
+                ],
+                "Duelist": [
+                    {
+                        "agent": "Neon",
+                        "role": "Duelist",
+                        "count": 42,
+                        "pick_rate": 65.62
+                    },
+                    {
+                        "agent": "Jett",
+                        "role": "Duelist",
+                        "count": 30,
+                        "pick_rate": 46.88
+                    },
+                    {
+                        "agent": "Waylay",
+                        "role": "Duelist",
+                        "count": 10,
+                        "pick_rate": 15.62
+                    },
+                    {
+                        "agent": "Phoenix",
+                        "role": "Duelist",
+                        "count": 7,
+                        "pick_rate": 10.94
+                    },
+                    {
+                        "agent": "Iso",
+                        "role": "Duelist",
+                        "count": 4,
+                        "pick_rate": 6.25
+                    }
+                ]
+            },
+            "examples": [
+                {
+                    "match_id": "642924-map1",
+                    "team": "Xi Lai Gaming",
+                    "opponent": "Trace Esports",
+                    "result": "Loss",
+                    "comp": [
+                        "Chamber",
+                        "Neon",
+                        "Sage",
+                        "Sova",
+                        "Viper"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "match_url": "/642924/trace-esports-vs-xi-lai-gaming-vct-2026-china-stage-1-w1/?map=1"
+                },
+                {
+                    "match_id": "659474-map1",
+                    "team": "Xi Lai Gaming",
+                    "opponent": "Titan Esports Club",
+                    "result": "Win",
+                    "comp": [
+                        "Jett",
+                        "KAY/O",
+                        "Omen",
+                        "Sova",
+                        "Viper"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Initiator",
+                        "Duelist"
+                    ],
+                    "match_url": "/659474/xi-lai-gaming-vs-titan-esports-club-vct-2026-china-stage-1-ubqf/?map=1"
+                },
+                {
+                    "match_id": "642919-map3",
+                    "team": "TYLOO",
+                    "opponent": "Bilibili Gaming",
+                    "result": "Win",
+                    "comp": [
+                        "Astra",
+                        "Jett",
+                        "KAY/O",
+                        "Sova",
+                        "Viper"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Initiator",
+                        "Duelist"
+                    ],
+                    "match_url": "/642919/bilibili-gaming-vs-tyloo-vct-2026-china-stage-1-w1/?map=3"
+                },
+                {
+                    "match_id": "642935-map3",
+                    "team": "TYLOO",
+                    "opponent": "All Gamers",
+                    "result": "Win",
+                    "comp": [
+                        "Astra",
+                        "Jett",
+                        "KAY/O",
+                        "Sova",
+                        "Viper"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Initiator",
+                        "Duelist"
+                    ],
+                    "match_url": "/642935/all-gamers-vs-tyloo-vct-2026-china-stage-1-w2/?map=3"
+                },
+                {
+                    "match_id": "642947-map2",
+                    "team": "TYLOO",
+                    "opponent": "Dragon Ranger Gaming",
+                    "result": "Win",
+                    "comp": [
+                        "Astra",
+                        "Jett",
+                        "KAY/O",
+                        "Sova",
+                        "Viper"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Initiator",
+                        "Duelist"
+                    ],
+                    "match_url": "/642947/tyloo-vs-dragon-ranger-gaming-vct-2026-china-stage-1-seeding/?map=2"
+                },
+                {
+                    "match_id": "642914-map3",
+                    "team": "Titan Esports Club",
+                    "opponent": "All Gamers",
+                    "result": "Loss",
+                    "comp": [
+                        "Astra",
+                        "Neon",
+                        "Sova",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642914/titan-esports-club-vs-all-gamers-vct-2026-china-stage-1-w1/?map=3"
+                },
+                {
+                    "match_id": "642928-map2",
+                    "team": "Titan Esports Club",
+                    "opponent": "Bilibili Gaming",
+                    "result": "Win",
+                    "comp": [
+                        "Astra",
+                        "Neon",
+                        "Sova",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642928/titan-esports-club-vs-bilibili-gaming-vct-2026-china-stage-1-w2/?map=2"
+                },
+                {
+                    "match_id": "642948-map3",
+                    "team": "Titan Esports Club",
+                    "opponent": "Trace Esports",
+                    "result": "Loss",
+                    "comp": [
+                        "Harbor",
+                        "Neon",
+                        "Sova",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642948/titan-esports-club-vs-trace-esports-vct-2026-china-stage-1-seeding/?map=3"
+                },
+                {
+                    "match_id": "659474-map1",
+                    "team": "Titan Esports Club",
+                    "opponent": "Xi Lai Gaming",
+                    "result": "Loss",
+                    "comp": [
+                        "Harbor",
+                        "Neon",
+                        "Phoenix",
+                        "Sova",
+                        "Viper"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/659474/xi-lai-gaming-vs-titan-esports-club-vct-2026-china-stage-1-ubqf/?map=1"
+                },
+                {
+                    "match_id": "642914-map3",
+                    "team": "All Gamers",
+                    "opponent": "Titan Esports Club",
+                    "result": "Win",
+                    "comp": [
+                        "Astra",
+                        "Neon",
+                        "Sova",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642914/titan-esports-club-vs-all-gamers-vct-2026-china-stage-1-w1/?map=3"
+                }
+            ],
+            "core_agents": [
+                "Harbor",
+                "Jett",
+                "KAY/O",
+                "Sova"
             ],
             "strong_flex": [
-                "Neon",
-                "Cypher",
-                "Astra"
+                "Viper"
             ],
             "preferred_templates": [
                 [
-                    "Initiator",
+                    "Controller",
                     "Controller",
                     "Initiator",
                     "Initiator",
                     "Duelist"
                 ]
-            ],
-            "confidence": "low",
-            "sample_size": 44
+            ]
         },
-        "Pearl": {
-            "core_agents": [
+        "Fracture": {
+            "sample_size_team_comps": 62,
+            "maps_played": 31,
+            "confidence": "medium",
+            "region_breakdown": {
+                "China": 26,
+                "EMEA": 12,
+                "Pacific": 22,
+                "Americas": 2
+            },
+            "event_breakdown": {
+                "VCT 2026 China Stage 1": 26,
+                "VCT 2026 EMEA Stage 1": 12,
+                "VCT 2026 Pacific Stage 1": 22,
+                "VCT 2026 Americas Stage 1": 2
+            },
+            "top_team_comps": [
+                {
+                    "value": [
+                        "Brimstone",
+                        "Cypher",
+                        "Neon",
+                        "Skye",
+                        "Waylay"
+                    ],
+                    "count": 14,
+                    "rate": 22.58
+                },
+                {
+                    "value": [
+                        "Breach",
+                        "Brimstone",
+                        "Cypher",
+                        "Neon",
+                        "Tejo"
+                    ],
+                    "count": 5,
+                    "rate": 8.06
+                },
+                {
+                    "value": [
+                        "Brimstone",
+                        "Cypher",
+                        "Neon",
+                        "Skye",
+                        "Tejo"
+                    ],
+                    "count": 4,
+                    "rate": 6.45
+                },
+                {
+                    "value": [
+                        "Breach",
+                        "Brimstone",
+                        "Cypher",
+                        "Tejo",
+                        "Waylay"
+                    ],
+                    "count": 4,
+                    "rate": 6.45
+                },
+                {
+                    "value": [
+                        "Breach",
+                        "Brimstone",
+                        "Cypher",
+                        "Neon",
+                        "Raze"
+                    ],
+                    "count": 4,
+                    "rate": 6.45
+                },
+                {
+                    "value": [
+                        "Brimstone",
+                        "Cypher",
+                        "Neon",
+                        "Tejo",
+                        "Waylay"
+                    ],
+                    "count": 3,
+                    "rate": 4.84
+                },
+                {
+                    "value": [
+                        "Brimstone",
+                        "Cypher",
+                        "Neon",
+                        "Raze",
+                        "Skye"
+                    ],
+                    "count": 2,
+                    "rate": 3.23
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Neon",
+                        "Sage",
+                        "Tejo",
+                        "Waylay"
+                    ],
+                    "count": 2,
+                    "rate": 3.23
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Fade",
+                        "KAY/O",
+                        "Vyse",
+                        "Waylay"
+                    ],
+                    "count": 2,
+                    "rate": 3.23
+                },
+                {
+                    "value": [
+                        "Brimstone",
+                        "Cypher",
+                        "Fade",
+                        "Neon",
+                        "Raze"
+                    ],
+                    "count": 2,
+                    "rate": 3.23
+                },
+                {
+                    "value": [
+                        "Breach",
+                        "Brimstone",
+                        "Fade",
+                        "Neon",
+                        "Veto"
+                    ],
+                    "count": 2,
+                    "rate": 3.23
+                },
+                {
+                    "value": [
+                        "Breach",
+                        "Brimstone",
+                        "Neon",
+                        "Veto",
+                        "Waylay"
+                    ],
+                    "count": 2,
+                    "rate": 3.23
+                },
+                {
+                    "value": [
+                        "Breach",
+                        "Brimstone",
+                        "Neon",
+                        "Tejo",
+                        "Waylay"
+                    ],
+                    "count": 2,
+                    "rate": 3.23
+                },
+                {
+                    "value": [
+                        "Breach",
+                        "Brimstone",
+                        "Killjoy",
+                        "Neon",
+                        "Raze"
+                    ],
+                    "count": 2,
+                    "rate": 3.23
+                },
+                {
+                    "value": [
+                        "Brimstone",
+                        "Neon",
+                        "Raze",
+                        "Skye",
+                        "Veto"
+                    ],
+                    "count": 2,
+                    "rate": 3.23
+                }
+            ],
+            "top_role_templates": [
+                {
+                    "value": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "count": 37,
+                    "rate": 59.68
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Initiator",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "count": 22,
+                    "rate": 35.48
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Initiator",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "count": 2,
+                    "rate": 3.23
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "count": 1,
+                    "rate": 1.61
+                }
+            ],
+            "primary_team_comp": [
+                "Brimstone",
                 "Cypher",
-                "Sova",
                 "Neon",
-                "Astra"
+                "Skye",
+                "Waylay"
+            ],
+            "primary_role_template": [
+                "Controller",
+                "Initiator",
+                "Sentinel",
+                "Duelist",
+                "Duelist"
+            ],
+            "agent_pick_rates": [
+                {
+                    "agent": "Brimstone",
+                    "role": "Controller",
+                    "count": 56,
+                    "pick_rate": 90.32
+                },
+                {
+                    "agent": "Neon",
+                    "role": "Duelist",
+                    "count": 55,
+                    "pick_rate": 88.71
+                },
+                {
+                    "agent": "Cypher",
+                    "role": "Sentinel",
+                    "count": 42,
+                    "pick_rate": 67.74
+                },
+                {
+                    "agent": "Waylay",
+                    "role": "Duelist",
+                    "count": 30,
+                    "pick_rate": 48.39
+                },
+                {
+                    "agent": "Tejo",
+                    "role": "Initiator",
+                    "count": 26,
+                    "pick_rate": 41.94
+                },
+                {
+                    "agent": "Skye",
+                    "role": "Initiator",
+                    "count": 25,
+                    "pick_rate": 40.32
+                },
+                {
+                    "agent": "Breach",
+                    "role": "Initiator",
+                    "count": 25,
+                    "pick_rate": 40.32
+                },
+                {
+                    "agent": "Raze",
+                    "role": "Duelist",
+                    "count": 13,
+                    "pick_rate": 20.97
+                },
+                {
+                    "agent": "Veto",
+                    "role": "Sentinel",
+                    "count": 9,
+                    "pick_rate": 14.52
+                },
+                {
+                    "agent": "Fade",
+                    "role": "Initiator",
+                    "count": 8,
+                    "pick_rate": 12.9
+                },
+                {
+                    "agent": "Astra",
+                    "role": "Controller",
+                    "count": 5,
+                    "pick_rate": 8.06
+                },
+                {
+                    "agent": "Phoenix",
+                    "role": "Duelist",
+                    "count": 2,
+                    "pick_rate": 3.23
+                },
+                {
+                    "agent": "Sage",
+                    "role": "Sentinel",
+                    "count": 2,
+                    "pick_rate": 3.23
+                },
+                {
+                    "agent": "Chamber",
+                    "role": "Sentinel",
+                    "count": 2,
+                    "pick_rate": 3.23
+                },
+                {
+                    "agent": "KAY/O",
+                    "role": "Initiator",
+                    "count": 2,
+                    "pick_rate": 3.23
+                },
+                {
+                    "agent": "Vyse",
+                    "role": "Sentinel",
+                    "count": 2,
+                    "pick_rate": 3.23
+                },
+                {
+                    "agent": "Killjoy",
+                    "role": "Sentinel",
+                    "count": 2,
+                    "pick_rate": 3.23
+                },
+                {
+                    "agent": "Omen",
+                    "role": "Controller",
+                    "count": 1,
+                    "pick_rate": 1.61
+                },
+                {
+                    "agent": "Viper",
+                    "role": "Controller",
+                    "count": 1,
+                    "pick_rate": 1.61
+                },
+                {
+                    "agent": "Jett",
+                    "role": "Duelist",
+                    "count": 1,
+                    "pick_rate": 1.61
+                },
+                {
+                    "agent": "Deadlock",
+                    "role": "Sentinel",
+                    "count": 1,
+                    "pick_rate": 1.61
+                }
+            ],
+            "role_pick_rates": [
+                {
+                    "role": "Duelist",
+                    "count": 101,
+                    "slot_rate": 32.58
+                },
+                {
+                    "role": "Initiator",
+                    "count": 86,
+                    "slot_rate": 27.74
+                },
+                {
+                    "role": "Controller",
+                    "count": 63,
+                    "slot_rate": 20.32
+                },
+                {
+                    "role": "Sentinel",
+                    "count": 60,
+                    "slot_rate": 19.35
+                }
+            ],
+            "top_agents_by_role": {
+                "Controller": [
+                    {
+                        "agent": "Brimstone",
+                        "role": "Controller",
+                        "count": 56,
+                        "pick_rate": 90.32
+                    },
+                    {
+                        "agent": "Astra",
+                        "role": "Controller",
+                        "count": 5,
+                        "pick_rate": 8.06
+                    },
+                    {
+                        "agent": "Omen",
+                        "role": "Controller",
+                        "count": 1,
+                        "pick_rate": 1.61
+                    },
+                    {
+                        "agent": "Viper",
+                        "role": "Controller",
+                        "count": 1,
+                        "pick_rate": 1.61
+                    }
+                ],
+                "Initiator": [
+                    {
+                        "agent": "Tejo",
+                        "role": "Initiator",
+                        "count": 26,
+                        "pick_rate": 41.94
+                    },
+                    {
+                        "agent": "Skye",
+                        "role": "Initiator",
+                        "count": 25,
+                        "pick_rate": 40.32
+                    },
+                    {
+                        "agent": "Breach",
+                        "role": "Initiator",
+                        "count": 25,
+                        "pick_rate": 40.32
+                    },
+                    {
+                        "agent": "Fade",
+                        "role": "Initiator",
+                        "count": 8,
+                        "pick_rate": 12.9
+                    },
+                    {
+                        "agent": "KAY/O",
+                        "role": "Initiator",
+                        "count": 2,
+                        "pick_rate": 3.23
+                    }
+                ],
+                "Sentinel": [
+                    {
+                        "agent": "Cypher",
+                        "role": "Sentinel",
+                        "count": 42,
+                        "pick_rate": 67.74
+                    },
+                    {
+                        "agent": "Veto",
+                        "role": "Sentinel",
+                        "count": 9,
+                        "pick_rate": 14.52
+                    },
+                    {
+                        "agent": "Sage",
+                        "role": "Sentinel",
+                        "count": 2,
+                        "pick_rate": 3.23
+                    },
+                    {
+                        "agent": "Chamber",
+                        "role": "Sentinel",
+                        "count": 2,
+                        "pick_rate": 3.23
+                    },
+                    {
+                        "agent": "Vyse",
+                        "role": "Sentinel",
+                        "count": 2,
+                        "pick_rate": 3.23
+                    }
+                ],
+                "Duelist": [
+                    {
+                        "agent": "Neon",
+                        "role": "Duelist",
+                        "count": 55,
+                        "pick_rate": 88.71
+                    },
+                    {
+                        "agent": "Waylay",
+                        "role": "Duelist",
+                        "count": 30,
+                        "pick_rate": 48.39
+                    },
+                    {
+                        "agent": "Raze",
+                        "role": "Duelist",
+                        "count": 13,
+                        "pick_rate": 20.97
+                    },
+                    {
+                        "agent": "Phoenix",
+                        "role": "Duelist",
+                        "count": 2,
+                        "pick_rate": 3.23
+                    },
+                    {
+                        "agent": "Jett",
+                        "role": "Duelist",
+                        "count": 1,
+                        "pick_rate": 1.61
+                    }
+                ]
+            },
+            "examples": [
+                {
+                    "match_id": "642938-map1",
+                    "team": "Xi Lai Gaming",
+                    "opponent": "Wolves Esports",
+                    "result": "Loss",
+                    "comp": [
+                        "Brimstone",
+                        "Neon",
+                        "Skye",
+                        "Tejo",
+                        "Veto"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "match_url": "/642938/xi-lai-gaming-vs-wolves-esports-vct-2026-china-stage-1-w2/?map=1"
+                },
+                {
+                    "match_id": "642922-map2",
+                    "team": "TYLOO",
+                    "opponent": "Titan Esports Club",
+                    "result": "Win",
+                    "comp": [
+                        "Brimstone",
+                        "Cypher",
+                        "Neon",
+                        "Phoenix",
+                        "Tejo"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642922/tyloo-vs-titan-esports-club-vct-2026-china-stage-1-w1/?map=2"
+                },
+                {
+                    "match_id": "659475-map2",
+                    "team": "TYLOO",
+                    "opponent": "JDG Esports",
+                    "result": "Win",
+                    "comp": [
+                        "Brimstone",
+                        "Cypher",
+                        "Neon",
+                        "Skye",
+                        "Tejo"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "match_url": "/659475/jdg-esports-vs-tyloo-vct-2026-china-stage-1-ubqf/?map=2"
+                },
+                {
+                    "match_id": "642925-map2",
+                    "team": "JDG Esports",
+                    "opponent": "Bilibili Gaming",
+                    "result": "Loss",
+                    "comp": [
+                        "Breach",
+                        "Brimstone",
+                        "Cypher",
+                        "Neon",
+                        "Tejo"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "match_url": "/642925/bilibili-gaming-vs-jdg-esports-vct-2026-china-stage-1-w1/?map=2"
+                },
+                {
+                    "match_id": "642937-map1",
+                    "team": "JDG Esports",
+                    "opponent": "Titan Esports Club",
+                    "result": "Win",
+                    "comp": [
+                        "Brimstone",
+                        "Cypher",
+                        "Neon",
+                        "Skye",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642937/jdg-esports-vs-titan-esports-club-vct-2026-china-stage-1-w2/?map=1"
+                },
+                {
+                    "match_id": "642946-map1",
+                    "team": "JDG Esports",
+                    "opponent": "EDward Gaming",
+                    "result": "Win",
+                    "comp": [
+                        "Brimstone",
+                        "Cypher",
+                        "Neon",
+                        "Skye",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642946/jdg-esports-vs-edward-gaming-vct-2026-china-stage-1-seeding/?map=1"
+                },
+                {
+                    "match_id": "659475-map2",
+                    "team": "JDG Esports",
+                    "opponent": "TYLOO",
+                    "result": "Loss",
+                    "comp": [
+                        "Brimstone",
+                        "Cypher",
+                        "Neon",
+                        "Raze",
+                        "Skye"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/659475/jdg-esports-vs-tyloo-vct-2026-china-stage-1-ubqf/?map=2"
+                },
+                {
+                    "match_id": "642922-map2",
+                    "team": "Titan Esports Club",
+                    "opponent": "TYLOO",
+                    "result": "Loss",
+                    "comp": [
+                        "Brimstone",
+                        "Cypher",
+                        "Neon",
+                        "Skye",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642922/tyloo-vs-titan-esports-club-vct-2026-china-stage-1-w1/?map=2"
+                },
+                {
+                    "match_id": "642928-map1",
+                    "team": "Titan Esports Club",
+                    "opponent": "Bilibili Gaming",
+                    "result": "Win",
+                    "comp": [
+                        "Brimstone",
+                        "Cypher",
+                        "Neon",
+                        "Skye",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642928/titan-esports-club-vs-bilibili-gaming-vct-2026-china-stage-1-w2/?map=1"
+                },
+                {
+                    "match_id": "642937-map1",
+                    "team": "Titan Esports Club",
+                    "opponent": "JDG Esports",
+                    "result": "Loss",
+                    "comp": [
+                        "Brimstone",
+                        "Cypher",
+                        "Neon",
+                        "Skye",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642937/jdg-esports-vs-titan-esports-club-vct-2026-china-stage-1-w2/?map=1"
+                }
+            ],
+            "core_agents": [
+                "Brimstone",
+                "Cypher",
+                "Neon",
+                "Skye"
             ],
             "strong_flex": [
-                "Fade",
-                "Raze",
-                "Killjoy"
+                "Waylay"
             ],
             "preferred_templates": [
                 [
-                    "Sentinel",
-                    "Initiator",
-                    "Duelist",
                     "Controller",
-                    "Initiator"
+                    "Initiator",
+                    "Sentinel",
+                    "Duelist",
+                    "Duelist"
                 ]
-            ],
-            "confidence": "low",
-            "sample_size": 32
+            ]
         },
-        "Split": {
-            "core_agents": [
-                "Viper",
+        "Haven": {
+            "sample_size_team_comps": 88,
+            "maps_played": 44,
+            "confidence": "high",
+            "region_breakdown": {
+                "China": 24,
+                "EMEA": 26,
+                "Pacific": 20,
+                "Americas": 18
+            },
+            "event_breakdown": {
+                "VCT 2026 China Stage 1": 24,
+                "VCT 2026 EMEA Stage 1": 26,
+                "VCT 2026 Pacific Stage 1": 20,
+                "VCT 2026 Americas Stage 1": 18
+            },
+            "top_team_comps": [
+                {
+                    "value": [
+                        "Killjoy",
+                        "Neon",
+                        "Omen",
+                        "Sova",
+                        "Viper"
+                    ],
+                    "count": 19,
+                    "rate": 21.59
+                },
+                {
+                    "value": [
+                        "Cypher",
+                        "Neon",
+                        "Omen",
+                        "Phoenix",
+                        "Sova"
+                    ],
+                    "count": 13,
+                    "rate": 14.77
+                },
+                {
+                    "value": [
+                        "Cypher",
+                        "Neon",
+                        "Omen",
+                        "Sova",
+                        "Waylay"
+                    ],
+                    "count": 9,
+                    "rate": 10.23
+                },
+                {
+                    "value": [
+                        "Cypher",
+                        "Fade",
+                        "Neon",
+                        "Omen",
+                        "Phoenix"
+                    ],
+                    "count": 5,
+                    "rate": 5.68
+                },
+                {
+                    "value": [
+                        "Cypher",
+                        "Neon",
+                        "Omen",
+                        "Skye",
+                        "Waylay"
+                    ],
+                    "count": 4,
+                    "rate": 4.55
+                },
+                {
+                    "value": [
+                        "Chamber",
+                        "Fade",
+                        "Neon",
+                        "Omen",
+                        "Phoenix"
+                    ],
+                    "count": 4,
+                    "rate": 4.55
+                },
+                {
+                    "value": [
+                        "Cypher",
+                        "Deadlock",
+                        "Omen",
+                        "Skye",
+                        "Waylay"
+                    ],
+                    "count": 4,
+                    "rate": 4.55
+                },
+                {
+                    "value": [
+                        "Cypher",
+                        "Jett",
+                        "Neon",
+                        "Omen",
+                        "Sova"
+                    ],
+                    "count": 3,
+                    "rate": 3.41
+                },
+                {
+                    "value": [
+                        "Breach",
+                        "Cypher",
+                        "Jett",
+                        "Omen",
+                        "Sova"
+                    ],
+                    "count": 3,
+                    "rate": 3.41
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Chamber",
+                        "Neon",
+                        "Phoenix",
+                        "Sova"
+                    ],
+                    "count": 3,
+                    "rate": 3.41
+                },
+                {
+                    "value": [
+                        "Killjoy",
+                        "Neon",
+                        "Omen",
+                        "Phoenix",
+                        "Skye"
+                    ],
+                    "count": 2,
+                    "rate": 2.27
+                },
+                {
+                    "value": [
+                        "Chamber",
+                        "Neon",
+                        "Omen",
+                        "Phoenix",
+                        "Sova"
+                    ],
+                    "count": 2,
+                    "rate": 2.27
+                },
+                {
+                    "value": [
+                        "Neon",
+                        "Omen",
+                        "Sova",
+                        "Viper",
+                        "Vyse"
+                    ],
+                    "count": 2,
+                    "rate": 2.27
+                },
+                {
+                    "value": [
+                        "Cypher",
+                        "Neon",
+                        "Omen",
+                        "Sova",
+                        "Viper"
+                    ],
+                    "count": 1,
+                    "rate": 1.14
+                },
+                {
+                    "value": [
+                        "Chamber",
+                        "Cypher",
+                        "Neon",
+                        "Omen",
+                        "Sova"
+                    ],
+                    "count": 1,
+                    "rate": 1.14
+                }
+            ],
+            "top_role_templates": [
+                {
+                    "value": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "count": 52,
+                    "rate": 59.09
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "count": 26,
+                    "rate": 29.55
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "count": 5,
+                    "rate": 5.68
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Initiator",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "count": 5,
+                    "rate": 5.68
+                }
+            ],
+            "primary_team_comp": [
                 "Killjoy",
                 "Neon",
-                "Omen"
+                "Omen",
+                "Sova",
+                "Viper"
+            ],
+            "primary_role_template": [
+                "Controller",
+                "Initiator",
+                "Sentinel",
+                "Duelist",
+                "Duelist"
+            ],
+            "agent_pick_rates": [
+                {
+                    "agent": "Omen",
+                    "role": "Controller",
+                    "count": 83,
+                    "pick_rate": 94.32
+                },
+                {
+                    "agent": "Neon",
+                    "role": "Duelist",
+                    "count": 79,
+                    "pick_rate": 89.77
+                },
+                {
+                    "agent": "Sova",
+                    "role": "Initiator",
+                    "count": 60,
+                    "pick_rate": 68.18
+                },
+                {
+                    "agent": "Cypher",
+                    "role": "Sentinel",
+                    "count": 44,
+                    "pick_rate": 50.0
+                },
+                {
+                    "agent": "Phoenix",
+                    "role": "Duelist",
+                    "count": 33,
+                    "pick_rate": 37.5
+                },
+                {
+                    "agent": "Viper",
+                    "role": "Controller",
+                    "count": 25,
+                    "pick_rate": 28.41
+                },
+                {
+                    "agent": "Killjoy",
+                    "role": "Sentinel",
+                    "count": 24,
+                    "pick_rate": 27.27
+                },
+                {
+                    "agent": "Waylay",
+                    "role": "Duelist",
+                    "count": 18,
+                    "pick_rate": 20.45
+                },
+                {
+                    "agent": "Chamber",
+                    "role": "Sentinel",
+                    "count": 15,
+                    "pick_rate": 17.05
+                },
+                {
+                    "agent": "Skye",
+                    "role": "Initiator",
+                    "count": 15,
+                    "pick_rate": 17.05
+                },
+                {
+                    "agent": "Fade",
+                    "role": "Initiator",
+                    "count": 13,
+                    "pick_rate": 14.77
+                },
+                {
+                    "agent": "Jett",
+                    "role": "Duelist",
+                    "count": 10,
+                    "pick_rate": 11.36
+                },
+                {
+                    "agent": "Astra",
+                    "role": "Controller",
+                    "count": 5,
+                    "pick_rate": 5.68
+                },
+                {
+                    "agent": "Vyse",
+                    "role": "Sentinel",
+                    "count": 4,
+                    "pick_rate": 4.55
+                },
+                {
+                    "agent": "Breach",
+                    "role": "Initiator",
+                    "count": 4,
+                    "pick_rate": 4.55
+                },
+                {
+                    "agent": "Deadlock",
+                    "role": "Sentinel",
+                    "count": 4,
+                    "pick_rate": 4.55
+                },
+                {
+                    "agent": "Veto",
+                    "role": "Sentinel",
+                    "count": 2,
+                    "pick_rate": 2.27
+                },
+                {
+                    "agent": "Tejo",
+                    "role": "Initiator",
+                    "count": 1,
+                    "pick_rate": 1.14
+                },
+                {
+                    "agent": "Harbor",
+                    "role": "Controller",
+                    "count": 1,
+                    "pick_rate": 1.14
+                }
+            ],
+            "role_pick_rates": [
+                {
+                    "role": "Duelist",
+                    "count": 140,
+                    "slot_rate": 31.82
+                },
+                {
+                    "role": "Controller",
+                    "count": 114,
+                    "slot_rate": 25.91
+                },
+                {
+                    "role": "Sentinel",
+                    "count": 93,
+                    "slot_rate": 21.14
+                },
+                {
+                    "role": "Initiator",
+                    "count": 93,
+                    "slot_rate": 21.14
+                }
+            ],
+            "top_agents_by_role": {
+                "Controller": [
+                    {
+                        "agent": "Omen",
+                        "role": "Controller",
+                        "count": 83,
+                        "pick_rate": 94.32
+                    },
+                    {
+                        "agent": "Viper",
+                        "role": "Controller",
+                        "count": 25,
+                        "pick_rate": 28.41
+                    },
+                    {
+                        "agent": "Astra",
+                        "role": "Controller",
+                        "count": 5,
+                        "pick_rate": 5.68
+                    },
+                    {
+                        "agent": "Harbor",
+                        "role": "Controller",
+                        "count": 1,
+                        "pick_rate": 1.14
+                    }
+                ],
+                "Initiator": [
+                    {
+                        "agent": "Sova",
+                        "role": "Initiator",
+                        "count": 60,
+                        "pick_rate": 68.18
+                    },
+                    {
+                        "agent": "Skye",
+                        "role": "Initiator",
+                        "count": 15,
+                        "pick_rate": 17.05
+                    },
+                    {
+                        "agent": "Fade",
+                        "role": "Initiator",
+                        "count": 13,
+                        "pick_rate": 14.77
+                    },
+                    {
+                        "agent": "Breach",
+                        "role": "Initiator",
+                        "count": 4,
+                        "pick_rate": 4.55
+                    },
+                    {
+                        "agent": "Tejo",
+                        "role": "Initiator",
+                        "count": 1,
+                        "pick_rate": 1.14
+                    }
+                ],
+                "Sentinel": [
+                    {
+                        "agent": "Cypher",
+                        "role": "Sentinel",
+                        "count": 44,
+                        "pick_rate": 50.0
+                    },
+                    {
+                        "agent": "Killjoy",
+                        "role": "Sentinel",
+                        "count": 24,
+                        "pick_rate": 27.27
+                    },
+                    {
+                        "agent": "Chamber",
+                        "role": "Sentinel",
+                        "count": 15,
+                        "pick_rate": 17.05
+                    },
+                    {
+                        "agent": "Vyse",
+                        "role": "Sentinel",
+                        "count": 4,
+                        "pick_rate": 4.55
+                    },
+                    {
+                        "agent": "Deadlock",
+                        "role": "Sentinel",
+                        "count": 4,
+                        "pick_rate": 4.55
+                    }
+                ],
+                "Duelist": [
+                    {
+                        "agent": "Neon",
+                        "role": "Duelist",
+                        "count": 79,
+                        "pick_rate": 89.77
+                    },
+                    {
+                        "agent": "Phoenix",
+                        "role": "Duelist",
+                        "count": 33,
+                        "pick_rate": 37.5
+                    },
+                    {
+                        "agent": "Waylay",
+                        "role": "Duelist",
+                        "count": 18,
+                        "pick_rate": 20.45
+                    },
+                    {
+                        "agent": "Jett",
+                        "role": "Duelist",
+                        "count": 10,
+                        "pick_rate": 11.36
+                    }
+                ]
+            },
+            "examples": [
+                {
+                    "match_id": "642929-map1",
+                    "team": "Xi Lai Gaming",
+                    "opponent": "Nova Esports",
+                    "result": "Win",
+                    "comp": [
+                        "Killjoy",
+                        "Neon",
+                        "Omen",
+                        "Sova",
+                        "Viper"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "match_url": "/642929/xi-lai-gaming-vs-nova-esports-vct-2026-china-stage-1-w2/?map=1"
+                },
+                {
+                    "match_id": "642944-map2",
+                    "team": "Xi Lai Gaming",
+                    "opponent": "EDward Gaming",
+                    "result": "Win",
+                    "comp": [
+                        "Killjoy",
+                        "Neon",
+                        "Omen",
+                        "Sova",
+                        "Viper"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "match_url": "/642944/edward-gaming-vs-xi-lai-gaming-vct-2026-china-stage-1-w3/?map=2"
+                },
+                {
+                    "match_id": "642935-map2",
+                    "team": "TYLOO",
+                    "opponent": "All Gamers",
+                    "result": "Loss",
+                    "comp": [
+                        "Killjoy",
+                        "Neon",
+                        "Omen",
+                        "Sova",
+                        "Viper"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "match_url": "/642935/all-gamers-vs-tyloo-vct-2026-china-stage-1-w2/?map=2"
+                },
+                {
+                    "match_id": "642939-map2",
+                    "team": "TYLOO",
+                    "opponent": "JDG Esports",
+                    "result": "Loss",
+                    "comp": [
+                        "Cypher",
+                        "Neon",
+                        "Omen",
+                        "Sova",
+                        "Viper"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "match_url": "/642939/tyloo-vs-jdg-esports-vct-2026-china-stage-1-w3/?map=2"
+                },
+                {
+                    "match_id": "642947-map1",
+                    "team": "TYLOO",
+                    "opponent": "Dragon Ranger Gaming",
+                    "result": "Win",
+                    "comp": [
+                        "Cypher",
+                        "Neon",
+                        "Omen",
+                        "Sova",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642947/tyloo-vs-dragon-ranger-gaming-vct-2026-china-stage-1-seeding/?map=1"
+                },
+                {
+                    "match_id": "659475-map1",
+                    "team": "TYLOO",
+                    "opponent": "JDG Esports",
+                    "result": "Loss",
+                    "comp": [
+                        "Cypher",
+                        "Fade",
+                        "Neon",
+                        "Omen",
+                        "Phoenix"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/659475/jdg-esports-vs-tyloo-vct-2026-china-stage-1-ubqf/?map=1"
+                },
+                {
+                    "match_id": "642925-map1",
+                    "team": "JDG Esports",
+                    "opponent": "Bilibili Gaming",
+                    "result": "Loss",
+                    "comp": [
+                        "Killjoy",
+                        "Neon",
+                        "Omen",
+                        "Sova",
+                        "Viper"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "match_url": "/642925/bilibili-gaming-vs-jdg-esports-vct-2026-china-stage-1-w1/?map=1"
+                },
+                {
+                    "match_id": "642931-map2",
+                    "team": "JDG Esports",
+                    "opponent": "All Gamers",
+                    "result": "Loss",
+                    "comp": [
+                        "Chamber",
+                        "Cypher",
+                        "Neon",
+                        "Omen",
+                        "Sova"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "match_url": "/642931/jdg-esports-vs-all-gamers-vct-2026-china-stage-1-w2/?map=2"
+                },
+                {
+                    "match_id": "642937-map2",
+                    "team": "JDG Esports",
+                    "opponent": "Titan Esports Club",
+                    "result": "Win",
+                    "comp": [
+                        "Cypher",
+                        "Neon",
+                        "Omen",
+                        "Sova",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642937/jdg-esports-vs-titan-esports-club-vct-2026-china-stage-1-w2/?map=2"
+                },
+                {
+                    "match_id": "642939-map2",
+                    "team": "JDG Esports",
+                    "opponent": "TYLOO",
+                    "result": "Win",
+                    "comp": [
+                        "Cypher",
+                        "Neon",
+                        "Omen",
+                        "Sova",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642939/tyloo-vs-jdg-esports-vct-2026-china-stage-1-w3/?map=2"
+                }
+            ],
+            "core_agents": [
+                "Killjoy",
+                "Neon",
+                "Omen",
+                "Sova"
             ],
             "strong_flex": [
-                "Skye",
-                "Fade",
-                "Sova"
+                "Viper"
             ],
             "preferred_templates": [
                 [
                     "Controller",
+                    "Initiator",
                     "Sentinel",
                     "Duelist",
-                    "Controller",
-                    "Initiator"
+                    "Duelist"
                 ]
+            ]
+        },
+        "Lotus": {
+            "sample_size_team_comps": 102,
+            "maps_played": 51,
+            "confidence": "high",
+            "region_breakdown": {
+                "China": 38,
+                "EMEA": 28,
+                "Pacific": 22,
+                "Americas": 14
+            },
+            "event_breakdown": {
+                "VCT 2026 China Stage 1": 38,
+                "VCT 2026 EMEA Stage 1": 28,
+                "VCT 2026 Pacific Stage 1": 22,
+                "VCT 2026 Americas Stage 1": 14
+            },
+            "top_team_comps": [
+                {
+                    "value": [
+                        "Fade",
+                        "Neon",
+                        "Omen",
+                        "Raze",
+                        "Vyse"
+                    ],
+                    "count": 16,
+                    "rate": 15.69
+                },
+                {
+                    "value": [
+                        "Fade",
+                        "Neon",
+                        "Omen",
+                        "Viper",
+                        "Vyse"
+                    ],
+                    "count": 12,
+                    "rate": 11.76
+                },
+                {
+                    "value": [
+                        "Fade",
+                        "Neon",
+                        "Omen",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "count": 6,
+                    "rate": 5.88
+                },
+                {
+                    "value": [
+                        "Fade",
+                        "Killjoy",
+                        "Omen",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "count": 6,
+                    "rate": 5.88
+                },
+                {
+                    "value": [
+                        "Fade",
+                        "Neon",
+                        "Omen",
+                        "Raze",
+                        "Viper"
+                    ],
+                    "count": 6,
+                    "rate": 5.88
+                },
+                {
+                    "value": [
+                        "Neon",
+                        "Omen",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "count": 5,
+                    "rate": 4.9
+                },
+                {
+                    "value": [
+                        "Fade",
+                        "Killjoy",
+                        "Omen",
+                        "Raze",
+                        "Viper"
+                    ],
+                    "count": 4,
+                    "rate": 3.92
+                },
+                {
+                    "value": [
+                        "Cypher",
+                        "Fade",
+                        "Neon",
+                        "Omen",
+                        "Waylay"
+                    ],
+                    "count": 4,
+                    "rate": 3.92
+                },
+                {
+                    "value": [
+                        "Cypher",
+                        "Fade",
+                        "Omen",
+                        "Phoenix",
+                        "Raze"
+                    ],
+                    "count": 4,
+                    "rate": 3.92
+                },
+                {
+                    "value": [
+                        "Fade",
+                        "Omen",
+                        "Raze",
+                        "Veto",
+                        "Viper"
+                    ],
+                    "count": 4,
+                    "rate": 3.92
+                },
+                {
+                    "value": [
+                        "Chamber",
+                        "Fade",
+                        "Neon",
+                        "Omen",
+                        "Viper"
+                    ],
+                    "count": 4,
+                    "rate": 3.92
+                },
+                {
+                    "value": [
+                        "Fade",
+                        "Killjoy",
+                        "Neon",
+                        "Omen",
+                        "Viper"
+                    ],
+                    "count": 4,
+                    "rate": 3.92
+                },
+                {
+                    "value": [
+                        "Cypher",
+                        "Neon",
+                        "Omen",
+                        "Skye",
+                        "Waylay"
+                    ],
+                    "count": 3,
+                    "rate": 2.94
+                },
+                {
+                    "value": [
+                        "Fade",
+                        "Neon",
+                        "Omen",
+                        "Vyse",
+                        "Waylay"
+                    ],
+                    "count": 2,
+                    "rate": 1.96
+                },
+                {
+                    "value": [
+                        "Cypher",
+                        "Fade",
+                        "Neon",
+                        "Omen",
+                        "Viper"
+                    ],
+                    "count": 2,
+                    "rate": 1.96
+                }
             ],
-            "confidence": "low",
-            "sample_size": 34
+            "top_role_templates": [
+                {
+                    "value": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "count": 41,
+                    "rate": 40.2
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "count": 37,
+                    "rate": 36.27
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "count": 19,
+                    "rate": 18.63
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "count": 3,
+                    "rate": 2.94
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Sentinel",
+                        "Sentinel"
+                    ],
+                    "count": 1,
+                    "rate": 0.98
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Initiator",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "count": 1,
+                    "rate": 0.98
+                }
+            ],
+            "primary_team_comp": [
+                "Fade",
+                "Neon",
+                "Omen",
+                "Raze",
+                "Vyse"
+            ],
+            "primary_role_template": [
+                "Controller",
+                "Controller",
+                "Initiator",
+                "Sentinel",
+                "Duelist"
+            ],
+            "agent_pick_rates": [
+                {
+                    "agent": "Omen",
+                    "role": "Controller",
+                    "count": 102,
+                    "pick_rate": 100.0
+                },
+                {
+                    "agent": "Fade",
+                    "role": "Initiator",
+                    "count": 90,
+                    "pick_rate": 88.24
+                },
+                {
+                    "agent": "Neon",
+                    "role": "Duelist",
+                    "count": 80,
+                    "pick_rate": 78.43
+                },
+                {
+                    "agent": "Viper",
+                    "role": "Controller",
+                    "count": 56,
+                    "pick_rate": 54.9
+                },
+                {
+                    "agent": "Raze",
+                    "role": "Duelist",
+                    "count": 42,
+                    "pick_rate": 41.18
+                },
+                {
+                    "agent": "Vyse",
+                    "role": "Sentinel",
+                    "count": 36,
+                    "pick_rate": 35.29
+                },
+                {
+                    "agent": "Waylay",
+                    "role": "Duelist",
+                    "count": 27,
+                    "pick_rate": 26.47
+                },
+                {
+                    "agent": "Cypher",
+                    "role": "Sentinel",
+                    "count": 18,
+                    "pick_rate": 17.65
+                },
+                {
+                    "agent": "Killjoy",
+                    "role": "Sentinel",
+                    "count": 14,
+                    "pick_rate": 13.73
+                },
+                {
+                    "agent": "Skye",
+                    "role": "Initiator",
+                    "count": 11,
+                    "pick_rate": 10.78
+                },
+                {
+                    "agent": "Phoenix",
+                    "role": "Duelist",
+                    "count": 7,
+                    "pick_rate": 6.86
+                },
+                {
+                    "agent": "Veto",
+                    "role": "Sentinel",
+                    "count": 7,
+                    "pick_rate": 6.86
+                },
+                {
+                    "agent": "Chamber",
+                    "role": "Sentinel",
+                    "count": 7,
+                    "pick_rate": 6.86
+                },
+                {
+                    "agent": "Deadlock",
+                    "role": "Sentinel",
+                    "count": 3,
+                    "pick_rate": 2.94
+                },
+                {
+                    "agent": "Sage",
+                    "role": "Sentinel",
+                    "count": 3,
+                    "pick_rate": 2.94
+                },
+                {
+                    "agent": "Harbor",
+                    "role": "Controller",
+                    "count": 2,
+                    "pick_rate": 1.96
+                },
+                {
+                    "agent": "Miks",
+                    "role": "Controller",
+                    "count": 1,
+                    "pick_rate": 0.98
+                },
+                {
+                    "agent": "Breach",
+                    "role": "Initiator",
+                    "count": 1,
+                    "pick_rate": 0.98
+                },
+                {
+                    "agent": "Iso",
+                    "role": "Duelist",
+                    "count": 1,
+                    "pick_rate": 0.98
+                },
+                {
+                    "agent": "Astra",
+                    "role": "Controller",
+                    "count": 1,
+                    "pick_rate": 0.98
+                },
+                {
+                    "agent": "Sova",
+                    "role": "Initiator",
+                    "count": 1,
+                    "pick_rate": 0.98
+                }
+            ],
+            "role_pick_rates": [
+                {
+                    "role": "Controller",
+                    "count": 162,
+                    "slot_rate": 31.76
+                },
+                {
+                    "role": "Duelist",
+                    "count": 157,
+                    "slot_rate": 30.78
+                },
+                {
+                    "role": "Initiator",
+                    "count": 103,
+                    "slot_rate": 20.2
+                },
+                {
+                    "role": "Sentinel",
+                    "count": 88,
+                    "slot_rate": 17.25
+                }
+            ],
+            "top_agents_by_role": {
+                "Controller": [
+                    {
+                        "agent": "Omen",
+                        "role": "Controller",
+                        "count": 102,
+                        "pick_rate": 100.0
+                    },
+                    {
+                        "agent": "Viper",
+                        "role": "Controller",
+                        "count": 56,
+                        "pick_rate": 54.9
+                    },
+                    {
+                        "agent": "Harbor",
+                        "role": "Controller",
+                        "count": 2,
+                        "pick_rate": 1.96
+                    },
+                    {
+                        "agent": "Miks",
+                        "role": "Controller",
+                        "count": 1,
+                        "pick_rate": 0.98
+                    },
+                    {
+                        "agent": "Astra",
+                        "role": "Controller",
+                        "count": 1,
+                        "pick_rate": 0.98
+                    }
+                ],
+                "Initiator": [
+                    {
+                        "agent": "Fade",
+                        "role": "Initiator",
+                        "count": 90,
+                        "pick_rate": 88.24
+                    },
+                    {
+                        "agent": "Skye",
+                        "role": "Initiator",
+                        "count": 11,
+                        "pick_rate": 10.78
+                    },
+                    {
+                        "agent": "Breach",
+                        "role": "Initiator",
+                        "count": 1,
+                        "pick_rate": 0.98
+                    },
+                    {
+                        "agent": "Sova",
+                        "role": "Initiator",
+                        "count": 1,
+                        "pick_rate": 0.98
+                    }
+                ],
+                "Sentinel": [
+                    {
+                        "agent": "Vyse",
+                        "role": "Sentinel",
+                        "count": 36,
+                        "pick_rate": 35.29
+                    },
+                    {
+                        "agent": "Cypher",
+                        "role": "Sentinel",
+                        "count": 18,
+                        "pick_rate": 17.65
+                    },
+                    {
+                        "agent": "Killjoy",
+                        "role": "Sentinel",
+                        "count": 14,
+                        "pick_rate": 13.73
+                    },
+                    {
+                        "agent": "Veto",
+                        "role": "Sentinel",
+                        "count": 7,
+                        "pick_rate": 6.86
+                    },
+                    {
+                        "agent": "Chamber",
+                        "role": "Sentinel",
+                        "count": 7,
+                        "pick_rate": 6.86
+                    }
+                ],
+                "Duelist": [
+                    {
+                        "agent": "Neon",
+                        "role": "Duelist",
+                        "count": 80,
+                        "pick_rate": 78.43
+                    },
+                    {
+                        "agent": "Raze",
+                        "role": "Duelist",
+                        "count": 42,
+                        "pick_rate": 41.18
+                    },
+                    {
+                        "agent": "Waylay",
+                        "role": "Duelist",
+                        "count": 27,
+                        "pick_rate": 26.47
+                    },
+                    {
+                        "agent": "Phoenix",
+                        "role": "Duelist",
+                        "count": 7,
+                        "pick_rate": 6.86
+                    },
+                    {
+                        "agent": "Iso",
+                        "role": "Duelist",
+                        "count": 1,
+                        "pick_rate": 0.98
+                    }
+                ]
+            },
+            "examples": [
+                {
+                    "match_id": "642917-map1",
+                    "team": "Xi Lai Gaming",
+                    "opponent": "Dragon Ranger Gaming",
+                    "result": "Win",
+                    "comp": [
+                        "Neon",
+                        "Omen",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642917/dragon-ranger-gaming-vs-xi-lai-gaming-vct-2026-china-stage-1-w1/?map=1"
+                },
+                {
+                    "match_id": "642924-map2",
+                    "team": "Xi Lai Gaming",
+                    "opponent": "Trace Esports",
+                    "result": "Win",
+                    "comp": [
+                        "Neon",
+                        "Omen",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642924/trace-esports-vs-xi-lai-gaming-vct-2026-china-stage-1-w1/?map=2"
+                },
+                {
+                    "match_id": "642938-map3",
+                    "team": "Xi Lai Gaming",
+                    "opponent": "Wolves Esports",
+                    "result": "Win",
+                    "comp": [
+                        "Neon",
+                        "Omen",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642938/xi-lai-gaming-vs-wolves-esports-vct-2026-china-stage-1-w2/?map=3"
+                },
+                {
+                    "match_id": "642944-map1",
+                    "team": "Xi Lai Gaming",
+                    "opponent": "EDward Gaming",
+                    "result": "Loss",
+                    "comp": [
+                        "Neon",
+                        "Omen",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642944/edward-gaming-vs-xi-lai-gaming-vct-2026-china-stage-1-w3/?map=1"
+                },
+                {
+                    "match_id": "642945-map1",
+                    "team": "Xi Lai Gaming",
+                    "opponent": "All Gamers",
+                    "result": "Loss",
+                    "comp": [
+                        "Neon",
+                        "Omen",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642945/all-gamers-vs-xi-lai-gaming-vct-2026-china-stage-1-seeding/?map=1"
+                },
+                {
+                    "match_id": "659474-map2",
+                    "team": "Xi Lai Gaming",
+                    "opponent": "Titan Esports Club",
+                    "result": "Win",
+                    "comp": [
+                        "Cypher",
+                        "Deadlock",
+                        "Fade",
+                        "Omen",
+                        "Sage"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Sentinel",
+                        "Sentinel"
+                    ],
+                    "match_url": "/659474/xi-lai-gaming-vs-titan-esports-club-vct-2026-china-stage-1-ubqf/?map=2"
+                },
+                {
+                    "match_id": "642916-map1",
+                    "team": "JDG Esports",
+                    "opponent": "FunPlus Phoenix",
+                    "result": "Win",
+                    "comp": [
+                        "Fade",
+                        "Killjoy",
+                        "Omen",
+                        "Raze",
+                        "Viper"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "match_url": "/642916/jdg-esports-vs-funplus-phoenix-vct-2026-china-stage-1-w1/?map=1"
+                },
+                {
+                    "match_id": "642931-map1",
+                    "team": "JDG Esports",
+                    "opponent": "All Gamers",
+                    "result": "Loss",
+                    "comp": [
+                        "Fade",
+                        "Killjoy",
+                        "Omen",
+                        "Raze",
+                        "Viper"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "match_url": "/642931/jdg-esports-vs-all-gamers-vct-2026-china-stage-1-w2/?map=1"
+                },
+                {
+                    "match_id": "642914-map1",
+                    "team": "Titan Esports Club",
+                    "opponent": "All Gamers",
+                    "result": "Loss",
+                    "comp": [
+                        "Fade",
+                        "Neon",
+                        "Omen",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642914/titan-esports-club-vs-all-gamers-vct-2026-china-stage-1-w1/?map=1"
+                },
+                {
+                    "match_id": "659474-map2",
+                    "team": "Titan Esports Club",
+                    "opponent": "Xi Lai Gaming",
+                    "result": "Loss",
+                    "comp": [
+                        "Fade",
+                        "Neon",
+                        "Omen",
+                        "Raze",
+                        "Vyse"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/659474/xi-lai-gaming-vs-titan-esports-club-vct-2026-china-stage-1-ubqf/?map=2"
+                }
+            ],
+            "core_agents": [
+                "Fade",
+                "Neon",
+                "Omen",
+                "Raze"
+            ],
+            "strong_flex": [
+                "Vyse"
+            ],
+            "preferred_templates": [
+                [
+                    "Controller",
+                    "Controller",
+                    "Initiator",
+                    "Sentinel",
+                    "Duelist"
+                ]
+            ]
+        },
+        "Pearl": {
+            "sample_size_team_comps": 70,
+            "maps_played": 35,
+            "confidence": "medium",
+            "region_breakdown": {
+                "China": 16,
+                "EMEA": 18,
+                "Pacific": 22,
+                "Americas": 14
+            },
+            "event_breakdown": {
+                "VCT 2026 China Stage 1": 16,
+                "VCT 2026 EMEA Stage 1": 18,
+                "VCT 2026 Pacific Stage 1": 22,
+                "VCT 2026 Americas Stage 1": 14
+            },
+            "top_team_comps": [
+                {
+                    "value": [
+                        "Astra",
+                        "Cypher",
+                        "Fade",
+                        "Neon",
+                        "Phoenix"
+                    ],
+                    "count": 8,
+                    "rate": 11.43
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Chamber",
+                        "Fade",
+                        "Neon",
+                        "Phoenix"
+                    ],
+                    "count": 7,
+                    "rate": 10.0
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Fade",
+                        "Killjoy",
+                        "Neon",
+                        "Phoenix"
+                    ],
+                    "count": 7,
+                    "rate": 10.0
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Fade",
+                        "Killjoy",
+                        "Neon",
+                        "Waylay"
+                    ],
+                    "count": 6,
+                    "rate": 8.57
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Killjoy",
+                        "Sova",
+                        "Tejo",
+                        "Waylay"
+                    ],
+                    "count": 5,
+                    "rate": 7.14
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Chamber",
+                        "KAY/O",
+                        "Neon",
+                        "Sova"
+                    ],
+                    "count": 5,
+                    "rate": 7.14
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Chamber",
+                        "Killjoy",
+                        "Neon",
+                        "Skye"
+                    ],
+                    "count": 5,
+                    "rate": 7.14
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Killjoy",
+                        "Neon",
+                        "Phoenix",
+                        "Tejo"
+                    ],
+                    "count": 3,
+                    "rate": 4.29
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Cypher",
+                        "Fade",
+                        "Tejo",
+                        "Waylay"
+                    ],
+                    "count": 2,
+                    "rate": 2.86
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Chamber",
+                        "Harbor",
+                        "Neon",
+                        "Skye"
+                    ],
+                    "count": 2,
+                    "rate": 2.86
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Chamber",
+                        "Neon",
+                        "Phoenix",
+                        "Sova"
+                    ],
+                    "count": 2,
+                    "rate": 2.86
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Killjoy",
+                        "Neon",
+                        "Skye",
+                        "Waylay"
+                    ],
+                    "count": 1,
+                    "rate": 1.43
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Neon",
+                        "Skye",
+                        "Vyse",
+                        "Waylay"
+                    ],
+                    "count": 1,
+                    "rate": 1.43
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Fade",
+                        "Tejo",
+                        "Vyse",
+                        "Waylay"
+                    ],
+                    "count": 1,
+                    "rate": 1.43
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Fade",
+                        "Jett",
+                        "Omen",
+                        "Veto"
+                    ],
+                    "count": 1,
+                    "rate": 1.43
+                }
+            ],
+            "top_role_templates": [
+                {
+                    "value": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "count": 40,
+                    "rate": 57.14
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Initiator",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "count": 21,
+                    "rate": 30.0
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "count": 5,
+                    "rate": 7.14
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "count": 4,
+                    "rate": 5.71
+                }
+            ],
+            "primary_team_comp": [
+                "Astra",
+                "Cypher",
+                "Fade",
+                "Neon",
+                "Phoenix"
+            ],
+            "primary_role_template": [
+                "Controller",
+                "Initiator",
+                "Sentinel",
+                "Duelist",
+                "Duelist"
+            ],
+            "agent_pick_rates": [
+                {
+                    "agent": "Astra",
+                    "role": "Controller",
+                    "count": 70,
+                    "pick_rate": 100.0
+                },
+                {
+                    "agent": "Neon",
+                    "role": "Duelist",
+                    "count": 57,
+                    "pick_rate": 81.43
+                },
+                {
+                    "agent": "Fade",
+                    "role": "Initiator",
+                    "count": 36,
+                    "pick_rate": 51.43
+                },
+                {
+                    "agent": "Killjoy",
+                    "role": "Sentinel",
+                    "count": 30,
+                    "pick_rate": 42.86
+                },
+                {
+                    "agent": "Phoenix",
+                    "role": "Duelist",
+                    "count": 28,
+                    "pick_rate": 40.0
+                },
+                {
+                    "agent": "Chamber",
+                    "role": "Sentinel",
+                    "count": 26,
+                    "pick_rate": 37.14
+                },
+                {
+                    "agent": "Waylay",
+                    "role": "Duelist",
+                    "count": 21,
+                    "pick_rate": 30.0
+                },
+                {
+                    "agent": "Sova",
+                    "role": "Initiator",
+                    "count": 19,
+                    "pick_rate": 27.14
+                },
+                {
+                    "agent": "Tejo",
+                    "role": "Initiator",
+                    "count": 18,
+                    "pick_rate": 25.71
+                },
+                {
+                    "agent": "Skye",
+                    "role": "Initiator",
+                    "count": 12,
+                    "pick_rate": 17.14
+                },
+                {
+                    "agent": "Cypher",
+                    "role": "Sentinel",
+                    "count": 11,
+                    "pick_rate": 15.71
+                },
+                {
+                    "agent": "KAY/O",
+                    "role": "Initiator",
+                    "count": 6,
+                    "pick_rate": 8.57
+                },
+                {
+                    "agent": "Vyse",
+                    "role": "Sentinel",
+                    "count": 5,
+                    "pick_rate": 7.14
+                },
+                {
+                    "agent": "Jett",
+                    "role": "Duelist",
+                    "count": 3,
+                    "pick_rate": 4.29
+                },
+                {
+                    "agent": "Veto",
+                    "role": "Sentinel",
+                    "count": 3,
+                    "pick_rate": 4.29
+                },
+                {
+                    "agent": "Harbor",
+                    "role": "Controller",
+                    "count": 3,
+                    "pick_rate": 4.29
+                },
+                {
+                    "agent": "Omen",
+                    "role": "Controller",
+                    "count": 1,
+                    "pick_rate": 1.43
+                },
+                {
+                    "agent": "Raze",
+                    "role": "Duelist",
+                    "count": 1,
+                    "pick_rate": 1.43
+                }
+            ],
+            "role_pick_rates": [
+                {
+                    "role": "Duelist",
+                    "count": 110,
+                    "slot_rate": 31.43
+                },
+                {
+                    "role": "Initiator",
+                    "count": 91,
+                    "slot_rate": 26.0
+                },
+                {
+                    "role": "Sentinel",
+                    "count": 75,
+                    "slot_rate": 21.43
+                },
+                {
+                    "role": "Controller",
+                    "count": 74,
+                    "slot_rate": 21.14
+                }
+            ],
+            "top_agents_by_role": {
+                "Controller": [
+                    {
+                        "agent": "Astra",
+                        "role": "Controller",
+                        "count": 70,
+                        "pick_rate": 100.0
+                    },
+                    {
+                        "agent": "Harbor",
+                        "role": "Controller",
+                        "count": 3,
+                        "pick_rate": 4.29
+                    },
+                    {
+                        "agent": "Omen",
+                        "role": "Controller",
+                        "count": 1,
+                        "pick_rate": 1.43
+                    }
+                ],
+                "Initiator": [
+                    {
+                        "agent": "Fade",
+                        "role": "Initiator",
+                        "count": 36,
+                        "pick_rate": 51.43
+                    },
+                    {
+                        "agent": "Sova",
+                        "role": "Initiator",
+                        "count": 19,
+                        "pick_rate": 27.14
+                    },
+                    {
+                        "agent": "Tejo",
+                        "role": "Initiator",
+                        "count": 18,
+                        "pick_rate": 25.71
+                    },
+                    {
+                        "agent": "Skye",
+                        "role": "Initiator",
+                        "count": 12,
+                        "pick_rate": 17.14
+                    },
+                    {
+                        "agent": "KAY/O",
+                        "role": "Initiator",
+                        "count": 6,
+                        "pick_rate": 8.57
+                    }
+                ],
+                "Sentinel": [
+                    {
+                        "agent": "Killjoy",
+                        "role": "Sentinel",
+                        "count": 30,
+                        "pick_rate": 42.86
+                    },
+                    {
+                        "agent": "Chamber",
+                        "role": "Sentinel",
+                        "count": 26,
+                        "pick_rate": 37.14
+                    },
+                    {
+                        "agent": "Cypher",
+                        "role": "Sentinel",
+                        "count": 11,
+                        "pick_rate": 15.71
+                    },
+                    {
+                        "agent": "Vyse",
+                        "role": "Sentinel",
+                        "count": 5,
+                        "pick_rate": 7.14
+                    },
+                    {
+                        "agent": "Veto",
+                        "role": "Sentinel",
+                        "count": 3,
+                        "pick_rate": 4.29
+                    }
+                ],
+                "Duelist": [
+                    {
+                        "agent": "Neon",
+                        "role": "Duelist",
+                        "count": 57,
+                        "pick_rate": 81.43
+                    },
+                    {
+                        "agent": "Phoenix",
+                        "role": "Duelist",
+                        "count": 28,
+                        "pick_rate": 40.0
+                    },
+                    {
+                        "agent": "Waylay",
+                        "role": "Duelist",
+                        "count": 21,
+                        "pick_rate": 30.0
+                    },
+                    {
+                        "agent": "Jett",
+                        "role": "Duelist",
+                        "count": 3,
+                        "pick_rate": 4.29
+                    },
+                    {
+                        "agent": "Raze",
+                        "role": "Duelist",
+                        "count": 1,
+                        "pick_rate": 1.43
+                    }
+                ]
+            },
+            "examples": [
+                {
+                    "match_id": "642919-map2",
+                    "team": "TYLOO",
+                    "opponent": "Bilibili Gaming",
+                    "result": "Loss",
+                    "comp": [
+                        "Astra",
+                        "Chamber",
+                        "Fade",
+                        "Neon",
+                        "Phoenix"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642919/bilibili-gaming-vs-tyloo-vct-2026-china-stage-1-w1/?map=2"
+                },
+                {
+                    "match_id": "642927-map2",
+                    "team": "TYLOO",
+                    "opponent": "FunPlus Phoenix",
+                    "result": "Loss",
+                    "comp": [
+                        "Astra",
+                        "Fade",
+                        "Killjoy",
+                        "Neon",
+                        "Phoenix"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642927/funplus-phoenix-vs-tyloo-vct-2026-china-stage-1-w2/?map=2"
+                },
+                {
+                    "match_id": "659475-map3",
+                    "team": "TYLOO",
+                    "opponent": "JDG Esports",
+                    "result": "Loss",
+                    "comp": [
+                        "Astra",
+                        "Cypher",
+                        "Fade",
+                        "Neon",
+                        "Phoenix"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/659475/jdg-esports-vs-tyloo-vct-2026-china-stage-1-ubqf/?map=3"
+                },
+                {
+                    "match_id": "642916-map2",
+                    "team": "JDG Esports",
+                    "opponent": "FunPlus Phoenix",
+                    "result": "Loss",
+                    "comp": [
+                        "Astra",
+                        "Fade",
+                        "Killjoy",
+                        "Neon",
+                        "Phoenix"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642916/jdg-esports-vs-funplus-phoenix-vct-2026-china-stage-1-w1/?map=2"
+                },
+                {
+                    "match_id": "659475-map3",
+                    "team": "JDG Esports",
+                    "opponent": "TYLOO",
+                    "result": "Win",
+                    "comp": [
+                        "Astra",
+                        "Killjoy",
+                        "Neon",
+                        "Skye",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/659475/jdg-esports-vs-tyloo-vct-2026-china-stage-1-ubqf/?map=3"
+                },
+                {
+                    "match_id": "642921-map2",
+                    "team": "All Gamers",
+                    "opponent": "FunPlus Phoenix",
+                    "result": "Loss",
+                    "comp": [
+                        "Astra",
+                        "Fade",
+                        "Killjoy",
+                        "Neon",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642921/funplus-phoenix-vs-all-gamers-vct-2026-china-stage-1-w1/?map=2"
+                },
+                {
+                    "match_id": "642942-map2",
+                    "team": "All Gamers",
+                    "opponent": "Bilibili Gaming",
+                    "result": "Loss",
+                    "comp": [
+                        "Astra",
+                        "Chamber",
+                        "Fade",
+                        "Neon",
+                        "Phoenix"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642942/all-gamers-vs-bilibili-gaming-vct-2026-china-stage-1-w3/?map=2"
+                },
+                {
+                    "match_id": "642932-map2",
+                    "team": "Dragon Ranger Gaming",
+                    "opponent": "Wolves Esports",
+                    "result": "Loss",
+                    "comp": [
+                        "Astra",
+                        "Neon",
+                        "Skye",
+                        "Vyse",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642932/dragon-ranger-gaming-vs-wolves-esports-vct-2026-china-stage-1-w2/?map=2"
+                },
+                {
+                    "match_id": "642916-map2",
+                    "team": "FunPlus Phoenix",
+                    "opponent": "JDG Esports",
+                    "result": "Win",
+                    "comp": [
+                        "Astra",
+                        "Fade",
+                        "Killjoy",
+                        "Neon",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642916/jdg-esports-vs-funplus-phoenix-vct-2026-china-stage-1-w1/?map=2"
+                },
+                {
+                    "match_id": "642921-map2",
+                    "team": "FunPlus Phoenix",
+                    "opponent": "All Gamers",
+                    "result": "Win",
+                    "comp": [
+                        "Astra",
+                        "Fade",
+                        "Killjoy",
+                        "Neon",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642921/funplus-phoenix-vs-all-gamers-vct-2026-china-stage-1-w1/?map=2"
+                }
+            ],
+            "core_agents": [
+                "Astra",
+                "Cypher",
+                "Fade",
+                "Neon"
+            ],
+            "strong_flex": [
+                "Phoenix"
+            ],
+            "preferred_templates": [
+                [
+                    "Controller",
+                    "Initiator",
+                    "Sentinel",
+                    "Duelist",
+                    "Duelist"
+                ]
+            ]
+        },
+        "Split": {
+            "sample_size_team_comps": 80,
+            "maps_played": 40,
+            "confidence": "high",
+            "region_breakdown": {
+                "China": 20,
+                "EMEA": 26,
+                "Pacific": 18,
+                "Americas": 16
+            },
+            "event_breakdown": {
+                "VCT 2026 China Stage 1": 20,
+                "VCT 2026 EMEA Stage 1": 26,
+                "VCT 2026 Pacific Stage 1": 18,
+                "VCT 2026 Americas Stage 1": 16
+            },
+            "top_team_comps": [
+                {
+                    "value": [
+                        "Neon",
+                        "Omen",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "count": 19,
+                    "rate": 23.75
+                },
+                {
+                    "value": [
+                        "Fade",
+                        "Neon",
+                        "Omen",
+                        "Raze",
+                        "Viper"
+                    ],
+                    "count": 6,
+                    "rate": 7.5
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Fade",
+                        "Neon",
+                        "Raze",
+                        "Viper"
+                    ],
+                    "count": 6,
+                    "rate": 7.5
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Fade",
+                        "Neon",
+                        "Raze",
+                        "Vyse"
+                    ],
+                    "count": 6,
+                    "rate": 7.5
+                },
+                {
+                    "value": [
+                        "Fade",
+                        "Neon",
+                        "Omen",
+                        "Viper",
+                        "Vyse"
+                    ],
+                    "count": 5,
+                    "rate": 6.25
+                },
+                {
+                    "value": [
+                        "Jett",
+                        "Omen",
+                        "Raze",
+                        "Skye",
+                        "Viper"
+                    ],
+                    "count": 5,
+                    "rate": 6.25
+                },
+                {
+                    "value": [
+                        "Fade",
+                        "Neon",
+                        "Omen",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "count": 4,
+                    "rate": 5.0
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Neon",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "count": 3,
+                    "rate": 3.75
+                },
+                {
+                    "value": [
+                        "Neon",
+                        "Omen",
+                        "Raze",
+                        "Skye",
+                        "Viper"
+                    ],
+                    "count": 3,
+                    "rate": 3.75
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Neon",
+                        "Raze",
+                        "Skye",
+                        "Viper"
+                    ],
+                    "count": 3,
+                    "rate": 3.75
+                },
+                {
+                    "value": [
+                        "Cypher",
+                        "Neon",
+                        "Omen",
+                        "Skye",
+                        "Viper"
+                    ],
+                    "count": 3,
+                    "rate": 3.75
+                },
+                {
+                    "value": [
+                        "Fade",
+                        "Omen",
+                        "Raze",
+                        "Viper",
+                        "Vyse"
+                    ],
+                    "count": 2,
+                    "rate": 2.5
+                },
+                {
+                    "value": [
+                        "Fade",
+                        "Omen",
+                        "Raze",
+                        "Veto",
+                        "Viper"
+                    ],
+                    "count": 2,
+                    "rate": 2.5
+                },
+                {
+                    "value": [
+                        "Cypher",
+                        "Neon",
+                        "Omen",
+                        "Skye",
+                        "Waylay"
+                    ],
+                    "count": 1,
+                    "rate": 1.25
+                },
+                {
+                    "value": [
+                        "Astra",
+                        "Fade",
+                        "Raze",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "count": 1,
+                    "rate": 1.25
+                }
+            ],
+            "top_role_templates": [
+                {
+                    "value": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "count": 51,
+                    "rate": 63.75
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "count": 20,
+                    "rate": 25.0
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "count": 7,
+                    "rate": 8.75
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Initiator",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "count": 1,
+                    "rate": 1.25
+                },
+                {
+                    "value": [
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "count": 1,
+                    "rate": 1.25
+                }
+            ],
+            "primary_team_comp": [
+                "Neon",
+                "Omen",
+                "Skye",
+                "Viper",
+                "Waylay"
+            ],
+            "primary_role_template": [
+                "Controller",
+                "Controller",
+                "Initiator",
+                "Duelist",
+                "Duelist"
+            ],
+            "agent_pick_rates": [
+                {
+                    "agent": "Viper",
+                    "role": "Controller",
+                    "count": 69,
+                    "pick_rate": 86.25
+                },
+                {
+                    "agent": "Neon",
+                    "role": "Duelist",
+                    "count": 65,
+                    "pick_rate": 81.25
+                },
+                {
+                    "agent": "Omen",
+                    "role": "Controller",
+                    "count": 57,
+                    "pick_rate": 71.25
+                },
+                {
+                    "agent": "Skye",
+                    "role": "Initiator",
+                    "count": 43,
+                    "pick_rate": 53.75
+                },
+                {
+                    "agent": "Fade",
+                    "role": "Initiator",
+                    "count": 37,
+                    "pick_rate": 46.25
+                },
+                {
+                    "agent": "Raze",
+                    "role": "Duelist",
+                    "count": 37,
+                    "pick_rate": 46.25
+                },
+                {
+                    "agent": "Waylay",
+                    "role": "Duelist",
+                    "count": 29,
+                    "pick_rate": 36.25
+                },
+                {
+                    "agent": "Astra",
+                    "role": "Controller",
+                    "count": 23,
+                    "pick_rate": 28.75
+                },
+                {
+                    "agent": "Vyse",
+                    "role": "Sentinel",
+                    "count": 16,
+                    "pick_rate": 20.0
+                },
+                {
+                    "agent": "Cypher",
+                    "role": "Sentinel",
+                    "count": 7,
+                    "pick_rate": 8.75
+                },
+                {
+                    "agent": "Jett",
+                    "role": "Duelist",
+                    "count": 6,
+                    "pick_rate": 7.5
+                },
+                {
+                    "agent": "Deadlock",
+                    "role": "Sentinel",
+                    "count": 3,
+                    "pick_rate": 3.75
+                },
+                {
+                    "agent": "Veto",
+                    "role": "Sentinel",
+                    "count": 2,
+                    "pick_rate": 2.5
+                },
+                {
+                    "agent": "Harbor",
+                    "role": "Controller",
+                    "count": 2,
+                    "pick_rate": 2.5
+                },
+                {
+                    "agent": "Sage",
+                    "role": "Sentinel",
+                    "count": 2,
+                    "pick_rate": 2.5
+                },
+                {
+                    "agent": "Tejo",
+                    "role": "Initiator",
+                    "count": 1,
+                    "pick_rate": 1.25
+                },
+                {
+                    "agent": "Phoenix",
+                    "role": "Duelist",
+                    "count": 1,
+                    "pick_rate": 1.25
+                }
+            ],
+            "role_pick_rates": [
+                {
+                    "role": "Controller",
+                    "count": 151,
+                    "slot_rate": 37.75
+                },
+                {
+                    "role": "Duelist",
+                    "count": 138,
+                    "slot_rate": 34.5
+                },
+                {
+                    "role": "Initiator",
+                    "count": 81,
+                    "slot_rate": 20.25
+                },
+                {
+                    "role": "Sentinel",
+                    "count": 30,
+                    "slot_rate": 7.5
+                }
+            ],
+            "top_agents_by_role": {
+                "Controller": [
+                    {
+                        "agent": "Viper",
+                        "role": "Controller",
+                        "count": 69,
+                        "pick_rate": 86.25
+                    },
+                    {
+                        "agent": "Omen",
+                        "role": "Controller",
+                        "count": 57,
+                        "pick_rate": 71.25
+                    },
+                    {
+                        "agent": "Astra",
+                        "role": "Controller",
+                        "count": 23,
+                        "pick_rate": 28.75
+                    },
+                    {
+                        "agent": "Harbor",
+                        "role": "Controller",
+                        "count": 2,
+                        "pick_rate": 2.5
+                    }
+                ],
+                "Initiator": [
+                    {
+                        "agent": "Skye",
+                        "role": "Initiator",
+                        "count": 43,
+                        "pick_rate": 53.75
+                    },
+                    {
+                        "agent": "Fade",
+                        "role": "Initiator",
+                        "count": 37,
+                        "pick_rate": 46.25
+                    },
+                    {
+                        "agent": "Tejo",
+                        "role": "Initiator",
+                        "count": 1,
+                        "pick_rate": 1.25
+                    }
+                ],
+                "Sentinel": [
+                    {
+                        "agent": "Vyse",
+                        "role": "Sentinel",
+                        "count": 16,
+                        "pick_rate": 20.0
+                    },
+                    {
+                        "agent": "Cypher",
+                        "role": "Sentinel",
+                        "count": 7,
+                        "pick_rate": 8.75
+                    },
+                    {
+                        "agent": "Deadlock",
+                        "role": "Sentinel",
+                        "count": 3,
+                        "pick_rate": 3.75
+                    },
+                    {
+                        "agent": "Veto",
+                        "role": "Sentinel",
+                        "count": 2,
+                        "pick_rate": 2.5
+                    },
+                    {
+                        "agent": "Sage",
+                        "role": "Sentinel",
+                        "count": 2,
+                        "pick_rate": 2.5
+                    }
+                ],
+                "Duelist": [
+                    {
+                        "agent": "Neon",
+                        "role": "Duelist",
+                        "count": 65,
+                        "pick_rate": 81.25
+                    },
+                    {
+                        "agent": "Raze",
+                        "role": "Duelist",
+                        "count": 37,
+                        "pick_rate": 46.25
+                    },
+                    {
+                        "agent": "Waylay",
+                        "role": "Duelist",
+                        "count": 29,
+                        "pick_rate": 36.25
+                    },
+                    {
+                        "agent": "Jett",
+                        "role": "Duelist",
+                        "count": 6,
+                        "pick_rate": 7.5
+                    },
+                    {
+                        "agent": "Phoenix",
+                        "role": "Duelist",
+                        "count": 1,
+                        "pick_rate": 1.25
+                    }
+                ]
+            },
+            "examples": [
+                {
+                    "match_id": "642944-map3",
+                    "team": "Xi Lai Gaming",
+                    "opponent": "EDward Gaming",
+                    "result": "Win",
+                    "comp": [
+                        "Neon",
+                        "Omen",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642944/edward-gaming-vs-xi-lai-gaming-vct-2026-china-stage-1-w3/?map=3"
+                },
+                {
+                    "match_id": "642945-map3",
+                    "team": "Xi Lai Gaming",
+                    "opponent": "All Gamers",
+                    "result": "Win",
+                    "comp": [
+                        "Neon",
+                        "Omen",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642945/all-gamers-vs-xi-lai-gaming-vct-2026-china-stage-1-seeding/?map=3"
+                },
+                {
+                    "match_id": "642922-map1",
+                    "team": "TYLOO",
+                    "opponent": "Titan Esports Club",
+                    "result": "Win",
+                    "comp": [
+                        "Neon",
+                        "Omen",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642922/tyloo-vs-titan-esports-club-vct-2026-china-stage-1-w1/?map=1"
+                },
+                {
+                    "match_id": "642927-map3",
+                    "team": "TYLOO",
+                    "opponent": "FunPlus Phoenix",
+                    "result": "Loss",
+                    "comp": [
+                        "Neon",
+                        "Omen",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642927/funplus-phoenix-vs-tyloo-vct-2026-china-stage-1-w2/?map=3"
+                },
+                {
+                    "match_id": "642916-map3",
+                    "team": "JDG Esports",
+                    "opponent": "FunPlus Phoenix",
+                    "result": "Win",
+                    "comp": [
+                        "Fade",
+                        "Omen",
+                        "Raze",
+                        "Viper",
+                        "Vyse"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Sentinel",
+                        "Duelist"
+                    ],
+                    "match_url": "/642916/jdg-esports-vs-funplus-phoenix-vct-2026-china-stage-1-w1/?map=3"
+                },
+                {
+                    "match_id": "642922-map1",
+                    "team": "Titan Esports Club",
+                    "opponent": "TYLOO",
+                    "result": "Loss",
+                    "comp": [
+                        "Neon",
+                        "Omen",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642922/tyloo-vs-titan-esports-club-vct-2026-china-stage-1-w1/?map=1"
+                },
+                {
+                    "match_id": "642941-map2",
+                    "team": "Titan Esports Club",
+                    "opponent": "FunPlus Phoenix",
+                    "result": "Win",
+                    "comp": [
+                        "Neon",
+                        "Omen",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642941/titan-esports-club-vs-funplus-phoenix-vct-2026-china-stage-1-w3/?map=2"
+                },
+                {
+                    "match_id": "642948-map2",
+                    "team": "Titan Esports Club",
+                    "opponent": "Trace Esports",
+                    "result": "Loss",
+                    "comp": [
+                        "Neon",
+                        "Omen",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642948/titan-esports-club-vs-trace-esports-vct-2026-china-stage-1-seeding/?map=2"
+                },
+                {
+                    "match_id": "642921-map1",
+                    "team": "All Gamers",
+                    "opponent": "FunPlus Phoenix",
+                    "result": "Loss",
+                    "comp": [
+                        "Neon",
+                        "Omen",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642921/funplus-phoenix-vs-all-gamers-vct-2026-china-stage-1-w1/?map=1"
+                },
+                {
+                    "match_id": "642945-map3",
+                    "team": "All Gamers",
+                    "opponent": "Xi Lai Gaming",
+                    "result": "Loss",
+                    "comp": [
+                        "Neon",
+                        "Omen",
+                        "Skye",
+                        "Viper",
+                        "Waylay"
+                    ],
+                    "role_template": [
+                        "Controller",
+                        "Controller",
+                        "Initiator",
+                        "Duelist",
+                        "Duelist"
+                    ],
+                    "match_url": "/642945/all-gamers-vs-xi-lai-gaming-vct-2026-china-stage-1-seeding/?map=3"
+                }
+            ],
+            "core_agents": [
+                "Neon",
+                "Omen",
+                "Skye",
+                "Viper"
+            ],
+            "strong_flex": [
+                "Waylay"
+            ],
+            "preferred_templates": [
+                [
+                    "Controller",
+                    "Controller",
+                    "Initiator",
+                    "Duelist",
+                    "Duelist"
+                ]
+            ]
         }
     }
 }
