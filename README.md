@@ -40,7 +40,6 @@ The goal is not to “solve” Valorant drafting perfectly. The goal is to test 
 ## System Architecture
 
 ```text
-
 Raw VCT Data
      ↓
 Pandas Cleaning / Aggregation
@@ -101,13 +100,14 @@ This project is Module 01 of Perzevol OS, a planned suite of AI/gaming tools bui
 
 ## Planned modules include:
 
-Module	Project
-01	Valorant Draft Analyst
-02	CS2 Timing/Metronome Tool
-03	Warzone Loadout Optimiser
-04	TBD
-05	TBD
-06	Perzevol OS Suite Launch
+| Module | Project |
+|---:|---|
+| 01 | Valorant Draft Analyst |
+| 02 | CS2 Timing/Metronome Tool |
+| 03 | Warzone Loadout Optimiser |
+| 04 | TBD |
+| 05 | TBD |
+| 06 | Perzevol OS Suite Launch |
 
 ## About
 
