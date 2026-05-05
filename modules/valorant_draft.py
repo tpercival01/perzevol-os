@@ -5,10 +5,7 @@ import streamlit as st
 
 from groq_engine import get_ai_recommendation, get_debug_state
 
-st.set_page_config(page_title="Draft Analyst", page_icon="⚡", layout="wide")
-
-# 1. State & File Management
-ROSTER_FILE = "../data/roster.json"
+ROSTER_FILE = "data/roster.json"
 
 if "team_comp" not in st.session_state:
     st.session_state.team_comp = []
@@ -45,7 +42,7 @@ def reset_draft():
 @st.cache_data
 def load_meta():
     try:
-        with open("../data/processed/meta_matrix.json", "r", encoding="utf-8") as file:
+        with open("data/processed/meta_matrix.json", "r", encoding="utf-8") as file:
             return json.load(file)
     except FileNotFoundError:
         return {"map_meta": {}, "roles": {}}
