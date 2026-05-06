@@ -120,4 +120,3 @@ Built by Thomas Percival as a public proof-of-work laboratory. This project sits
 
 **Connect & Follow:**
 - **LinkedIn:** [https://linkedin.com/in/thomaspercival](https://linkedin.com/in/thomaspercival)
-- **Content Updates:** [Insert YouTube Link]
