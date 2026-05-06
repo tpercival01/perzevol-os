@@ -7,19 +7,19 @@ st.set_page_config(
 )
 
 val_draft = st.Page(
-    "modules/valorant_draft.py",
+    "pages/01_Valorant.py",
     title="Valorant: VCT Draft Analyst",
     icon="⚡",
     default=True,
 )
 
 cs2_metro = st.Page(
-    "modules/cs2_metronome.py",
+    "pages/02_CS2.py",
     title="CS2: Metronome",
     icon="⏱️",
 )
 wz_blacksmith = st.Page(
-    "modules/warzone_blacksmith.py",
+    "pages/03_Warzone.py",
     title="Warzone: Blacksmith",
     icon="🔫",
 )
