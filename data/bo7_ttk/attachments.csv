@@ -1,0 +1,75 @@
+attachment_id,attachment_name,slot,compatible_weapon_classes,compatible_guns,damage_pct,fire_rate_pct,ads_ms_add,sprint_to_fire_ms_add,recoil_pct,bullet_velocity_pct,range_pct,mag_size_add
+redwell_shade_x_suppressor,Redwell Shade-X Suppressor,Muzzle,SMG,Dravec 45,0,0,0,0,12,5,0,0
+bowen_45_suppressor,Bowen .45 Suppressor,Muzzle,SMG,Dravec 45,0,0,0,0,0,0,0,0
+hawker_series_45,Hawker Series 45,Muzzle,SMG,Dravec 45,0,0,0,0,-17,0,0,0
+hawker_stabilizer_mkii,Hawker Stabilizer MK.II,Muzzle,SMG,Dravec 45,0,0,0,0,-11,0,0,0
+monolithic_suppressor,Monolithic Suppressor,Muzzle,SMG,Dravec 45,0,0,55,0,0,20,0,0
+hawker_hybrid_45,Hawker Hybrid .45,Muzzle,SMG,Dravec 45,0,0,0,0,0,0,0,0
+lti_stentorian_brake,LTI Stentorian Brake,Muzzle,SMG,Dravec 45,0,2,0,0,10,0,0,0
+verse_14_barrel,14" Verse Barrel,Barrel,SMG,Dravec 45,0,0,10,0,0,8,7,0
+cloud_12_barrel,12" Cloud Barrel,Barrel,SMG,Dravec 45,0,0,-35,-45,0,0,0,0
+jetstream_18_barrel,18" Jetstream Barrel,Barrel,SMG,Dravec 45,0,0,-16,0,0,0,0,0
+eam_horizon_19_barrel,19" EAM Horizon Barrel,Barrel,SMG,Dravec 45,0,0,15,0,0,0,7,0
+predator_16_5_barrel,16.5" Predator Barrel,Barrel,SMG,Dravec 45,0,0,0,0,0,20,0,0
+gator_extended_mag,Gator Extended Mag,Magazine,SMG,Dravec 45,0,0,0,0,0,0,0,12
+frontgate_fast_loader,FrontGate Fast Loader,Magazine,SMG,Dravec 45,0,0,-15,-15,0,0,0,0
+lockjaw_extended_mag,Lockjaw Extended Mag,Magazine,SMG,Dravec 45,0,0,20,20,0,0,0,24
+helix_tac_grip,Helix-Tac Grip,Rear Grip,SMG,Dravec 45,0,0,0,-40,0,0,0,0
+quikarm_grip,QuikArm Grip,Rear Grip,SMG,Dravec 45,0,0,-55,0,0,0,0,0
+delta_axis_grip,Delta Axis Grip,Rear Grip,SMG,Dravec 45,0,0,7,0,-1,0,0,0
+vantix_8_grip,Vantix-8 Grip,Rear Grip,SMG,Dravec 45,0,0,0,0,-8,0,0,0
+herald_z1_grip,Herald-Z1 Grip,Rear Grip,SMG,Dravec 45,0,0,-27,0,0,0,0,0
+serval_q_step_stock,Serval Q-Step Stock,Stock,SMG,Dravec 45,0,0,-27,0,0,0,0,0
+endurance_ld_6_stock,Endurance LD-6 Stock,Stock,SMG,Dravec 45,0,0,30,0,-13,0,0,0
+converge_tactical_stock,Converge Tactical Stock,Stock,SMG,Dravec 45,0,0,0,0,0,0,0,0
+eam_heritage_stock,EAM Heritage Stock,Stock,SMG,Dravec 45,0,0,-18,-15,0,0,0,0
+defiant_45_skeletal_stock,Defiant-45 Skeletal Stock,Stock,SMG,Dravec 45,0,0,0,0,0,0,0,0
+mfs_agile_laser_pro,MFS Agile Laser Pro,Laser,SMG,Dravec 45,0,0,-15,-15,15,0,0,0
+eam_scatterline_laser,EAM ScatterLine Laser,Laser,SMG,Dravec 45,0,0,0,0,0,0,0,0
+redwell_tactical_laser,Redwell Tactical Laser,Laser,SMG,Dravec 45,0,0,0,0,0,0,0,0
+vas_precision_shift_laser,VAS Precision Shift Laser,Laser,SMG,Dravec 45,0,0,0,0,0,0,0,0
+lti_swiftpoint_laser,LTI SwiftPoint Laser,Laser,SMG,Dravec 45,0,0,-17,-15,0,0,0,0
+accelerated_recoil_system,Accelerated Recoil System,Fire Mods,SMG,Dravec 45,0,0,0,0,-10,0,0,0
+bolt_carrier_group,Bolt Carrier Group,Fire Mods,SMG,Dravec 45,0,5,0,0,20,-10,-21,0
+overpressured_45_cal,45 Cal Overpressured,Fire Mods,SMG,Dravec 45,0,0,0,0,0,15,0,0
+fmj_45_cal,45 Cal FMJ,Fire Mods,SMG,Dravec 45,0,0,0,0,0,8,7,0
+redwell_shade_x_suppressor_mxr,Redwell Shade-X Suppressor,Muzzle,Assault Rifle,MXR-17,0,0,0,0,-11,0,-5,0
+greaves_ti_762,Greaves TI-762,Muzzle,Assault Rifle,MXR-17,0,0,0,0,0,0,0,0
+redwell_90_compensator,Redwell-90 Compensator,Muzzle,Assault Rifle,MXR-17,0,0,0,0,-20,0,0,0
+redwell_762_brake,Redwell 7.62 Brake,Muzzle,Assault Rifle,MXR-17,0,0,0,0,-12,0,0,0
+titan_r_762_compensator,Titan-R 7.62 Compensator,Muzzle,Assault Rifle,MXR-17,0,0,0,0,0,0,0,0
+monolithic_suppressor_mxr,Monolithic Suppressor,Muzzle,Assault Rifle,MXR-17,0,0,55,0,0,10,8,0
+lti_stentorian_brake_mxr,LTI Stentorian Brake,Muzzle,Assault Rifle,MXR-17,0,3,0,0,9,0,0,0
+imperial_20_barrel,20" Imperial Barrel,Barrel,Assault Rifle,MXR-17,0,0,15,0,0,0,22,0
+rapid_sterling_18_barrel,18" Rapid Sterling Barrel,Barrel,Assault Rifle,MXR-17,0,0,0,0,0,-4,40,0
+rift_m7_18_barrel,18" Rift-M7 Barrel,Barrel,Assault Rifle,MXR-17,0,0,10,0,0,8,8,0
+wrath_15_barrel,15" Wrath Barrel,Barrel,Assault Rifle,MXR-17,0,0,-23,-10,0,0,0,0
+greaves_scourge_17_barrel,17" Greaves Scourge Barrel,Barrel,Assault Rifle,MXR-17,0,0,35,16,-15,18,0,0
+vas_convergence_foregrip,VAS Convergence Foregrip,Underbarrel,Assault Rifle,MXR-17,0,0,0,0,-10,0,0,0
+lateral_precision_grip,Lateral Precision Grip,Underbarrel,Assault Rifle,MXR-17,0,0,0,0,0,0,0,0
+sentry_pro_handstop,Sentry Pro Handstop,Underbarrel,Assault Rifle,MXR-17,0,0,0,0,0,0,0,0
+enhance_32_handstop,Enhance-32 Handstop,Underbarrel,Assault Rifle,MXR-17,0,0,0,0,0,0,0,0
+quickstep_foregrip,Quickstep Foregrip,Underbarrel,Assault Rifle,MXR-17,0,0,0,0,0,0,0,0
+eam_steady_90_grip,EAM Steady-90 Grip,Underbarrel,Assault Rifle,MXR-17,0,0,0,0,0,0,0,0
+vault_extended_mag,Vault Extended Mag,Magazine,Assault Rifle,MXR-17,0,0,10,0,0,0,0,15
+twinpack_flip_mags,TwinPack Flip Mags,Magazine,Assault Rifle,MXR-17,0,0,0,0,0,0,0,10
+rhodes_drum_mag,Rhodes Drum Mag,Magazine,Assault Rifle,MXR-17,0,0,20,0,0,0,0,30
+celerity_grip,Celerity Grip,Rear Grip,Assault Rifle,MXR-17,0,0,-50,0,0,0,0,0
+bell_h81_grip,Bell-H81 Grip,Rear Grip,Assault Rifle,MXR-17,0,0,0,-40,0,0,0,0
+virgil_xi_grip,Virgil-XI Grip,Rear Grip,Assault Rifle,MXR-17,0,0,15,0,0,0,0,0
+arla_assail_grip,Arla Assail Grip,Rear Grip,Assault Rifle,MXR-17,0,0,-25,0,0,0,0,0
+fissure_grip,Fissure Grip,Rear Grip,Assault Rifle,MXR-17,0,0,0,0,-8,0,0,0
+greaves_covenant_stock,Greaves Covenant Stock,Stock,Assault Rifle,MXR-17,0,0,0,0,0,0,0,0
+galt_lux_stock,Galt-Lux Stock,Stock,Assault Rifle,MXR-17,0,0,-20,0,0,0,0,0
+winch_stock,Winch Stock,Stock,Assault Rifle,MXR-17,0,0,25,0,-15,0,0,0
+skeletal_stock,Skeletal Stock,Stock,Assault Rifle,MXR-17,0,0,-15,-20,0,0,0,0
+vas_th_09_stock,VAS TH-09 Stock,Stock,Assault Rifle,MXR-17,0,0,20,0,-10,0,0,0
+convergence_box_laser,Convergence Box Laser,Laser,Assault Rifle,MXR-17,0,0,0,0,0,0,0,0
+adaptive_tactical_laser_2mw,2mW Adaptive Tactical Laser,Laser,Assault Rifle,MXR-17,0,0,0,0,0,0,0,0
+instinct_laser_array_1mw,1mW Instinct Laser Array,Laser,Assault Rifle,MXR-17,0,0,-18,-15,0,0,0,0
+lockstep_laser_5mw,5mW Lockstep Laser,Laser,Assault Rifle,MXR-17,0,0,0,0,0,0,0,0
+motion_strike_laser_3mw,3mW Motion Strike Laser,Laser,Assault Rifle,MXR-17,0,0,0,0,0,0,0,0
+bolt_carrier_group_mxr,Bolt Carrier Group,Fire Mods,Assault Rifle,MXR-17,0,4,0,0,20,-15,-10,0
+nato_overpressured_762,7.62 NATO Overpressured,Fire Mods,Assault Rifle,MXR-17,0,0,0,0,0,20,0,0
+recoil_sync_unit,Recoil Sync Unit,Fire Mods,Assault Rifle,MXR-17,0,0,0,0,-10,0,0,0
+nato_fmj_762,7.62 NATO FMJ,Fire Mods,Assault Rifle,MXR-17,0,0,0,0,0,20,18,0

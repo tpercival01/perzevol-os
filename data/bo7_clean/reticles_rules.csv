@@ -1,0 +1,15 @@
+rule_type,key,value
+challenge,default,Get eliminations while using the reticle/optic in the selected mode
+recommended_mode,Warzone,Resurgence Casual or Battle Royale Casual for fast optic progress
+recommended_mode,Multiplayer,Small-map or high-engagement playlist
+recommended_mode,Zombies,Fastest spawn-density route
+recommended_mode,Co-Op / Endgame,Endgame route where the optic weapon can farm safely
+strategy,Warzone,Use a stable target weapon with the assigned optic and force repeated fights
+strategy,Multiplayer,Use the optic on a comfortable weapon and prioritise fast engagements
+strategy,Zombies,Use the optic on a high-kill weapon and farm dense rounds
+strategy,Co-Op / Endgame,Use the optic on a reliable weapon and stack with Genesis or weapon prestige progress
+avoid,Warzone,Avoid Black Ops Royale if it blocks custom loadout access
+avoid,Multiplayer,Avoid slow large-map queues
+avoid,Zombies,Avoid low-density setup loops
+avoid,Co-Op / Endgame,Avoid routes where the optic weapon is not actively being used
+priority,default,medium-low

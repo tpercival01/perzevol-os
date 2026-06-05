@@ -1,0 +1,31 @@
+rule_type,key,value
+weapon_mp_challenge,default,Get the stated amount of eliminations with the respective weapon
+weapon_zm_challenge,default,Get the stated amount of eliminations with the respective weapon
+weapon_zm_gold_requirement,default,3000 eliminations with the respective weapon
+weapon_diamond_gate,Assault Rifles,6 Gold Mastery Badges
+weapon_diamond_gate,Submachine Guns,6 Gold Mastery Badges
+weapon_diamond_gate,Shotguns,3 Gold Mastery Badges
+weapon_diamond_gate,LMGs,2 Gold Mastery Badges
+weapon_diamond_gate,Marksman Rifles,3 Gold Mastery Badges
+weapon_diamond_gate,Sniper Rifles,3 Gold Mastery Badges
+weapon_diamond_gate,Pistols,3 Gold Mastery Badges
+weapon_diamond_gate,Launchers,2 Gold Mastery Badges
+weapon_diamond_gate,Specials,2 Gold Mastery Badges
+weapon_diamond_gate,Melee,2 Gold Mastery Badges
+weapon_diamond_gate,Wonder Weapons,3 Gold Mastery Badges
+equipment_challenge,Scorestreaks,Get the stated amount of kills with the Scorestreak or while it is active
+equipment_challenge,Support,Get the stated amount of kills with the Support item or while it is active
+equipment_challenge,Lethals,Get the stated amount of kills with the Lethal
+equipment_challenge,Tacticals,Get the stated amount of kills against enemies affected by your Tactical
+equipment_challenge,Field Upgrades,Use the Field Upgrade for its intended purpose the stated amount of times
+equipment_diamond_gate,Scorestreaks,18 or 8 Gold Mastery Badges depending on mode/table
+equipment_diamond_gate,Support,8 Gold Mastery Badges
+equipment_diamond_gate,Lethals,8 or 7 Gold Mastery Badges depending on mode/table
+equipment_diamond_gate,Tacticals,9 or 7 Gold Mastery Badges depending on mode/table
+equipment_diamond_gate,Field Upgrades,10 or 6 Gold Mastery Badges depending on mode/table
+recommended_mode,Multiplayer,Small-map or high-engagement playlist
+recommended_mode,Zombies,Fastest spawn-density route
+strategy,Multiplayer,Stack mastery badge progress with active camo or weapon prestige tasks where possible
+strategy,Zombies,Farm kills efficiently and avoid objective distractions unless the badge requires the item directly
+avoid,Multiplayer,Avoid slow playlists that do not produce repeated engagements
+avoid,Zombies,Avoid low-density wandering and long setup loops

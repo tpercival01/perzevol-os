@@ -1,0 +1,29 @@
+rule_type,key,value
+military_counts,default,100|200|300|400|500|600|700|800|1000
+military_challenge,Assault Rifles,Critical Kills
+military_challenge,Submachine Guns,Critical Kills
+military_challenge,Shotguns,Point Blank Kills
+military_challenge,LMGs,Critical Kills
+military_challenge,Marksman Rifles,Critical Kills
+military_challenge,Sniper Rifles,Critical Kills
+military_challenge,Pistols,Critical Kills
+military_challenge,Launchers,Eliminations
+military_challenge,Specials,Critical Kills
+military_challenge,Melee,Eliminations
+class_gate,Assault Rifles,6
+class_gate,Submachine Guns,6
+class_gate,Shotguns,3
+class_gate,LMGs,2
+class_gate,Marksman Rifles,3
+class_gate,Sniper Rifles,3
+class_gate,Pistols,3
+class_gate,Launchers,2
+class_gate,Specials,2
+class_gate,Melee,2
+mastery_challenge,Golden Dragon,Get 10 kills rapidly 15 times
+mastery_challenge,Bloodstone,Get 20 consecutive kills 5 times without taking damage
+mastery_challenge,Doomsteel,Eliminate 10 Elite Zombies
+mastery_challenge,Infestation,Earn Doomsteel for 30 weapons including this weapon
+recommended_mode,Zombies,Survival or fastest spawn-density route
+strategy,Zombies,Train zombies, maximise critical kills, and avoid Easter egg distractions unless the requirement needs elites.
+avoid,Zombies,Avoid slow objective wandering and low-density routes that do not move the tracker.

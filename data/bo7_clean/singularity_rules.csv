@@ -1,0 +1,34 @@
+rule_type,key,value
+military_counts,default,5|10|20|30|40|50|60|70|80
+military_challenge,Assault Rifles,Headshots
+military_challenge,Submachine Guns,Headshots
+military_challenge,Shotguns,Point Blank Kills
+military_challenge,LMGs,Headshots
+military_challenge,Marksman Rifles,Headshots
+military_challenge,Sniper Rifles,One Shot Kills
+military_challenge,Pistols,Headshots
+military_challenge,Launchers,Kills or Scorestreak Destructions
+military_challenge,Specials,Kills
+military_challenge,Melee,Kills
+weapon_military_challenge,XR-3 Ion,Headshots
+class_gate,Assault Rifles,6
+class_gate,Submachine Guns,6
+class_gate,Shotguns,3
+class_gate,LMGs,2
+class_gate,Marksman Rifles,3
+class_gate,Sniper Rifles,3
+class_gate,Pistols,3
+class_gate,Launchers,2
+class_gate,Specials,2
+class_gate,Melee,2
+mastery_challenge,Shattered Gold,Get 3 kills without dying 10 times
+mastery_challenge,Arclight,Get 10 double kills or better
+mastery_challenge,Tempest,Get 5 kills without dying 3 times
+mastery_challenge,Singularity,Earn Tempest for 30 weapons including this weapon
+mastery_challenge_launcher,Shattered Gold,Get 3 kills in a single match 10 times
+mastery_challenge_launcher,Arclight,Get 2 kills without dying 10 times
+mastery_challenge_launcher,Tempest,Get 5 kills in a single match 3 times
+mastery_challenge_launcher,Singularity,Earn Tempest for 30 weapons including this weapon
+recommended_mode,Multiplayer,Small-map / high-engagement playlist
+strategy,Multiplayer,Play only for the camo condition. Prioritise fast repeat gunfights over winning the match.
+avoid,Multiplayer,Avoid large maps, slow objective modes, and comfort queues that do not produce constant engagements.

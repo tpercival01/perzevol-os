@@ -1,0 +1,12 @@
+rule_type,key,value
+task_order,default,p1_complete|p2_complete|wpm_complete|lvl_100_complete|lvl_150_complete|lvl_200_complete|lvl_250_complete
+task_label,p1_complete,Reach max weapon level and complete Prestige 1
+task_label,p2_complete,Reach max weapon level again and complete Prestige 2
+task_label,wpm_complete,Complete Weapon Prestige Mastery
+task_label,lvl_100_complete,Reach Weapon Level 100
+task_label,lvl_150_complete,Reach Weapon Level 150
+task_label,lvl_200_complete,Reach Weapon Level 200
+task_label,lvl_250_complete,Reach Weapon Level 250
+recommended_mode,default,Stack weapon prestige with active camo tasks where possible
+strategy,default,Prefer weapons that have both unfinished camos and unfinished prestige progress
+avoid,default,Avoid levelling weapons that do not also progress another active 100% objective unless specifically assigned

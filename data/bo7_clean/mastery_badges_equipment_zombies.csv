@@ -1,0 +1,32 @@
+mode,category,item,bronze_required,silver_required,gold_required,diamond_required,bronze_complete,silver_complete,gold_complete,diamond_complete
+Zombies,Support,ARC-XD,100,250,500,8,TRUE,TRUE,FALSE,FALSE
+Zombies,Support,LDBR,100,250,500,8,FALSE,FALSE,FALSE,FALSE
+Zombies,Support,Sentry Turret,100,250,500,8,TRUE,TRUE,TRUE,FALSE
+Zombies,Support,Hand Cannon,100,250,500,8,TRUE,FALSE,FALSE,FALSE
+Zombies,Support,D.A.W.G.,100,250,500,8,TRUE,TRUE,TRUE,FALSE
+Zombies,Support,HKDs,100,250,500,8,TRUE,TRUE,TRUE,FALSE
+Zombies,Support,Mangler Cannon,100,250,500,8,TRUE,TRUE,TRUE,FALSE
+Zombies,Support,Disciple Injection,100,250,500,8,TRUE,TRUE,TRUE,FALSE
+Zombies,Support,Lockshot,100,250,500,8,FALSE,FALSE,FALSE,FALSE
+Zombies,Support,Ion Core,100,250,500,8,FALSE,FALSE,FALSE,FALSE
+Zombies,Lethals,Frag,50,100,250,7,TRUE,TRUE,TRUE,TRUE
+Zombies,Lethals,Cluster Grenade,50,100,250,7,TRUE,TRUE,TRUE,TRUE
+Zombies,Lethals,Semtex,50,100,250,7,TRUE,TRUE,TRUE,TRUE
+Zombies,Lethals,Molotov,50,100,250,7,TRUE,TRUE,TRUE,TRUE
+Zombies,Lethals,Point Turret,50,100,250,7,TRUE,TRUE,TRUE,TRUE
+Zombies,Lethals,C4,50,100,250,7,TRUE,TRUE,TRUE,TRUE
+Zombies,Lethals,Combat Axe,50,100,250,7,TRUE,TRUE,TRUE,TRUE
+Zombies,Tacticals,Stun Grenade,50,100,250,7,TRUE,TRUE,TRUE,TRUE
+Zombies,Tacticals,Stim Shot,50,100,250,7,TRUE,TRUE,TRUE,TRUE
+Zombies,Tacticals,Psych Grenade,50,100,250,7,TRUE,TRUE,TRUE,TRUE
+Zombies,Tacticals,Decoy,50,100,250,7,TRUE,TRUE,TRUE,TRUE
+Zombies,Tacticals,Cymbal Monkey,50,100,250,7,TRUE,TRUE,TRUE,TRUE
+Zombies,Tacticals,LT-53 Kazimir,50,100,250,7,TRUE,TRUE,TRUE,TRUE
+Zombies,Tacticals,Hunter Bot,25,50,100,7,TRUE,TRUE,TRUE,TRUE
+Zombies,Field Upgrades,Energy Mine,100,250,500,6,TRUE,TRUE,TRUE,TRUE
+Zombies,Field Upgrades,Dark Flare,100,250,500,6,TRUE,TRUE,TRUE,TRUE
+Zombies,Field Upgrades,Frenzied Guard,100,250,500,6,TRUE,TRUE,TRUE,TRUE
+Zombies,Field Upgrades,Toxic Growth,100,250,500,6,TRUE,TRUE,TRUE,TRUE
+Zombies,Field Upgrades,Healing Aura,100,250,500,6,TRUE,TRUE,TRUE,TRUE
+Zombies,Field Upgrades,Aether Shroud,100,250,500,6,TRUE,TRUE,TRUE,TRUE
+Zombies,Field Upgrades,Wild Fire,100,250,500,6,FALSE,FALSE,FALSE,FALSE

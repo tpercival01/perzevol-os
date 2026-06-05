@@ -1,0 +1,29 @@
+rule_type,key,value
+military_counts,default,10|25|50|75|100|125|150|200|250
+military_challenge,Assault Rifles,Headshot Kills
+military_challenge,Submachine Guns,Headshot Kills
+military_challenge,Shotguns,Point Blank Kills
+military_challenge,LMGs,Headshot Kills
+military_challenge,Marksman Rifles,Headshot Kills
+military_challenge,Sniper Rifles,One Shot One Kills
+military_challenge,Pistols,Headshot Kills
+military_challenge,Launchers,Kills or Destroyed Equipment / VTOLs
+military_challenge,Specials,Kills
+military_challenge,Melee,Kills
+class_gate,Assault Rifles,6
+class_gate,Submachine Guns,6
+class_gate,Shotguns,3
+class_gate,LMGs,2
+class_gate,Marksman Rifles,3
+class_gate,Sniper Rifles,3
+class_gate,Pistols,3
+class_gate,Launchers,2
+class_gate,Specials,2
+class_gate,Melee,2
+mastery_challenge,Molten Gold,Eliminate 20 Special enemies
+mastery_challenge,Moonstone,In Endgame: eliminate 100 Zone III or Zone IV enemies
+mastery_challenge,Chroma Flux,Eliminate 10 Elite enemies
+mastery_challenge,Genesis,Earn Chroma Flux for 30 weapons including this weapon
+recommended_mode,Co-Op / Endgame,Endgame Zone III / Zone IV route
+strategy,Co-Op / Endgame,Bring the target weapon and farm the exact requirement. Do not wander low zones if the requirement needs Zone III+ enemies.
+avoid,Co-Op / Endgame,Avoid Easter egg distractions and comfort runs that do not move the tracker.

@@ -10,7 +10,6 @@ val_draft = st.Page(
     "pages/01_Valorant.py",
     title="Valorant: VCT Draft Analyst",
     icon="⚡",
-    default=True,
 )
 
 cs2_metro = st.Page(
@@ -18,16 +17,25 @@ cs2_metro = st.Page(
     title="CS2: Metronome",
     icon="⏱️",
 )
-wz_blacksmith = st.Page(
+
+bo7_commander = st.Page(
     "pages/03_Warzone.py",
-    title="Warzone: Blacksmith",
-    icon="🔫",
+    title="BO7: Completion Commander",
+    icon="☣️",
+    default=True,
+)
+
+bo7_ttk = st.Page(
+    "pages/04_Warzone_TTK.py",
+    title="BO7: TTK Oracle",
+    icon="🎯",
 )
 
 pg = st.navigation(
     {
-        "Active Modules": [val_draft],
-        "Development Pipeline": [cs2_metro, wz_blacksmith],
+        "Active Experiments": [bo7_commander, bo7_ttk],
+        "Archived Prototypes": [val_draft],
+        "Development Pipeline": [cs2_metro],
     }
 )
 

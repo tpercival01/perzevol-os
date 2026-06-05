@@ -1,0 +1,37 @@
+rule_type,key,value
+recommended_mode,Career,Objective or high-engagement Multiplayer playlist
+recommended_mode,Hardened,Small-map or high-engagement Multiplayer playlist
+recommended_mode,Prestige,Specific loadout/objective setup depending on the challenge
+recommended_mode,Dark Ops,Content-first chaos or dedicated challenge session
+strategy,Career,Stack these with normal Multiplayer camo and mastery badge progress where possible
+strategy,Hardened,Use high-engagement playlists and optimise for medals rather than wins
+strategy,Prestige,Read the requirement carefully and build a dedicated class around the challenge
+strategy,Dark Ops,Treat these as special recording sessions, not passive background progress
+avoid,Career,Avoid slow modes unless the challenge needs wins or objective score
+avoid,Hardened,Avoid low-engagement modes that reduce medal attempts
+avoid,Prestige,Avoid queuing without the exact perk wildcard scorestreak equipment or attachment setup required
+avoid,Dark Ops,Avoid assigning Dark Ops randomly during low-energy sessions
+priority,Career,medium
+priority,Hardened,medium
+priority,Prestige,high
+priority,Dark Ops,low
+recommended_mode,Zombies_Career,Fastest spawn-density route or objective-specific map
+recommended_mode,Zombies_Hardened,Dedicated Zombies setup route
+recommended_mode,Zombies_Prestige,Specific augment/perk/equipment setup depending on the challenge
+recommended_mode,Zombies_Maps,Specific map route
+recommended_mode,Zombies_Dark Ops,Dedicated challenge session only
+strategy,Zombies_Career,Stack with Zombies camo and mastery badge progress where possible
+strategy,Zombies_Hardened,Build the exact field upgrade equipment or map setup required
+strategy,Zombies_Prestige,Do not start unless the required perk augment weapon or relic setup is ready
+strategy,Zombies_Maps,Queue the named map and focus only on that map's challenge
+strategy,Zombies_Dark Ops,Treat as special episodes or pain sessions, not passive progress
+avoid,Zombies_Career,Avoid low-density routes if the challenge is kill-count based
+avoid,Zombies_Hardened,Avoid casual wandering; these usually need a prepared setup
+avoid,Zombies_Prestige,Avoid running the wrong build
+avoid,Zombies_Maps,Avoid other maps entirely
+avoid,Zombies_Dark Ops,Avoid assigning randomly during low-energy sessions
+priority,Zombies_Career,medium
+priority,Zombies_Hardened,medium
+priority,Zombies_Prestige,high
+priority,Zombies_Maps,high
+priority,Zombies_Dark Ops,low
