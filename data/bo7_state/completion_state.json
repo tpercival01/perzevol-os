@@ -1,0 +1,128 @@
+{
+  "Camo:Multiplayer:Singularity:M15 Mod 0:Arclight": {
+    "result": "Camo completed",
+    "mode": "Multiplayer",
+    "target": "M15 Mod 0 \u2014 Arclight",
+    "reason": "Mission result logged"
+  },
+  "Camo:Multiplayer:Singularity:AK-27:Arclight": {
+    "result": "Camo completed",
+    "mode": "Multiplayer",
+    "target": "AK-27 \u2014 Arclight",
+    "reason": "Mission result logged"
+  },
+  "Camo:Multiplayer:Singularity:MXR-17:Arclight": {
+    "result": "Camo completed",
+    "mode": "Multiplayer",
+    "target": "MXR-17 \u2014 Arclight",
+    "reason": "Mission result logged"
+  },
+  "Camo:Co-Op / Endgame:Genesis:Carbon 57:Molten Gold": {
+    "result": "Camo completed",
+    "mode": "Co-Op / Endgame",
+    "target": "Carbon 57 \u2014 Molten Gold",
+    "reason": "Mission result logged"
+  },
+  "Camo:Co-Op / Endgame:Genesis:M8A1:Molten Gold": {
+    "result": "Camo completed",
+    "mode": "Co-Op / Endgame",
+    "target": "M8A1 \u2014 Molten Gold",
+    "reason": "Mission result logged"
+  },
+  "Camo:Co-Op / Endgame:Genesis:XR-3 Ion:Cinder": {
+    "result": "Camo completed",
+    "mode": "Co-Op / Endgame",
+    "target": "XR-3 Ion \u2014 Specials: 2 remaining",
+    "reason": "Mission result logged"
+  },
+  "Camo:Multiplayer:Singularity:Peacekeeper Mk1:Arclight": {
+    "result": "Camo completed",
+    "mode": "Multiplayer",
+    "target": "Peacekeeper Mk1 \u2014 Arclight",
+    "reason": "Mission result logged"
+  },
+  "Camo:Co-Op / Endgame:Genesis:Knife:Molten Gold": {
+    "result": "Camo completed",
+    "mode": "Co-Op / Endgame",
+    "target": "Knife \u2014 Molten Gold",
+    "reason": "Mission result logged"
+  },
+  "Camo:Warzone:Apocalypse:Knife:Military 9": {
+    "result": "Camo completed",
+    "mode": "Warzone",
+    "target": "Knife \u2014 Military 9 (final military)",
+    "reason": "Mission result logged"
+  },
+  "Camo:Warzone:Apocalypse:Sturmwolf 45:Military 8": {
+    "result": "Camo completed",
+    "mode": "Warzone",
+    "target": "Sturmwolf 45 \u2014 Military 8\u20139 (2 remaining)",
+    "reason": "Mission result logged"
+  },
+  "Camo:Warzone:Apocalypse:Sturmwolf 45:Special 3": {
+    "result": "Camo completed",
+    "mode": "Warzone",
+    "target": "Sturmwolf 45 \u2014 Special 3 (final special)",
+    "reason": "Mission result logged"
+  },
+  "Camo:Warzone:Apocalypse:Sturmwolf 45:Golden Damascus": {
+    "result": "Camo completed",
+    "mode": "Warzone",
+    "target": "Sturmwolf 45 \u2014 Golden Damascus",
+    "reason": "Mission result logged"
+  },
+  "Camo:Zombies:Infestation:AK-27:Doomsteel": {
+    "result": "Camo completed",
+    "mode": "Zombies",
+    "target": "AK-27 \u2014 Doomsteel",
+    "reason": "Mission result logged"
+  },
+  "Camo:Co-Op / Endgame:Genesis:MPC-25:Molten Gold": {
+    "result": "Camo completed",
+    "mode": "Co-Op / Endgame",
+    "target": "MPC-25 \u2014 Molten Gold",
+    "reason": "Mission result logged"
+  },
+  "Camo:Co-Op / Endgame:Genesis:Razor 9mm:Cinder": {
+    "result": "Camo completed",
+    "mode": "Co-Op / Endgame",
+    "target": "Razor 9mm \u2014 Specials: 3 remaining",
+    "reason": "Mission result logged"
+  },
+  "Camo:Warzone:Apocalypse:VX Compact:Absolute Zero": {
+    "result": "Camo completed",
+    "mode": "Warzone",
+    "target": "VX Compact \u2014 Absolute Zero",
+    "reason": "Mission result logged"
+  },
+  "Camo:Zombies:Infestation:MXR-17:Doomsteel": {
+    "result": "Camo completed",
+    "mode": "Zombies",
+    "target": "MXR-17 \u2014 Doomsteel",
+    "reason": "Mission result logged"
+  },
+  "Camo:Zombies:Infestation:X9 Maverick:Doomsteel": {
+    "result": "Camo completed",
+    "mode": "Zombies",
+    "target": "X9 Maverick \u2014 Doomsteel",
+    "reason": "Mission result logged"
+  },
+  "Camo:Co-Op / Endgame:Genesis:RK-9:Moonstone": {
+    "result": "Camo completed",
+    "mode": "Co-Op / Endgame",
+    "target": "RK-9 \u2014 Moonstone",
+    "reason": "Mission result logged"
+  },
+  "Camo:Co-Op / Endgame:Genesis:Razor 9mm:Moonstone": {
+    "result": "Camo completed",
+    "mode": "Co-Op / Endgame",
+    "target": "Razor 9mm \u2014 Moonstone",
+    "reason": "Mission result logged"
+  },
+  "Camo:Co-Op / Endgame:Genesis:Dravec 45:Moonstone": {
+    "result": "Camo completed",
+    "mode": "Co-Op / Endgame",
+    "target": "Dravec 45 \u2014 Moonstone",
+    "reason": "Mission result logged"
+  }
+}

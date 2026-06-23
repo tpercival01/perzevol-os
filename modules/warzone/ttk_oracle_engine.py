@@ -514,6 +514,90 @@ def add_oracle_scores(results, weights):
 
     return scored
 
+DOMINATION_STATS = [
+    "damage_pct",
+    "fire_rate_pct",
+    "ads_ms_add",
+    "sprint_to_fire_ms_add",
+    "recoil_pct",
+    "bullet_velocity_pct",
+    "range_pct",
+    "mag_size_add",
+]
+
+# Stats where a lower value is better (penalties on ADS, sprint, etc.)
+# A negative ads_ms_add means faster ADS — that's good.
+# So for these stats: lower number = better.
+LOWER_IS_BETTER_ATTACHMENT = {"ads_ms_add", "sprint_to_fire_ms_add", "recoil_pct"}
+
+
+def attachment_dominates(a, b) -> bool:
+    """
+    Returns True if attachment `a` is strictly at least as good as `b`
+    on every stat, and strictly better on at least one.
+
+    Only considers stats that actually affect scoring.
+    A dominated attachment can never appear in the optimal build.
+    """
+    at_least_as_good_on_all = True
+    strictly_better_on_one = False
+
+    for stat in DOMINATION_STATS:
+        val_a = float(a.get(stat, 0) or 0)
+        val_b = float(b.get(stat, 0) or 0)
+
+        if stat in LOWER_IS_BETTER_ATTACHMENT:
+            # Lower is better — a dominates if val_a <= val_b
+            if val_a > val_b:
+                at_least_as_good_on_all = False
+                break
+            if val_a < val_b:
+                strictly_better_on_one = True
+        else:
+            # Higher is better
+            if val_a < val_b:
+                at_least_as_good_on_all = False
+                break
+            if val_a > val_b:
+                strictly_better_on_one = True
+
+    return at_least_as_good_on_all and strictly_better_on_one
+
+
+def prune_dominated_attachments(compatible_attachments: pd.DataFrame) -> pd.DataFrame:
+    """
+    For each slot, remove attachments that are strictly dominated by another
+    attachment in the same slot. A dominated attachment can never appear in
+    the optimal build regardless of scenario, so removing it is safe.
+
+    This can cut per-slot pools from ~6 to 2-3, reducing combo space by 60-80%.
+    """
+    if compatible_attachments.empty:
+        return compatible_attachments
+
+    kept_rows = []
+
+    for slot, group in compatible_attachments.groupby("slot"):
+        attachments_in_slot = [row for _, row in group.iterrows()]
+        survivors = []
+
+        for candidate in attachments_in_slot:
+            dominated = any(
+                attachment_dominates(other, candidate)
+                for other in attachments_in_slot
+                if other["attachment_id"] != candidate["attachment_id"]
+            )
+            if not dominated:
+                survivors.append(candidate)
+
+        kept_rows.extend(survivors)
+
+    if not kept_rows:
+        return compatible_attachments
+
+    return pd.DataFrame(kept_rows).reset_index(drop=True)
+
+
 def generate_legal_attachment_combos(compatible_attachments, attachment_count):
     """
     Exact legal build generator.
@@ -588,6 +672,10 @@ def optimise_loadouts_for_scenario(
 
         if unique_slot_count < attachment_count:
             continue
+
+        # Remove attachments that are strictly dominated within their slot.
+        # A dominated attachment cannot appear in the optimal build — safe to drop.
+        compatible_attachments = prune_dominated_attachments(compatible_attachments)
 
         for combo in generate_legal_attachment_combos(
             compatible_attachments=compatible_attachments,
@@ -810,23 +898,26 @@ def optimise_full_loadouts_for_scenario(
         build_goal=build_goal,
     )
 
-    # primary_guns = limit_guns_by_base_ttk(
-    #     guns=primary_guns,
-    #     attachments=attachments,
-    #     enemy_health=enemy_health,
-    #     fight_type=role_scenarios["primary_fight_type"],
-    #     attachment_count=attachment_count,
-    #     limit=3,
-    # )
+    # Pre-filter each role to the top guns by base TTK.
+    # Dominated-by-base-stats guns cannot produce the optimal build after attachments
+    # in any realistic scenario. Limit=5 keeps accuracy high while cutting search space.
+    primary_guns = limit_guns_by_base_ttk(
+        guns=primary_guns,
+        attachments=attachments,
+        enemy_health=enemy_health,
+        fight_type=role_scenarios["primary_fight_type"],
+        attachment_count=attachment_count,
+        limit=5,
+    )
 
-    # secondary_guns = limit_guns_by_base_ttk(
-    #     guns=secondary_guns,
-    #     attachments=attachments,
-    #     enemy_health=enemy_health,
-    #     fight_type=role_scenarios["secondary_fight_type"],
-    #     attachment_count=attachment_count,
-    #     limit=3,
-    # )
+    secondary_guns = limit_guns_by_base_ttk(
+        guns=secondary_guns,
+        attachments=attachments,
+        enemy_health=enemy_health,
+        fight_type=role_scenarios["secondary_fight_type"],
+        attachment_count=attachment_count,
+        limit=5,
+    )
 
     primary_results = optimise_loadouts_for_scenario(
         guns=primary_guns,

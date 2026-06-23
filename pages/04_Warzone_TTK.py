@@ -19,12 +19,52 @@ from modules.warzone.ttk_oracle_engine import (
 st.title("BO7: TTK Oracle")
 st.caption("Warzone loadout optimiser. Brute-force builds. Expose the meta.")
 
-try:
+
+@st.cache_data(show_spinner=False)
+def load_and_validate_ttk_data():
+    """
+    Load guns and attachments, deduplicate by gun_id, and surface any
+    data quality issues so they are visible before the optimiser runs.
+    """
     guns, attachments = load_ttk_data()
+
+    # Deduplicate guns — duplicate gun_id rows cause silent scoring errors
+    before = len(guns)
+    guns = guns.drop_duplicates(subset=["gun_id"]).reset_index(drop=True)
+    after = len(guns)
+
+    warnings = []
+
+    if before != after:
+        warnings.append(f"Removed {before - after} duplicate gun row(s) by gun_id.")
+
+    # Surface guns with no attachment data so you know what still needs entering
+    guns_with_attachments = set(attachments["compatible_guns"].str.strip().unique())
+    guns_missing_attachments = [
+        row["gun_name"]
+        for _, row in guns.iterrows()
+        if row["gun_name"] not in guns_with_attachments
+    ]
+
+    if guns_missing_attachments:
+        warnings.append(
+            f"{len(guns_missing_attachments)} gun(s) have no attachment data and will be skipped by the optimiser: "
+            + ", ".join(guns_missing_attachments)
+        )
+
+    return guns, attachments, warnings
+
+
+try:
+    guns, attachments, data_warnings = load_and_validate_ttk_data()
 except Exception as error:
     st.error(f"TTK data failed to load: {error}")
     st.stop()
 
+if data_warnings:
+    with st.expander(f"⚠️ {len(data_warnings)} data quality issue(s) detected", expanded=True):
+        for warning in data_warnings:
+            st.warning(warning)
 
 st.success("TTK Oracle engine connected.")
 

@@ -1,0 +1,106 @@
+mode,title,earned,criteria
+General,Prestige Master,TRUE,Reach Prestige Master Level 56
+General,Prestige Legend,FALSE,"Reach Prestige Legend (Level 1,000)"
+General,100 Percenter,FALSE,Unlock the 100 Percenter Calling Card in all 4 modes
+General,Master-Of-Arms,FALSE,Reach Weapon Prestige Max Level on 50 Weapons
+Co-Op Campaign & Endgame,Resolute,FALSE,Escape from Zone IV while your Combat Rating is below 20 in Endgame
+Co-Op Campaign & Endgame,Ranger,TRUE,Eliminate 500 enemies with Sniper Rifles or Marksman Rifles
+Co-Op Campaign & Endgame,Collector,FALSE,"Unlock 9 Glitch Operator Skins from Root Crasher, Link Forger, or Virus Injection"
+Co-Op Campaign & Endgame,Outlaw,FALSE,Eliminate 30 Elites with Akimbo Weapons
+Co-Op Campaign & Endgame,Nightmare,TRUE,Eliminate 300 Nightmare Zone enemies in a single match
+Co-Op Campaign & Endgame,Field Medic,FALSE,In Endgame: Revive 25 teammates
+Co-Op Campaign & Endgame,Drifter,FALSE,Get 10 rapid Kills 30 times with the Blood Burner
+Co-Op Campaign & Endgame,Necromancer,FALSE,Get 300 Kills with allies from the Portal Grenade in Endgame
+Co-Op Campaign & Endgame,Stalker,FALSE,Kill a Zone IV Elite enemy while cloaked with Active Camo
+Co-Op Campaign & Endgame,Monster Hunter,TRUE,Eliminate 100 Special or Elite enemies
+Co-Op Campaign & Endgame,Death Angel,FALSE,Kill 200 enemies while airborne
+Co-Op Campaign & Endgame,Endgamer,FALSE,"Eliminate 1,000 Zone IV enemies in Endgame"
+Co-Op Campaign & Endgame,Warlord,TRUE,Clear 25 Command Centers in Zone III or higher in Endgame
+Co-Op Campaign & Endgame,Spartan,FALSE,Kill 300 enemies with Melee Weapons in a single match
+Co-Op Campaign & Endgame,Stuntman,FALSE,Kill 200 enemies with a Vehicle in Endgame
+Co-Op Campaign & Endgame,Namedropper,FALSE,"Kill 10,000 enemies with Shadow Break"
+Co-Op Campaign & Endgame,Powerful,FALSE,Increase your Combat Efficiency 500 times in Endgame
+Co-Op Campaign & Endgame,D.A.W.G.,FALSE,Get 100 Kills with the D.A.W.G. in Endgame
+Co-Op Campaign & Endgame,Commander,FALSE,Complete 20 Missions in Co-Op Campaign
+Co-Op Campaign & Endgame,Titan,FALSE,Kill a Zone IV Guild Titan with an Uncommon Rarity Weapon
+Co-Op Campaign & Endgame,Mercenary,FALSE,Complete 50 Assignments in Zone III or higher in Endgame
+Co-Op Campaign & Endgame,Lone Wolf,FALSE,"Get 1,000 Kills in Endgame while Solo"
+Co-Op Campaign & Endgame,Acrobat,FALSE,Kill 100 enemies shortly after using Grapple or Kinetic Jump
+Co-Op Campaign & Endgame,Gunslinger,FALSE,Critically Kill 30 Special or Elite enemies with Pistols
+Co-Op Campaign & Endgame,Wizard,FALSE,Eliminate 500 enemies with Exotic Weapons
+Multiplayer,Killer,TRUE,"Get 5,000 Eliminations"
+Multiplayer,Headhunter,TRUE,"Get 1,000 Headshots"
+Multiplayer,Gunfighter,FALSE,Get 10 Kills with a Pistol without dying
+Multiplayer,Tryhard,FALSE,"Win a Match with the most Score and Objective Score, the highest Elim/Death Ratio, and appear in the Best Play"
+Multiplayer,Bully,FALSE,Kill your Nemesis 3 times in a single life 5 times
+Multiplayer,Godslayer,FALSE,Kill 50 enemies without dying
+Multiplayer,Doomsday Architect,FALSE,Earn 10 Nukes
+Multiplayer,The Quadfather,FALSE,Earn 5 Quad Feed Medals (4 uninterrupted Kills in the Kill Feed)
+Multiplayer,Superstar,FALSE,Get featured in the Best Play 25 times
+Multiplayer,Top Percenter,FALSE,Win 10 Matches with the highest Elim/Death ratio (min 5 Kills)
+Multiplayer,Ruthless,FALSE,Earn 10 Ruthless Medals (15 Kills without dying)
+Multiplayer,Buck Wild,FALSE,Get 500 Eliminations with Shotguns
+Multiplayer,Golden,FALSE,"Get 1,000 Kills with a Weapon while the Shattered Gold Camo is equipped"
+Multiplayer,Destroyer,TRUE,Destroy 100 Scorestreaks
+Multiplayer,Butcher,FALSE,Get 5 Kills with the Combat Axe without dying
+Multiplayer,Boomer,FALSE,Get 200 Kills with Launchers
+Multiplayer,The Very Best,FALSE,Win 50 Matches with the top score
+Multiplayer,Team Player,FALSE,"Earn 100,000 Objective Score"
+Multiplayer,Shredder,FALSE,Get 10 Frenzy Kills (5 rapid Kills)
+Multiplayer,Mason,FALSE,Get 200 Eliminations as Mason
+Multiplayer,Sharpshooter,FALSE,Get 5 Headshots without dying with a Sniper Rifle
+Multiplayer,Chef,FALSE,Get a Triple Kill with a cooked Frag
+Multiplayer,Banker,FALSE,Get a long range bankshot Combat Axe Kill
+Multiplayer,Vengeful,FALSE,Kill your Nemesis 10 times
+Multiplayer,Executioner,FALSE,Perform 50 Finishing Moves
+Multiplayer,Mad Scientist,FALSE,Kill 100 enemies affected by your Psych Grenade
+Zombies,Reaper,FALSE,"Eliminate 666,666 Zombies"
+Zombies,Thronebreaker,FALSE,Kill 30 Elite Zombies in a single match
+Zombies,Aether Ruler,FALSE,Complete the Totenreich Main Quest with all Wicked Relics from Totenreich and previous Maps active
+Zombies,Final Boss,FALSE,Complete any Main Quest on Round 150 or later
+Zombies,Shaman,FALSE,Earn 100 Alchemist Medals (Rapidly killed 5 or more Zombies that are affected by two or more elements)
+Zombies,Invincible,FALSE,"Kill 1,000 Zombies in a row without taking damage while solo in Cursed Tier 3"
+Zombies,Fresh,FALSE,"Get 5,000 Critical Kills with Seasonal Weapons"
+Zombies,Wonderful,FALSE,"Kill 15,000 Zombies with Wonder Weapons"
+Zombies,Rainmaker,FALSE,"Exfil with 1,000,000 total Essence"
+Zombies,Big Rig,FALSE,Get 500 Kills with Ol' Tessie in a single match
+Zombies,Puppet Master,FALSE,Get 500 Kills using Brain Rotted enemies
+Zombies,Bad Gambler,FALSE,Get 38 uncommon weapons from the Mystery Box
+Zombies,Pro Gambler,FALSE,Get 38 legendary weapons from the Mystery Box
+Zombies,Mutant,FALSE,Kill 500 Zombies with the Disciple Injection
+Zombies,Sugar Addict,FALSE,Consume 50 Ultra Gobblegums
+Zombies,Treasure Hunter,FALSE,Complete 15 Relic Challenges
+Zombies,OG,FALSE,Drink any of the 4 classic Perks 100 times
+Zombies,Unyielding,FALSE,Survive 30 Rounds in a row with the Rampage Inducer active
+Zombies,Hunter,FALSE,Kill a Zursa with a Melee Weapon 115 times
+Zombies,Warlock,FALSE,Get 500 Kills while your Field Upgrade is active
+Zombies,Critical Thinker,FALSE,"Get 10,000 Critical Kills"
+Zombies,Shadow,FALSE,Rapidly Kill 20 Zombies with the Kazimir 10 times
+Zombies,Adventurer,FALSE,Complete any Main Quest 1 time
+Zombies,Undead,FALSE,Reach Round 100 in Survival
+Zombies,Elite,FALSE,Kill 3 Elite Zombies within 3 seconds of each other
+Warzone,Professional,TRUE,Complete 100 Contracts
+Warzone,High Roller,TRUE,"Loot Cash 2,000 times"
+Warzone,Unstoppable,FALSE,Win 5 Warzone matches in a 12 hour period (excluding Casual)
+Warzone,Pixel Sniper,FALSE,Use a Sniper Rifle to Kill an enemy over 500m away
+Warzone,Traffic Marshal,FALSE,Kill an enemy while they are in a vehicle 25 times
+Warzone,Gun for Hire,FALSE,Eliminate 50 Bounty Contract Targets (Your Squad must Eliminate Target)
+Warzone,Scavenger,TRUE,Win a match with over 15 Eliminations and without using your Loadout (excluding Casual)
+Warzone,Strategist,FALSE,Complete 3 Recon Contracts in a single match 30 times
+Warzone,Natural Talent,TRUE,Get 500 Eliminations using Ground Looted Weapons
+Warzone,Fearless,FALSE,Get 100 Eliminations while being a Most Wanted target
+Warzone,Demon,TRUE,Get 250 Eliminations shortly after sprinting
+Warzone,Locked In,FALSE,Get 100 Eliminations on Bounty Targets
+Warzone,Skullcracker,FALSE,Get 200 Headshots
+Warzone,Phantom,FALSE,Get 500 Eliminations with Silenced Weapons
+Warzone,Slayer,FALSE,Get 10 Eliminations in a single match 50 times
+Warzone,Laid Back,FALSE,Get 50 Eliminations while prone
+Warzone,Anti Sweat,FALSE,Complete 30 Big Game Bounty Contracts
+Warzone,Room Clearer,FALSE,Get 100 Kills with Hipfire
+Warzone,Force Multiplier,FALSE,Buy Back or Revive 50 Players
+Warzone,Duelist,FALSE,Get 50 Eliminations in the Gulag
+Warzone,Hyper Lethal,FALSE,Get 50 Eliminations while in the Top 5
+Warzone,Crackshot,FALSE,Get 100 One Shot Kills
+Warzone,Overkiller,FALSE,Get 50 Eliminations with Killstreaks
+Warzone,Relentless,FALSE,Get 10 Eliminations without dying 50 times
+Warzone,The Goat,FALSE,Win 50 Matches

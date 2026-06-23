@@ -1049,6 +1049,162 @@ def build_reticle_tasks() -> list[dict[str, Any]]:
 # LOADING / SUMMARIES
 # ---------------------------------------------------------------------------
 
+
+def build_calling_card_tasks() -> list[dict[str, Any]]:
+    """
+    Loads calling card challenges from four mode-specific CSVs.
+    Same tier structure as misc_challenges.
+    """
+    files = [
+        CLEAN_FOLDER / "calling_cards_sp.csv",
+        CLEAN_FOLDER / "calling_cards_mp.csv",
+        CLEAN_FOLDER / "calling_cards_zm.csv",
+        CLEAN_FOLDER / "calling_cards_wz.csv",
+    ]
+
+    tasks: list[dict[str, Any]] = []
+
+    for path in files:
+        rows = load_csv_rows(path)
+
+        for row in rows:
+            mode = clean(row.get("mode", ""))
+            category = clean(row.get("category", ""))
+            sub_category = clean(row.get("sub_category", ""))
+            challenge = clean(row.get("challenge", ""))
+            requirement = clean(row.get("requirement", ""))
+
+            if not mode or not challenge:
+                continue
+
+            if is_true(row.get("completed", "")):
+                continue
+
+            # Tier columns definition
+            tier_columns = [
+                ("tier1_complete", "tier1_target", "Tier 1"),
+                ("tier2_complete", "tier2_target", "Tier 2"),
+                ("tier3_complete", "tier3_target", "Tier 3"),
+                ("tier4_complete", "tier4_target", "Tier 4"),
+                ("tier5_complete", "tier5_target", "Tier 5"),
+            ]
+
+            # Treat as complete if all applicable tiers are done,
+            # even if the completed column was not set correctly in the CSV
+            applicable_tiers = [
+                c for c, _, _ in tier_columns
+                if is_applicable(row.get(c, ""))
+            ]
+            if applicable_tiers and all(is_true(row.get(c, "")) for c in applicable_tiers):
+                continue
+
+            next_tier_label = "Completion"
+            next_tier_target = ""
+
+            for complete_col, target_col, label in tier_columns:
+                val = row.get(complete_col, "")
+                if not is_applicable(val):
+                    continue
+                if not is_true(val):
+                    next_tier_label = label
+                    next_tier_target = clean(row.get(target_col, ""))
+                    break
+
+            stage_label = f"{next_tier_label} — target: {next_tier_target}".strip(" —")
+
+            # Progress
+            applicable = [
+                c for c, _, _ in tier_columns
+                if is_applicable(row.get(c, ""))
+            ]
+            completed_count = sum(
+                1 for c in applicable if is_true(row.get(c, ""))
+            )
+            progress = (completed_count / len(applicable) * 100) if applicable else 0.0
+
+            task_type = "dark_ops" if category == "Dark Ops" else "calling_card"
+
+            tasks.append(
+                make_task(
+                    task_id=f"Card:{mode}:{category}:{sub_category}:{challenge}:{next_tier_label}",
+                    task_type=task_type,
+                    mode=mode,
+                    chain="Calling Cards",
+                    category=category,
+                    weapon_class=sub_category,
+                    weapon=challenge,
+                    camo=stage_label,
+                    challenge_text=requirement,
+                    progress=progress,
+                    locked=False,
+                    lock_reason="Calling card task available.",
+                    recommended_mode=default_recommended_mode(mode, task_type, category),
+                    mode_reason=f"{category} calling card challenge selected.",
+                    strategy=default_strategy(mode, task_type, category),
+                    avoid=default_avoid(mode, task_type, category),
+                )
+            )
+
+    return tasks
+
+
+def build_title_tasks() -> list[dict[str, Any]]:
+    """
+    Loads title unlock challenges from titles.csv.
+    Each title is a single completion — earned TRUE/FALSE.
+    """
+    path = CLEAN_FOLDER / "titles.csv"
+    rows = load_csv_rows(path)
+    tasks: list[dict[str, Any]] = []
+
+    for row in rows:
+        mode = clean(row.get("mode", "General"))
+        title = clean(row.get("title", ""))
+        earned = row.get("earned", "")
+        criteria = clean(row.get("criteria", ""))
+
+        if not title:
+            continue
+
+        if is_true(earned):
+            continue
+
+        if not is_applicable(earned):
+            continue
+
+        # Map mode label to Commander mode
+        mode_map = {
+            "General": "Global Cleanup",
+            "Co-Op Campaign & Endgame": "Co-Op / Endgame",
+            "Multiplayer": "Multiplayer",
+            "Zombies": "Zombies",
+            "Warzone": "Warzone",
+        }
+        commander_mode = mode_map.get(mode, "Global Cleanup")
+
+        tasks.append(
+            make_task(
+                task_id=f"Title:{mode}:{title}",
+                task_type="title",
+                mode=commander_mode,
+                chain="Titles",
+                category="Titles",
+                weapon_class=mode,
+                weapon=title,
+                camo="Earn Title",
+                challenge_text=criteria,
+                progress=0.0,
+                locked=False,
+                lock_reason="Title available to unlock.",
+                recommended_mode=default_recommended_mode(commander_mode, "title", "Titles"),
+                mode_reason=f"Title unlock requires: {criteria}",
+                strategy=default_strategy(commander_mode, "title", "Titles"),
+                avoid=default_avoid(commander_mode, "title", "Titles"),
+            )
+        )
+
+    return tasks
+
 def load_tracker_tasks() -> list[dict[str, Any]]:
     tasks: list[dict[str, Any]] = []
 
@@ -1063,6 +1219,8 @@ def load_tracker_tasks() -> list[dict[str, Any]]:
     tasks.extend(build_equipment_mastery_badge_tasks())
     tasks.extend(build_misc_challenge_tasks())
     tasks.extend(build_reticle_tasks())
+    tasks.extend(build_calling_card_tasks())   # NEW
+    tasks.extend(build_title_tasks())           # NEW
 
     return tasks
 
@@ -1149,10 +1307,19 @@ def task_type_bonus(task: dict[str, Any], session_goal: str) -> float:
     if session_goal == "Fast dopamine / recordable progress":
         if task_type == "camo":
             return 40
+        if task_type == "mastery_badge_weapon":
+            return 10
         if task_type == "reticle":
-            return 20
+            return -30
+        if task_type == "weapon_prestige":
+            return -30
         if task_type == "dark_ops":
             return -80
+        if task_type == "calling_card":
+            return -20
+        if task_type == "title":
+            return -40
+
 
     if session_goal == "Attack biggest bottleneck":
         if task_type == "camo":
@@ -1201,16 +1368,21 @@ def score_task(
         # Let session goal scoring do all the work.
         score += 20
     elif mode == preferred_mode:
-        score += 120
+        score += 200
 
     if avoided_mode != "Global Cleanup" and mode == avoided_mode:
-        score -= 120
+        score -= 200
 
     # --- SESSION GOAL SCORING ---
     if session_goal == "Fast dopamine / recordable progress":
-        score += progress * 2.2
-        if progress >= 80:
-            score += 70
+        if task_type == "camo":
+            score += progress * 2.2
+            if progress >= 80:
+                score += 70
+        elif task_type == "mastery_badge_weapon":
+            score += progress * 1.0
+        else:
+            score += progress * 0.2
 
     elif session_goal == "Attack biggest bottleneck":
         # Bottleneck = task closest to unlocking a mastery milestone.
@@ -1243,7 +1415,7 @@ def score_task(
     # --- MOTIVATION MODIFIER ---
     if motivation in {"Barely functioning", "Low"}:
         if progress >= 70:
-            score += 50
+            score += 30
         if task_type == "dark_ops":
             score -= 100
         if mode == "Zombies":
