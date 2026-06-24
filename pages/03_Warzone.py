@@ -352,6 +352,11 @@ QUICK_UPDATE_FILES = {
     # Titles
     "Titles": "titles.csv",
 }
+
+QUICK_UPDATE_METADATA_COLUMNS = {
+    "counts_for_100_percent",
+    "display_as_extra",
+}
  
 QUICK_UPDATE_ID_COLUMNS = {
     "apocalypse_status.csv": ["mode", "chain", "weapon_class", "weapon"],
@@ -398,15 +403,89 @@ def save_quick_update_csv(filename, dataframe):
 def is_true_cell(value):
     return str(value).strip().upper() in {"TRUE", "YES", "DONE", "COMPLETE", "COMPLETED", "✅"}
 
+CALLING_CARD_FINAL_ROWS = {
+    "calling_cards_sp.csv": "Co-Op Campaign 100 Percenter",
+    "calling_cards_wz.csv": "Warzone 100 Percenter",
+}
+
+CALLING_CARD_FILES_SET = {
+    "calling_cards_sp.csv",
+    "calling_cards_mp.csv",
+    "calling_cards_zm.csv",
+    "calling_cards_wz.csv",
+}
+
+OPTIONAL_100_PERCENT_VALUES = {"FALSE", "NO", "0", "N", "OPTIONAL", "EXTRA"}
+
+
+def row_counts_for_100_percent(row):
+    value = str(row.get("counts_for_100_percent", "")).strip().upper()
+
+    if not value:
+        return True
+
+    return value not in OPTIONAL_100_PERCENT_VALUES
+
+
+def normalise_calling_card_completion(dataframe, filename):
+    if filename not in CALLING_CARD_FILES_SET:
+        return dataframe
+
+    updated_dataframe = dataframe.copy()
+
+    tier_columns = [
+        "tier1_complete",
+        "tier2_complete",
+        "tier3_complete",
+        "tier4_complete",
+        "tier5_complete",
+    ]
+
+    # First pass: if every applicable tier is complete, mark the card complete.
+    for row_index, row in updated_dataframe.iterrows():
+        applicable_tiers = [
+            column for column in tier_columns
+            if column in updated_dataframe.columns
+            and str(row.get(column, "")).strip().upper() not in {"", "N/A", "NA", "NONE"}
+        ]
+
+        if applicable_tiers and all(is_true_cell(row.get(column, "")) for column in applicable_tiers):
+            updated_dataframe.loc[row_index, "completed"] = "TRUE"
+
+    final_card = CALLING_CARD_FINAL_ROWS.get(filename)
+
+    if not final_card or "challenge" not in updated_dataframe.columns:
+        return updated_dataframe
+
+    final_card_mask = (
+        updated_dataframe["challenge"].fillna("").str.strip() == final_card
+    )
+
+    if not final_card_mask.any():
+        return updated_dataframe
+
+    counted_mask = updated_dataframe.apply(row_counts_for_100_percent, axis=1)
+    prerequisite_mask = counted_mask & ~final_card_mask
+
+    prerequisites_done = updated_dataframe.loc[prerequisite_mask, "completed"].apply(is_true_cell)
+
+    if len(prerequisites_done) > 0 and prerequisites_done.all():
+        updated_dataframe.loc[final_card_mask, "tier1_complete"] = "TRUE"
+        updated_dataframe.loc[final_card_mask, "completed"] = "TRUE"
+
+    return updated_dataframe
 
 def bool_to_csv_value(value):
     return "TRUE" if bool(value) else "FALSE"
 
-
 def quick_update_status_columns(filename, dataframe):
     id_columns = QUICK_UPDATE_ID_COLUMNS.get(filename, [])
-    return [column for column in dataframe.columns if column not in id_columns]
+    ignored_columns = set(id_columns) | QUICK_UPDATE_METADATA_COLUMNS
 
+    return [
+        column for column in dataframe.columns
+        if column not in ignored_columns
+    ]
 
 def render_quick_completion_grid():
     st.caption(
@@ -486,6 +565,7 @@ def render_quick_completion_grid():
             for column in status_columns:
                 updated_dataframe.loc[row_index, column] = bool_to_csv_value(edited_row[column])
 
+        updated_dataframe = normalise_calling_card_completion(updated_dataframe, filename)
         save_quick_update_csv(filename, updated_dataframe)
 
         st.session_state.bo7_completion_state = load_completion_state()
@@ -889,6 +969,237 @@ with tab_tracker:
     st.subheader("100% Tracker")
  
     summary = compute_full_tracker_summary(CLEAN_DATA_DIR)
+
+    def add_completion_bucket(buckets, mode, section, done, total):
+        done = int(done or 0)
+        total = int(total or 0)
+
+        if total <= 0:
+            return
+
+        buckets["BO7 Total"]["done"] += done
+        buckets["BO7 Total"]["total"] += total
+
+        if mode not in buckets:
+            buckets[mode] = {"done": 0, "total": 0, "sections": []}
+
+        buckets[mode]["done"] += done
+        buckets[mode]["total"] += total
+        buckets[mode]["sections"].append({
+            "section": section,
+            "done": done,
+            "total": total,
+        })
+
+
+    def tuple_metric(value):
+        if isinstance(value, tuple):
+            return int(value[0]), int(value[1])
+
+        if isinstance(value, dict):
+            return int(value.get("done", 0)), int(value.get("total", 0))
+
+        return 0, 0
+
+
+    overall = {
+        "BO7 Total": {"done": 0, "total": 0, "sections": []},
+    }
+
+    # Camos
+    camo_mode_map = {
+        "Genesis (Co-Op / Endgame)": "Co-Op / Endgame",
+        "Singularity (Multiplayer)": "Multiplayer",
+        "Infestation (Zombies)": "Zombies",
+        "Apocalypse (Warzone)": "Warzone",
+    }
+
+    for chain_label, mode in camo_mode_map.items():
+        data = summary.get("camos", {}).get(chain_label, {})
+
+        add_completion_bucket(
+            overall,
+            mode,
+            "Base Camos",
+            data.get("base_done", 0),
+            data.get("base_total", 0),
+        )
+
+        add_completion_bucket(
+            overall,
+            mode,
+            "True Final Camos",
+            data.get("mastery_done", 0),
+            data.get("mastery_total", 0),
+        )
+
+    # Calling cards
+    for mode, value in summary.get("calling_cards", {}).items():
+        done, total = tuple_metric(value)
+        add_completion_bucket(overall, mode, "Calling Cards", done, total)
+
+    # Reticles
+    reticles = summary.get("reticles", {})
+    for mode, value in reticles.get("by_mode", {}).items():
+        done, total = tuple_metric(value)
+        add_completion_bucket(overall, mode, "Reticles", done, total)
+
+    # Titles
+    titles = summary.get("titles", {})
+    for mode, value in titles.get("by_mode", {}).items():
+        done, total = tuple_metric(value)
+        add_completion_bucket(overall, mode, "Titles", done, total)
+
+    # Mastery badges
+    mb = summary.get("mastery_badges", {})
+    weapon_stages = mb.get("weapon_stages", {})
+    support_stages = mb.get("support_stages", {})
+    diamond_groups = mb.get("diamond_groups", {})
+
+    mp_mastery_done = 0
+    mp_mastery_total = 0
+    zm_mastery_done = 0
+    zm_mastery_total = 0
+
+    for key in ["mp_bronze", "mp_silver", "mp_gold"]:
+        done, total = tuple_metric(weapon_stages.get(key, (0, 0)))
+        mp_mastery_done += done
+        mp_mastery_total += total
+
+        done, total = tuple_metric(support_stages.get(key, (0, 0)))
+        mp_mastery_done += done
+        mp_mastery_total += total
+
+    for key in ["zm_bronze", "zm_silver", "zm_gold"]:
+        done, total = tuple_metric(weapon_stages.get(key, (0, 0)))
+        zm_mastery_done += done
+        zm_mastery_total += total
+
+        done, total = tuple_metric(support_stages.get(key, (0, 0)))
+        zm_mastery_done += done
+        zm_mastery_total += total
+
+    done, total = tuple_metric(diamond_groups.get("mp", {}))
+    mp_mastery_done += done
+    mp_mastery_total += total
+
+    done, total = tuple_metric(diamond_groups.get("zm", {}))
+    zm_mastery_done += done
+    zm_mastery_total += total
+
+    add_completion_bucket(overall, "Multiplayer", "Mastery Badges", mp_mastery_done, mp_mastery_total)
+    add_completion_bucket(overall, "Zombies", "Mastery Badges", zm_mastery_done, zm_mastery_total)
+
+    # Weapon prestige is global account progress
+    prestige = summary.get("prestige", {})
+    prestige_stages = prestige.get("stages", {})
+
+    prestige_done = 0
+    prestige_total = 0
+
+    for stage_data in prestige_stages.values():
+        prestige_done += int(stage_data.get("done", 0))
+        prestige_total += int(stage_data.get("total", 0))
+
+    add_completion_bucket(overall, "Global Cleanup", "Weapon Prestige", prestige_done, prestige_total)
+
+    # Colours are global account progress
+    colours = summary.get("colours", {})
+    if isinstance(colours, tuple):
+        colours_done, colours_total = colours
+    else:
+        colours_done, colours_total = tuple_metric(colours.get("total", {}))
+
+    add_completion_bucket(overall, "Global Cleanup", "Colours", colours_done, colours_total)
+
+    # Augments are Zombies
+    aug_done, aug_total = tuple_metric(summary.get("augments", (0, 0)))
+    add_completion_bucket(overall, "Zombies", "Augments", aug_done, aug_total)
+
+    # Overclocks are Multiplayer
+    oc_done, oc_total = tuple_metric(summary.get("overclocks", (0, 0)))
+    add_completion_bucket(overall, "Multiplayer", "Overclocks", oc_done, oc_total)
+
+    # Intel is Zombies
+    intel_done = 0
+    intel_total = 0
+
+    for value in summary.get("intel", {}).values():
+        done, total = tuple_metric(value)
+        intel_done += done
+        intel_total += total
+
+    add_completion_bucket(overall, "Zombies", "Intel", intel_done, intel_total)
+
+    # Rewards
+    rewards = summary.get("rewards", {})
+
+    z_rewards_done, z_rewards_total = tuple_metric(rewards.get("zombies_total", (0, 0)))
+    add_completion_bucket(overall, "Zombies", "Rewards", z_rewards_done, z_rewards_total)
+
+    sp_rewards_done, sp_rewards_total = tuple_metric(rewards.get("endgame_operations_total", (0, 0)))
+    add_completion_bucket(overall, "Co-Op / Endgame", "Rewards", sp_rewards_done, sp_rewards_total)
+
+    # Render
+    st.markdown("## Overall Completion")
+
+    overall_top_cols = st.columns(5)
+
+    overall_order = [
+        "BO7 Total",
+        "Multiplayer",
+        "Zombies",
+        "Warzone",
+        "Co-Op / Endgame",
+    ]
+
+    for i, mode in enumerate(overall_order):
+        data = overall.get(mode, {"done": 0, "total": 0})
+
+        with overall_top_cols[i]:
+            st.metric(
+                mode,
+                f"{_pct(data['done'], data['total']):.1f}%",
+                f"{data['done']}/{data['total']}",
+            )
+
+    extra_modes = [
+        mode for mode in overall.keys()
+        if mode not in overall_order
+    ]
+
+    if extra_modes:
+        extra_cols = st.columns(min(len(extra_modes), 4))
+
+        for i, mode in enumerate(extra_modes):
+            data = overall[mode]
+
+            with extra_cols[i % len(extra_cols)]:
+                st.metric(
+                    mode,
+                    f"{_pct(data['done'], data['total']):.1f}%",
+                    f"{data['done']}/{data['total']}",
+                )
+
+    with st.expander("Overall completion breakdown"):
+        rows = []
+
+        for mode, data in overall.items():
+            if mode == "BO7 Total":
+                continue
+
+            for section in data.get("sections", []):
+                rows.append({
+                    "Mode": mode,
+                    "Section": section["section"],
+                    "Done": section["done"],
+                    "Total": section["total"],
+                    "%": f"{_pct(section['done'], section['total']):.1f}%",
+                })
+
+        st.dataframe(rows, use_container_width=True, hide_index=True)
+
+    st.divider()
  
     # ── LIVE SESSION QUEUE (kept from before, relabelled) ──
     task_summary = summarise_tasks(st.session_state.bo7_tasks)
@@ -908,36 +1219,248 @@ with tab_tracker:
     # ── MASTERY BADGES SUMMARY ROW ──
     st.markdown("## Mastery Badges")
     mb = summary["mastery_badges"]
- 
-    weapon_mp_g, weapon_mp_g_total = mb.get("weapon_mp_gold", (0, 0))
-    weapon_mp_d, weapon_mp_d_total = mb.get("weapon_mp_diamond", (0, 0))
-    weapon_zm_g, weapon_zm_g_total = mb.get("weapon_zm_gold", (0, 0))
-    weapon_zm_d, weapon_zm_d_total = mb.get("weapon_zm_diamond", (0, 0))
- 
-    all_done = weapon_mp_g + weapon_mp_d + weapon_zm_g + weapon_zm_d
-    all_total = weapon_mp_g_total + weapon_mp_d_total + weapon_zm_g_total + weapon_zm_d_total
-    mp_done = weapon_mp_g + weapon_mp_d
-    mp_total = weapon_mp_g_total + weapon_mp_d_total
-    zm_done = weapon_zm_g + weapon_zm_d
-    zm_total = weapon_zm_g_total + weapon_zm_d_total
- 
-    badge_cols = st.columns(7)
-    badge_cols[0].metric("All", f"{_pct(all_done, all_total):.1f}%", f"{all_done}/{all_total}")
-    badge_cols[1].metric("MP", f"{_pct(mp_done, mp_total):.1f}%", f"{mp_done}/{mp_total}")
-    badge_cols[2].metric("ZM", f"{_pct(zm_done, zm_total):.1f}%", f"{zm_done}/{zm_total}")
-    badge_cols[3].metric("Gold MP", f"{weapon_mp_g}/{weapon_mp_g_total}")
-    badge_cols[4].metric("Dia MP", f"{weapon_mp_d}/{weapon_mp_d_total}")
-    badge_cols[5].metric("Gold ZM", f"{weapon_zm_g}/{weapon_zm_g_total}")
-    badge_cols[6].metric("Dia ZM", f"{weapon_zm_d}/{weapon_zm_d_total}")
- 
+
+    def metric_data(source, fallback_done=0, fallback_total=0):
+        return {
+            "done": int(source.get("done", fallback_done)),
+            "total": int(source.get("total", fallback_total)),
+        }
+
+    total_badges = metric_data(mb.get("total", {}))
+    weapon_badges = metric_data(mb.get("weapon", {}))
+    support_badges = metric_data(mb.get("support", {}))
+
+    st.markdown("### Total Mastery Badge Completion")
+    total_cols = st.columns(3)
+
+    with total_cols[0]:
+        st.metric(
+            "All Mastery Badges",
+            f"{_pct(total_badges['done'], total_badges['total']):.1f}%",
+            f"{total_badges['done']}/{total_badges['total']}",
+        )
+
+    with total_cols[1]:
+        st.metric(
+            "Weapon Completion",
+            f"{_pct(weapon_badges['done'], weapon_badges['total']):.1f}%",
+            f"{weapon_badges['done']}/{weapon_badges['total']}",
+        )
+
+    with total_cols[2]:
+        st.metric(
+            "Support Item Completion",
+            f"{_pct(support_badges['done'], support_badges['total']):.1f}%",
+            f"{support_badges['done']}/{support_badges['total']}",
+        )
+
+    diamond_groups = mb.get("diamond_groups", {})
+
+    mp_diamond_groups = metric_data(diamond_groups.get("mp", {}))
+    zm_diamond_groups = metric_data(diamond_groups.get("zm", {}))
+    weapon_mp_diamond_groups = metric_data(diamond_groups.get("weapon_mp", {}))
+    weapon_zm_diamond_groups = metric_data(diamond_groups.get("weapon_zm", {}))
+    equipment_mp_diamond_groups = metric_data(diamond_groups.get("equipment_mp", {}))
+    equipment_zm_diamond_groups = metric_data(diamond_groups.get("equipment_zm", {}))
+
+    all_diamond_group_done = mp_diamond_groups["done"] + zm_diamond_groups["done"]
+    all_diamond_group_total = mp_diamond_groups["total"] + zm_diamond_groups["total"]
+
+    st.markdown("### Diamond Group Unlocks")
+    st.caption(
+        "Collection truth: a class or category counts as Diamond once its required Gold badge count is met."
+    )
+
+    diamond_cols = st.columns(5)
+
+    with diamond_cols[0]:
+        st.metric(
+            "All Diamond Groups",
+            f"{_pct(all_diamond_group_done, all_diamond_group_total):.1f}%",
+            f"{all_diamond_group_done}/{all_diamond_group_total}",
+        )
+
+    with diamond_cols[1]:
+        st.metric(
+            "MP Groups",
+            f"{_pct(mp_diamond_groups['done'], mp_diamond_groups['total']):.1f}%",
+            f"{mp_diamond_groups['done']}/{mp_diamond_groups['total']}",
+        )
+
+    with diamond_cols[2]:
+        st.metric(
+            "ZM Groups",
+            f"{_pct(zm_diamond_groups['done'], zm_diamond_groups['total']):.1f}%",
+            f"{zm_diamond_groups['done']}/{zm_diamond_groups['total']}",
+        )
+
+    with diamond_cols[3]:
+        st.metric(
+            "Weapon Groups",
+            f"{_pct(
+                weapon_mp_diamond_groups['done'] + weapon_zm_diamond_groups['done'],
+                weapon_mp_diamond_groups['total'] + weapon_zm_diamond_groups['total'],
+            ):.1f}%",
+            f"{weapon_mp_diamond_groups['done'] + weapon_zm_diamond_groups['done']}/"
+            f"{weapon_mp_diamond_groups['total'] + weapon_zm_diamond_groups['total']}",
+        )
+
+    with diamond_cols[4]:
+        st.metric(
+            "Support Groups",
+            f"{_pct(
+                equipment_mp_diamond_groups['done'] + equipment_zm_diamond_groups['done'],
+                equipment_mp_diamond_groups['total'] + equipment_zm_diamond_groups['total'],
+            ):.1f}%",
+            f"{equipment_mp_diamond_groups['done'] + equipment_zm_diamond_groups['done']}/"
+            f"{equipment_mp_diamond_groups['total'] + equipment_zm_diamond_groups['total']}",
+        )
+
+    individual_rows = mb.get("individual_diamond_rows", {})
+
+    weapon_mp_rows = metric_data(individual_rows.get("weapon_mp", {}))
+    weapon_zm_rows = metric_data(individual_rows.get("weapon_zm", {}))
+    equipment_mp_rows = metric_data(individual_rows.get("equipment_mp", {}))
+    equipment_zm_rows = metric_data(individual_rows.get("equipment_zm", {}))
+
+    st.markdown("### Individual Diamond Row Progress")
+    st.caption(
+        "Grind detail: this is the raw row count, useful for seeing how far beyond the group unlock you have gone."
+    )
+
+    row_cols = st.columns(4)
+
+    with row_cols[0]:
+        st.metric(
+            "Weapon MP Rows",
+            f"{_pct(weapon_mp_rows['done'], weapon_mp_rows['total']):.1f}%",
+            f"{weapon_mp_rows['done']}/{weapon_mp_rows['total']}",
+        )
+
+    with row_cols[1]:
+        st.metric(
+            "Weapon ZM Rows",
+            f"{_pct(weapon_zm_rows['done'], weapon_zm_rows['total']):.1f}%",
+            f"{weapon_zm_rows['done']}/{weapon_zm_rows['total']}",
+        )
+
+    with row_cols[2]:
+        st.metric(
+            "Support MP Rows",
+            f"{_pct(equipment_mp_rows['done'], equipment_mp_rows['total']):.1f}%",
+            f"{equipment_mp_rows['done']}/{equipment_mp_rows['total']}",
+        )
+
+    with row_cols[3]:
+        st.metric(
+            "Support ZM Rows",
+            f"{_pct(equipment_zm_rows['done'], equipment_zm_rows['total']):.1f}%",
+            f"{equipment_zm_rows['done']}/{equipment_zm_rows['total']}",
+        )
+
     st.divider()
  
     # ── WEAPON LEVEL / PRESTIGE ──
     st.markdown("## Weapon Prestige")
     prestige = summary["prestige"]
-    st.metric("Weapon Prestige Master (WPM)", f"{_pct(prestige['wpm_done'], prestige['total']):.1f}%",
-               f"{prestige['wpm_done']}/{prestige['total']} weapons")
- 
+
+    prestige_stage_order = [
+        "p1_complete",
+        "p2_complete",
+        "wpm_complete",
+        "lvl_100_complete",
+        "lvl_150_complete",
+        "lvl_200_complete",
+        "lvl_250_complete",
+    ]
+
+    prestige_stage_labels = {
+        "p1_complete": "Prestige 1",
+        "p2_complete": "Prestige 2",
+        "wpm_complete": "WPM",
+        "lvl_100_complete": "Level 100",
+        "lvl_150_complete": "Level 150",
+        "lvl_200_complete": "Level 200",
+        "lvl_250_complete": "Level 250",
+    }
+
+    prestige_stages = prestige.get("stages", {})
+
+
+    def prestige_stage_data(stage):
+        data = prestige_stages.get(stage, {})
+        return {
+            "label": data.get("label", prestige_stage_labels.get(stage, stage)),
+            "done": int(data.get("done", 0)),
+            "total": int(data.get("total", 0)),
+        }
+
+
+    def combined_prestige_data(stages):
+        rows = [prestige_stage_data(stage) for stage in stages]
+        return {
+            "done": sum(row["done"] for row in rows),
+            "total": sum(row["total"] for row in rows),
+        }
+
+
+    total_weapon_level = combined_prestige_data(prestige_stage_order)
+    weapon_prestige_only = combined_prestige_data([
+        "p1_complete",
+        "p2_complete",
+    ])
+    wpm_and_levels = combined_prestige_data([
+        "wpm_complete",
+        "lvl_100_complete",
+        "lvl_150_complete",
+        "lvl_200_complete",
+        "lvl_250_complete",
+    ])
+
+    st.markdown("### Total Weapon Level Completion")
+
+    top_cols = st.columns(3)
+
+    with top_cols[0]:
+        st.metric(
+            "Total Weapon Level Completion",
+            f"{_pct(total_weapon_level['done'], total_weapon_level['total']):.1f}%",
+            f"{total_weapon_level['done']}/{total_weapon_level['total']}",
+        )
+
+    with top_cols[1]:
+        st.metric(
+            "Weapon Prestige",
+            f"{_pct(weapon_prestige_only['done'], weapon_prestige_only['total']):.1f}%",
+            f"{weapon_prestige_only['done']}/{weapon_prestige_only['total']}",
+        )
+
+    with top_cols[2]:
+        st.metric(
+            "WPM + Level Grind",
+            f"{_pct(wpm_and_levels['done'], wpm_and_levels['total']):.1f}%",
+            f"{wpm_and_levels['done']}/{wpm_and_levels['total']}",
+        )
+
+    st.markdown("### Stage Breakdown")
+
+    prestige_cols = st.columns(7)
+
+    for i, stage in enumerate(prestige_stage_order):
+        data = prestige_stage_data(stage)
+
+        with prestige_cols[i]:
+            st.metric(
+                data["label"],
+                f"{_pct(data['done'], data['total']):.1f}%",
+                f"{data['done']}/{data['total']} weapons",
+            )
+
+    st.caption(
+        "Prestige counts roll backwards: a weapon at Level 250 also counts as "
+        "Level 200, Level 150, Level 100, WPM, Prestige 2, and Prestige 1."
+    )
+
     st.divider()
  
     # ── PER-MODE CAMO COMPLETION ──
@@ -954,10 +1477,29 @@ with tab_tracker:
         with camo_cols[i]:
             st.markdown(f"**{chain_label.split(' (')[0]}**")
             base_pct = _pct(data["base_done"], data["base_total"])
-            mastery_pct = _pct(data["mastery_done"], data["mastery_total"])
-            st.metric("Base Camo", f"{base_pct:.1f}%", f"{data['base_done']}/{data['base_total']}")
-            st.metric("Mastery (final)", f"{mastery_pct:.1f}%", f"{data['mastery_done']}/{data['mastery_total']}")
- 
+            unlock_done = data.get("mastery_unlock_done", min(data["mastery_done"], 30))
+            unlock_total = data.get("mastery_unlock_total", 30)
+            unlock_pct = _pct(unlock_done, unlock_total)
+
+            true_mastery_pct = _pct(data["mastery_done"], data["mastery_total"])
+
+            st.metric(
+                "Base Camo",
+                f"{base_pct:.1f}%",
+                f"{data['base_done']}/{data['base_total']}",
+            )
+
+            st.metric(
+                "Calling Card Unlock",
+                f"{unlock_pct:.1f}%",
+                f"{unlock_done}/{unlock_total}",
+            )
+
+            st.metric(
+                "True Final Camos",
+                f"{true_mastery_pct:.1f}%",
+                f"{data['mastery_done']}/{data['mastery_total']}",
+            )
     st.divider()
  
     # ── CALLING CARD COMPLETION BY MODE ──
@@ -971,51 +1513,175 @@ with tab_tracker:
  
     st.divider()
  
-    # ── GLOBAL CAMO MASTERY TABLE ──
-    st.markdown("## Global Camo Mastery")
-    mastery_rows = []
-    for chain_label in camo_order:
-        data = camos.get(chain_label, {"mastery_done":0,"mastery_total":0})
-        mastery_rows.append({
-            "Chain": chain_label.split(" (")[0],
-            "Mode": chain_label.split("(")[-1].rstrip(")"),
-            "Done": data["mastery_done"],
-            "Total": data["mastery_total"],
-            "%": f"{_pct(data['mastery_done'], data['mastery_total']):.1f}%",
-        })
-    st.dataframe(mastery_rows, use_container_width=True, hide_index=True)
- 
-    st.divider()
- 
-    # ── RETICLE COMPLETION BY MODE ──
-    st.markdown("## Reticle Completion (Stage 100) by Mode")
+    # ── RETICLE COMPLETION ──
+    st.markdown("## Reticles")
     ret = summary["reticles"]
-    ret_cols = st.columns(4)
-    for i, mode in enumerate(["Co-Op / Endgame", "Multiplayer", "Zombies", "Warzone"]):
-        done, total = ret.get(mode, (0, 0))
-        with ret_cols[i]:
-            st.metric(mode, f"{_pct(done, total):.1f}%", f"{done}/{total}")
- 
+
+    def reticle_metric_data(source):
+        return {
+            "done": int(source.get("done", 0)),
+            "total": int(source.get("total", 0)),
+        }
+
+    ret_total = reticle_metric_data(ret.get("total", {}))
+    ret_by_mode = ret.get("by_mode", {})
+    ret_stage_100 = ret.get("stage_100_by_mode", {})
+
+    st.markdown("### Total Reticle Completion")
+
+    top_cols = st.columns(1)
+
+    with top_cols[0]:
+        st.metric(
+            "Total Reticle Completion",
+            f"{_pct(ret_total['done'], ret_total['total']):.1f}%",
+            f"{ret_total['done']}/{ret_total['total']}",
+        )
+
+    st.markdown("### Mode Breakdown")
+
+    mode_order = [
+        ("Co-Op / Endgame", "SP"),
+        ("Multiplayer", "MP"),
+        ("Zombies", "ZM"),
+        ("Warzone", "WZ"),
+    ]
+
+    mode_cols = st.columns(4)
+
+    for i, (mode, label) in enumerate(mode_order):
+        data = reticle_metric_data(ret_by_mode.get(mode, {}))
+
+        with mode_cols[i]:
+            st.metric(
+                label,
+                f"{_pct(data['done'], data['total']):.1f}%",
+                f"{data['done']}/{data['total']}",
+            )
+
+    st.markdown("### Stage 100 Detail")
+    st.caption("Final-stage grind detail only. Total reticle completion above counts all five stages.")
+
+    stage_cols = st.columns(4)
+
+    for i, (mode, label) in enumerate(mode_order):
+        data = reticle_metric_data(ret_stage_100.get(mode, {}))
+
+        with stage_cols[i]:
+            st.metric(
+                f"{label} Stage 100",
+                f"{_pct(data['done'], data['total']):.1f}%",
+                f"{data['done']}/{data['total']}",
+            )
+
     st.divider()
  
-    # ── TITLES BY MODE ──
-    st.markdown("## Titles Earned by Mode")
+    # ── TITLES ──
+    st.markdown("## Titles")
     titles = summary["titles"]
-    title_modes = list(titles.keys())
-    title_cols = st.columns(len(title_modes)) if title_modes else []
-    for i, mode in enumerate(title_modes):
-        done, total = titles[mode]
-        with title_cols[i]:
-            st.metric(mode, f"{_pct(done, total):.1f}%", f"{done}/{total}")
- 
+
+    title_total = titles.get("total", {"done": 0, "total": 0})
+    title_by_mode = titles.get("by_mode", {})
+
+    st.markdown("### Total Title Completion")
+
+    st.metric(
+        "All Titles",
+        f"{_pct(title_total['done'], title_total['total']):.1f}%",
+        f"{title_total['done']}/{title_total['total']}",
+    )
+
+    st.markdown("### Mode Breakdown")
+
+    title_mode_order = [
+        "Global Cleanup",
+        "Co-Op / Endgame",
+        "Multiplayer",
+        "Zombies",
+        "Warzone",
+    ]
+
+    visible_title_modes = [
+        mode for mode in title_mode_order
+        if mode in title_by_mode
+    ]
+
+    extra_title_modes = [
+        mode for mode in title_by_mode.keys()
+        if mode not in visible_title_modes
+    ]
+
+    visible_title_modes.extend(extra_title_modes)
+
+    if visible_title_modes:
+        title_cols = st.columns(min(len(visible_title_modes), 5))
+
+        for i, mode in enumerate(visible_title_modes):
+            data = title_by_mode.get(mode, {"done": 0, "total": 0})
+
+            with title_cols[i % len(title_cols)]:
+                st.metric(
+                    mode,
+                    f"{_pct(data['done'], data['total']):.1f}%",
+                    f"{data['done']}/{data['total']}",
+                )
+    else:
+        st.info("No titles data found.")
+
     st.divider()
  
     # ── COLOURS ──
-    st.markdown("## Colours Unlocked")
-    colours_done, colours_total = summary["colours"]
-    st.metric("Colours (account level gated)", f"{_pct(colours_done, colours_total):.1f}%",
-               f"{colours_done}/{colours_total}")
- 
+    st.markdown("## Colours")
+    colours = summary["colours"]
+
+    if isinstance(colours, tuple):
+        colours_total = {
+            "done": int(colours[0]),
+            "total": int(colours[1]),
+        }
+        colours_by_category = {}
+        colours_by_source = {}
+    else:
+        colours_total = colours.get("total", {"done": 0, "total": 0})
+        colours_by_category = colours.get("by_category", {})
+        colours_by_source = colours.get("by_source", {})
+
+    st.markdown("### Total Colour Completion")
+
+    st.metric(
+        "All Colours",
+        f"{_pct(colours_total['done'], colours_total['total']):.1f}%",
+        f"{colours_total['done']}/{colours_total['total']}",
+    )
+
+    if colours_by_category:
+        st.markdown("### Category Breakdown")
+
+        category_items = list(colours_by_category.items())
+        category_cols = st.columns(min(len(category_items), 5))
+
+        for i, (category, data) in enumerate(category_items):
+            with category_cols[i % len(category_cols)]:
+                st.metric(
+                    category,
+                    f"{_pct(data['done'], data['total']):.1f}%",
+                    f"{data['done']}/{data['total']}",
+                )
+
+    if colours_by_source:
+        st.markdown("### Source Breakdown")
+
+        source_items = list(colours_by_source.items())
+        source_cols = st.columns(min(len(source_items), 5))
+
+        for i, (source, data) in enumerate(source_items):
+            with source_cols[i % len(source_cols)]:
+                st.metric(
+                    source,
+                    f"{_pct(data['done'], data['total']):.1f}%",
+                    f"{data['done']}/{data['total']}",
+                )
+
     st.divider()
  
     # ── AUGMENTS (Zombies only) ──

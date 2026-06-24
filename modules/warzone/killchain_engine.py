@@ -107,6 +107,19 @@ def is_na(value: Any) -> bool:
 def is_applicable(value: Any) -> bool:
     return not is_na(value)
 
+def counts_for_100_percent(row: dict[str, Any]) -> bool:
+    """
+    Calling card rows count towards the dashboard by default.
+
+    Set counts_for_100_percent to FALSE for optional extras, especially
+    leftover Dark Ops challenges after the actual Master card is unlocked.
+    """
+    value = clean(row.get("counts_for_100_percent", ""))
+
+    if not value:
+        return True
+
+    return value.upper() not in {"FALSE", "NO", "0", "N", "OPTIONAL", "EXTRA"}
 
 def safe_int(value: Any, fallback: int = 0) -> int:
     try:
@@ -402,12 +415,7 @@ def build_camo_challenge_text(
             camo_name,
             get_rule(rules, "mastery_challenge", camo_name, "Check the in-game mastery requirement."),
         )
-        mastery_display = ["Golden Damascus", "Starglass", "Absolute Zero", "Apocalypse"]
-        try:
-            prefix = mastery_display[mastery.index(camo_name)]
-        except (ValueError, IndexError):
-            prefix = camo_name
-        return f"{prefix}: {challenge}"
+        return f"{camo_name}: {challenge}"
 
     return "Check the in-game requirement."
 
@@ -1075,6 +1083,9 @@ def build_calling_card_tasks() -> list[dict[str, Any]]:
             requirement = clean(row.get("requirement", ""))
 
             if not mode or not challenge:
+                continue
+                
+            if not counts_for_100_percent(row):
                 continue
 
             if is_true(row.get("completed", "")):
@@ -1951,47 +1962,149 @@ BASE_CAMO_END_OFFSET = 4  # last 4 columns are: Golden_X, Gate1, Gate2, Final
  
 def compute_camo_dashboard(clean_folder: Path) -> dict[str, Any]:
     result = {}
+
+    mastery_unlock_required = 30
+
     for filename, final_col in FINAL_CAMO_COLUMN.items():
         df = _load(clean_folder, filename)
         label = CHAIN_LABELS[filename]
+
         if df.empty or final_col not in df.columns:
-            result[label] = {"base_done": 0, "base_total": 0, "mastery_done": 0, "mastery_total": 0}
+            result[label] = {
+                "base_done": 0,
+                "base_total": 0,
+                "mastery_unlock_done": 0,
+                "mastery_unlock_total": mastery_unlock_required,
+                "mastery_unlock_complete": False,
+                "mastery_done": 0,
+                "mastery_total": 0,
+            }
             continue
- 
+
         all_cols = [c for c in df.columns if c not in ("mode", "chain", "weapon_class", "weapon")]
         base_cols = all_cols[:-BASE_CAMO_END_OFFSET]
- 
+
         applicable = ~df[final_col].str.strip().str.upper().isin(NA_SET)
         df_app = df[applicable]
- 
-        # Base camo completion: every applicable base-tier cell across all weapons
+
         base_total = 0
         base_done = 0
+
         for col in base_cols:
             mask = ~df_app[col].str.strip().str.upper().isin(NA_SET)
             base_total += mask.sum()
             base_done += df_app[col][mask].apply(_is_true).sum()
- 
+
         mastery_total = len(df_app)
-        mastery_done = df_app[final_col].apply(_is_true).sum()
- 
+        mastery_done = int(df_app[final_col].apply(_is_true).sum())
+
         result[label] = {
-            "base_done": int(base_done), "base_total": int(base_total),
-            "mastery_done": int(mastery_done), "mastery_total": int(mastery_total),
+            "base_done": int(base_done),
+            "base_total": int(base_total),
+
+            # Official 30-camo unlock / calling-card threshold
+            "mastery_unlock_done": min(mastery_done, mastery_unlock_required),
+            "mastery_unlock_total": mastery_unlock_required,
+            "mastery_unlock_complete": mastery_done >= mastery_unlock_required,
+
+            # True full account completion
+            "mastery_done": mastery_done,
+            "mastery_total": int(mastery_total),
         }
+
     return result
- 
- 
+
 # ---------------------------------------------------------------------------
 # WEAPON PRESTIGE
 # ---------------------------------------------------------------------------
  
 def compute_prestige_summary(clean_folder: Path) -> dict[str, Any]:
     df = _load(clean_folder, "weapon_prestige.csv")
+
+    stage_order = [
+        "p1_complete",
+        "p2_complete",
+        "wpm_complete",
+        "lvl_100_complete",
+        "lvl_150_complete",
+        "lvl_200_complete",
+        "lvl_250_complete",
+    ]
+
+    stage_labels = {
+        "p1_complete": "Prestige 1",
+        "p2_complete": "Prestige 2",
+        "wpm_complete": "WPM",
+        "lvl_100_complete": "Level 100",
+        "lvl_150_complete": "Level 150",
+        "lvl_200_complete": "Level 200",
+        "lvl_250_complete": "Level 250",
+    }
+
     if df.empty:
-        return {"wpm_done": 0, "total": 0}
-    wpm_done = df["wpm_complete"].apply(_is_true).sum()
-    return {"wpm_done": int(wpm_done), "total": len(df)}
+        return {
+            "wpm_done": 0,
+            "total": 0,
+            "stages": {
+                stage: {
+                    "label": stage_labels[stage],
+                    "done": 0,
+                    "total": 0,
+                }
+                for stage in stage_order
+            },
+        }
+
+    def stage_is_complete_backwards(row, stage_index: int) -> bool:
+        """
+        Counts later completion as earlier completion.
+
+        Example:
+        lvl_250_complete TRUE means this weapon also counts as complete for
+        lvl_200, lvl_150, lvl_100, WPM, Prestige 2, and Prestige 1.
+        """
+        later_or_equal_stages = stage_order[stage_index:]
+
+        return any(
+            stage in df.columns
+            and not _is_na(row.get(stage, ""))
+            and _is_true(row.get(stage, ""))
+            for stage in later_or_equal_stages
+        )
+
+    stages = {}
+
+    for stage_index, stage in enumerate(stage_order):
+        if stage not in df.columns:
+            stages[stage] = {
+                "label": stage_labels[stage],
+                "done": 0,
+                "total": 0,
+            }
+            continue
+
+        applicable_rows = df[
+            df[stage].fillna("").apply(lambda value: not _is_na(value))
+        ]
+
+        done = applicable_rows.apply(
+            lambda row: stage_is_complete_backwards(row, stage_index),
+            axis=1,
+        ).sum()
+
+        stages[stage] = {
+            "label": stage_labels[stage],
+            "done": int(done),
+            "total": int(len(applicable_rows)),
+        }
+
+    wpm = stages["wpm_complete"]
+
+    return {
+        "wpm_done": wpm["done"],
+        "total": wpm["total"],
+        "stages": stages,
+    }
  
  
 # ---------------------------------------------------------------------------
@@ -2002,37 +2115,257 @@ def compute_mastery_badges_summary(clean_folder: Path) -> dict[str, Any]:
     weapons = _load(clean_folder, "mastery_badges_weapons.csv")
     eq_mp = _load(clean_folder, "mastery_badges_equipment_mp.csv")
     eq_zm = _load(clean_folder, "mastery_badges_equipment_zombies.csv")
- 
-    def applicable_mask(series):
-        return ~series.str.strip().str.upper().isin(NA_SET)
- 
-    result = {}
- 
-    if not weapons.empty:
-        for prefix, label in [("mp", "MP"), ("zm", "ZM")]:
-            gold_col, dia_col = f"{prefix}_gold_complete", f"{prefix}_diamond_complete"
-            mask = applicable_mask(weapons[gold_col])
-            gold_done = weapons[gold_col][mask].apply(_is_true).sum()
-            mask_d = applicable_mask(weapons[dia_col])
-            dia_done = weapons[dia_col][mask_d].apply(_is_true).sum()
-            result[f"weapon_{label.lower()}_gold"] = (int(gold_done), int(mask.sum()))
-            result[f"weapon_{label.lower()}_diamond"] = (int(dia_done), int(mask_d.sum()))
- 
-    if not eq_mp.empty:
-        gold_done = eq_mp["gold_complete"].apply(_is_true).sum()
-        dia_done = eq_mp["diamond_complete"].apply(_is_true).sum()
-        result["equipment_mp_gold"] = (int(gold_done), len(eq_mp))
-        result["equipment_mp_diamond"] = (int(dia_done), len(eq_mp))
- 
-    if not eq_zm.empty:
-        gold_done = eq_zm["gold_complete"].apply(_is_true).sum()
-        dia_done = eq_zm["diamond_complete"].apply(_is_true).sum()
-        result["equipment_zm_gold"] = (int(gold_done), len(eq_zm))
-        result["equipment_zm_diamond"] = (int(dia_done), len(eq_zm))
- 
-    return result
- 
- 
+
+    def applicable(value: Any) -> bool:
+        return not _is_na(value)
+
+    def count_stage_with_backfill(df: pd.DataFrame, stage_columns: list[str], stage_index: int) -> tuple[int, int]:
+        """
+        Counts a stage as complete if that stage OR any later stage is TRUE.
+
+        Example:
+        gold TRUE counts as bronze and silver too.
+        """
+        stage_col = stage_columns[stage_index]
+
+        if df.empty or stage_col not in df.columns:
+            return 0, 0
+
+        total = 0
+        done = 0
+        later_or_equal_columns = stage_columns[stage_index:]
+
+        for _, row in df.iterrows():
+            if not applicable(row.get(stage_col, "")):
+                continue
+
+            total += 1
+
+            if any(
+                column in df.columns
+                and applicable(row.get(column, ""))
+                and _is_true(row.get(column, ""))
+                for column in later_or_equal_columns
+            ):
+                done += 1
+
+        return int(done), int(total)
+
+    def count_raw_column(df: pd.DataFrame, column: str) -> tuple[int, int]:
+        if df.empty or column not in df.columns:
+            return 0, 0
+
+        mask = df[column].fillna("").apply(applicable)
+        done = df.loc[mask, column].apply(_is_true).sum()
+        return int(done), int(mask.sum())
+
+    def weapon_diamond_group_summary(prefix: str, requirements: dict[str, tuple[int, int, int, int]]) -> dict[str, int]:
+        if weapons.empty:
+            return {"done": 0, "total": 0}
+
+        gold_col = f"{prefix}_gold_complete"
+        diamond_col = f"{prefix}_diamond_complete"
+
+        if gold_col not in weapons.columns:
+            return {"done": 0, "total": 0}
+
+        done = 0
+        total = 0
+
+        for weapon_class, requirement_tuple in requirements.items():
+            required_gold = requirement_tuple[3]
+            class_rows = weapons[weapons["weapon_class"].fillna("").str.strip() == weapon_class]
+
+            if class_rows.empty:
+                continue
+
+            total += 1
+
+            gold_count = 0
+            for _, row in class_rows.iterrows():
+                gold_done = _is_true(row.get(gold_col, ""))
+                diamond_done = _is_true(row.get(diamond_col, ""))
+                if gold_done or diamond_done:
+                    gold_count += 1
+
+            any_diamond_ticked = (
+                diamond_col in class_rows.columns
+                and class_rows[diamond_col].apply(_is_true).any()
+            )
+
+            if gold_count >= required_gold or any_diamond_ticked:
+                done += 1
+
+        return {"done": int(done), "total": int(total)}
+
+    def equipment_diamond_group_summary(df: pd.DataFrame) -> dict[str, int]:
+        if df.empty or "category" not in df.columns:
+            return {"done": 0, "total": 0}
+
+        done = 0
+        total = 0
+
+        for category, group in df.groupby("category"):
+            if not str(category).strip():
+                continue
+
+            total += 1
+
+            required_values = [
+                safe_int(value, 0)
+                for value in group.get("diamond_required", pd.Series(dtype=str)).tolist()
+                if str(value).strip()
+            ]
+            required_gold = max(required_values) if required_values else 0
+
+            gold_count = 0
+            for _, row in group.iterrows():
+                gold_done = _is_true(row.get("gold_complete", ""))
+                diamond_done = _is_true(row.get("diamond_complete", ""))
+                if gold_done or diamond_done:
+                    gold_count += 1
+
+            any_diamond_ticked = (
+                "diamond_complete" in group.columns
+                and group["diamond_complete"].apply(_is_true).any()
+            )
+
+            if required_gold > 0 and (gold_count >= required_gold or any_diamond_ticked):
+                done += 1
+
+        return {"done": int(done), "total": int(total)}
+
+    weapon_mp_stage_columns = [
+        "mp_bronze_complete",
+        "mp_silver_complete",
+        "mp_gold_complete",
+    ]
+    weapon_zm_stage_columns = [
+        "zm_bronze_complete",
+        "zm_silver_complete",
+        "zm_gold_complete",
+    ]
+    equipment_stage_columns = [
+        "bronze_complete",
+        "silver_complete",
+        "gold_complete",
+    ]
+
+    weapon_mp_bronze = count_stage_with_backfill(weapons, weapon_mp_stage_columns, 0)
+    weapon_mp_silver = count_stage_with_backfill(weapons, weapon_mp_stage_columns, 1)
+    weapon_mp_gold = count_stage_with_backfill(weapons, weapon_mp_stage_columns, 2)
+
+    weapon_zm_bronze = count_stage_with_backfill(weapons, weapon_zm_stage_columns, 0)
+    weapon_zm_silver = count_stage_with_backfill(weapons, weapon_zm_stage_columns, 1)
+    weapon_zm_gold = count_stage_with_backfill(weapons, weapon_zm_stage_columns, 2)
+
+    equipment_mp_bronze = count_stage_with_backfill(eq_mp, equipment_stage_columns, 0)
+    equipment_mp_silver = count_stage_with_backfill(eq_mp, equipment_stage_columns, 1)
+    equipment_mp_gold = count_stage_with_backfill(eq_mp, equipment_stage_columns, 2)
+
+    equipment_zm_bronze = count_stage_with_backfill(eq_zm, equipment_stage_columns, 0)
+    equipment_zm_silver = count_stage_with_backfill(eq_zm, equipment_stage_columns, 1)
+    equipment_zm_gold = count_stage_with_backfill(eq_zm, equipment_stage_columns, 2)
+
+    weapon_mp_diamond_groups = weapon_diamond_group_summary("mp", MP_WEAPON_BADGE_REQUIREMENTS)
+    weapon_zm_diamond_groups = weapon_diamond_group_summary("zm", ZM_WEAPON_BADGE_REQUIREMENTS)
+    equipment_mp_diamond_groups = equipment_diamond_group_summary(eq_mp)
+    equipment_zm_diamond_groups = equipment_diamond_group_summary(eq_zm)
+
+    weapon_stage_done = (
+        weapon_mp_bronze[0] + weapon_mp_silver[0] + weapon_mp_gold[0]
+        + weapon_zm_bronze[0] + weapon_zm_silver[0] + weapon_zm_gold[0]
+    )
+    weapon_stage_total = (
+        weapon_mp_bronze[1] + weapon_mp_silver[1] + weapon_mp_gold[1]
+        + weapon_zm_bronze[1] + weapon_zm_silver[1] + weapon_zm_gold[1]
+    )
+
+    weapon_diamond_group_done = weapon_mp_diamond_groups["done"] + weapon_zm_diamond_groups["done"]
+    weapon_diamond_group_total = weapon_mp_diamond_groups["total"] + weapon_zm_diamond_groups["total"]
+
+    weapon_done = weapon_stage_done + weapon_diamond_group_done
+    weapon_total = weapon_stage_total + weapon_diamond_group_total
+
+    support_stage_done = (
+        equipment_mp_bronze[0] + equipment_mp_silver[0] + equipment_mp_gold[0]
+        + equipment_zm_bronze[0] + equipment_zm_silver[0] + equipment_zm_gold[0]
+    )
+    support_stage_total = (
+        equipment_mp_bronze[1] + equipment_mp_silver[1] + equipment_mp_gold[1]
+        + equipment_zm_bronze[1] + equipment_zm_silver[1] + equipment_zm_gold[1]
+    )
+
+    support_diamond_group_done = equipment_mp_diamond_groups["done"] + equipment_zm_diamond_groups["done"]
+    support_diamond_group_total = equipment_mp_diamond_groups["total"] + equipment_zm_diamond_groups["total"]
+
+    support_done = support_stage_done + support_diamond_group_done
+    support_total = support_stage_total + support_diamond_group_total
+
+    total_done = weapon_done + support_done
+    total_count = weapon_total + support_total
+
+    weapon_mp_diamond_rows = count_raw_column(weapons, "mp_diamond_complete")
+    weapon_zm_diamond_rows = count_raw_column(weapons, "zm_diamond_complete")
+    equipment_mp_diamond_rows = count_raw_column(eq_mp, "diamond_complete")
+    equipment_zm_diamond_rows = count_raw_column(eq_zm, "diamond_complete")
+
+    return {
+        "total": {"done": int(total_done), "total": int(total_count)},
+        "weapon": {"done": int(weapon_done), "total": int(weapon_total)},
+        "support": {"done": int(support_done), "total": int(support_total)},
+
+        "weapon_stages": {
+            "mp_bronze": weapon_mp_bronze,
+            "mp_silver": weapon_mp_silver,
+            "mp_gold": weapon_mp_gold,
+            "zm_bronze": weapon_zm_bronze,
+            "zm_silver": weapon_zm_silver,
+            "zm_gold": weapon_zm_gold,
+        },
+
+        "support_stages": {
+            "mp_bronze": equipment_mp_bronze,
+            "mp_silver": equipment_mp_silver,
+            "mp_gold": equipment_mp_gold,
+            "zm_bronze": equipment_zm_bronze,
+            "zm_silver": equipment_zm_silver,
+            "zm_gold": equipment_zm_gold,
+        },
+
+        "diamond_groups": {
+            "weapon_mp": weapon_mp_diamond_groups,
+            "weapon_zm": weapon_zm_diamond_groups,
+            "equipment_mp": equipment_mp_diamond_groups,
+            "equipment_zm": equipment_zm_diamond_groups,
+            "mp": {
+                "done": weapon_mp_diamond_groups["done"] + equipment_mp_diamond_groups["done"],
+                "total": weapon_mp_diamond_groups["total"] + equipment_mp_diamond_groups["total"],
+            },
+            "zm": {
+                "done": weapon_zm_diamond_groups["done"] + equipment_zm_diamond_groups["done"],
+                "total": weapon_zm_diamond_groups["total"] + equipment_zm_diamond_groups["total"],
+            },
+        },
+
+        "individual_diamond_rows": {
+            "weapon_mp": {"done": weapon_mp_diamond_rows[0], "total": weapon_mp_diamond_rows[1]},
+            "weapon_zm": {"done": weapon_zm_diamond_rows[0], "total": weapon_zm_diamond_rows[1]},
+            "equipment_mp": {"done": equipment_mp_diamond_rows[0], "total": equipment_mp_diamond_rows[1]},
+            "equipment_zm": {"done": equipment_zm_diamond_rows[0], "total": equipment_zm_diamond_rows[1]},
+        },
+
+        # Legacy keys so the current dashboard will not break before the UI patch.
+        "weapon_mp_gold": weapon_mp_gold,
+        "weapon_mp_diamond": weapon_mp_diamond_rows,
+        "weapon_zm_gold": weapon_zm_gold,
+        "weapon_zm_diamond": weapon_zm_diamond_rows,
+        "equipment_mp_gold": equipment_mp_gold,
+        "equipment_mp_diamond": equipment_mp_diamond_rows,
+        "equipment_zm_gold": equipment_zm_gold,
+        "equipment_zm_diamond": equipment_zm_diamond_rows,
+    }
+
 # ---------------------------------------------------------------------------
 # CALLING CARDS — by mode
 # ---------------------------------------------------------------------------
@@ -2046,59 +2379,284 @@ CALLING_CARD_FILES = {
  
 def compute_calling_cards_summary(clean_folder: Path) -> dict[str, tuple]:
     result = {}
+
+    mode_master_cards = {
+        "Co-Op / Endgame": "Co-Op Campaign 100 Percenter",
+        "Warzone": "Warzone 100 Percenter",
+    }
+
+    excluded_values = {"FALSE", "NO", "0", "N", "OPTIONAL", "EXTRA"}
+
     for mode, filename in CALLING_CARD_FILES.items():
         df = _load(clean_folder, filename)
+
         if df.empty:
             result[mode] = (0, 0)
             continue
-        done = df["completed"].apply(_is_true).sum()
-        result[mode] = (int(done), len(df))
+
+        if "counts_for_100_percent" in df.columns:
+            counted_df = df[
+                df["counts_for_100_percent"]
+                .fillna("")
+                .apply(lambda value: str(value).strip().upper() not in excluded_values)
+            ]
+        else:
+            counted_df = df
+
+        if counted_df.empty or "completed" not in counted_df.columns:
+            result[mode] = (0, 0)
+            continue
+
+        total = len(counted_df)
+
+        master_card = mode_master_cards.get(mode)
+        if master_card and "challenge" in counted_df.columns:
+            master_rows = counted_df[
+                counted_df["challenge"].fillna("").str.strip() == master_card
+            ]
+
+            if not master_rows.empty and master_rows["completed"].apply(_is_true).any():
+                result[mode] = (total, total)
+                continue
+
+        done = counted_df["completed"].apply(_is_true).sum()
+        result[mode] = (int(done), total)
+
     return result
- 
- 
+
 # ---------------------------------------------------------------------------
 # RETICLES — by mode
 # ---------------------------------------------------------------------------
  
-def compute_reticles_summary(clean_folder: Path) -> dict[str, tuple]:
+def compute_reticles_summary(clean_folder: Path) -> dict[str, Any]:
     df = _load(clean_folder, "reticles.csv")
+
+    stage_columns = [
+        "stage_20_complete",
+        "stage_40_complete",
+        "stage_60_complete",
+        "stage_80_complete",
+        "stage_100_complete",
+    ]
+
+    stage_labels = {
+        "stage_20_complete": "20%",
+        "stage_40_complete": "40%",
+        "stage_60_complete": "60%",
+        "stage_80_complete": "80%",
+        "stage_100_complete": "100%",
+    }
+
     if df.empty:
-        return {}
-    result = {}
-    for mode in df["mode"].unique():
-        sub = df[df["mode"] == mode]
-        done = sub["stage_100_complete"].apply(_is_true).sum()
-        result[mode] = (int(done), len(sub))
-    return result
+        return {
+            "total": {"done": 0, "total": 0},
+            "by_mode": {},
+            "by_stage": {},
+            "stage_100_by_mode": {},
+        }
+
+    def stage_complete_with_backfill(row, stage_index: int) -> bool:
+        """
+        Counts later reticle stages as earlier stages.
+
+        Example:
+        stage_100_complete TRUE also counts as 80, 60, 40, and 20 complete.
+        """
+        later_or_equal_columns = stage_columns[stage_index:]
+
+        return any(
+            column in df.columns
+            and not _is_na(row.get(column, ""))
+            and _is_true(row.get(column, ""))
+            for column in later_or_equal_columns
+        )
+
+    def count_rows(rows: pd.DataFrame, stage_index: int) -> tuple[int, int]:
+        stage_col = stage_columns[stage_index]
+
+        if rows.empty or stage_col not in rows.columns:
+            return 0, 0
+
+        total = 0
+        done = 0
+
+        for _, row in rows.iterrows():
+            if _is_na(row.get(stage_col, "")):
+                continue
+
+            total += 1
+
+            if stage_complete_with_backfill(row, stage_index):
+                done += 1
+
+        return int(done), int(total)
+
+    total_done = 0
+    total_count = 0
+    by_mode = {}
+    by_stage = {}
+    stage_100_by_mode = {}
+
+    for stage_index, stage_col in enumerate(stage_columns):
+        done, total = count_rows(df, stage_index)
+
+        by_stage[stage_col] = {
+            "label": stage_labels[stage_col],
+            "done": done,
+            "total": total,
+        }
+
+        total_done += done
+        total_count += total
+
+    if "mode" in df.columns:
+        for mode in df["mode"].unique():
+            mode_rows = df[df["mode"] == mode]
+
+            mode_done = 0
+            mode_total = 0
+
+            for stage_index, _stage_col in enumerate(stage_columns):
+                done, total = count_rows(mode_rows, stage_index)
+                mode_done += done
+                mode_total += total
+
+            stage_100_done, stage_100_total = count_rows(mode_rows, 4)
+
+            by_mode[mode] = {
+                "done": int(mode_done),
+                "total": int(mode_total),
+            }
+
+            stage_100_by_mode[mode] = {
+                "done": int(stage_100_done),
+                "total": int(stage_100_total),
+            }
+
+    return {
+        "total": {"done": int(total_done), "total": int(total_count)},
+        "by_mode": by_mode,
+        "by_stage": by_stage,
+        "stage_100_by_mode": stage_100_by_mode,
+
+        # Legacy mode keys so old UI code will not instantly explode.
+        **{
+            mode: (data["done"], data["total"])
+            for mode, data in stage_100_by_mode.items()
+        },
+    }
  
  
 # ---------------------------------------------------------------------------
 # TITLES — by mode
 # ---------------------------------------------------------------------------
  
-def compute_titles_summary(clean_folder: Path) -> dict[str, tuple]:
+def compute_titles_summary(clean_folder: Path) -> dict[str, Any]:
     df = _load(clean_folder, "titles.csv")
-    if df.empty:
-        return {}
-    result = {}
-    for mode in df["mode"].unique():
-        sub = df[df["mode"] == mode]
-        done = sub["earned"].apply(_is_true).sum()
-        result[mode] = (int(done), len(sub))
-    return result
+
+    if df.empty or "earned" not in df.columns:
+        return {
+            "total": {"done": 0, "total": 0},
+            "by_mode": {},
+        }
+
+    mode_label_map = {
+        "General": "Global Cleanup",
+        "Co-Op Campaign & Endgame": "Co-Op / Endgame",
+        "Co-Op / Endgame": "Co-Op / Endgame",
+        "Multiplayer": "Multiplayer",
+        "Zombies": "Zombies",
+        "Warzone": "Warzone",
+    }
+
+    if "mode" not in df.columns:
+        df["mode"] = "Global Cleanup"
+
+    df = df.copy()
+    df["_dashboard_mode"] = df["mode"].fillna("").apply(
+        lambda value: mode_label_map.get(str(value).strip(), str(value).strip() or "Global Cleanup")
+    )
+
+    total_done = int(df["earned"].apply(_is_true).sum())
+    total_count = int(len(df))
+
+    by_mode = {}
+
+    for mode in df["_dashboard_mode"].unique():
+        sub = df[df["_dashboard_mode"] == mode]
+        done = int(sub["earned"].apply(_is_true).sum())
+        total = int(len(sub))
+
+        by_mode[mode] = {
+            "done": done,
+            "total": total,
+        }
+
+    return {
+        "total": {
+            "done": total_done,
+            "total": total_count,
+        },
+        "by_mode": by_mode,
+    }
  
  
 # ---------------------------------------------------------------------------
 # COLOURS — single percentage
 # ---------------------------------------------------------------------------
  
-def compute_colours_summary(clean_folder: Path) -> tuple:
+def compute_colours_summary(clean_folder: Path) -> dict[str, Any]:
     df = _load(clean_folder, "colours.csv")
-    if df.empty:
-        return (0, 0)
-    done = df["unlocked"].apply(_is_true).sum()
-    return (int(done), len(df))
- 
+
+    if df.empty or "unlocked" not in df.columns:
+        return {
+            "total": {"done": 0, "total": 0},
+            "by_category": {},
+            "by_source": {},
+        }
+
+    total_done = int(df["unlocked"].apply(_is_true).sum())
+    total_count = int(len(df))
+
+    by_category = {}
+    by_source = {}
+
+    if "category" in df.columns:
+        for category in df["category"].fillna("").unique():
+            label = str(category).strip() or "Uncategorised"
+            sub = df[df["category"].fillna("").str.strip() == str(category).strip()]
+            done = int(sub["unlocked"].apply(_is_true).sum())
+            total = int(len(sub))
+
+            by_category[label] = {
+                "done": done,
+                "total": total,
+            }
+
+    if "source" in df.columns:
+        for source in df["source"].fillna("").unique():
+            label = str(source).strip() or "Unknown Source"
+            sub = df[df["source"].fillna("").str.strip() == str(source).strip()]
+            done = int(sub["unlocked"].apply(_is_true).sum())
+            total = int(len(sub))
+
+            by_source[label] = {
+                "done": done,
+                "total": total,
+            }
+
+    return {
+        "total": {
+            "done": total_done,
+            "total": total_count,
+        },
+        "by_category": by_category,
+        "by_source": by_source,
+
+        # Legacy keys in case any old code still checks tuple-style values later.
+        "done": total_done,
+        "count": total_count,
+    }
  
 # ---------------------------------------------------------------------------
 # AUGMENTS — Zombies only
