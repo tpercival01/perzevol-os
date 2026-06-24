@@ -1529,6 +1529,196 @@ def generate_ai_commentary(task: dict[str, Any], motivation: str) -> str:
 
     return "Mission selected. Human negotiation privileges revoked."
 
+# ──────────────────────────────────────────────────────────────────────────────
+# SESSION PLANNER
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+def cluster_key(task: dict[str, Any]) -> str:
+    """
+    Returns the grouping key used to cluster a task with related tasks
+    in the same session. Camo/prestige/mastery tasks cluster by weapon
+    class. Calling cards and titles cluster by sub-category, since that's
+    their natural grouping (e.g. "Mission Report", "Embrace the Nightmare").
+    """
+    task_type = task.get("task_type", "")
+
+    if task_type in {"calling_card", "dark_ops", "title"}:
+        sub = task.get("weapon_class", "") or task.get("category", "")
+        return f"card:{sub}"
+
+    weapon_class = task.get("weapon_class", "")
+    return f"class:{weapon_class}" if weapon_class else f"other:{task_type}"
+
+
+def cluster_label(task: dict[str, Any]) -> str:
+    task_type = task.get("task_type", "")
+
+    if task_type in {"calling_card", "dark_ops", "title"}:
+        return task.get("weapon_class", "") or task.get("category", "Misc")
+
+    return task.get("weapon_class", "Unclassified")
+
+
+def build_clusters(tasks_in_mode: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """
+    Groups available tasks within a single mode into clusters using
+    cluster_key(). Each cluster gets a score based on how much
+    near-complete work is stacked inside it — more weapons/items close
+    to finishing in the same cluster ranks higher than isolated tasks.
+    """
+    groups: dict[str, list[dict[str, Any]]] = {}
+
+    for task in tasks_in_mode:
+        key = cluster_key(task)
+        groups.setdefault(key, []).append(task)
+
+    clusters: list[dict[str, Any]] = []
+
+    for key, group_tasks in groups.items():
+        # Sort tasks within the cluster by progress, closest first
+        group_tasks.sort(key=lambda t: float(t.get("weapon_progress", 0.0)), reverse=True)
+
+        close_count = sum(
+            1 for t in group_tasks if float(t.get("weapon_progress", 0.0)) >= 50.0
+        )
+        total_progress = sum(float(t.get("weapon_progress", 0.0)) for t in group_tasks)
+        average_progress = total_progress / len(group_tasks) if group_tasks else 0.0
+
+        # Cluster score rewards: more close-to-done items, higher average progress,
+        # and a small bonus for cluster size so a 1-item "cluster" doesn't
+        # automatically lose to mediocre 4-item clusters with low progress.
+        cluster_score = (close_count * 100) + average_progress + (len(group_tasks) * 2)
+
+        clusters.append(
+            {
+                "key": key,
+                "label": cluster_label(group_tasks[0]),
+                "task_type_sample": group_tasks[0].get("task_type", ""),
+                "tasks": group_tasks,
+                "close_count": close_count,
+                "average_progress": round(average_progress, 1),
+                "cluster_score": cluster_score,
+            }
+        )
+
+    clusters.sort(key=lambda c: c["cluster_score"], reverse=True)
+
+    return clusters
+
+
+def stops_for_available_minutes(available_minutes: int) -> int:
+    """
+    Scales the number of plan stops to the time available, roughly
+    one stop per 15 minutes, with a floor and ceiling so short
+    sessions still get a real plan and long sessions don't turn
+    into a full backlog dump.
+    """
+    raw = available_minutes // 15
+    return max(3, min(raw, 12))
+
+
+def build_session_plan(
+    tasks: list[dict[str, Any]],
+    preferred_mode: str,
+    session_goal: str,
+    motivation: str,
+    available_minutes: int = 90,
+    max_stops: int | None = None,
+) -> dict[str, Any]:
+    """
+    Builds an ordered, ranked session plan within a single locked mode.
+
+    Returns a dict with:
+      - mode
+      - stops: ordered list of {weapon/challenge, objective, progress, cluster_label}
+      - cluster_summary: which clusters were pulled from and why
+    """
+    if max_stops is None:
+        max_stops = stops_for_available_minutes(available_minutes)
+
+    available = get_available_tasks(tasks)
+    mode_tasks = [t for t in available if t.get("mode") == preferred_mode]
+
+    if not mode_tasks:
+        return {
+            "mode": preferred_mode,
+            "stops": [],
+            "cluster_summary": [],
+            "note": f"No available tasks found in {preferred_mode}.",
+        }
+
+    clusters = build_clusters(mode_tasks)
+
+    stops: list[dict[str, Any]] = []
+    cluster_summary: list[dict[str, Any]] = []
+
+    for cluster in clusters:
+        if len(stops) >= max_stops:
+            break
+
+        cluster_summary.append(
+            {
+                "label": cluster["label"],
+                "close_count": cluster["close_count"],
+                "average_progress": cluster["average_progress"],
+            }
+        )
+
+        for task in cluster["tasks"]:
+            if len(stops) >= max_stops:
+                break
+
+            stops.append(
+                {
+                    "stop_number": len(stops) + 1,
+                    "cluster_label": cluster["label"],
+                    "weapon": task.get("weapon", ""),
+                    "camo": task.get("camo", ""),
+                    "challenge_text": task.get("challenge_text", ""),
+                    "weapon_progress": task.get("weapon_progress", 0.0),
+                    "task_type": task.get("task_type", ""),
+                    "task_id": task.get("task_id", ""),
+                    "mode": task.get("mode", ""),
+                }
+            )
+
+    return {
+        "mode": preferred_mode,
+        "stops": stops,
+        "cluster_summary": cluster_summary,
+        "note": "",
+    }
+
+
+def rebuild_plan_after_progress(
+    tasks: list[dict[str, Any]],
+    preferred_mode: str,
+    session_goal: str,
+    motivation: str,
+    completed_task_ids: list[str],
+    remaining_minutes: int,
+) -> dict[str, Any]:
+    """
+    Called after logging progress mid-session. Re-runs build_session_plan()
+    on the current task state (which already reflects the logged result),
+    excluding anything just completed, and rescales stop count to whatever
+    time is actually left. This is what gives the "dynamic" behaviour —
+    if you only get through stop 1, the next call naturally re-ranks and
+    re-sizes the plan based on what's actually left, rather than blindly
+    continuing a stale list.
+    """
+    remaining_tasks = [
+        t for t in tasks if t.get("task_id") not in completed_task_ids
+    ]
+
+    return build_session_plan(
+        tasks=remaining_tasks,
+        preferred_mode=preferred_mode,
+        session_goal=session_goal,
+        motivation=motivation,
+        available_minutes=remaining_minutes,
+    )
 
 def generate_mission(
     tasks: list[dict[str, Any]],

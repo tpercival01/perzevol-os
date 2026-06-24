@@ -140,7 +140,6 @@ def initialise_state():
             }
         ]
 
-    # Persist form state across reruns
     if "bo7_form_minutes" not in st.session_state:
         st.session_state.bo7_form_minutes = 90
     if "bo7_form_energy" not in st.session_state:
@@ -153,6 +152,11 @@ def initialise_state():
         st.session_state.bo7_form_avoided_mode = MODES[2]
     if "bo7_form_session_goal" not in st.session_state:
         st.session_state.bo7_form_session_goal = SESSION_GOALS[0]
+    if "bo7_session_plan" not in st.session_state:
+        st.session_state.bo7_session_plan = None
+    if "bo7_completed_stop_ids" not in st.session_state:
+        st.session_state.bo7_completed_stop_ids = []
+
 
 
 CLEAN_DATA_DIR = Path("data/bo7_clean")
@@ -447,132 +451,147 @@ tab_mission, tab_quick_update, tab_tracker, tab_chat, tab_log, tab_protocol = st
 
 # ─── MISSION CONTROL ──────────────────────────────────────────────────────────
 
+
 with tab_mission:
-
-    mission = st.session_state.bo7_latest_mission
-
-    # ── STATE 2: ACTIVE MISSION ──
-    if mission:
-        st.markdown(f"<div class='order-mode'>☣ {mission['mode']} — ORDERS ACTIVE</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='order-weapon'>{mission['weapon'] if 'weapon' in mission else mission['target'].split('—')[0].strip()}</div>", unsafe_allow_html=True)
-
-        camo_display = mission['target'].split('—')[-1].strip() if '—' in mission['target'] else mission['target']
-        st.markdown(f"<div class='order-camo'>{camo_display}</div>", unsafe_allow_html=True)
-
-        st.markdown(f"<div class='order-challenge'>{mission['challenge_text']}</div>", unsafe_allow_html=True)
-
-        st.markdown(f"<div class='order-strategy'>▶ {mission['strategy']}</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='order-strategy'>✕ AVOID: {mission['avoid']}</div>", unsafe_allow_html=True)
-
-        st.markdown(f"<div class='order-commentary'>{mission['ai_commentary']}</div>", unsafe_allow_html=True)
-
+ 
+    plan = st.session_state.bo7_session_plan
+ 
+    # ── STATE 2: ACTIVE PLAN ──
+    if plan and plan.get("stops"):
+        st.markdown(f"<div class='order-mode'>☣ {plan['mode']} — SESSION PLAN ACTIVE</div>", unsafe_allow_html=True)
+ 
+        if plan.get("cluster_summary"):
+            cluster_text = " · ".join(
+                f"{c['label']} ({c['close_count']} close)"
+                for c in plan["cluster_summary"]
+            )
+            st.markdown(f"<div class='order-strategy'>Focus clusters: {cluster_text}</div>", unsafe_allow_html=True)
+ 
         st.divider()
-
-        col1, col2, col3 = st.columns(3)
-
-        with col1:
-            if st.button("✅  COMPLETED", type="primary", use_container_width=True):
-                log_row = {
-                    "mission_id": mission["mission_id"],
-                    "time": mission["timestamp"],
-                    "mode": mission["mode"],
-                    "target": mission["target"],
-                    "challenge": mission["challenge_text"],
-                    "recommended_mode": mission["recommended_mode"],
-                    "command": mission["command"],
-                    "time_limit": mission["time_limit"],
-                    "result": "Camo completed",
-                    "blame": "Successful operation",
-                    "notes": "",
-                }
-                st.session_state.bo7_session_log.append(log_row)
-                append_session_log(log_row)
-
-                st.session_state.bo7_tasks = apply_mission_result(
-                    tasks=st.session_state.bo7_tasks,
-                    mission=mission,
-                    result="Camo completed",
+ 
+        for stop in plan["stops"]:
+            stop_number = stop["stop_number"]
+            weapon = stop["weapon"]
+            camo = stop["camo"]
+            progress = stop["weapon_progress"]
+            challenge = stop["challenge_text"]
+            cluster_label = stop["cluster_label"]
+ 
+            with st.container():
+                st.markdown(
+                    f"<div class='order-weapon' style='font-size:1.6rem;'>"
+                    f"{stop_number}. {weapon}</div>",
+                    unsafe_allow_html=True,
                 )
-
-                if mission.get("task_id"):
-                    completion_state = load_completion_state()
-                    completion_state[mission["task_id"]] = {
-                        "result": "Camo completed",
-                        "mode": mission["mode"],
-                        "target": mission["target"],
-                        "reason": "Mission result logged",
+                st.markdown(
+                    f"<div class='order-camo' style='font-size:1.1rem;'>{camo} — {progress:.0f}% · {cluster_label}</div>",
+                    unsafe_allow_html=True,
+                )
+                st.markdown(f"<div class='order-challenge'>{challenge}</div>", unsafe_allow_html=True)
+ 
+                col1, col2, col3 = st.columns(3)
+ 
+                def _log_stop(task_id, result, blame, stop_data):
+                    log_row = {
+                        "mission_id": f"PLAN-{stop_data['mode']}-{task_id}",
+                        "time": datetime.now().strftime("%H:%M:%S"),
+                        "mode": stop_data["mode"],
+                        "target": f"{stop_data['weapon']} — {stop_data['camo']}",
+                        "challenge": stop_data["challenge_text"],
+                        "recommended_mode": stop_data["mode"],
+                        "command": f"Session plan stop {stop_data['stop_number']}",
+                        "time_limit": "",
+                        "result": result,
+                        "blame": blame,
+                        "notes": "",
                     }
-                    save_completion_state(completion_state)
-                    st.session_state.bo7_completion_state = completion_state
-
-                st.session_state.bo7_latest_mission = None
-                st.rerun()
-
-        with col2:
-            if st.button("⚠️  PARTIAL", use_container_width=True):
-                log_row = {
-                    "mission_id": mission["mission_id"],
-                    "time": mission["timestamp"],
-                    "mode": mission["mode"],
-                    "target": mission["target"],
-                    "challenge": mission["challenge_text"],
-                    "recommended_mode": mission["recommended_mode"],
-                    "command": mission["command"],
-                    "time_limit": mission["time_limit"],
-                    "result": "Partial progress",
-                    "blame": "Human avoidance",
-                    "notes": "",
-                }
-                st.session_state.bo7_session_log.append(log_row)
-                append_session_log(log_row)
-
-                st.session_state.bo7_tasks = apply_mission_result(
+                    st.session_state.bo7_session_log.append(log_row)
+                    append_session_log(log_row)
+ 
+                    for task in st.session_state.bo7_tasks:
+                        if task["task_id"] == task_id:
+                            task["last_result"] = result
+                            if result == "Camo completed":
+                                task["completed_on_session"] = True
+                            break
+ 
+                    if result == "Camo completed" and task_id:
+                        completion_state = load_completion_state()
+                        completion_state[task_id] = {
+                            "result": "Camo completed",
+                            "mode": stop_data["mode"],
+                            "target": f"{stop_data['weapon']} — {stop_data['camo']}",
+                            "reason": "Session plan stop logged",
+                        }
+                        save_completion_state(completion_state)
+                        st.session_state.bo7_completion_state = completion_state
+ 
+                with col1:
+                    if st.button("✅ Done", key=f"done_{stop['task_id']}", use_container_width=True):
+                        _log_stop(stop["task_id"], "Camo completed", "Successful operation", stop)
+                        st.session_state.bo7_completed_stop_ids.append(stop["task_id"])
+                        st.rerun()
+ 
+                with col2:
+                    if st.button("⚠️ Partial", key=f"partial_{stop['task_id']}", use_container_width=True):
+                        _log_stop(stop["task_id"], "Partial progress", "Human avoidance", stop)
+                        st.session_state.bo7_completed_stop_ids.append(stop["task_id"])
+                        st.rerun()
+ 
+                with col3:
+                    if st.button("⏭️ Skip", key=f"skip_{stop['task_id']}", use_container_width=True):
+                        st.session_state.bo7_completed_stop_ids.append(stop["task_id"])
+                        st.rerun()
+ 
+                st.divider()
+ 
+        st.markdown("**Time remaining in this session:**")
+        remaining_minutes = st.number_input(
+            "Minutes left",
+            min_value=0,
+            max_value=240,
+            value=st.session_state.get("bo7_form_minutes", 60),
+            step=5,
+            key="plan_remaining_minutes",
+        )
+ 
+        col_a, col_b = st.columns(2)
+ 
+        with col_a:
+            if st.button("🔄 REBUILD PLAN WITH REMAINING TIME", type="primary", use_container_width=True):
+                st.session_state.bo7_form_minutes = remaining_minutes
+ 
+                new_plan = rebuild_plan_after_progress(
                     tasks=st.session_state.bo7_tasks,
-                    mission=mission,
-                    result="Partial progress",
+                    preferred_mode=plan["mode"],
+                    session_goal=st.session_state.bo7_form_session_goal,
+                    motivation=st.session_state.bo7_form_motivation,
+                    completed_task_ids=st.session_state.bo7_completed_stop_ids,
+                    remaining_minutes=remaining_minutes,
                 )
-                st.session_state.bo7_latest_mission = None
+ 
+                st.session_state.bo7_session_plan = new_plan
                 st.rerun()
-
-        with col3:
-            if st.button("❌  BLOCKED", use_container_width=True):
-                log_row = {
-                    "mission_id": mission["mission_id"],
-                    "time": mission["timestamp"],
-                    "mode": mission["mode"],
-                    "target": mission["target"],
-                    "challenge": mission["challenge_text"],
-                    "recommended_mode": mission["recommended_mode"],
-                    "command": mission["command"],
-                    "time_limit": mission["time_limit"],
-                    "result": "Blocked / wrong requirement",
-                    "blame": "Bad AI assignment",
-                    "notes": "",
-                }
-                st.session_state.bo7_session_log.append(log_row)
-                append_session_log(log_row)
-
-                st.session_state.bo7_tasks = apply_mission_result(
-                    tasks=st.session_state.bo7_tasks,
-                    mission=mission,
-                    result="Blocked / wrong requirement",
-                )
-                st.session_state.bo7_latest_mission = None
+ 
+        with col_b:
+            if st.button("⏹️ END SESSION", use_container_width=True):
+                st.session_state.bo7_session_plan = None
+                st.session_state.bo7_completed_stop_ids = []
                 st.rerun()
-
-    # ── STATE 1: NO ACTIVE MISSION ──
+ 
+    # ── STATE 1: NO ACTIVE PLAN ──
     else:
         task_summary = summarise_tasks(st.session_state.bo7_tasks)
-
+ 
         st.caption(
             f"Tasks loaded: {task_summary['total']} · "
             f"Available: {task_summary['available']} · "
             f"Locked: {task_summary['locked']} · "
             f"Done: {len(st.session_state.bo7_completion_state)}"
         )
-
+ 
         st.divider()
-
+ 
         available_minutes = st.slider(
             "Available time (minutes)",
             min_value=15, max_value=240,
@@ -580,7 +599,7 @@ with tab_mission:
             step=15,
             key="slider_minutes",
         )
-
+ 
         col1, col2 = st.columns(2)
         with col1:
             energy = st.selectbox(
@@ -598,7 +617,7 @@ with tab_mission:
                 index=SESSION_GOALS.index(st.session_state.bo7_form_session_goal),
                 key="select_goal",
             )
-
+ 
         with col2:
             motivation = st.selectbox(
                 "Motivation", MOTIVATION_LEVELS,
@@ -610,28 +629,37 @@ with tab_mission:
                 index=MODES.index(st.session_state.bo7_form_avoided_mode),
                 key="select_avoided",
             )
-
+ 
+        double_xp_tokens = st.number_input(
+            "Double XP tokens available",
+            min_value=0,
+            max_value=20,
+            value=st.session_state.get("bo7_double_xp_tokens", 0),
+            step=1,
+            key="double_xp_input",
+        )
+ 
         st.divider()
-
-        if st.button("GENERATE ORDERS", type="primary", use_container_width=True):
-            # Persist form state
+ 
+        if st.button("GENERATE SESSION PLAN", type="primary", use_container_width=True):
             st.session_state.bo7_form_minutes = available_minutes
             st.session_state.bo7_form_energy = energy
             st.session_state.bo7_form_motivation = motivation
             st.session_state.bo7_form_preferred_mode = preferred_mode
             st.session_state.bo7_form_avoided_mode = avoided_mode
             st.session_state.bo7_form_session_goal = session_goal
-
-            st.session_state.bo7_latest_mission = generate_mission(
+            st.session_state.bo7_double_xp_tokens = double_xp_tokens
+            st.session_state.bo7_completed_stop_ids = []
+ 
+            new_plan = build_session_plan(
                 tasks=st.session_state.bo7_tasks,
-                available_minutes=available_minutes,
-                energy=energy,
-                motivation=motivation,
                 preferred_mode=preferred_mode,
-                avoided_mode=avoided_mode,
                 session_goal=session_goal,
-                operator_note="",
+                motivation=motivation,
+                available_minutes=available_minutes,
             )
+ 
+            st.session_state.bo7_session_plan = new_plan
             st.rerun()
 
 # ─── QUICK UPDATE ─────────────────────────────────────────────────────────────
