@@ -2,6 +2,7 @@ import csv
 import json
 from pathlib import Path
 import pandas as pd
+from datetime import datetime
 
 import streamlit as st
 
@@ -21,6 +22,8 @@ from modules.warzone.killchain_engine import (
     load_tracker_tasks,
     summarise_sessions,
     summarise_tasks,
+    build_session_plan,
+    rebuild_plan_after_progress
 )
 
 
@@ -32,6 +35,68 @@ SESSION_LOG_PATH = STATE_DIR / "session_log.csv"
 def ensure_state_dir():
     STATE_DIR.mkdir(parents=True, exist_ok=True)
 
+
+ACCOUNT_PARAMS_PATH = STATE_DIR / "account_params.json"
+ 
+DOUBLE_XP_DURATIONS = [15, 30, 45, 60]
+DOUBLE_XP_TYPES = ["weapon", "account"]
+ 
+ 
+def default_token_bank() -> dict[str, int]:
+    bank = {}
+    for xp_type in DOUBLE_XP_TYPES:
+        for duration in DOUBLE_XP_DURATIONS:
+            bank[f"{xp_type}_{duration}"] = 0
+    return bank
+ 
+ 
+def load_account_params() -> dict[str, Any]:
+    ensure_state_dir()
+    if not ACCOUNT_PARAMS_PATH.exists():
+        return {"double_xp_tokens": default_token_bank()}
+    try:
+        with ACCOUNT_PARAMS_PATH.open("r", encoding="utf-8") as file:
+            data = json.load(file)
+            if "double_xp_tokens" not in data:
+                data["double_xp_tokens"] = default_token_bank()
+            # Ensure all keys exist even if file predates a new duration/type
+            for key in default_token_bank():
+                data["double_xp_tokens"].setdefault(key, 0)
+            return data
+    except json.JSONDecodeError:
+        return {"double_xp_tokens": default_token_bank()}
+ 
+ 
+def save_account_params(params: dict[str, Any]):
+    ensure_state_dir()
+    with ACCOUNT_PARAMS_PATH.open("w", encoding="utf-8") as file:
+        json.dump(params, file, indent=2)
+ 
+ 
+def spend_double_xp_token(xp_type: str, duration: int) -> bool:
+    """
+    Decrements one token of the given type/duration from the bank.
+    Returns True if successful, False if none available.
+    """
+    params = load_account_params()
+    key = f"{xp_type}_{duration}"
+    current = params["double_xp_tokens"].get(key, 0)
+ 
+    if current <= 0:
+        return False
+ 
+    params["double_xp_tokens"][key] = current - 1
+    save_account_params(params)
+    return True
+ 
+ 
+def token_bank_summary(params: dict[str, Any]) -> str:
+    bank = params.get("double_xp_tokens", {})
+    parts = []
+    for xp_type in DOUBLE_XP_TYPES:
+        counts = [f"{d}m:{bank.get(f'{xp_type}_{d}', 0)}" for d in DOUBLE_XP_DURATIONS]
+        parts.append(f"{xp_type.title()} — " + ", ".join(counts))
+    return " | ".join(parts)
 
 def load_completion_state():
     ensure_state_dir()
@@ -139,6 +204,10 @@ def initialise_state():
                 ),
             }
         ]
+
+    if "bo7_account_params" not in st.session_state:
+        st.session_state.bo7_account_params = load_account_params()
+
 
     if "bo7_form_minutes" not in st.session_state:
         st.session_state.bo7_form_minutes = 90
@@ -446,7 +515,7 @@ st.divider()
 # ─── TABS ─────────────────────────────────────────────────────────────────────
 
 tab_mission, tab_quick_update, tab_tracker, tab_chat, tab_log, tab_protocol = st.tabs(
-    ["Mission Control", "Quick Update", "Tracker", "AI Chat", "Session Log", "Protocol"]
+    ["Mission Control", "Account", "Quick Update", "Tracker", "AI Chat", "Session Log", "Protocol"]
 )
 
 # ─── MISSION CONTROL ──────────────────────────────────────────────────────────
@@ -484,57 +553,60 @@ with tab_mission:
                     unsafe_allow_html=True,
                 )
                 st.markdown(
-                    f"<div class='order-camo' style='font-size:1.1rem;'>{camo} — {progress:.0f}% · {cluster_label}</div>",
+                    f"<div class='order-camo' style='font-size:1.1rem;'>{camo} · {cluster_label}</div>",
                     unsafe_allow_html=True,
                 )
+
                 st.markdown(f"<div class='order-challenge'>{challenge}</div>", unsafe_allow_html=True)
+ 
+                
+                with st.expander("Used a Double XP token on this?"):
+                    used_token = st.checkbox(
+                        "Yes, spend a token",
+                        key=f"used_token_{stop['task_id']}",
+                    )
+                    token_type = None
+                    token_duration = None
+                    if used_token:
+                        tc1, tc2 = st.columns(2)
+                        with tc1:
+                            token_type = st.selectbox(
+                                "Type",
+                                DOUBLE_XP_TYPES,
+                                key=f"token_type_{stop['task_id']}",
+                                format_func=lambda x: x.title(),
+                            )
+                        with tc2:
+                            token_duration = st.selectbox(
+                                "Duration",
+                                DOUBLE_XP_DURATIONS,
+                                key=f"token_duration_{stop['task_id']}",
+                                format_func=lambda x: f"{x} min",
+                            )
  
                 col1, col2, col3 = st.columns(3)
  
-                def _log_stop(task_id, result, blame, stop_data):
-                    log_row = {
-                        "mission_id": f"PLAN-{stop_data['mode']}-{task_id}",
-                        "time": datetime.now().strftime("%H:%M:%S"),
-                        "mode": stop_data["mode"],
-                        "target": f"{stop_data['weapon']} — {stop_data['camo']}",
-                        "challenge": stop_data["challenge_text"],
-                        "recommended_mode": stop_data["mode"],
-                        "command": f"Session plan stop {stop_data['stop_number']}",
-                        "time_limit": "",
-                        "result": result,
-                        "blame": blame,
-                        "notes": "",
-                    }
-                    st.session_state.bo7_session_log.append(log_row)
-                    append_session_log(log_row)
- 
-                    for task in st.session_state.bo7_tasks:
-                        if task["task_id"] == task_id:
-                            task["last_result"] = result
-                            if result == "Camo completed":
-                                task["completed_on_session"] = True
-                            break
- 
-                    if result == "Camo completed" and task_id:
-                        completion_state = load_completion_state()
-                        completion_state[task_id] = {
-                            "result": "Camo completed",
-                            "mode": stop_data["mode"],
-                            "target": f"{stop_data['weapon']} — {stop_data['camo']}",
-                            "reason": "Session plan stop logged",
-                        }
-                        save_completion_state(completion_state)
-                        st.session_state.bo7_completion_state = completion_state
+                def _maybe_spend_token():
+                    if used_token and token_type and token_duration:
+                        success = spend_double_xp_token(token_type, token_duration)
+                        st.session_state.bo7_account_params = load_account_params()
+                        if not success:
+                            st.warning(
+                                f"No {token_duration}-minute {token_type} tokens left in the bank. "
+                                "Logged anyway, but check Account Parameters."
+                            )
  
                 with col1:
                     if st.button("✅ Done", key=f"done_{stop['task_id']}", use_container_width=True):
                         _log_stop(stop["task_id"], "Camo completed", "Successful operation", stop)
+                        _maybe_spend_token()
                         st.session_state.bo7_completed_stop_ids.append(stop["task_id"])
                         st.rerun()
  
                 with col2:
                     if st.button("⚠️ Partial", key=f"partial_{stop['task_id']}", use_container_width=True):
                         _log_stop(stop["task_id"], "Partial progress", "Human avoidance", stop)
+                        _maybe_spend_token()
                         st.session_state.bo7_completed_stop_ids.append(stop["task_id"])
                         st.rerun()
  
@@ -661,6 +733,56 @@ with tab_mission:
  
             st.session_state.bo7_session_plan = new_plan
             st.rerun()
+
+# -- Account -- 
+
+with tab_account:
+    st.subheader("Account Parameters")
+    st.caption("Settings that persist across sessions. Update when something changes — not every time you play.")
+ 
+    st.markdown("### Double XP Token Banks")
+    st.caption("COD gives these as separate banks per duration and per type. Enter what you currently have.")
+ 
+    params = st.session_state.bo7_account_params
+    bank = params["double_xp_tokens"]
+ 
+    st.markdown("**Weapon XP tokens**")
+    w_cols = st.columns(4)
+    for i, duration in enumerate(DOUBLE_XP_DURATIONS):
+        key = f"weapon_{duration}"
+        with w_cols[i]:
+            bank[key] = st.number_input(
+                f"{duration} min",
+                min_value=0,
+                max_value=50,
+                value=bank.get(key, 0),
+                step=1,
+                key=f"input_{key}",
+            )
+ 
+    st.markdown("**Account XP tokens**")
+    a_cols = st.columns(4)
+    for i, duration in enumerate(DOUBLE_XP_DURATIONS):
+        key = f"account_{duration}"
+        with a_cols[i]:
+            bank[key] = st.number_input(
+                f"{duration} min",
+                min_value=0,
+                max_value=50,
+                value=bank.get(key, 0),
+                step=1,
+                key=f"input_{key}",
+            )
+ 
+    if st.button("SAVE ACCOUNT PARAMETERS", type="primary", use_container_width=True):
+        params["double_xp_tokens"] = bank
+        save_account_params(params)
+        st.session_state.bo7_account_params = params
+        st.success("Saved.")
+        st.rerun()
+ 
+    st.divider()
+    st.caption(f"Current bank: {token_bank_summary(params)}")
 
 # ─── QUICK UPDATE ─────────────────────────────────────────────────────────────
 
