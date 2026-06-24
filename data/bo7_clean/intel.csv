@@ -1,0 +1,112 @@
+mode,map,category,item,found
+Co-Op / Endgame,Co-Op Campaign,Artifacts,Becoming the Monster,TRUE
+Co-Op / Endgame,Co-Op Campaign,Artifacts,"The ""Truth""",TRUE
+Co-Op / Endgame,Co-Op Campaign,Artifacts,Family Ties,TRUE
+Co-Op / Endgame,Co-Op Campaign,Artifacts,Cost of Business,TRUE
+Co-Op / Endgame,Co-Op Campaign,Artifacts,Best Laid Plans,TRUE
+Co-Op / Endgame,Co-Op Campaign,Artifacts,Heavy is the Head,TRUE
+Co-Op / Endgame,Co-Op Campaign,Artifacts,Team Bond,TRUE
+Co-Op / Endgame,Co-Op Campaign,Artifacts,"""Case""",TRUE
+Co-Op / Endgame,Co-Op Campaign,Artifacts,Lake Time,TRUE
+Co-Op / Endgame,Co-Op Campaign,Artifacts,Trigger Finger,TRUE
+Co-Op / Endgame,Co-Op Campaign,Artifacts,Face the Nightmare,TRUE
+Co-Op / Endgame,Endgame,Documents,Guild History - Original Founder,TRUE
+Co-Op / Endgame,Endgame,Documents,Guild History - Evolution of Vision,TRUE
+Co-Op / Endgame,Endgame,Documents,Guild History - Whistleblowers,TRUE
+Co-Op / Endgame,Endgame,Documents,Guild History - Catalyst for Change,TRUE
+Co-Op / Endgame,Endgame,Documents,Cradle Report - Initial Tests,TRUE
+Co-Op / Endgame,Endgame,Documents,Cradle Report - Early Tests,TRUE
+Co-Op / Endgame,Endgame,Documents,Cradle Report - Mid-level Tests,TRUE
+Co-Op / Endgame,Endgame,Documents,Cradle Report - Advanced Tests,TRUE
+Co-Op / Endgame,Endgame,Documents,Civilian Letter - Mateo,TRUE
+Co-Op / Endgame,Endgame,Documents,Civilian Letter - Blake,TRUE
+Co-Op / Endgame,Endgame,Documents,Civilian Letter - Nuha,TRUE
+Co-Op / Endgame,Endgame,Documents,Civilian Letter - Rex,TRUE
+Co-Op / Endgame,Endgame,Documents,Avalon Security - Lockdown,TRUE
+Co-Op / Endgame,Endgame,Documents,Avalon Security - We're Here for You,TRUE
+Co-Op / Endgame,Endgame,Documents,Avalon Security - Military Protection,TRUE
+Co-Op / Endgame,Endgame,Documents,RESTRICTED ACCESS,TRUE
+Co-Op / Endgame,Endgame,Documents,Guild Report - David Mason,TRUE
+Co-Op / Endgame,Endgame,Documents,Guild Report - Eric Samuels,TRUE
+Co-Op / Endgame,Endgame,Documents,Guild Report - Mike Harper,TRUE
+Co-Op / Endgame,Endgame,Documents,Guild Report - Leilani Tupuola,TRUE
+Zombies,Ashes of the Damned,Audio Logs,Tilling the Earth,TRUE
+Zombies,Ashes of the Damned,Audio Logs,Meat the Vandorns,TRUE
+Zombies,Ashes of the Damned,Audio Logs,Ground Control,TRUE
+Zombies,Ashes of the Damned,Audio Logs,What Came After,TRUE
+Zombies,Ashes of the Damned,Audio Logs,She Got Hers,TRUE
+Zombies,Ashes of the Damned,Audio Logs,He Got His,TRUE
+Zombies,Ashes of the Damned,Audio Logs,The Price You Pay,TRUE
+Zombies,Ashes of the Damned,Audio Logs,Craftsmanship,TRUE
+Zombies,Ashes of the Damned,Audio Logs,Cold Blooded,TRUE
+Zombies,Ashes of the Damned,Audio Logs,The Fate of the Flock,TRUE
+Zombies,Ashes of the Damned,Audio Logs,Scene 27 The Drowning,TRUE
+Zombies,Ashes of the Damned,Audio Logs,Study Room Monologue Rehearsal,TRUE
+Zombies,Ashes of the Damned,Audio Logs,Confrontation in the Parior - Camera B,TRUE
+Zombies,Ashes of the Damned,Audio Logs,Director's Notes: Improv Test,TRUE
+Zombies,Ashes of the Damned,Documents,Cut,TRUE
+Zombies,Ashes of the Damned,Documents,Maintenance,TRUE
+Zombies,Ashes of the Damned,Documents,Signal Fires,TRUE
+Zombies,Ashes of the Damned,Documents,Playmates,TRUE
+Zombies,Ashes of the Damned,Documents,Evidence,TRUE
+Zombies,Ashes of the Damned,Documents,Good Game,TRUE
+Zombies,Ashes of the Damned,Artifacts,T.E.D.D. Head,TRUE
+Zombies,Ashes of the Damned,Artifacts,Mirror of the Forgotten,TRUE
+Zombies,Ashes of the Damned,Artifacts,DG-2 Turret,TRUE
+Zombies,Ashes of the Damned,Artifacts,Seal of Sorrow,TRUE
+Zombies,Ashes of the Damned,Artifacts,Necrofluid Gauntlet,TRUE
+Zombies,Ashes of the Damned,Artifacts,Helion Horn,TRUE
+Zombies,Astra Malorum,Audio Logs,Fools,FALSE
+Zombies,Astra Malorum,Audio Logs,Planets,FALSE
+Zombies,Astra Malorum,Audio Logs,Robotics,FALSE
+Zombies,Astra Malorum,Audio Logs,Dual Functions,FALSE
+Zombies,Astra Malorum,Documents,Immense Power,FALSE
+Zombies,Astra Malorum,Documents,Eventful,FALSE
+Zombies,Astra Malorum,Documents,Their Town,FALSE
+Zombies,Astra Malorum,Artifacts,Damaged Drone,FALSE
+Zombies,Astra Malorum,Artifacts,LGM-1,FALSE
+Zombies,Astra Malorum,Artifacts,Perfusion Machine,FALSE
+Zombies,Astra Malorum,Artifacts,Ascendant Eye,FALSE
+Zombies,Paradox Junction,Audio Logs,The Search Begins,FALSE
+Zombies,Paradox Junction,Audio Logs,Run Aground,FALSE
+Zombies,Paradox Junction,Audio Logs,Live Air,FALSE
+Zombies,Paradox Junction,Audio Logs,Dead Air,FALSE
+Zombies,Paradox Junction,Audio Logs,Head Cannon,FALSE
+Zombies,Paradox Junction,Audio Logs,Makin' it Right,FALSE
+Zombies,Paradox Junction,Audio Logs,Before Times,FALSE
+Zombies,Paradox Junction,Audio Logs,Storm Coming,FALSE
+Zombies,Paradox Junction,Audio Logs,Trickery,FALSE
+Zombies,Paradox Junction,Audio Logs,Aftermath,FALSE
+Zombies,Paradox Junction,Documents,Paper Hearts,FALSE
+Zombies,Paradox Junction,Documents,Helpful Information,FALSE
+Zombies,Paradox Junction,Documents,Wanted Man,FALSE
+Zombies,Paradox Junction,Artifacts,Sidewalk Chalk,FALSE
+Zombies,Paradox Junction,Artifacts,Sundergat,FALSE
+Zombies,Paradox Junction,Artifacts,Music Box,FALSE
+Zombies,Paradox Junction,Artifacts,Headset,FALSE
+Zombies,Paradox Junction,Artifacts,Goggles,FALSE
+Zombies,Totenreich,Audio Logs,Building Blocks,FALSE
+Zombies,Totenreich,Audio Logs,Limitations,FALSE
+Zombies,Totenreich,Audio Logs,The Chair Incident,FALSE
+Zombies,Totenreich,Audio Logs,The Serpent's Head,FALSE
+Zombies,Totenreich,Audio Logs,Talk,FALSE
+Zombies,Totenreich,Audio Logs,Problems,FALSE
+Zombies,Totenreich,Audio Logs,Solutions,FALSE
+Zombies,Totenreich,Audio Logs,Counting the Cost,FALSE
+Zombies,Totenreich,Audio Logs,He Left Us,FALSE
+Zombies,Totenreich,Documents,Little Fishes,FALSE
+Zombies,Totenreich,Documents,Saboteur,FALSE
+Zombies,Totenreich,Documents,Rezoning,FALSE
+Zombies,Totenreich,Documents,Secret and Safe,FALSE
+Zombies,Totenreich,Documents,Beneath the Boards,FALSE
+Zombies,Totenreich,Documents,Priorities,FALSE
+Zombies,Totenreich,Documents,Radio Operator,FALSE
+Zombies,Totenreich,Documents,Tyr's Bell,FALSE
+Zombies,Totenreich,Documents,Dossier,FALSE
+Zombies,Totenreich,Documents,Report,FALSE
+Zombies,Totenreich,Documents,Telegram,FALSE
+Zombies,Totenreich,Artifacts,#N/A (unidentified),FALSE
+Zombies,Totenreich,Artifacts,#N/A (unidentified),FALSE
+Zombies,Totenreich,Artifacts,#N/A (unidentified),FALSE
+Zombies,Totenreich,Artifacts,#N/A (unidentified),FALSE
+Zombies,Totenreich,Artifacts,#N/A (unidentified),FALSE

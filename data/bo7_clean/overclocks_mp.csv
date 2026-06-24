@@ -1,0 +1,53 @@
+mode,category,item,oc1_complete,oc2_complete
+Multiplayer,Scorestreaks,Scout Pulse,TRUE,FALSE
+Multiplayer,Scorestreaks,RC-XD,FALSE,FALSE
+Multiplayer,Scorestreaks,Lockshot,FALSE,FALSE
+Multiplayer,Scorestreaks,UAV,TRUE,TRUE
+Multiplayer,Scorestreaks,Skewer,TRUE,FALSE
+Multiplayer,Scorestreaks,Care Package,TRUE,TRUE
+Multiplayer,Scorestreaks,Deadeye Drone,FALSE,FALSE
+Multiplayer,Scorestreaks,Counter UAV,TRUE,TRUE
+Multiplayer,Scorestreaks,Napalm Strike,TRUE,FALSE
+Multiplayer,Scorestreaks,LDBR,FALSE,FALSE
+Multiplayer,Scorestreaks,Sentry Turret,FALSE,FALSE
+Multiplayer,Scorestreaks,Hand Cannon,TRUE,FALSE
+Multiplayer,Scorestreaks,Iron Rain,FALSE,FALSE
+Multiplayer,Scorestreaks,Hellstorm,FALSE,FALSE
+Multiplayer,Scorestreaks,Watchdog Helo,TRUE,TRUE
+Multiplayer,Scorestreaks,Gravemaker,TRUE,TRUE
+Multiplayer,Scorestreaks,Interceptors,FALSE,FALSE
+Multiplayer,Scorestreaks,D.A.W.G.,TRUE,TRUE
+Multiplayer,Scorestreaks,Ion Core,FALSE,FALSE
+Multiplayer,Scorestreaks,HKDs,TRUE,FALSE
+Multiplayer,Scorestreaks,Rhino,FALSE,FALSE
+Multiplayer,Scorestreaks,EMP Systems,FALSE,FALSE
+Multiplayer,Scorestreaks,VTOL Warship,FALSE,FALSE
+Multiplayer,Scorestreaks,HARP,TRUE,FALSE
+Multiplayer,Scorestreaks,Legion,FALSE,FALSE
+Multiplayer,Lethals,Frag,TRUE,FALSE
+Multiplayer,Lethals,Cluster Grenade,TRUE,TRUE
+Multiplayer,Lethals,Semtex,TRUE,TRUE
+Multiplayer,Lethals,Needle Drone,TRUE,TRUE
+Multiplayer,Lethals,Molotov,FALSE,FALSE
+Multiplayer,Lethals,Point Turret,TRUE,FALSE
+Multiplayer,Lethals,C4,FALSE,FALSE
+Multiplayer,Lethals,Combat Axe,FALSE,FALSE
+Multiplayer,Tacticals,Stun Grenade,FALSE,FALSE
+Multiplayer,Tacticals,EMP Grenade,TRUE,FALSE
+Multiplayer,Tacticals,Pinpoint Grenade,TRUE,TRUE
+Multiplayer,Tacticals,Flashbang,TRUE,FALSE
+Multiplayer,Tacticals,Stim Shot,TRUE,FALSE
+Multiplayer,Tacticals,Psych Grenade,TRUE,FALSE
+Multiplayer,Tacticals,Smoke,TRUE,TRUE
+Multiplayer,Tacticals,Hunter Bot,TRUE,FALSE
+Multiplayer,Tacticals,Decoy,FALSE,FALSE
+Multiplayer,Field Upgrades,Assault Pack,TRUE,TRUE
+Multiplayer,Field Upgrades,Drone Pod,TRUE,TRUE
+Multiplayer,Field Upgrades,Trophy System,TRUE,TRUE
+Multiplayer,Field Upgrades,Active Camo,TRUE,TRUE
+Multiplayer,Field Upgrades,Echo Unit,TRUE,FALSE
+Multiplayer,Field Upgrades,Squad Link,TRUE,TRUE
+Multiplayer,Field Upgrades,Scrambler,TRUE,TRUE
+Multiplayer,Field Upgrades,Fear Trap,TRUE,FALSE
+Multiplayer,Field Upgrades,Black Hat,TRUE,FALSE
+Multiplayer,Field Upgrades,Mute Field,TRUE,FALSE

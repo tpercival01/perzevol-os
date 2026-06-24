@@ -9,19 +9,19 @@ Multiplayer,Scorestreaks,Care Package,10,25,50,18,TRUE,TRUE,TRUE,FALSE
 Multiplayer,Scorestreaks,Deadeye Drone,10,25,50,18,TRUE,FALSE,FALSE,FALSE
 Multiplayer,Scorestreaks,Napalm Strike,10,25,50,18,TRUE,FALSE,FALSE,FALSE
 Multiplayer,Scorestreaks,LDBR,10,25,50,18,FALSE,FALSE,FALSE,FALSE
-Multiplayer,Scorestreaks,Sentry Turret,10,25,50,18,FALSE,FALSE,FALSE,FALSE
+Multiplayer,Scorestreaks,Sentry Turret,10,25,50,18,TRUE,FALSE,FALSE,FALSE
 Multiplayer,Scorestreaks,Hand Cannon,10,25,50,18,TRUE,TRUE,FALSE,FALSE
-Multiplayer,Scorestreaks,Hellstorm,10,25,50,18,TRUE,FALSE,FALSE,FALSE
+Multiplayer,Scorestreaks,Hellstorm,10,25,50,18,TRUE,TRUE,FALSE,FALSE
 Multiplayer,Scorestreaks,Watchdog Helo,10,25,50,18,TRUE,TRUE,TRUE,FALSE
 Multiplayer,Scorestreaks,Gravemaker,10,25,50,18,TRUE,TRUE,TRUE,FALSE
 Multiplayer,Scorestreaks,D.A.W.G.,10,25,50,18,TRUE,TRUE,FALSE,FALSE
 Multiplayer,Scorestreaks,Ion Core,10,25,50,18,FALSE,FALSE,FALSE,FALSE
 Multiplayer,Scorestreaks,HKDs,10,25,50,18,TRUE,TRUE,TRUE,FALSE
-Multiplayer,Scorestreaks,HARP,10,25,50,18,TRUE,FALSE,FALSE,FALSE
+Multiplayer,Scorestreaks,HARP,10,25,50,18,TRUE,TRUE,FALSE,FALSE
 Multiplayer,Scorestreaks,Interceptors,5,15,25,18,FALSE,FALSE,FALSE,FALSE
 Multiplayer,Scorestreaks,Rhino,5,15,25,18,TRUE,FALSE,FALSE,FALSE
 Multiplayer,Scorestreaks,VTOL Warship,5,15,25,18,TRUE,TRUE,FALSE,FALSE
-Multiplayer,Scorestreaks,EMP Systems,5,15,25,18,TRUE,FALSE,FALSE,FALSE
+Multiplayer,Scorestreaks,EMP Systems,5,15,25,18,TRUE,TRUE,TRUE,FALSE
 Multiplayer,Scorestreaks,Legion,5,15,25,18,TRUE,FALSE,FALSE,FALSE
 Multiplayer,Lethals,Frag,25,50,100,8,FALSE,FALSE,FALSE,FALSE
 Multiplayer,Lethals,Cluster Grenade,25,50,100,8,TRUE,TRUE,FALSE,FALSE
@@ -41,7 +41,7 @@ Multiplayer,Tacticals,Decoy,25,50,100,9,TRUE,FALSE,FALSE,FALSE
 Multiplayer,Tacticals,Hunter Bot,10,25,50,9,TRUE,TRUE,FALSE,FALSE
 Multiplayer,Tacticals,Smoke,5,15,25,9,TRUE,TRUE,TRUE,FALSE
 Multiplayer,Field Upgrades,Assault Pack,25,50,100,10,TRUE,TRUE,TRUE,FALSE
-Multiplayer,Field Upgrades,Trophy System,25,50,100,10,TRUE,TRUE,FALSE,FALSE
+Multiplayer,Field Upgrades,Trophy System,25,50,100,10,TRUE,TRUE,TRUE,FALSE
 Multiplayer,Field Upgrades,Mute Field,25,50,100,10,FALSE,FALSE,FALSE,FALSE
 Multiplayer,Field Upgrades,Squad Link,25,50,100,10,TRUE,TRUE,TRUE,FALSE
 Multiplayer,Field Upgrades,Scrambler,25,50,100,10,TRUE,FALSE,FALSE,FALSE
@@ -50,3 +50,4 @@ Multiplayer,Field Upgrades,Fear Trap,10,25,50,10,FALSE,FALSE,FALSE,FALSE
 Multiplayer,Field Upgrades,Black Hat,10,25,50,10,TRUE,TRUE,FALSE,FALSE
 Multiplayer,Field Upgrades,Active Camo,10,25,50,10,TRUE,TRUE,TRUE,FALSE
 Multiplayer,Field Upgrades,Echo Unit,5,15,25,10,TRUE,FALSE,FALSE,FALSE
+Multiplayer,Scorestreaks,Iron Rain,10,25,50,18,FALSE,FALSE,FALSE,FALSE

@@ -8,13 +8,13 @@ Co-Op Campaign & Endgame,Ranger,TRUE,Eliminate 500 enemies with Sniper Rifles or
 Co-Op Campaign & Endgame,Collector,FALSE,"Unlock 9 Glitch Operator Skins from Root Crasher, Link Forger, or Virus Injection"
 Co-Op Campaign & Endgame,Outlaw,FALSE,Eliminate 30 Elites with Akimbo Weapons
 Co-Op Campaign & Endgame,Nightmare,TRUE,Eliminate 300 Nightmare Zone enemies in a single match
-Co-Op Campaign & Endgame,Field Medic,FALSE,In Endgame: Revive 25 teammates
+Co-Op Campaign & Endgame,Field Medic,TRUE,In Endgame: Revive 25 teammates
 Co-Op Campaign & Endgame,Drifter,FALSE,Get 10 rapid Kills 30 times with the Blood Burner
 Co-Op Campaign & Endgame,Necromancer,FALSE,Get 300 Kills with allies from the Portal Grenade in Endgame
 Co-Op Campaign & Endgame,Stalker,FALSE,Kill a Zone IV Elite enemy while cloaked with Active Camo
 Co-Op Campaign & Endgame,Monster Hunter,TRUE,Eliminate 100 Special or Elite enemies
 Co-Op Campaign & Endgame,Death Angel,FALSE,Kill 200 enemies while airborne
-Co-Op Campaign & Endgame,Endgamer,FALSE,"Eliminate 1,000 Zone IV enemies in Endgame"
+Co-Op Campaign & Endgame,Endgamer,TRUE,"Eliminate 1,000 Zone IV enemies in Endgame"
 Co-Op Campaign & Endgame,Warlord,TRUE,Clear 25 Command Centers in Zone III or higher in Endgame
 Co-Op Campaign & Endgame,Spartan,FALSE,Kill 300 enemies with Melee Weapons in a single match
 Co-Op Campaign & Endgame,Stuntman,FALSE,Kill 200 enemies with a Vehicle in Endgame
@@ -84,7 +84,7 @@ Warzone,High Roller,TRUE,"Loot Cash 2,000 times"
 Warzone,Unstoppable,FALSE,Win 5 Warzone matches in a 12 hour period (excluding Casual)
 Warzone,Pixel Sniper,FALSE,Use a Sniper Rifle to Kill an enemy over 500m away
 Warzone,Traffic Marshal,FALSE,Kill an enemy while they are in a vehicle 25 times
-Warzone,Gun for Hire,FALSE,Eliminate 50 Bounty Contract Targets (Your Squad must Eliminate Target)
+Warzone,Gun for Hire,TRUE,Eliminate 50 Bounty Contract Targets (Your Squad must Eliminate Target)
 Warzone,Scavenger,TRUE,Win a match with over 15 Eliminations and without using your Loadout (excluding Casual)
 Warzone,Strategist,FALSE,Complete 3 Recon Contracts in a single match 30 times
 Warzone,Natural Talent,TRUE,Get 500 Eliminations using Ground Looted Weapons

@@ -15,8 +15,8 @@ level_required,colour,unlocked
 400,Teal,TRUE
 425,Purple,TRUE
 450,Fresh,TRUE
-475,Pastel,FALSE
-500,Hologram,FALSE
+475,Pastel,TRUE
+500,Hologram,TRUE
 525,Slick,FALSE
 550,Holly,FALSE
 575,Natural,FALSE
