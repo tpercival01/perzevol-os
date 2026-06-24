@@ -30,6 +30,102 @@ from modules.warzone.killchain_engine import (
 STATE_DIR = Path("data/bo7_state")
 COMPLETION_STATE_PATH = STATE_DIR / "completion_state.json"
 SESSION_LOG_PATH = STATE_DIR / "session_log.csv"
+ 
+FINAL_CAMO_COLUMN = {
+    "apocalypse_status.csv": "Apocalypse",
+    "singularity_status.csv": "Singularity",
+    "infestation_status.csv": "Infestation",
+    "genesis_status.csv": "Genesis",
+}
+ 
+CHAIN_LABELS = {
+    "apocalypse_status.csv": "Apocalypse (Warzone)",
+    "singularity_status.csv": "Singularity (Multiplayer)",
+    "infestation_status.csv": "Infestation (Zombies)",
+    "genesis_status.csv": "Genesis (Co-Op / Endgame)",
+}
+ 
+ 
+def compute_weapon_completion_dashboard(clean_folder: Path) -> dict[str, any]:
+    """
+    Computes true weapon-level completion per camo chain, where "done"
+    means the final per-weapon camo column is TRUE (Genesis, Singularity,
+    Infestation, Apocalypse) — not the gate camos beneath them.
+ 
+    Returns a dict keyed by chain label, each containing:
+      - done / total weapons
+      - per weapon_class breakdown of done / total
+      - list of weapons still not done
+    """
+    dashboard: dict[str, any] = {}
+ 
+    for filename, final_col in FINAL_CAMO_COLUMN.items():
+        path = clean_folder / filename
+        label = CHAIN_LABELS[filename]
+ 
+        if not path.exists():
+            dashboard[label] = {"done": 0, "total": 0, "by_class": {}, "not_done": []}
+            continue
+ 
+        df = pd.read_csv(path, dtype=str).fillna("")
+ 
+        if final_col not in df.columns:
+            dashboard[label] = {"done": 0, "total": 0, "by_class": {}, "not_done": []}
+            continue
+ 
+        # Exclude rows where this camo chain doesn't apply at all (e.g.
+        # Wonder Weapons have no camo chain in any mode). N/A means
+        # excluded from the denominator entirely, not "not done".
+        applicable_mask = ~df[final_col].str.strip().str.upper().isin({"N/A", "NA", "NONE"})
+        df = df[applicable_mask]
+ 
+        total = len(df)
+        is_done = df[final_col].str.strip().str.upper().isin({"TRUE", "YES", "DONE", "COMPLETE", "COMPLETED"})
+        done = int(is_done.sum())
+ 
+        by_class: dict[str, dict[str, int]] = {}
+        not_done: list[str] = []
+ 
+        for _, row in df.iterrows():
+            weapon_class = row.get("weapon_class", "Unclassified")
+            weapon = row.get("weapon", "Unknown")
+            row_done = str(row.get(final_col, "")).strip().upper() in {"TRUE", "YES", "DONE", "COMPLETE", "COMPLETED"}
+ 
+            if weapon_class not in by_class:
+                by_class[weapon_class] = {"done": 0, "total": 0}
+ 
+            by_class[weapon_class]["total"] += 1
+            if row_done:
+                by_class[weapon_class]["done"] += 1
+            else:
+                not_done.append(f"{weapon_class} — {weapon}")
+ 
+        dashboard[label] = {
+            "done": done,
+            "total": total,
+            "by_class": by_class,
+            "not_done": not_done,
+        }
+ 
+    return dashboard
+ 
+ 
+def compute_total_line_item_count(tasks: list[dict[str, any]], completion_state: dict[str, any]) -> dict[str, int]:
+    """
+    Count A — the true 100% atom count. Every active task object currently
+    generated (already excludes anything TRUE in the source CSVs) plus
+    everything recorded as done via the app's own completion state.
+ 
+    This is the closest thing to "total line items remaining across
+    the whole database" since load_tracker_tasks() only emits a task
+    for the NEXT incomplete step per weapon/item, not every tier — so
+    this is an undercount of true atomic items but an accurate count
+    of "distinct next-steps remaining," which is the more actionable number.
+    """
+    return {
+        "remaining_steps": len(tasks),
+        "logged_this_app_session": len(completion_state),
+    }
 
 
 def ensure_state_dir():
@@ -50,7 +146,7 @@ def default_token_bank() -> dict[str, int]:
     return bank
  
  
-def load_account_params() -> dict[str, Any]:
+def load_account_params() -> dict[str, any]:
     ensure_state_dir()
     if not ACCOUNT_PARAMS_PATH.exists():
         return {"double_xp_tokens": default_token_bank()}
@@ -67,7 +163,7 @@ def load_account_params() -> dict[str, Any]:
         return {"double_xp_tokens": default_token_bank()}
  
  
-def save_account_params(params: dict[str, Any]):
+def save_account_params(params: dict[str, any]):
     ensure_state_dir()
     with ACCOUNT_PARAMS_PATH.open("w", encoding="utf-8") as file:
         json.dump(params, file, indent=2)
@@ -90,7 +186,7 @@ def spend_double_xp_token(xp_type: str, duration: int) -> bool:
     return True
  
  
-def token_bank_summary(params: dict[str, Any]) -> str:
+def token_bank_summary(params: dict[str, any]) -> str:
     bank = params.get("double_xp_tokens", {})
     parts = []
     for xp_type in DOUBLE_XP_TYPES:
@@ -514,7 +610,7 @@ st.divider()
 
 # ─── TABS ─────────────────────────────────────────────────────────────────────
 
-tab_mission, tab_quick_update, tab_tracker, tab_chat, tab_log, tab_protocol = st.tabs(
+tab_mission, tab_account, tab_quick_update, tab_tracker, tab_chat, tab_log, tab_protocol = st.tabs(
     ["Mission Control", "Account", "Quick Update", "Tracker", "AI Chat", "Session Log", "Protocol"]
 )
 
@@ -702,15 +798,6 @@ with tab_mission:
                 key="select_avoided",
             )
  
-        double_xp_tokens = st.number_input(
-            "Double XP tokens available",
-            min_value=0,
-            max_value=20,
-            value=st.session_state.get("bo7_double_xp_tokens", 0),
-            step=1,
-            key="double_xp_input",
-        )
- 
         st.divider()
  
         if st.button("GENERATE SESSION PLAN", type="primary", use_container_width=True):
@@ -720,7 +807,6 @@ with tab_mission:
             st.session_state.bo7_form_preferred_mode = preferred_mode
             st.session_state.bo7_form_avoided_mode = avoided_mode
             st.session_state.bo7_form_session_goal = session_goal
-            st.session_state.bo7_double_xp_tokens = double_xp_tokens
             st.session_state.bo7_completed_stop_ids = []
  
             new_plan = build_session_plan(
@@ -796,23 +882,34 @@ with tab_quick_update:
 
 # ─── TRACKER ──────────────────────────────────────────────────────────────────
 
+ 
 with tab_tracker:
     st.subheader("Current Tracker State")
-
+ 
+    line_items = compute_total_line_item_count(
+        st.session_state.bo7_tasks,
+        st.session_state.bo7_completion_state,
+    )
     task_summary = summarise_tasks(st.session_state.bo7_tasks)
     session_summary = summarise_sessions(st.session_state.bo7_session_log)
-
+ 
     cols = st.columns(5)
-    cols[0].metric("Loaded Tasks", task_summary["total"])
-    cols[1].metric("Remaining", task_summary["available"])
-    cols[2].metric("Locked", task_summary["locked"])
-    cols[3].metric("Remembered Done", len(st.session_state.bo7_completion_state))
-    cols[4].metric("Logged Missions", session_summary["total"])
-
+    cols[0].metric("Open Steps Loaded", task_summary["total"])
+    cols[1].metric("Unlocked Steps", task_summary["available"])
+    cols[2].metric("Locked Steps", task_summary["locked"])
+    cols[3].metric("Logged Via App", line_items["logged_this_app_session"])
+    cols[4].metric("Sessions Logged", session_summary["total"])
+ 
+    st.caption(
+        "These five numbers describe the live task queue, not your full account progress. "
+        "'Logged Via App' only counts things completed through Mission Control or Session Plan — "
+        "it does not reflect everything already marked TRUE in your clean CSVs."
+    )
+ 
     st.divider()
-
+ 
     col1, col2 = st.columns(2)
-
+ 
     with col1:
         if st.button("Reload tracker CSVs + saved state", use_container_width=True):
             st.session_state.bo7_completion_state = load_completion_state()
@@ -825,7 +922,7 @@ with tab_tracker:
             st.session_state.bo7_session_log = load_persisted_session_log()
             st.success("Tracker CSVs and saved completion state reloaded.")
             st.rerun()
-
+ 
     with col2:
         if st.button("DANGER: Reset saved state", use_container_width=True):
             reset_persistent_state()
@@ -835,13 +932,63 @@ with tab_tracker:
             st.session_state.bo7_latest_mission = None
             st.error("Saved state reset.")
             st.rerun()
-
+ 
     st.divider()
-
-    st.markdown("### Remaining Camo Queue")
-
+ 
+    # ── WEAPON COMPLETION DASHBOARD ──
+    st.markdown("## Weapon Completion — Final Camo Per Chain")
+    st.caption(
+        "A weapon counts as DONE here only when its final per-weapon camo "
+        "(Genesis, Singularity, Infestation, or Apocalypse) is TRUE. "
+        "Gate camos (Moonstone, Arclight, Bloodstone, Starglass) don't count as done on their own."
+    )
+ 
+    dashboard = compute_weapon_completion_dashboard(CLEAN_DATA_DIR)
+ 
+    overall_done = sum(chain["done"] for chain in dashboard.values())
+    overall_total = sum(chain["total"] for chain in dashboard.values())
+    overall_pct = (overall_done / overall_total * 100) if overall_total else 0.0
+ 
+    st.markdown(
+        f"<div class='order-weapon' style='font-size:2.2rem;'>{overall_done} / {overall_total} weapons fully done</div>",
+        unsafe_allow_html=True,
+    )
+    st.progress(overall_pct / 100 if overall_total else 0.0)
+ 
+    st.divider()
+ 
+    for chain_label, chain_data in dashboard.items():
+        chain_done = chain_data["done"]
+        chain_total = chain_data["total"]
+        chain_pct = (chain_done / chain_total * 100) if chain_total else 0.0
+ 
+        with st.expander(f"{chain_label} — {chain_done}/{chain_total} done ({chain_pct:.0f}%)"):
+            st.progress(chain_pct / 100 if chain_total else 0.0)
+ 
+            by_class = chain_data["by_class"]
+            if by_class:
+                class_rows = [
+                    {
+                        "Weapon Class": weapon_class,
+                        "Done": counts["done"],
+                        "Total": counts["total"],
+                        "Remaining": counts["total"] - counts["done"],
+                    }
+                    for weapon_class, counts in sorted(by_class.items())
+                ]
+                st.dataframe(class_rows, use_container_width=True, hide_index=True)
+ 
+            if chain_data["not_done"]:
+                st.markdown("**Not yet done:**")
+                st.markdown(", ".join(chain_data["not_done"]))
+ 
+    st.divider()
+ 
+    st.markdown("### Remaining Camo Queue (next-step view)")
+    st.caption("This is the live task queue — the single next incomplete step per weapon, not full completion.")
+ 
     available_tasks = get_available_tasks(st.session_state.bo7_tasks)
-
+ 
     if available_tasks:
         st.dataframe(
             [
@@ -862,11 +1009,11 @@ with tab_tracker:
         )
     else:
         st.success("No remaining unlocked camo tasks detected.")
-
+ 
     st.divider()
-
-    st.markdown("### Persisted completions")
-
+ 
+    st.markdown("### Persisted completions (logged via app)")
+ 
     if st.session_state.bo7_completion_state:
         st.dataframe(
             [
@@ -883,7 +1030,7 @@ with tab_tracker:
             hide_index=True,
         )
     else:
-        st.info("No persisted completions yet.")
+        st.info("Nothing logged via the app yet this run.")
 
 # ─── AI CHAT ──────────────────────────────────────────────────────────────────
 
