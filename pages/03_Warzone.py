@@ -23,7 +23,9 @@ from modules.warzone.killchain_engine import (
     summarise_sessions,
     summarise_tasks,
     build_session_plan,
-    rebuild_plan_after_progress
+    rebuild_plan_after_progress,
+    compute_full_tracker_summary,
+    _pct
 )
 
 
@@ -882,34 +884,202 @@ with tab_quick_update:
 
 # ─── TRACKER ──────────────────────────────────────────────────────────────────
 
- 
+
 with tab_tracker:
-    st.subheader("Current Tracker State")
+    st.subheader("100% Tracker")
  
-    line_items = compute_total_line_item_count(
-        st.session_state.bo7_tasks,
-        st.session_state.bo7_completion_state,
-    )
+    summary = compute_full_tracker_summary(CLEAN_DATA_DIR)
+ 
+    # ── LIVE SESSION QUEUE (kept from before, relabelled) ──
     task_summary = summarise_tasks(st.session_state.bo7_tasks)
-    session_summary = summarise_sessions(st.session_state.bo7_session_log)
- 
+    line_items = compute_total_line_item_count(
+        st.session_state.bo7_tasks, st.session_state.bo7_completion_state,
+    )
     cols = st.columns(5)
     cols[0].metric("Open Steps Loaded", task_summary["total"])
     cols[1].metric("Unlocked Steps", task_summary["available"])
     cols[2].metric("Locked Steps", task_summary["locked"])
     cols[3].metric("Logged Via App", line_items["logged_this_app_session"])
-    cols[4].metric("Sessions Logged", session_summary["total"])
- 
-    st.caption(
-        "These five numbers describe the live task queue, not your full account progress. "
-        "'Logged Via App' only counts things completed through Mission Control or Session Plan — "
-        "it does not reflect everything already marked TRUE in your clean CSVs."
-    )
+    cols[4].metric("Sessions Logged", summarise_sessions(st.session_state.bo7_session_log)["total"])
+    st.caption("These describe the live task queue, not your full account progress — see below for that.")
  
     st.divider()
  
-    col1, col2 = st.columns(2)
+    # ── MASTERY BADGES SUMMARY ROW ──
+    st.markdown("## Mastery Badges")
+    mb = summary["mastery_badges"]
  
+    weapon_mp_g, weapon_mp_g_total = mb.get("weapon_mp_gold", (0, 0))
+    weapon_mp_d, weapon_mp_d_total = mb.get("weapon_mp_diamond", (0, 0))
+    weapon_zm_g, weapon_zm_g_total = mb.get("weapon_zm_gold", (0, 0))
+    weapon_zm_d, weapon_zm_d_total = mb.get("weapon_zm_diamond", (0, 0))
+ 
+    all_done = weapon_mp_g + weapon_mp_d + weapon_zm_g + weapon_zm_d
+    all_total = weapon_mp_g_total + weapon_mp_d_total + weapon_zm_g_total + weapon_zm_d_total
+    mp_done = weapon_mp_g + weapon_mp_d
+    mp_total = weapon_mp_g_total + weapon_mp_d_total
+    zm_done = weapon_zm_g + weapon_zm_d
+    zm_total = weapon_zm_g_total + weapon_zm_d_total
+ 
+    badge_cols = st.columns(7)
+    badge_cols[0].metric("All", f"{_pct(all_done, all_total):.1f}%", f"{all_done}/{all_total}")
+    badge_cols[1].metric("MP", f"{_pct(mp_done, mp_total):.1f}%", f"{mp_done}/{mp_total}")
+    badge_cols[2].metric("ZM", f"{_pct(zm_done, zm_total):.1f}%", f"{zm_done}/{zm_total}")
+    badge_cols[3].metric("Gold MP", f"{weapon_mp_g}/{weapon_mp_g_total}")
+    badge_cols[4].metric("Dia MP", f"{weapon_mp_d}/{weapon_mp_d_total}")
+    badge_cols[5].metric("Gold ZM", f"{weapon_zm_g}/{weapon_zm_g_total}")
+    badge_cols[6].metric("Dia ZM", f"{weapon_zm_d}/{weapon_zm_d_total}")
+ 
+    st.divider()
+ 
+    # ── WEAPON LEVEL / PRESTIGE ──
+    st.markdown("## Weapon Prestige")
+    prestige = summary["prestige"]
+    st.metric("Weapon Prestige Master (WPM)", f"{_pct(prestige['wpm_done'], prestige['total']):.1f}%",
+               f"{prestige['wpm_done']}/{prestige['total']} weapons")
+ 
+    st.divider()
+ 
+    # ── PER-MODE CAMO COMPLETION ──
+    st.markdown("## Camo Completion by Mode")
+    camos = summary["camos"]
+ 
+    camo_order = [
+        "Genesis (Co-Op / Endgame)", "Singularity (Multiplayer)",
+        "Infestation (Zombies)", "Apocalypse (Warzone)",
+    ]
+    camo_cols = st.columns(4)
+    for i, chain_label in enumerate(camo_order):
+        data = camos.get(chain_label, {"base_done":0,"base_total":0,"mastery_done":0,"mastery_total":0})
+        with camo_cols[i]:
+            st.markdown(f"**{chain_label.split(' (')[0]}**")
+            base_pct = _pct(data["base_done"], data["base_total"])
+            mastery_pct = _pct(data["mastery_done"], data["mastery_total"])
+            st.metric("Base Camo", f"{base_pct:.1f}%", f"{data['base_done']}/{data['base_total']}")
+            st.metric("Mastery (final)", f"{mastery_pct:.1f}%", f"{data['mastery_done']}/{data['mastery_total']}")
+ 
+    st.divider()
+ 
+    # ── CALLING CARD COMPLETION BY MODE ──
+    st.markdown("## Calling Card Completion by Mode")
+    cc = summary["calling_cards"]
+    cc_cols = st.columns(4)
+    for i, mode in enumerate(["Co-Op / Endgame", "Multiplayer", "Zombies", "Warzone"]):
+        done, total = cc.get(mode, (0, 0))
+        with cc_cols[i]:
+            st.metric(mode, f"{_pct(done, total):.1f}%", f"{done}/{total}")
+ 
+    st.divider()
+ 
+    # ── GLOBAL CAMO MASTERY TABLE ──
+    st.markdown("## Global Camo Mastery")
+    mastery_rows = []
+    for chain_label in camo_order:
+        data = camos.get(chain_label, {"mastery_done":0,"mastery_total":0})
+        mastery_rows.append({
+            "Chain": chain_label.split(" (")[0],
+            "Mode": chain_label.split("(")[-1].rstrip(")"),
+            "Done": data["mastery_done"],
+            "Total": data["mastery_total"],
+            "%": f"{_pct(data['mastery_done'], data['mastery_total']):.1f}%",
+        })
+    st.dataframe(mastery_rows, use_container_width=True, hide_index=True)
+ 
+    st.divider()
+ 
+    # ── RETICLE COMPLETION BY MODE ──
+    st.markdown("## Reticle Completion (Stage 100) by Mode")
+    ret = summary["reticles"]
+    ret_cols = st.columns(4)
+    for i, mode in enumerate(["Co-Op / Endgame", "Multiplayer", "Zombies", "Warzone"]):
+        done, total = ret.get(mode, (0, 0))
+        with ret_cols[i]:
+            st.metric(mode, f"{_pct(done, total):.1f}%", f"{done}/{total}")
+ 
+    st.divider()
+ 
+    # ── TITLES BY MODE ──
+    st.markdown("## Titles Earned by Mode")
+    titles = summary["titles"]
+    title_modes = list(titles.keys())
+    title_cols = st.columns(len(title_modes)) if title_modes else []
+    for i, mode in enumerate(title_modes):
+        done, total = titles[mode]
+        with title_cols[i]:
+            st.metric(mode, f"{_pct(done, total):.1f}%", f"{done}/{total}")
+ 
+    st.divider()
+ 
+    # ── COLOURS ──
+    st.markdown("## Colours Unlocked")
+    colours_done, colours_total = summary["colours"]
+    st.metric("Colours (account level gated)", f"{_pct(colours_done, colours_total):.1f}%",
+               f"{colours_done}/{colours_total}")
+ 
+    st.divider()
+ 
+    # ── AUGMENTS (Zombies only) ──
+    st.markdown("## Augments (Zombies)")
+    aug_done, aug_total = summary["augments"]
+    st.metric("Perk-A-Colas / Ammo Mods / Field Upgrades", f"{_pct(aug_done, aug_total):.1f}%",
+               f"{aug_done}/{aug_total}")
+ 
+    st.divider()
+ 
+    # ── OVERCLOCKS (Multiplayer only) ──
+    st.markdown("## Overclocks (Multiplayer)")
+    oc_done, oc_total = summary["overclocks"]
+    st.metric("Scorestreaks / Lethals / Tacticals / Field Upgrades", f"{_pct(oc_done, oc_total):.1f}%",
+               f"{oc_done}/{oc_total}")
+ 
+    st.divider()
+ 
+    # ── INTEL BY MAP ──
+    st.markdown("## Intel by Map")
+    intel = summary["intel"]
+    if intel:
+        intel_cols = st.columns(min(len(intel), 4))
+        for i, (map_name, (done, total)) in enumerate(intel.items()):
+            with intel_cols[i % len(intel_cols)]:
+                st.metric(map_name, f"{_pct(done, total):.1f}%", f"{done}/{total}")
+    else:
+        st.info("No intel data found.")
+ 
+    st.divider()
+ 
+    # ── REWARDS ──
+    st.markdown("## Rewards")
+    rewards = summary["rewards"]
+ 
+    if "zombies_total" in rewards:
+        z_done, z_total = rewards["zombies_total"]
+        st.markdown(f"**Zombies Rewards (Main Quests, Relics, Survival, etc.) — {_pct(z_done, z_total):.1f}% ({z_done}/{z_total})**")
+        with st.expander("Breakdown by map"):
+            by_map = rewards.get("zombies_by_map", {})
+            rows = [
+                {"Map": map_name, "Done": done, "Total": total, "%": f"{_pct(done, total):.1f}%"}
+                for map_name, (done, total) in by_map.items()
+            ]
+            st.dataframe(rows, use_container_width=True, hide_index=True)
+ 
+    if "endgame_operations_total" in rewards:
+        e_done, e_total = rewards["endgame_operations_total"]
+        st.markdown(f"**Endgame Operations (Act I/II/III) — {_pct(e_done, e_total):.1f}% ({e_done}/{e_total})**")
+        with st.expander("Breakdown by Operation"):
+            by_act = rewards.get("endgame_operations_by_act", {})
+            rows = [
+                {"Operation": op, "Done": done, "Total": total, "%": f"{_pct(done, total):.1f}%"}
+                for op, (done, total) in by_act.items()
+            ]
+            st.dataframe(rows, use_container_width=True, hide_index=True)
+ 
+    if "zombies_total" not in rewards and "endgame_operations_total" not in rewards:
+        st.info("No rewards data found.")
+ 
+    st.divider()
+ 
+    # ── RELOAD / RESET CONTROLS ──
+    col1, col2 = st.columns(2)
     with col1:
         if st.button("Reload tracker CSVs + saved state", use_container_width=True):
             st.session_state.bo7_completion_state = load_completion_state()
@@ -932,105 +1102,7 @@ with tab_tracker:
             st.session_state.bo7_latest_mission = None
             st.error("Saved state reset.")
             st.rerun()
- 
-    st.divider()
- 
-    # ── WEAPON COMPLETION DASHBOARD ──
-    st.markdown("## Weapon Completion — Final Camo Per Chain")
-    st.caption(
-        "A weapon counts as DONE here only when its final per-weapon camo "
-        "(Genesis, Singularity, Infestation, or Apocalypse) is TRUE. "
-        "Gate camos (Moonstone, Arclight, Bloodstone, Starglass) don't count as done on their own."
-    )
- 
-    dashboard = compute_weapon_completion_dashboard(CLEAN_DATA_DIR)
- 
-    overall_done = sum(chain["done"] for chain in dashboard.values())
-    overall_total = sum(chain["total"] for chain in dashboard.values())
-    overall_pct = (overall_done / overall_total * 100) if overall_total else 0.0
- 
-    st.markdown(
-        f"<div class='order-weapon' style='font-size:2.2rem;'>{overall_done} / {overall_total} weapons fully done</div>",
-        unsafe_allow_html=True,
-    )
-    st.progress(overall_pct / 100 if overall_total else 0.0)
- 
-    st.divider()
- 
-    for chain_label, chain_data in dashboard.items():
-        chain_done = chain_data["done"]
-        chain_total = chain_data["total"]
-        chain_pct = (chain_done / chain_total * 100) if chain_total else 0.0
- 
-        with st.expander(f"{chain_label} — {chain_done}/{chain_total} done ({chain_pct:.0f}%)"):
-            st.progress(chain_pct / 100 if chain_total else 0.0)
- 
-            by_class = chain_data["by_class"]
-            if by_class:
-                class_rows = [
-                    {
-                        "Weapon Class": weapon_class,
-                        "Done": counts["done"],
-                        "Total": counts["total"],
-                        "Remaining": counts["total"] - counts["done"],
-                    }
-                    for weapon_class, counts in sorted(by_class.items())
-                ]
-                st.dataframe(class_rows, use_container_width=True, hide_index=True)
- 
-            if chain_data["not_done"]:
-                st.markdown("**Not yet done:**")
-                st.markdown(", ".join(chain_data["not_done"]))
- 
-    st.divider()
- 
-    st.markdown("### Remaining Camo Queue (next-step view)")
-    st.caption("This is the live task queue — the single next incomplete step per weapon, not full completion.")
- 
-    available_tasks = get_available_tasks(st.session_state.bo7_tasks)
- 
-    if available_tasks:
-        st.dataframe(
-            [
-                {
-                    "Mode": task["mode"],
-                    "Chain": task["chain"],
-                    "Class": task["weapon_class"],
-                    "Weapon": task["weapon"],
-                    "Next Camo": task["camo"],
-                    "Challenge": task["challenge_text"],
-                    "Recommended Mode": task["recommended_mode"],
-                    "Weapon Progress": f"{task['weapon_progress']:.2f}%",
-                }
-                for task in available_tasks
-            ],
-            use_container_width=True,
-            hide_index=True,
-        )
-    else:
-        st.success("No remaining unlocked camo tasks detected.")
- 
-    st.divider()
- 
-    st.markdown("### Persisted completions (logged via app)")
- 
-    if st.session_state.bo7_completion_state:
-        st.dataframe(
-            [
-                {
-                    "Task ID": task_id,
-                    "Result": data.get("result", ""),
-                    "Mode": data.get("mode", ""),
-                    "Target": data.get("target", data.get("weapon", "")),
-                    "Reason": data.get("reason", ""),
-                }
-                for task_id, data in st.session_state.bo7_completion_state.items()
-            ],
-            use_container_width=True,
-            hide_index=True,
-        )
-    else:
-        st.info("Nothing logged via the app yet this run.")
+
 
 # ─── AI CHAT ──────────────────────────────────────────────────────────────────
 

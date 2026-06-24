@@ -1903,3 +1903,293 @@ def generate_commander_reply(
         "Completion Commander online. Ask for status, locked tasks, or next mission. "
         "The clean 100% database is active."
     )
+
+
+
+TRUE_SET = {"TRUE", "YES", "DONE", "COMPLETE", "COMPLETED"}
+NA_SET = {"N/A", "NA", "NONE", ""}
+ 
+ 
+def _is_true(v) -> bool:
+    return str(v).strip().upper() in TRUE_SET
+ 
+ 
+def _is_na(v) -> bool:
+    return str(v).strip().upper() in NA_SET
+ 
+ 
+def _load(clean_folder: Path, filename: str) -> pd.DataFrame:
+    path = clean_folder / filename
+    if not path.exists():
+        return pd.DataFrame()
+    return pd.read_csv(path, dtype=str).fillna("")
+ 
+ 
+def _pct(done: int, total: int) -> float:
+    return round((done / total * 100), 2) if total else 0.0
+ 
+ 
+# ---------------------------------------------------------------------------
+# CAMO CHAINS (already built — kept here for completeness)
+# ---------------------------------------------------------------------------
+ 
+FINAL_CAMO_COLUMN = {
+    "apocalypse_status.csv": "Apocalypse",
+    "singularity_status.csv": "Singularity",
+    "infestation_status.csv": "Infestation",
+    "genesis_status.csv": "Genesis",
+}
+CHAIN_LABELS = {
+    "apocalypse_status.csv": "Apocalypse (Warzone)",
+    "singularity_status.csv": "Singularity (Multiplayer)",
+    "infestation_status.csv": "Infestation (Zombies)",
+    "genesis_status.csv": "Genesis (Co-Op / Endgame)",
+}
+# Base (military+special) camo columns end before the 4 mastery columns
+BASE_CAMO_END_OFFSET = 4  # last 4 columns are: Golden_X, Gate1, Gate2, Final
+ 
+ 
+def compute_camo_dashboard(clean_folder: Path) -> dict[str, Any]:
+    result = {}
+    for filename, final_col in FINAL_CAMO_COLUMN.items():
+        df = _load(clean_folder, filename)
+        label = CHAIN_LABELS[filename]
+        if df.empty or final_col not in df.columns:
+            result[label] = {"base_done": 0, "base_total": 0, "mastery_done": 0, "mastery_total": 0}
+            continue
+ 
+        all_cols = [c for c in df.columns if c not in ("mode", "chain", "weapon_class", "weapon")]
+        base_cols = all_cols[:-BASE_CAMO_END_OFFSET]
+ 
+        applicable = ~df[final_col].str.strip().str.upper().isin(NA_SET)
+        df_app = df[applicable]
+ 
+        # Base camo completion: every applicable base-tier cell across all weapons
+        base_total = 0
+        base_done = 0
+        for col in base_cols:
+            mask = ~df_app[col].str.strip().str.upper().isin(NA_SET)
+            base_total += mask.sum()
+            base_done += df_app[col][mask].apply(_is_true).sum()
+ 
+        mastery_total = len(df_app)
+        mastery_done = df_app[final_col].apply(_is_true).sum()
+ 
+        result[label] = {
+            "base_done": int(base_done), "base_total": int(base_total),
+            "mastery_done": int(mastery_done), "mastery_total": int(mastery_total),
+        }
+    return result
+ 
+ 
+# ---------------------------------------------------------------------------
+# WEAPON PRESTIGE
+# ---------------------------------------------------------------------------
+ 
+def compute_prestige_summary(clean_folder: Path) -> dict[str, Any]:
+    df = _load(clean_folder, "weapon_prestige.csv")
+    if df.empty:
+        return {"wpm_done": 0, "total": 0}
+    wpm_done = df["wpm_complete"].apply(_is_true).sum()
+    return {"wpm_done": int(wpm_done), "total": len(df)}
+ 
+ 
+# ---------------------------------------------------------------------------
+# MASTERY BADGES — weapons + equipment
+# ---------------------------------------------------------------------------
+ 
+def compute_mastery_badges_summary(clean_folder: Path) -> dict[str, Any]:
+    weapons = _load(clean_folder, "mastery_badges_weapons.csv")
+    eq_mp = _load(clean_folder, "mastery_badges_equipment_mp.csv")
+    eq_zm = _load(clean_folder, "mastery_badges_equipment_zombies.csv")
+ 
+    def applicable_mask(series):
+        return ~series.str.strip().str.upper().isin(NA_SET)
+ 
+    result = {}
+ 
+    if not weapons.empty:
+        for prefix, label in [("mp", "MP"), ("zm", "ZM")]:
+            gold_col, dia_col = f"{prefix}_gold_complete", f"{prefix}_diamond_complete"
+            mask = applicable_mask(weapons[gold_col])
+            gold_done = weapons[gold_col][mask].apply(_is_true).sum()
+            mask_d = applicable_mask(weapons[dia_col])
+            dia_done = weapons[dia_col][mask_d].apply(_is_true).sum()
+            result[f"weapon_{label.lower()}_gold"] = (int(gold_done), int(mask.sum()))
+            result[f"weapon_{label.lower()}_diamond"] = (int(dia_done), int(mask_d.sum()))
+ 
+    if not eq_mp.empty:
+        gold_done = eq_mp["gold_complete"].apply(_is_true).sum()
+        dia_done = eq_mp["diamond_complete"].apply(_is_true).sum()
+        result["equipment_mp_gold"] = (int(gold_done), len(eq_mp))
+        result["equipment_mp_diamond"] = (int(dia_done), len(eq_mp))
+ 
+    if not eq_zm.empty:
+        gold_done = eq_zm["gold_complete"].apply(_is_true).sum()
+        dia_done = eq_zm["diamond_complete"].apply(_is_true).sum()
+        result["equipment_zm_gold"] = (int(gold_done), len(eq_zm))
+        result["equipment_zm_diamond"] = (int(dia_done), len(eq_zm))
+ 
+    return result
+ 
+ 
+# ---------------------------------------------------------------------------
+# CALLING CARDS — by mode
+# ---------------------------------------------------------------------------
+ 
+CALLING_CARD_FILES = {
+    "Co-Op / Endgame": "calling_cards_sp.csv",
+    "Multiplayer": "calling_cards_mp.csv",
+    "Zombies": "calling_cards_zm.csv",
+    "Warzone": "calling_cards_wz.csv",
+}
+ 
+def compute_calling_cards_summary(clean_folder: Path) -> dict[str, tuple]:
+    result = {}
+    for mode, filename in CALLING_CARD_FILES.items():
+        df = _load(clean_folder, filename)
+        if df.empty:
+            result[mode] = (0, 0)
+            continue
+        done = df["completed"].apply(_is_true).sum()
+        result[mode] = (int(done), len(df))
+    return result
+ 
+ 
+# ---------------------------------------------------------------------------
+# RETICLES — by mode
+# ---------------------------------------------------------------------------
+ 
+def compute_reticles_summary(clean_folder: Path) -> dict[str, tuple]:
+    df = _load(clean_folder, "reticles.csv")
+    if df.empty:
+        return {}
+    result = {}
+    for mode in df["mode"].unique():
+        sub = df[df["mode"] == mode]
+        done = sub["stage_100_complete"].apply(_is_true).sum()
+        result[mode] = (int(done), len(sub))
+    return result
+ 
+ 
+# ---------------------------------------------------------------------------
+# TITLES — by mode
+# ---------------------------------------------------------------------------
+ 
+def compute_titles_summary(clean_folder: Path) -> dict[str, tuple]:
+    df = _load(clean_folder, "titles.csv")
+    if df.empty:
+        return {}
+    result = {}
+    for mode in df["mode"].unique():
+        sub = df[df["mode"] == mode]
+        done = sub["earned"].apply(_is_true).sum()
+        result[mode] = (int(done), len(sub))
+    return result
+ 
+ 
+# ---------------------------------------------------------------------------
+# COLOURS — single percentage
+# ---------------------------------------------------------------------------
+ 
+def compute_colours_summary(clean_folder: Path) -> tuple:
+    df = _load(clean_folder, "colours.csv")
+    if df.empty:
+        return (0, 0)
+    done = df["unlocked"].apply(_is_true).sum()
+    return (int(done), len(df))
+ 
+ 
+# ---------------------------------------------------------------------------
+# AUGMENTS — Zombies only
+# ---------------------------------------------------------------------------
+ 
+def compute_augments_summary(clean_folder: Path) -> tuple:
+    df = _load(clean_folder, "augments_zombies.csv")
+    if df.empty:
+        return (0, 0)
+    cols = ["minor1","major1","minor2","major2","minor3","major3","minor4","major4","extra_slot"]
+    total = len(df) * len(cols)
+    done = sum(df[c].apply(_is_true).sum() for c in cols)
+    return (int(done), int(total))
+ 
+ 
+# ---------------------------------------------------------------------------
+# OVERCLOCKS — Multiplayer only
+# ---------------------------------------------------------------------------
+ 
+def compute_overclocks_summary(clean_folder: Path) -> tuple:
+    df = _load(clean_folder, "overclocks_mp.csv")
+    if df.empty:
+        return (0, 0)
+    total = len(df) * 2
+    done = df["oc1_complete"].apply(_is_true).sum() + df["oc2_complete"].apply(_is_true).sum()
+    return (int(done), int(total))
+ 
+ 
+# ---------------------------------------------------------------------------
+# INTEL — by map
+# ---------------------------------------------------------------------------
+ 
+def compute_intel_summary(clean_folder: Path) -> dict[str, tuple]:
+    df = _load(clean_folder, "intel.csv")
+    if df.empty:
+        return {}
+    result = {}
+    for map_name in df["map"].unique():
+        sub = df[df["map"] == map_name]
+        done = sub["found"].apply(_is_true).sum()
+        result[map_name] = (int(done), len(sub))
+    return result
+ 
+ 
+# ---------------------------------------------------------------------------
+# REWARDS — zombies maps + endgame operations
+# ---------------------------------------------------------------------------
+ 
+def compute_rewards_summary(clean_folder: Path) -> dict[str, Any]:
+    result = {}
+ 
+    rz = _load(clean_folder, "rewards_zombies.csv")
+    if not rz.empty:
+        by_map = {}
+        for map_name in rz["map"].unique():
+            sub = rz[rz["map"] == map_name]
+            done = sub["earned"].apply(_is_true).sum()
+            by_map[map_name] = (int(done), len(sub))
+        result["zombies_by_map"] = by_map
+        total_done = rz["earned"].apply(_is_true).sum()
+        result["zombies_total"] = (int(total_done), len(rz))
+ 
+    re_ops = _load(clean_folder, "rewards_endgame_operations.csv")
+    if not re_ops.empty:
+        by_op = {}
+        for op in re_ops["operation"].unique():
+            sub = re_ops[re_ops["operation"] == op]
+            done = sub["earned"].apply(_is_true).sum()
+            by_op[op] = (int(done), len(sub))
+        result["endgame_operations_by_act"] = by_op
+        total_done = re_ops["earned"].apply(_is_true).sum()
+        result["endgame_operations_total"] = (int(total_done), len(re_ops))
+ 
+    return result
+ 
+ 
+# ---------------------------------------------------------------------------
+# MASTER SUMMARY — single call for the whole Tracker tab
+# ---------------------------------------------------------------------------
+ 
+def compute_full_tracker_summary(clean_folder: Path) -> dict[str, Any]:
+    return {
+        "camos": compute_camo_dashboard(clean_folder),
+        "prestige": compute_prestige_summary(clean_folder),
+        "mastery_badges": compute_mastery_badges_summary(clean_folder),
+        "calling_cards": compute_calling_cards_summary(clean_folder),
+        "reticles": compute_reticles_summary(clean_folder),
+        "titles": compute_titles_summary(clean_folder),
+        "colours": compute_colours_summary(clean_folder),
+        "augments": compute_augments_summary(clean_folder),
+        "overclocks": compute_overclocks_summary(clean_folder),
+        "intel": compute_intel_summary(clean_folder),
+        "rewards": compute_rewards_summary(clean_folder),
+    }
