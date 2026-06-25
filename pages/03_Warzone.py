@@ -151,7 +151,10 @@ def default_token_bank() -> dict[str, int]:
 def load_account_params() -> dict[str, any]:
     ensure_state_dir()
     if not ACCOUNT_PARAMS_PATH.exists():
-        return {"double_xp_tokens": default_token_bank()}
+        return {
+            "double_xp_tokens": default_token_bank(),
+            "account_level": 1.0,
+        }
     try:
         with ACCOUNT_PARAMS_PATH.open("r", encoding="utf-8") as file:
             data = json.load(file)
@@ -160,16 +163,32 @@ def load_account_params() -> dict[str, any]:
             # Ensure all keys exist even if file predates a new duration/type
             for key in default_token_bank():
                 data["double_xp_tokens"].setdefault(key, 0)
+            data.setdefault("account_level", 1.0)
             return data
     except json.JSONDecodeError:
-        return {"double_xp_tokens": default_token_bank()}
- 
+        return {
+            "double_xp_tokens": default_token_bank(),
+            "account_level": 1.0,
+        }
  
 def save_account_params(params: dict[str, any]):
     ensure_state_dir()
     with ACCOUNT_PARAMS_PATH.open("w", encoding="utf-8") as file:
         json.dump(params, file, indent=2)
  
+def set_account_level(account_level: float):
+    params = load_account_params()
+    params["account_level"] = float(account_level)
+    save_account_params(params)
+    st.session_state.bo7_account_params = params
+
+
+def add_account_levels(levels_gained: float):
+    params = load_account_params()
+    current_level = float(params.get("account_level", 1.0))
+    params["account_level"] = current_level + float(levels_gained)
+    save_account_params(params)
+    st.session_state.bo7_account_params = params
  
 def spend_double_xp_token(xp_type: str, duration: int) -> bool:
     """
@@ -233,8 +252,18 @@ def load_persisted_session_log():
 def append_session_log(row):
     ensure_state_dir()
     fieldnames = [
-        "mission_id", "time", "mode", "target", "challenge",
-        "recommended_mode", "command", "time_limit", "result", "blame", "notes",
+        "mission_id",
+        "time",
+        "mode",
+        "target",
+        "challenge",
+        "recommended_mode",
+        "command",
+        "time_limit",
+        "result",
+        "blame",
+        "notes",
+        "account_levels_gained",
     ]
     file_exists = SESSION_LOG_PATH.exists()
     with SESSION_LOG_PATH.open("a", encoding="utf-8", newline="") as file:
@@ -243,6 +272,26 @@ def append_session_log(row):
             writer.writeheader()
         writer.writerow({key: row.get(key, "") for key in fieldnames})
 
+def log_account_level_gain(levels_gained: float, plan: dict):
+    if levels_gained <= 0:
+        return
+
+    add_account_levels(levels_gained)
+
+    append_session_log({
+        "mission_id": f"AccountLevel:{datetime.now().isoformat(timespec='seconds')}",
+        "time": datetime.now().isoformat(timespec="seconds"),
+        "mode": plan.get("mode", "Global Cleanup") if plan else "Global Cleanup",
+        "target": "Account Level",
+        "challenge": "Session account level gain",
+        "recommended_mode": plan.get("mode", "") if plan else "",
+        "command": "Account level progress logged at session end.",
+        "time_limit": plan.get("available_minutes", "") if plan else "",
+        "result": "Account levels gained",
+        "blame": "Successful operation",
+        "notes": f"+{levels_gained:g} account levels",
+        "account_levels_gained": levels_gained,
+    })
 
 def mark_task_complete(task, reason="Manual completion"):
     completion_state = load_completion_state()
@@ -272,6 +321,54 @@ def reset_persistent_state():
 def task_label(task):
     return f"{task['mode']} | {task['weapon']} — {task['camo']} | {task['challenge_text']}"
 
+def stop_status(task_id):
+    return st.session_state.bo7_stop_results.get(task_id, {}).get("status", "pending")
+
+
+def stop_is_resolved(task_id):
+    return stop_status(task_id) in {"done", "partial", "skipped"}
+
+
+def resolved_stop_ids():
+    return [
+        task_id
+        for task_id, result in st.session_state.bo7_stop_results.items()
+        if result.get("status") in {"done", "partial", "skipped"}
+    ]
+
+def log_plan_stop(stop, result, blame):
+    append_session_log({
+        "mission_id": stop.get("task_id", ""),
+        "time": datetime.now().isoformat(timespec="seconds"),
+        "mode": stop.get("mode", ""),
+        "target": stop.get("weapon", ""),
+        "challenge": stop.get("challenge_text", ""),
+        "recommended_mode": stop.get("recommended_mode", ""),
+        "command": stop.get("camo", ""),
+        "time_limit": "",
+        "result": result,
+        "blame": blame,
+        "notes": f"Session plan stop {stop.get('stop_number', '')}",
+    })
+
+def record_stop_result(stop, status, result="", blame="", notes=""):
+    task_id = stop["task_id"]
+
+    st.session_state.bo7_stop_results[task_id] = {
+        "status": status,
+        "result": result,
+        "blame": blame,
+        "notes": notes,
+        "stop_number": stop.get("stop_number", ""),
+        "weapon": stop.get("weapon", ""),
+        "camo": stop.get("camo", ""),
+        "mode": stop.get("mode", ""),
+        "recorded_at": datetime.now().isoformat(timespec="seconds"),
+    }
+
+    # Keep legacy list alive for anything else still reading it.
+    if task_id not in st.session_state.bo7_completed_stop_ids:
+        st.session_state.bo7_completed_stop_ids.append(task_id)
 
 def initialise_state():
     if "bo7_completion_state" not in st.session_state:
@@ -323,6 +420,10 @@ def initialise_state():
         st.session_state.bo7_session_plan = None
     if "bo7_completed_stop_ids" not in st.session_state:
         st.session_state.bo7_completed_stop_ids = []
+    if "bo7_stop_results" not in st.session_state:
+        st.session_state.bo7_stop_results = {}
+    if "bo7_account_levels_gained" not in st.session_state:
+        st.session_state.bo7_account_levels_gained = 0.0
 
 
 
@@ -399,6 +500,126 @@ def save_quick_update_csv(filename, dataframe):
     path.parent.mkdir(parents=True, exist_ok=True)
     dataframe.to_csv(path, index=False)
 
+CAMO_CHAIN_FILES = {
+    "Apocalypse": "apocalypse_status.csv",
+    "Singularity": "singularity_status.csv",
+    "Infestation": "infestation_status.csv",
+    "Genesis": "genesis_status.csv",
+}
+
+
+def write_camo_completion_from_stop(stop) -> bool:
+    """
+    Writes a completed session-plan camo stop back into the source camo CSV.
+
+    Supports task IDs shaped like:
+    Camo:{mode}:{chain}:{weapon}:{camo_name}
+
+    v1 updates the exact camo column named in the task_id.
+    """
+    task_id = str(stop.get("task_id", "")).strip()
+
+    if not task_id.startswith("Camo:"):
+        return False
+
+    parts = task_id.split(":", 4)
+
+    if len(parts) != 5:
+        return False
+
+    _prefix, mode, chain, weapon, camo_name = parts
+
+    filename = CAMO_CHAIN_FILES.get(chain)
+
+    if not filename:
+        return False
+
+    dataframe = load_quick_update_csv(filename)
+
+    if dataframe.empty:
+        return False
+
+    required_columns = {"mode", "chain", "weapon"}
+
+    if not required_columns.issubset(set(dataframe.columns)):
+        return False
+
+    if camo_name not in dataframe.columns:
+        return False
+
+    row_mask = (
+        dataframe["mode"].fillna("").str.strip().eq(mode)
+        & dataframe["chain"].fillna("").str.strip().eq(chain)
+        & dataframe["weapon"].fillna("").str.strip().eq(weapon)
+    )
+
+    if not row_mask.any():
+        return False
+
+    dataframe.loc[row_mask, camo_name] = "TRUE"
+    save_quick_update_csv(filename, dataframe)
+
+    return True
+
+def write_reticle_completion_from_stop(stop) -> bool:
+    """
+    Writes a completed session-plan reticle stop back into reticles.csv.
+
+    Supports task IDs shaped like:
+    Reticle:{mode}:{reticle}:{stage_percent}
+
+    This is mode-specific. Completing Warzone VAS MicroFlex 100 does not touch
+    Multiplayer, Zombies, or Co-Op / Endgame VAS MicroFlex rows.
+    """
+    task_id = str(stop.get("task_id", "")).strip()
+
+    if not task_id.startswith("Reticle:"):
+        return False
+
+    parts = task_id.split(":", 3)
+
+    if len(parts) != 4:
+        return False
+
+    _prefix, mode, reticle, stage_percent = parts
+
+    stage_column = f"stage_{stage_percent}_complete"
+
+    dataframe = load_quick_update_csv("reticles.csv")
+
+    if dataframe.empty:
+        return False
+
+    required_columns = {"mode", "reticle"}
+
+    if not required_columns.issubset(set(dataframe.columns)):
+        return False
+
+    if stage_column not in dataframe.columns:
+        return False
+
+    row_mask = (
+        dataframe["mode"].fillna("").str.strip().eq(mode)
+        & dataframe["reticle"].fillna("").str.strip().eq(reticle)
+    )
+
+    if not row_mask.any():
+        return False
+
+    dataframe.loc[row_mask, stage_column] = "TRUE"
+    save_quick_update_csv("reticles.csv", dataframe)
+
+    return True
+
+
+def reload_commander_from_csv():
+    st.session_state.bo7_completion_state = load_completion_state()
+    st.session_state.bo7_tasks = apply_completion_state(
+        load_tracker_tasks(),
+        st.session_state.bo7_completion_state,
+    )
+    st.session_state.bo7_progress = load_hub_progress()
+    st.session_state.bo7_latest_mission = None
 
 def is_true_cell(value):
     return str(value).strip().upper() in {"TRUE", "YES", "DONE", "COMPLETE", "COMPLETED", "✅"}
@@ -662,6 +883,29 @@ st.markdown(
         font-family: monospace;
         margin-bottom: 0.5rem;
     }
+    .route-primary-label {
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    color: #999999;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+    }
+
+    .route-primary-value {
+        font-size: 1.45rem;
+        font-weight: 850;
+        color: #ffffff;
+        line-height: 1.2;
+        margin-bottom: 0.75rem;
+    }
+
+    .route-subtext {
+        font-size: 1rem;
+        color: #aaaaaa;
+        font-family: monospace;
+        margin-bottom: 0.75rem;
+    }
     @media (max-width: 900px) {
         .commander-title { font-size: 2.2rem; }
         .order-weapon { font-size: 2rem; }
@@ -704,44 +948,169 @@ with tab_mission:
     plan = st.session_state.bo7_session_plan
  
     # ── STATE 2: ACTIVE PLAN ──
+    st.caption(
+    f"Current account level: "
+    f"{float(st.session_state.bo7_account_params.get('account_level', 1.0)):g}"
+    )
+
     if plan and plan.get("stops"):
         st.markdown(f"<div class='order-mode'>☣ {plan['mode']} — SESSION PLAN ACTIVE</div>", unsafe_allow_html=True)
- 
-        if plan.get("cluster_summary"):
-            cluster_text = " · ".join(
-                f"{c['label']} ({c['close_count']} close)"
-                for c in plan["cluster_summary"]
+
+        diagnostics = plan.get("diagnostics", {})
+        confidence = diagnostics.get("confidence", "Unknown")
+        confidence_score = diagnostics.get("confidence_score", 0)
+
+        st.metric(
+            "Plan Confidence",
+            confidence,
+            f"{confidence_score}/100",
+        )
+
+        rationale = diagnostics.get("rationale", [])
+        if rationale:
+            with st.expander("Why this plan?"):
+                for reason in rationale:
+                    st.write(f"- {reason}")
+
+        estimated_total_minutes = int(
+            plan.get("estimated_minutes", 0)
+            or sum(
+                int(stop.get("estimated_minutes", 0) or 0)
+                for stop in plan.get("stops", [])
             )
-            st.markdown(f"<div class='order-strategy'>Focus clusters: {cluster_text}</div>", unsafe_allow_html=True)
- 
-        st.divider()
- 
+        )
+
+        if estimated_total_minutes:
+            st.caption(
+                f"Estimated plan time: {estimated_total_minutes} minutes "
+                f"for {plan.get('available_minutes', '?')} available."
+            )
+
+        route_summary = plan.get("route_summary", {})
+
+        if route_summary:
+            st.markdown("### Route Summary")
+
+            primary_route = route_summary.get("primary_route", "Unknown")
+            estimated_minutes = route_summary.get("estimated_minutes", 0)
+            available_minutes = route_summary.get("available_minutes", "?")
+            unlock_value = route_summary.get("main_unlock_value", "Unknown")
+            stacking = route_summary.get("stacked_cleanup", "None")
+
+            summary_cols = st.columns([2, 1, 1])
+
+            with summary_cols[0]:
+                st.markdown(
+                    f"""
+                    <div class="route-primary-label">PRIMARY ROUTE</div>
+                    <div class="route-primary-value">{primary_route}</div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+
+                task_mix = route_summary.get("task_mix", {})
+                if task_mix:
+                    task_mix_text = " · ".join(
+                        f"{task_type}: {count}"
+                        for task_type, count in task_mix.items()
+                    )
+                    st.markdown(
+                        f"<div class='route-subtext'>Task mix: {task_mix_text}</div>",
+                        unsafe_allow_html=True,
+                    )
+
+            with summary_cols[1]:
+                st.metric(
+                    "Estimated Time",
+                    f"{estimated_minutes} min",
+                    f"{available_minutes} min available",
+                )
+
+            with summary_cols[2]:
+                high_value_count = str(unlock_value).split(" ")[0] if str(unlock_value) else "0"
+                st.metric("High-Value Stops", high_value_count)
+                st.caption(unlock_value)
+
+            st.caption(f"Stacking: {stacking}")
+
+            actual_cluster_counts = {}
+
+            for stop in plan.get("stops", []):
+                cluster_label = stop.get("cluster_label", "Unclassified")
+                actual_cluster_counts[cluster_label] = actual_cluster_counts.get(cluster_label, 0) + 1
+
+            if actual_cluster_counts:
+                cluster_text = " · ".join(
+                    f"{label} ({count} stop{'s' if count != 1 else ''})"
+                    for label, count in actual_cluster_counts.items()
+                )
+                st.markdown(
+                    f"<div class='order-strategy'>Focus route: {cluster_text}</div>",
+                    unsafe_allow_html=True,
+                )
+
+            st.divider()
+
         for stop in plan["stops"]:
             stop_number = stop["stop_number"]
             weapon = stop["weapon"]
             camo = stop["camo"]
             progress = stop["weapon_progress"]
             challenge = stop["challenge_text"]
+            estimated_minutes = int(stop.get("estimated_minutes", 0) or 0)
             cluster_label = stop["cluster_label"]
- 
+            task_id = stop["task_id"]
+
+            current_status = stop_status(task_id)
+            resolved = stop_is_resolved(task_id)
+
             with st.container():
+                status_label = {
+                    "pending": "PENDING",
+                    "done": "DONE",
+                    "partial": "PARTIAL",
+                    "skipped": "SKIPPED",
+                }.get(current_status, current_status.upper())
+
                 st.markdown(
                     f"<div class='order-weapon' style='font-size:1.6rem;'>"
-                    f"{stop_number}. {weapon}</div>",
+                    f"{stop_number}. {weapon} · {status_label}</div>",
                     unsafe_allow_html=True,
                 )
                 st.markdown(
                     f"<div class='order-camo' style='font-size:1.1rem;'>{camo} · {cluster_label}</div>",
                     unsafe_allow_html=True,
                 )
-
                 st.markdown(f"<div class='order-challenge'>{challenge}</div>", unsafe_allow_html=True)
- 
-                
+                if estimated_minutes:
+                    st.caption(f"Estimated time: {estimated_minutes} minutes")
+                stacking_hint = stop.get("stacking_hint", "")
+                if stacking_hint:
+                    st.info(stacking_hint)
+
+                if resolved:
+                    result = st.session_state.bo7_stop_results.get(task_id, {})
+                    st.caption(
+                        f"Logged as {status_label}. "
+                        f"{result.get('result', '')} {result.get('blame', '')}".strip()
+                    )
+
+                    if st.button("↩️ Undo stop result", key=f"undo_{task_id}", use_container_width=True):
+                        st.session_state.bo7_stop_results.pop(task_id, None)
+                        st.session_state.bo7_completed_stop_ids = [
+                            existing_id
+                            for existing_id in st.session_state.bo7_completed_stop_ids
+                            if existing_id != task_id
+                        ]
+                        st.rerun()
+
+                    st.divider()
+                    continue
+
                 with st.expander("Used a Double XP token on this?"):
                     used_token = st.checkbox(
                         "Yes, spend a token",
-                        key=f"used_token_{stop['task_id']}",
+                        key=f"used_token_{task_id}",
                     )
                     token_type = None
                     token_duration = None
@@ -751,19 +1120,19 @@ with tab_mission:
                             token_type = st.selectbox(
                                 "Type",
                                 DOUBLE_XP_TYPES,
-                                key=f"token_type_{stop['task_id']}",
+                                key=f"token_type_{task_id}",
                                 format_func=lambda x: x.title(),
                             )
                         with tc2:
                             token_duration = st.selectbox(
                                 "Duration",
                                 DOUBLE_XP_DURATIONS,
-                                key=f"token_duration_{stop['task_id']}",
+                                key=f"token_duration_{task_id}",
                                 format_func=lambda x: f"{x} min",
                             )
- 
+
                 col1, col2, col3 = st.columns(3)
- 
+
                 def _maybe_spend_token():
                     if used_token and token_type and token_duration:
                         success = spend_double_xp_token(token_type, token_duration)
@@ -773,28 +1142,54 @@ with tab_mission:
                                 f"No {token_duration}-minute {token_type} tokens left in the bank. "
                                 "Logged anyway, but check Account Parameters."
                             )
- 
+
                 with col1:
-                    if st.button("✅ Done", key=f"done_{stop['task_id']}", use_container_width=True):
-                        _log_stop(stop["task_id"], "Camo completed", "Successful operation", stop)
+                    if st.button("✅ Done", key=f"done_{task_id}", use_container_width=True):
+                        csv_updated = (
+                            write_camo_completion_from_stop(stop)
+                            or write_reticle_completion_from_stop(stop)
+                        )
+
+                        log_plan_stop(stop, "Camo completed", "Successful operation")
                         _maybe_spend_token()
-                        st.session_state.bo7_completed_stop_ids.append(stop["task_id"])
+                        record_stop_result(
+                            stop=stop,
+                            status="done",
+                            result="Camo completed",
+                            blame="Successful operation",
+                            notes="CSV updated" if csv_updated else "Logged only",
+                        )
+
+                        if csv_updated:
+                            reload_commander_from_csv()
+
                         st.rerun()
- 
+
                 with col2:
-                    if st.button("⚠️ Partial", key=f"partial_{stop['task_id']}", use_container_width=True):
-                        _log_stop(stop["task_id"], "Partial progress", "Human avoidance", stop)
+                    if st.button("⚠️ Partial", key=f"partial_{task_id}", use_container_width=True):
+                        log_plan_stop(stop, "Partial progress", "Human avoidance")
                         _maybe_spend_token()
-                        st.session_state.bo7_completed_stop_ids.append(stop["task_id"])
+                        record_stop_result(
+                            stop=stop,
+                            status="partial",
+                            result="Partial progress",
+                            blame="Human avoidance",
+                        )
                         st.rerun()
- 
+
                 with col3:
-                    if st.button("⏭️ Skip", key=f"skip_{stop['task_id']}", use_container_width=True):
-                        st.session_state.bo7_completed_stop_ids.append(stop["task_id"])
+                    if st.button("⏭️ Skip", key=f"skip_{task_id}", use_container_width=True):
+                        log_plan_stop(stop, "Skipped", "Human choice")
+                        record_stop_result(
+                            stop=stop,
+                            status="skipped",
+                            result="Skipped",
+                            blame="Human choice",
+                        )
                         st.rerun()
- 
+
                 st.divider()
- 
+
         st.markdown("**Time remaining in this session:**")
         remaining_minutes = st.number_input(
             "Minutes left",
@@ -816,7 +1211,7 @@ with tab_mission:
                     preferred_mode=plan["mode"],
                     session_goal=st.session_state.bo7_form_session_goal,
                     motivation=st.session_state.bo7_form_motivation,
-                    completed_task_ids=st.session_state.bo7_completed_stop_ids,
+                    completed_task_ids=resolved_stop_ids(),
                     remaining_minutes=remaining_minutes,
                 )
  
@@ -824,9 +1219,28 @@ with tab_mission:
                 st.rerun()
  
         with col_b:
-            if st.button("⏹️ END SESSION", use_container_width=True):
+            st.markdown("### End Session Log")
+
+            st.session_state.bo7_account_levels_gained = st.number_input(
+                "Account levels gained this session",
+                min_value=0.0,
+                max_value=100.0,
+                value=float(st.session_state.bo7_account_levels_gained),
+                step=0.5,
+                key="account_levels_gained_input",
+            )
+
+            if st.button("END SESSION", use_container_width=True):
+                log_account_level_gain(
+                    levels_gained=float(st.session_state.bo7_account_levels_gained),
+                    plan=st.session_state.bo7_session_plan,
+                )
+
+                st.session_state.bo7_session_log = load_persisted_session_log()
                 st.session_state.bo7_session_plan = None
                 st.session_state.bo7_completed_stop_ids = []
+                st.session_state.bo7_stop_results = {}
+                st.session_state.bo7_account_levels_gained = 0.0
                 st.rerun()
  
     # ── STATE 1: NO ACTIVE PLAN ──
@@ -890,6 +1304,7 @@ with tab_mission:
             st.session_state.bo7_form_avoided_mode = avoided_mode
             st.session_state.bo7_form_session_goal = session_goal
             st.session_state.bo7_completed_stop_ids = []
+            st.session_state.bo7_stop_results = {}
  
             new_plan = build_session_plan(
                 tasks=st.session_state.bo7_tasks,
@@ -907,7 +1322,29 @@ with tab_mission:
 with tab_account:
     st.subheader("Account Parameters")
     st.caption("Settings that persist across sessions. Update when something changes — not every time you play.")
- 
+    
+    st.markdown("## Account Level")
+
+    current_account_level = float(
+        st.session_state.bo7_account_params.get("account_level", 1.0)
+    )
+
+    new_account_level = st.number_input(
+        "Current account level",
+        min_value=1.0,
+        max_value=1000.0,
+        value=current_account_level,
+        step=0.5,
+        key="manual_account_level_input",
+    )
+
+    if st.button("SAVE ACCOUNT LEVEL", use_container_width=True):
+        set_account_level(new_account_level)
+        st.success(f"Account level saved: {new_account_level:g}")
+        st.rerun()
+
+    st.divider()
+
     st.markdown("### Double XP Token Banks")
     st.caption("COD gives these as separate banks per duration and per type. Enter what you currently have.")
  
@@ -1797,8 +2234,77 @@ with tab_chat:
 # ─── SESSION LOG ──────────────────────────────────────────────────────────────
 
 with tab_log:
-    st.subheader("Session Log")
+    st.markdown("## Session Log")
 
+    session_log = st.session_state.bo7_session_log
+
+    account_level_rows = [
+        row for row in session_log
+        if str(row.get("account_levels_gained", "")).strip()
+    ]
+
+    total_account_levels = 0.0
+    total_logged_minutes = 0.0
+    sessions_with_levels = 0
+
+    for row in account_level_rows:
+        try:
+            levels_gained = float(row.get("account_levels_gained", 0) or 0)
+        except ValueError:
+            levels_gained = 0.0
+
+        if levels_gained <= 0:
+            continue
+
+        total_account_levels += levels_gained
+        sessions_with_levels += 1
+
+        try:
+            minutes = float(row.get("time_limit", 0) or 0)
+        except ValueError:
+            minutes = 0.0
+
+        if minutes > 0:
+            total_logged_minutes += minutes
+
+    avg_levels_per_session = (
+        total_account_levels / sessions_with_levels
+        if sessions_with_levels > 0
+        else 0.0
+    )
+
+    avg_levels_per_hour = (
+        total_account_levels / (total_logged_minutes / 60)
+        if total_logged_minutes > 0
+        else 0.0
+    )
+
+    st.markdown("### Account Level Summary")
+
+    level_cols = st.columns(3)
+
+    with level_cols[0]:
+        st.metric(
+            "Total Account Levels Gained",
+            f"{total_account_levels:g}",
+        )
+
+    with level_cols[1]:
+        st.metric(
+            "Average Per Logged Session",
+            f"{avg_levels_per_session:.2f}",
+            f"{sessions_with_levels} sessions",
+        )
+
+    with level_cols[2]:
+        st.metric(
+            "Average Per Hour",
+            f"{avg_levels_per_hour:.2f}",
+            "from logged session length",
+        )
+
+    st.divider()
+    
     summary = summarise_sessions(st.session_state.bo7_session_log)
 
     cols = st.columns(5)

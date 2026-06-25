@@ -1358,6 +1358,80 @@ def task_type_bonus(task: dict[str, Any], session_goal: str) -> float:
 
     return 0
 
+def unlock_leverage_bonus(task: dict[str, Any]) -> float:
+    """
+    Rewards tasks that are likely to open another completion door.
+
+    v1 uses only task metadata already available on the task object, so it is
+    safe and does not need extra CSV reads.
+    """
+    task_type = task.get("task_type", "")
+    category = task.get("category", "")
+    camo = task.get("camo", "")
+    challenge = task.get("challenge_text", "")
+    progress = float(task.get("weapon_progress", 0.0))
+
+    text = f"{camo} {challenge} {category}".lower()
+
+    bonus = 0.0
+
+    # Final military/special work unlocks the next camo gate for that weapon.
+    if task_type == "camo":
+        if "final military" in text:
+            bonus += 45
+
+        if "final special" in text:
+            bonus += 55
+
+        # Mastery camos are route-critical for class/global completion.
+        if any(name in text for name in [
+            "golden damascus",
+            "starglass",
+            "absolute zero",
+            "apocalypse",
+            "moonstone",
+            "arclight",
+            "doomsteel",
+            "infestation",
+            "solace",
+            "soulfire",
+            "soulsteel",
+            "genesis",
+        ]):
+            bonus += 35
+
+        if progress >= 85:
+            bonus += 30
+        elif progress >= 70:
+            bonus += 15
+
+    # Gold badge tasks move towards Diamond group unlocks.
+    if task_type in {"mastery_badge_weapon", "mastery_badge_equipment"}:
+        if "gold" in text:
+            bonus += 45
+        if "diamond" in text:
+            bonus += 60
+        if progress >= 66:
+            bonus += 20
+
+    # WPM and high-level prestige work matters, but should not drown out camos.
+    if task_type == "weapon_prestige":
+        if "wpm" in text or "weapon prestige master" in text:
+            bonus += 30
+        if any(level in text for level in ["level 100", "level 150", "level 200", "level 250"]):
+            bonus += 20
+
+    # Counted calling cards and mode 100-percenters should be meaningful.
+    if task_type in {"calling_card", "dark_ops"}:
+        if "100 percenter" in text:
+            bonus += 80
+        if "master" in text:
+            bonus += 50
+        if progress >= 80:
+            bonus += 25
+
+    return bonus
+
 def score_task(
     task: dict[str, Any],
     preferred_mode: str,
@@ -1444,6 +1518,8 @@ def score_task(
 
     if task.get("category") == "Reticles":
         score -= 10
+
+    score += unlock_leverage_bonus(task)
 
     return score
 
@@ -1571,12 +1647,21 @@ def cluster_label(task: dict[str, Any]) -> str:
     return task.get("weapon_class", "Unclassified")
 
 
-def build_clusters(tasks_in_mode: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def build_clusters(
+    tasks_in_mode: list[dict[str, Any]],
+    preferred_mode: str = "",
+    session_goal: str = "Balanced progress",
+    motivation: str = "Decent",
+) -> list[dict[str, Any]]:
     """
     Groups available tasks within a single mode into clusters using
-    cluster_key(). Each cluster gets a score based on how much
-    near-complete work is stacked inside it — more weapons/items close
-    to finishing in the same cluster ranks higher than isolated tasks.
+    cluster_key().
+
+    Cluster ranking now combines:
+    - close-to-completion density
+    - average progress
+    - cluster size
+    - Commander task score, so session_goal and motivation actually affect plans
     """
     groups: dict[str, list[dict[str, Any]]] = {}
 
@@ -1587,36 +1672,69 @@ def build_clusters(tasks_in_mode: list[dict[str, Any]]) -> list[dict[str, Any]]:
     clusters: list[dict[str, Any]] = []
 
     for key, group_tasks in groups.items():
-        # Sort tasks within the cluster by progress, closest first
-        group_tasks.sort(key=lambda t: float(t.get("weapon_progress", 0.0)), reverse=True)
-
-        close_count = sum(
-            1 for t in group_tasks if float(t.get("weapon_progress", 0.0)) >= 50.0
+        scored_tasks = sorted(
+            group_tasks,
+            key=lambda task: score_task(
+                task=task,
+                preferred_mode=preferred_mode or task.get("mode", ""),
+                avoided_mode="",
+                session_goal=session_goal,
+                motivation=motivation,
+            ),
+            reverse=True,
         )
-        total_progress = sum(float(t.get("weapon_progress", 0.0)) for t in group_tasks)
-        average_progress = total_progress / len(group_tasks) if group_tasks else 0.0
 
-        # Cluster score rewards: more close-to-done items, higher average progress,
-        # and a small bonus for cluster size so a 1-item "cluster" doesn't
-        # automatically lose to mediocre 4-item clusters with low progress.
-        cluster_score = (close_count * 100) + average_progress + (len(group_tasks) * 2)
+        progress_values = [
+            float(task.get("weapon_progress", 0.0))
+            for task in scored_tasks
+        ]
+
+        close_count = sum(1 for value in progress_values if value >= 50)
+        average_progress = (
+            sum(progress_values) / len(progress_values)
+            if progress_values
+            else 0.0
+        )
+
+        average_commander_score = (
+            sum(
+                score_task(
+                    task=task,
+                    preferred_mode=preferred_mode or task.get("mode", ""),
+                    avoided_mode="",
+                    session_goal=session_goal,
+                    motivation=motivation,
+                )
+                for task in scored_tasks
+            ) / len(scored_tasks)
+            if scored_tasks
+            else 0.0
+        )
+
+        cluster_score = (
+            close_count * 100
+            + average_progress
+            + len(scored_tasks) * 2
+            + average_commander_score * 0.35
+        )
 
         clusters.append(
             {
                 "key": key,
-                "label": cluster_label(group_tasks[0]),
-                "task_type_sample": group_tasks[0].get("task_type", ""),
-                "tasks": group_tasks,
+                "label": cluster_label(scored_tasks[0]) if scored_tasks else key,
+                "tasks": scored_tasks,
                 "close_count": close_count,
-                "average_progress": round(average_progress, 1),
-                "cluster_score": cluster_score,
+                "average_progress": round(average_progress, 2),
+                "average_commander_score": round(average_commander_score, 2),
+                "score": round(cluster_score, 2),
             }
         )
 
-    clusters.sort(key=lambda c: c["cluster_score"], reverse=True)
-
-    return clusters
-
+    return sorted(
+        clusters,
+        key=lambda cluster: cluster["score"],
+        reverse=True,
+    )
 
 def stops_for_available_minutes(available_minutes: int) -> int:
     """
@@ -1628,6 +1746,317 @@ def stops_for_available_minutes(available_minutes: int) -> int:
     raw = available_minutes // 15
     return max(3, min(raw, 12))
 
+def build_route_summary(stops: list[dict[str, Any]], available_minutes: int) -> dict[str, Any]:
+    """
+    Summarises the generated session route in human terms.
+    """
+    if not stops:
+        return {
+            "primary_route": "No route generated",
+            "estimated_minutes": 0,
+            "available_minutes": available_minutes,
+            "main_unlock_value": "No active stops.",
+            "stacked_cleanup": "None.",
+            "task_mix": {},
+        }
+
+    task_mix: dict[str, int] = {}
+    cluster_mix: dict[str, int] = {}
+
+    estimated_minutes = 0
+    stacked_count = 0
+
+    for stop in stops:
+        task_type = stop.get("task_type", "unknown")
+        cluster = stop.get("cluster_label", "Unclassified")
+
+        task_mix[task_type] = task_mix.get(task_type, 0) + 1
+        cluster_mix[cluster] = cluster_mix.get(cluster, 0) + 1
+
+        estimated_minutes += int(stop.get("estimated_minutes", 0) or 0)
+
+        if stop.get("stacking_hint"):
+            stacked_count += 1
+
+    primary_cluster = max(cluster_mix, key=cluster_mix.get)
+    primary_task_type = max(task_mix, key=task_mix.get)
+
+    task_type_labels = {
+        "camo": "camo route",
+        "reticle": "reticle cleanup",
+        "weapon_prestige": "weapon prestige route",
+        "mastery_badge_weapon": "weapon mastery badge route",
+        "mastery_badge_equipment": "equipment mastery badge route",
+        "calling_card": "calling-card route",
+        "dark_ops": "Dark Ops route",
+        "title": "title cleanup",
+    }
+
+    primary_route = f"{primary_cluster} {task_type_labels.get(primary_task_type, primary_task_type)}"
+
+    high_value_terms = [
+        "doomsteel",
+        "moonstone",
+        "starglass",
+        "arclight",
+        "absolute zero",
+        "apocalypse",
+        "soulsteel",
+        "genesis",
+        "gold",
+        "diamond",
+        "100 percenter",
+        "master",
+    ]
+
+    high_value_count = 0
+
+    for stop in stops:
+        text = f"{stop.get('camo', '')} {stop.get('challenge_text', '')}".lower()
+        if any(term in text for term in high_value_terms):
+            high_value_count += 1
+
+    if high_value_count:
+        main_unlock_value = f"{high_value_count} high-leverage unlock-focused stop(s)."
+    else:
+        main_unlock_value = "General cleanup progress."
+
+    if stacked_count:
+        stacked_cleanup = f"{stacked_count} stop(s) include stacking advice."
+    else:
+        stacked_cleanup = "No stacked cleanup detected."
+
+    return {
+        "primary_route": primary_route,
+        "estimated_minutes": estimated_minutes,
+        "available_minutes": available_minutes,
+        "main_unlock_value": main_unlock_value,
+        "stacked_cleanup": stacked_cleanup,
+        "task_mix": task_mix,
+    }
+
+def build_plan_diagnostics(
+    *,
+    preferred_mode: str,
+    mode_task_count: int,
+    clusters: list[dict[str, Any]],
+    stops: list[dict[str, Any]],
+    max_stops: int,
+    available_minutes: int,
+    session_goal: str,
+    motivation: str,
+) -> dict[str, Any]:
+    """
+    Explains how strong the generated plan is.
+
+    This does not change ranking yet. It tells the operator whether the plan
+    is dense, thin, or compromised.
+    """
+    reasons: list[str] = []
+    confidence_score = 0
+
+    if mode_task_count >= max_stops * 2:
+        confidence_score += 30
+        reasons.append(f"{preferred_mode} has a deep task pool for this session.")
+    elif mode_task_count >= max_stops:
+        confidence_score += 20
+        reasons.append(f"{preferred_mode} has enough available tasks for the requested time.")
+    elif mode_task_count > 0:
+        confidence_score += 10
+        reasons.append(f"{preferred_mode} has limited available tasks, so the plan may be thin.")
+    else:
+        reasons.append(f"No available tasks found in {preferred_mode}.")
+
+    if clusters:
+        top_cluster = clusters[0]
+        close_count = int(top_cluster.get("close_count", 0))
+        average_progress = float(top_cluster.get("average_progress", 0))
+
+        if close_count >= 3:
+            confidence_score += 30
+            reasons.append(
+                f"Top cluster has {close_count} near-complete items, giving strong cleanup value."
+            )
+        elif close_count >= 1:
+            confidence_score += 20
+            reasons.append(
+                f"Top cluster has {close_count} near-complete item, giving visible progress."
+            )
+        else:
+            confidence_score += 10
+            reasons.append(
+                f"Top cluster average progress is {average_progress:.1f}%, but few items are close."
+            )
+
+        if len(clusters) >= 3:
+            confidence_score += 20
+            reasons.append("Multiple backup clusters are available if the route stalls.")
+        elif len(clusters) >= 2:
+            confidence_score += 10
+            reasons.append("One backup cluster is available if the route stalls.")
+        else:
+            reasons.append("Only one useful cluster is available, so flexibility is low.")
+
+    if len(stops) >= max_stops:
+        confidence_score += 20
+        reasons.append("Plan fully fills the requested session length.")
+    elif stops:
+        confidence_score += 10
+        reasons.append("Plan has fewer stops than requested, likely due to limited task density.")
+
+    if motivation in {"Barely functioning", "Low"}:
+        reasons.append("Low motivation detected, plan should favour controlled visible progress.")
+
+    if session_goal == "Attack biggest bottleneck":
+        reasons.append("Goal is bottleneck attack, so high-leverage gated work should be prioritised.")
+    elif session_goal == "Fast dopamine / recordable progress":
+        reasons.append("Goal is fast dopamine, so near-complete visible wins should be prioritised.")
+
+    if confidence_score >= 70:
+        confidence = "High"
+    elif confidence_score >= 40:
+        confidence = "Medium"
+    else:
+        confidence = "Low"
+
+    return {
+        "confidence": confidence,
+        "confidence_score": confidence_score,
+        "rationale": reasons,
+    }
+
+def mode_major_collection_is_done(preferred_mode: str, tasks: list[dict[str, Any]]) -> bool:
+    """
+    Detects whether a mode's major completion routes are effectively done,
+    leaving only low-leverage cleanup like reticles.
+
+    v1 is intentionally task-based:
+    - if the mode has camo, calling card, mastery badge, or title work left,
+      the mode is not exhausted
+    - if the only remaining mode tasks are reticles, prestige, or misc cleanup,
+      treat it as exhausted for normal planning
+    """
+    major_task_types = {
+        "camo",
+        "calling_card",
+        "dark_ops",
+        "mastery_badge_weapon",
+        "mastery_badge_equipment",
+        "title",
+    }
+
+    mode_tasks = [
+        task for task in get_available_tasks(tasks)
+        if task.get("mode") == preferred_mode
+    ]
+
+    if not mode_tasks:
+        return True
+
+    return not any(
+        task.get("task_type") in major_task_types
+        for task in mode_tasks
+    )
+
+def estimate_task_minutes(task: dict[str, Any]) -> int:
+    """
+    Rough practical estimate for how long a stop is likely to take.
+
+    v1 uses mode + task type + challenge text.
+    Later this can be trained from session_log.csv.
+    """
+    mode = task.get("mode", "")
+    task_type = task.get("task_type", "")
+    camo = task.get("camo", "")
+    challenge = task.get("challenge_text", "")
+
+    text = f"{camo} {challenge}".lower()
+
+    if mode == "Co-Op / Endgame":
+        return 45
+
+    if mode == "Zombies":
+        if "elite zombie" in text or "elite zombies" in text:
+            return 45
+        if task_type == "camo":
+            return 35
+        if task_type in {"mastery_badge_weapon", "mastery_badge_equipment"}:
+            return 35
+        if task_type == "calling_card":
+            return 40
+        if task_type == "reticle":
+            return 30
+        return 35
+
+    if mode == "Multiplayer":
+        if task_type == "camo":
+            return 25
+        if task_type in {"mastery_badge_weapon", "mastery_badge_equipment"}:
+            return 25
+        if task_type == "reticle":
+            return 25
+        if task_type == "calling_card":
+            return 30
+        return 25
+
+    if mode == "Warzone":
+        if task_type == "camo":
+            return 45
+        if task_type == "reticle":
+            return 45
+        if task_type == "calling_card":
+            return 60
+        if task_type == "dark_ops":
+            return 75
+        return 45
+
+    if task_type == "weapon_prestige":
+        return 30
+
+    return 30
+
+def build_stacking_hint(stop: dict[str, Any], available_tasks: list[dict[str, Any]]) -> str:
+    """
+    Gives practical stacking advice for tasks that should not be done in isolation.
+    """
+    if stop.get("task_type") != "reticle":
+        return ""
+
+    mode = stop.get("mode", "")
+    reticle_progress = float(stop.get("weapon_progress", 0.0))
+
+    stackable_types = {
+        "camo",
+        "weapon_prestige",
+        "mastery_badge_weapon",
+    }
+
+    candidates = [
+        task for task in available_tasks
+        if task.get("mode") in {mode, "Global Cleanup"}
+        and task.get("task_type") in stackable_types
+        and not task.get("locked", False)
+    ]
+
+    if not candidates:
+        return "Reticle cleanup only. No obvious weapon, camo, or prestige stack found."
+
+    candidates = sorted(
+        candidates,
+        key=lambda task: (
+            unlock_leverage_bonus(task),
+            float(task.get("weapon_progress", 0.0)),
+        ),
+        reverse=True,
+    )
+
+    best = candidates[0]
+
+    return (
+        f"Stack this reticle with {best.get('weapon', 'a weapon')} — "
+        f"{best.get('camo', best.get('category', 'active weapon progress'))}. "
+        f"Do not farm the reticle in isolation."
+    )
 
 def build_session_plan(
     tasks: list[dict[str, Any]],
@@ -1651,21 +2080,56 @@ def build_session_plan(
     available = get_available_tasks(tasks)
     mode_tasks = [t for t in available if t.get("mode") == preferred_mode]
 
+    if mode_major_collection_is_done(preferred_mode, tasks):
+        meaningful_modes = [
+            mode for mode in MODES
+            if mode not in {preferred_mode, "Global Cleanup"}
+            and not mode_major_collection_is_done(mode, tasks)
+        ]
+
+        if meaningful_modes:
+            best_fallback_mode = meaningful_modes[0]
+
+            return build_session_plan(
+                tasks=tasks,
+                preferred_mode=best_fallback_mode,
+                session_goal=session_goal,
+                motivation=motivation,
+                available_minutes=available_minutes,
+                max_stops=max_stops,
+            )
+
     if not mode_tasks:
         return {
             "mode": preferred_mode,
+            "available_minutes": available_minutes,
             "stops": [],
             "cluster_summary": [],
             "note": f"No available tasks found in {preferred_mode}.",
+            "diagnostics": {
+                "confidence": "Low",
+                "confidence_score": 0,
+                "rationale": [f"No available tasks found in {preferred_mode}."],
+            },
         }
 
-    clusters = build_clusters(mode_tasks)
+    clusters = build_clusters(
+        tasks_in_mode=mode_tasks,
+        preferred_mode=preferred_mode,
+        session_goal=session_goal,
+        motivation=motivation,
+    )
 
     stops: list[dict[str, Any]] = []
     cluster_summary: list[dict[str, Any]] = []
+    estimated_used_minutes = 0
+    overflow_allowance_minutes = 15
 
     for cluster in clusters:
         if len(stops) >= max_stops:
+            break
+
+        if estimated_used_minutes >= available_minutes:
             break
 
         cluster_summary.append(
@@ -1673,11 +2137,23 @@ def build_session_plan(
                 "label": cluster["label"],
                 "close_count": cluster["close_count"],
                 "average_progress": cluster["average_progress"],
+                "average_commander_score": cluster.get("average_commander_score", 0),
+                "score": cluster.get("score", 0),
             }
         )
 
         for task in cluster["tasks"]:
             if len(stops) >= max_stops:
+                break
+
+            estimated_minutes = estimate_task_minutes(task)
+
+            would_exceed_budget = (
+                estimated_used_minutes + estimated_minutes
+                > available_minutes + overflow_allowance_minutes
+            )
+
+            if stops and would_exceed_budget:
                 break
 
             stops.append(
@@ -1691,14 +2167,38 @@ def build_session_plan(
                     "task_type": task.get("task_type", ""),
                     "task_id": task.get("task_id", ""),
                     "mode": task.get("mode", ""),
+                    "estimated_minutes": estimated_minutes,
+                    "stacking_hint": build_stacking_hint(task, available),
                 }
             )
 
+            estimated_used_minutes += estimated_minutes
+ 
+    diagnostics = build_plan_diagnostics(
+        preferred_mode=preferred_mode,
+        mode_task_count=len(mode_tasks),
+        clusters=clusters,
+        stops=stops,
+        max_stops=max_stops,
+        available_minutes=available_minutes,
+        session_goal=session_goal,
+        motivation=motivation,
+    )
+
+    route_summary = build_route_summary(
+        stops=stops,
+        available_minutes=available_minutes,
+    )
+
     return {
         "mode": preferred_mode,
+        "available_minutes": available_minutes,
+        "estimated_minutes": estimated_used_minutes,
         "stops": stops,
         "cluster_summary": cluster_summary,
         "note": "",
+        "diagnostics": diagnostics,
+        "route_summary": route_summary,
     }
 
 
