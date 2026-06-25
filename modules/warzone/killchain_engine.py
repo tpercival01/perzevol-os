@@ -1021,6 +1021,10 @@ def build_reticle_tasks() -> list[dict[str, Any]]:
                 continue
 
             required = clean(row.get(required_column, ""))
+
+            if required.upper() in {"TRUE", "FALSE", "YES", "NO", ""}:
+                required = stage_percent
+
             challenge_text = f"Get {required} eliminations while using {reticle} in {mode}."
 
             recommended_mode = get_rule(rules, "recommended_mode", mode, default_recommended_mode(mode, "reticle", "Reticles"))
@@ -2015,15 +2019,103 @@ def estimate_task_minutes(task: dict[str, Any]) -> int:
 
     return 30
 
+def build_weapon_prestige_hint(task: dict[str, Any], available_tasks: list[dict[str, Any]]) -> str:
+    if task.get("task_type") != "weapon_prestige":
+        return ""
+
+    weapon = clean(task.get("weapon", ""))
+
+    same_weapon_tasks = [
+        candidate for candidate in available_tasks
+        if clean(candidate.get("weapon", "")) == weapon
+        and candidate.get("task_id") != task.get("task_id")
+        and not candidate.get("locked", False)
+        and candidate.get("task_type") in {
+            "camo",
+            "mastery_badge_weapon",
+            "reticle",
+            "calling_card",
+            "dark_ops",
+        }
+    ]
+
+    if same_weapon_tasks:
+        same_weapon_tasks.sort(
+            key=lambda candidate: (
+                unlock_leverage_bonus(candidate),
+                candidate.get("weapon_progress", 0),
+            ),
+            reverse=True,
+        )
+
+        best = same_weapon_tasks[0]
+
+        return (
+            f"Do not prestige in isolation. Play {best.get('mode', 'the best mode')} "
+            f"and stack this with {best.get('camo', best.get('category', 'active progress'))}."
+        )
+
+    mode_priority = [
+        "Zombies",
+        "Multiplayer",
+        "Warzone",
+        "Co-Op / Endgame",
+    ]
+
+    mode_counts = {}
+
+    for candidate in available_tasks:
+        if candidate.get("locked", False):
+            continue
+
+        candidate_mode = candidate.get("mode", "")
+        candidate_type = candidate.get("task_type", "")
+
+        if candidate_mode not in mode_priority:
+            continue
+
+        if candidate_type not in {"camo", "reticle", "mastery_badge_weapon", "calling_card", "dark_ops"}:
+            continue
+
+        mode_counts[candidate_mode] = mode_counts.get(candidate_mode, 0) + 1
+
+    if mode_counts:
+        best_mode = max(
+            mode_counts,
+            key=lambda mode: (mode_counts[mode], -mode_priority.index(mode)),
+        )
+
+        return (
+            f"Prestige route needs an anchor. Play {best_mode} and use {weapon} "
+            f"while clearing active {best_mode} objectives. Do not level the weapon in isolation."
+        )
+
+    return (
+        f"Pure prestige cleanup. Use {weapon} in the fastest XP mode available. "
+        f"This is a low-stacking route."
+    )
+
 def build_stacking_hint(stop: dict[str, Any], available_tasks: list[dict[str, Any]]) -> str:
     """
     Gives practical stacking advice for tasks that should not be done in isolation.
-    """
-    if stop.get("task_type") != "reticle":
-        return ""
 
+    v1 covers:
+    - Reticles: stack with camo, weapon prestige, or mastery badge work.
+    - Weapon prestige: anchor to a playable mode and objective.
+    """
+    task_type = stop.get("task_type", "")
+
+    if task_type == "reticle":
+        return build_reticle_stacking_hint(stop, available_tasks)
+
+    if task_type == "weapon_prestige":
+        return build_weapon_prestige_stacking_hint(stop, available_tasks)
+
+    return ""
+
+
+def build_reticle_stacking_hint(stop: dict[str, Any], available_tasks: list[dict[str, Any]]) -> str:
     mode = stop.get("mode", "")
-    reticle_progress = float(stop.get("weapon_progress", 0.0))
 
     stackable_types = {
         "camo",
@@ -2053,9 +2145,102 @@ def build_stacking_hint(stop: dict[str, Any], available_tasks: list[dict[str, An
     best = candidates[0]
 
     return (
-        f"Stack this reticle with {best.get('weapon', 'a weapon')} — "
+        f"Stack this reticle with {best.get('weapon', 'a weapon')} - "
         f"{best.get('camo', best.get('category', 'active weapon progress'))}. "
         f"Do not farm the reticle in isolation."
+    )
+
+
+def build_weapon_prestige_stacking_hint(stop: dict[str, Any], available_tasks: list[dict[str, Any]]) -> str:
+    weapon = clean(stop.get("weapon", ""))
+
+    if not weapon:
+        return "Prestige route needs an anchor. Use the assigned weapon while clearing another active objective."
+
+    same_weapon_anchor_types = {
+        "camo",
+        "mastery_badge_weapon",
+    }
+
+    same_weapon_candidates = [
+        task for task in available_tasks
+        if clean(task.get("weapon", "")) == weapon
+        and task.get("task_id") != stop.get("task_id")
+        and task.get("task_type") in same_weapon_anchor_types
+        and not task.get("locked", False)
+    ]
+
+    if same_weapon_candidates:
+        same_weapon_candidates = sorted(
+            same_weapon_candidates,
+            key=lambda task: (
+                unlock_leverage_bonus(task),
+                float(task.get("weapon_progress", 0.0)),
+            ),
+            reverse=True,
+        )
+
+        best = same_weapon_candidates[0]
+
+        return (
+            f"Prestige anchor found. Play {best.get('mode', 'the best mode')} with {weapon} "
+            f"and stack prestige with {best.get('camo', best.get('category', 'active progress'))}. "
+            f"The objective comes first, weapon XP happens passively."
+        )
+
+    playable_anchor_types = {
+        "camo",
+        "reticle",
+        "mastery_badge_weapon",
+        "mastery_badge_equipment",
+        "calling_card",
+        "dark_ops",
+        "title",
+    }
+
+    mode_priority = [
+        "Zombies",
+        "Multiplayer",
+        "Warzone",
+        "Co-Op / Endgame",
+    ]
+
+    mode_scores: dict[str, float] = {}
+
+    for task in available_tasks:
+        if task.get("locked", False):
+            continue
+
+        candidate_mode = task.get("mode", "")
+        candidate_type = task.get("task_type", "")
+
+        if candidate_mode not in mode_priority:
+            continue
+
+        if candidate_type not in playable_anchor_types:
+            continue
+
+        mode_scores[candidate_mode] = mode_scores.get(candidate_mode, 0.0) + (
+            1.0 + unlock_leverage_bonus(task) / 100.0
+        )
+
+    if mode_scores:
+        best_mode = max(
+            mode_scores,
+            key=lambda mode: (
+                mode_scores[mode],
+                -mode_priority.index(mode),
+            ),
+        )
+
+        return (
+            f"Prestige route needs an anchor. Play {best_mode} and use {weapon} "
+            f"while clearing active {best_mode} objectives. Do not level the weapon in isolation."
+        )
+
+    return (
+        f"Pure prestige cleanup. Use {weapon} in the fastest Weapon XP mode available. "
+        f"This is a low-stacking route."
     )
 
 def build_session_plan(
@@ -2168,7 +2353,7 @@ def build_session_plan(
                     "task_id": task.get("task_id", ""),
                     "mode": task.get("mode", ""),
                     "estimated_minutes": estimated_minutes,
-                    "stacking_hint": build_stacking_hint(task, available),
+                    "stacking_hint": build_stacking_hint(task, available) or build_weapon_prestige_hint(task, available),
                 }
             )
 

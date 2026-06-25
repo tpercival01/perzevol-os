@@ -373,22 +373,17 @@ def record_stop_result(stop, status, result="", blame="", notes=""):
 def initialise_state():
     if "bo7_completion_state" not in st.session_state:
         st.session_state.bo7_completion_state = load_completion_state()
-
     if "bo7_tasks" not in st.session_state:
         tasks = load_tracker_tasks()
         st.session_state.bo7_tasks = apply_completion_state(
             tasks, st.session_state.bo7_completion_state,
         )
-
     if "bo7_progress" not in st.session_state:
         st.session_state.bo7_progress = load_hub_progress()
-
     if "bo7_latest_mission" not in st.session_state:
         st.session_state.bo7_latest_mission = None
-
     if "bo7_session_log" not in st.session_state:
         st.session_state.bo7_session_log = load_persisted_session_log()
-
     if "bo7_chat" not in st.session_state:
         st.session_state.bo7_chat = [
             {
@@ -399,11 +394,8 @@ def initialise_state():
                 ),
             }
         ]
-
     if "bo7_account_params" not in st.session_state:
         st.session_state.bo7_account_params = load_account_params()
-
-
     if "bo7_form_minutes" not in st.session_state:
         st.session_state.bo7_form_minutes = 90
     if "bo7_form_energy" not in st.session_state:
@@ -424,6 +416,10 @@ def initialise_state():
         st.session_state.bo7_stop_results = {}
     if "bo7_account_levels_gained" not in st.session_state:
         st.session_state.bo7_account_levels_gained = 0.0
+    if "bo7_celebrations" not in st.session_state:
+        st.session_state.bo7_celebrations = []
+    if "bo7_last_debrief" not in st.session_state:
+        st.session_state.bo7_last_debrief = None
 
 
 
@@ -457,6 +453,18 @@ QUICK_UPDATE_FILES = {
 QUICK_UPDATE_METADATA_COLUMNS = {
     "counts_for_100_percent",
     "display_as_extra",
+    "stage_20_required",
+    "stage_40_required",
+    "stage_60_required",
+    "stage_80_required",
+    "stage_100_required",
+    "bronze_required",
+    "silver_required",
+    "gold_required",
+    "diamond_required",
+    "requirement",
+    "criteria",
+    "max_level",
 }
  
 QUICK_UPDATE_ID_COLUMNS = {
@@ -621,6 +629,363 @@ def reload_commander_from_csv():
     st.session_state.bo7_progress = load_hub_progress()
     st.session_state.bo7_latest_mission = None
 
+def queue_celebration(title: str, message: str, tier: str = "minor"):
+    if "bo7_celebrations" not in st.session_state:
+        st.session_state.bo7_celebrations = []
+
+    st.session_state.bo7_celebrations.append({
+        "title": title,
+        "message": message,
+        "tier": tier,
+        "time": datetime.now().isoformat(timespec="seconds"),
+    })
+
+
+def queue_stop_celebration(stop: dict, csv_updated: bool):
+    task_type = stop.get("task_type", "")
+    mode = stop.get("mode", "")
+    weapon = stop.get("weapon", "")
+    camo = stop.get("camo", "")
+    challenge = stop.get("challenge_text", "")
+
+    if task_type == "camo":
+        queue_celebration(
+            "🎨 CAMO CLEARED",
+            f"{weapon} - {camo} completed in {mode}. Source CSV updated." if csv_updated else f"{weapon} - {camo} logged.",
+            "minor",
+        )
+        return
+
+    if task_type == "reticle":
+        queue_celebration(
+            "🎯 RETICLE STAGE CLEARED",
+            f"{weapon} - {camo} completed in {mode}. Reticle mastery moved forward." if csv_updated else f"{weapon} - {camo} logged.",
+            "minor",
+        )
+        return
+
+    if task_type == "weapon_prestige":
+        queue_celebration(
+            "⚙️ WEAPON PRESTIGE PROGRESS",
+            f"{weapon} - {camo}. Weapon XP grind moved forward.",
+            "minor",
+        )
+        return
+
+    if task_type == "mastery_badge_weapon":
+        queue_celebration(
+            "🏅 WEAPON BADGE PROGRESS",
+            f"{weapon} - {camo}. Badge route advanced.",
+            "minor",
+        )
+        return
+
+    if task_type == "mastery_badge_equipment":
+        queue_celebration(
+            "🧰 SUPPORT BADGE PROGRESS",
+            f"{weapon} - {camo}. Support grind advanced.",
+            "minor",
+        )
+        return
+
+    if task_type == "dark_ops":
+        queue_celebration(
+            "💀 DARK OPS HIT",
+            f"{weapon}: {challenge}",
+            "major",
+        )
+        return
+
+    if task_type == "calling_card":
+        queue_celebration(
+            "🃏 CALLING CARD PROGRESS",
+            f"{weapon} - {camo}. Calling-card route advanced.",
+            "minor",
+        )
+        return
+
+    if task_type == "title":
+        queue_celebration(
+            "🏷 TITLE PROGRESS",
+            f"{weapon}: {challenge}",
+            "minor",
+        )
+        return
+
+    queue_celebration(
+        "✅ OBJECTIVE LOGGED",
+        f"{weapon} - {camo}",
+        "minor",
+    )
+
+
+def render_queued_celebrations():
+    celebrations = st.session_state.get("bo7_celebrations", [])
+
+    if not celebrations:
+        return
+
+    for celebration in celebrations:
+        title = celebration.get("title", "✅ Progress")
+        message = celebration.get("message", "")
+        tier = celebration.get("tier", "minor")
+
+        if tier == "major":
+            st.toast(f"{title} - {message}", icon="🔥")
+            st.success(f"### {title}\n{message}")
+        else:
+            st.toast(f"{title} - {message}", icon="✅")
+            st.info(f"**{title}**  \n{message}")
+
+    st.session_state.bo7_celebrations = []
+
+def build_session_debrief(plan: dict, stop_results: dict, account_levels_gained: float) -> dict:
+    stops = plan.get("stops", []) if plan else []
+
+    counts = {
+        "done": 0,
+        "partial": 0,
+        "skipped": 0,
+        "pending": 0,
+    }
+
+    completed_types = {}
+    completed_items = []
+    skipped_items = []
+
+    for stop in stops:
+        task_id = stop.get("task_id", "")
+        result = stop_results.get(task_id, {})
+        status = result.get("status", "pending")
+
+        if status not in counts:
+            status = "pending"
+
+        counts[status] += 1
+
+        if status == "done":
+            task_type = stop.get("task_type", "unknown")
+            completed_types[task_type] = completed_types.get(task_type, 0) + 1
+            completed_items.append(
+                f"{stop.get('weapon', 'Unknown')} - {stop.get('camo', 'Objective')}"
+            )
+
+        if status == "skipped":
+            skipped_items.append(
+                f"{stop.get('weapon', 'Unknown')} - {stop.get('camo', 'Objective')}"
+            )
+
+    route_summary = plan.get("route_summary", {}) if plan else {}
+
+    if counts["done"] >= 3:
+        verdict = "Strong session. The tracker moved."
+    elif counts["done"] >= 1:
+        verdict = "Progress banked. Good enough counts."
+    elif counts["partial"] >= 1:
+        verdict = "Partial progress logged. Not wasted."
+    else:
+        verdict = "No confirmed completions. Reset and re-route next time."
+
+    return {
+        "mode": plan.get("mode", "Unknown") if plan else "Unknown",
+        "available_minutes": plan.get("available_minutes", 0) if plan else 0,
+        "estimated_minutes": plan.get("estimated_minutes", 0) if plan else 0,
+        "primary_route": route_summary.get("primary_route", "Unknown route"),
+        "counts": counts,
+        "completed_types": completed_types,
+        "completed_items": completed_items[:5],
+        "skipped_items": skipped_items[:3],
+        "account_levels_gained": account_levels_gained,
+        "verdict": verdict,
+        "created_at": datetime.now().isoformat(timespec="seconds"),
+    }
+
+
+def render_session_debrief():
+    debrief = st.session_state.get("bo7_last_debrief")
+
+    if not debrief:
+        return
+
+    st.markdown("### Commander Debrief")
+
+    counts = debrief.get("counts", {})
+
+    debrief_cols = st.columns(5)
+
+    with debrief_cols[0]:
+        st.metric("Done", counts.get("done", 0))
+
+    with debrief_cols[1]:
+        st.metric("Partial", counts.get("partial", 0))
+
+    with debrief_cols[2]:
+        st.metric("Skipped", counts.get("skipped", 0))
+
+    with debrief_cols[3]:
+        st.metric("Pending", counts.get("pending", 0))
+
+    with debrief_cols[4]:
+        st.metric(
+            "Account Levels",
+            f"+{float(debrief.get('account_levels_gained', 0.0)):g}",
+        )
+
+    st.success(
+        f"**{debrief.get('verdict', 'Session closed.')}**  \n"
+        f"Route: {debrief.get('primary_route', 'Unknown route')}  \n"
+        f"Mode: {debrief.get('mode', 'Unknown')}"
+    )
+
+    completed_types = debrief.get("completed_types", {})
+    if completed_types:
+        mix_text = " · ".join(
+            f"{task_type}: {count}"
+            for task_type, count in completed_types.items()
+        )
+        st.caption(f"Completed mix: {mix_text}")
+
+    completed_items = debrief.get("completed_items", [])
+    if completed_items:
+        with st.expander("Completed this session"):
+            for item in completed_items:
+                st.write(f"- {item}")
+
+    skipped_items = debrief.get("skipped_items", [])
+    if skipped_items:
+        with st.expander("Skipped this session"):
+            for item in skipped_items:
+                st.write(f"- {item}")
+
+    if st.button("CLEAR DEBRIEF", use_container_width=True):
+        st.session_state.bo7_last_debrief = None
+        st.rerun()
+
+def tracker_bucket_is_done(bucket: dict) -> bool:
+    done = int(bucket.get("done", 0) or 0)
+    total = int(bucket.get("total", 0) or 0)
+    return total > 0 and done >= total
+
+
+def tuple_bucket_is_done(value) -> bool:
+    if not value:
+        return False
+
+    done, total = value
+    done = int(done or 0)
+    total = int(total or 0)
+
+    return total > 0 and done >= total
+
+
+def capture_milestone_snapshot() -> dict:
+    summary = compute_full_tracker_summary(CLEAN_DATA_DIR)
+
+    snapshot = {
+        "camo_calling_card_unlocks": {},
+        "camo_true_final": {},
+        "reticle_modes": {},
+        "reticle_total": False,
+        "calling_card_modes": {},
+        "title_modes": {},
+        "title_total": False,
+    }
+
+    camos = summary.get("camos", {})
+    for chain_label, data in camos.items():
+        snapshot["camo_calling_card_unlocks"][chain_label] = tracker_bucket_is_done({
+            "done": data.get("mastery_unlock_done", min(data.get("mastery_done", 0), 30)),
+            "total": data.get("mastery_unlock_total", 30),
+        })
+
+        snapshot["camo_true_final"][chain_label] = tracker_bucket_is_done({
+            "done": data.get("mastery_done", 0),
+            "total": data.get("mastery_total", 0),
+        })
+
+    reticles = summary.get("reticles", {})
+    reticle_total = reticles.get("total", {})
+    snapshot["reticle_total"] = tracker_bucket_is_done(reticle_total)
+
+    for mode, data in reticles.get("by_mode", {}).items():
+        snapshot["reticle_modes"][mode] = tracker_bucket_is_done(data)
+
+    calling_cards = summary.get("calling_cards", {})
+    for mode, value in calling_cards.items():
+        snapshot["calling_card_modes"][mode] = tuple_bucket_is_done(value)
+
+    titles = summary.get("titles", {})
+    title_total = titles.get("total", {})
+    snapshot["title_total"] = tracker_bucket_is_done(title_total)
+
+    for mode, data in titles.get("by_mode", {}).items():
+        snapshot["title_modes"][mode] = tracker_bucket_is_done(data)
+
+    return snapshot
+
+
+def crossed_to_done(before: dict, after: dict, section: str, key: str) -> bool:
+    before_value = before.get(section, {}).get(key, False)
+    after_value = after.get(section, {}).get(key, False)
+
+    return not before_value and after_value
+
+
+def queue_milestone_celebrations(before: dict, after: dict):
+    for chain_label in after.get("camo_calling_card_unlocks", {}):
+        if crossed_to_done(before, after, "camo_calling_card_unlocks", chain_label):
+            queue_celebration(
+                "🔥 MASTERY CALLING CARD UNLOCKED",
+                f"{chain_label} reached 30/30. The mastery calling-card gate is cleared.",
+                "major",
+            )
+
+    for chain_label in after.get("camo_true_final", {}):
+        if crossed_to_done(before, after, "camo_true_final", chain_label):
+            queue_celebration(
+                "🚨 TRUE FINAL CAMO CHAIN COMPLETE",
+                f"{chain_label} is fully complete. That camo route is shut.",
+                "major",
+            )
+
+    for mode in after.get("reticle_modes", {}):
+        if crossed_to_done(before, after, "reticle_modes", mode):
+            queue_celebration(
+                "🎯 RETICLE MODE COMPLETE",
+                f"All {mode} reticle progress is complete.",
+                "major",
+            )
+
+    if not before.get("reticle_total", False) and after.get("reticle_total", False):
+        queue_celebration(
+            "🚨 ALL RETICLES COMPLETE",
+            "Every reticle route is complete. No more optic chores.",
+            "major",
+        )
+
+    for mode in after.get("calling_card_modes", {}):
+        if crossed_to_done(before, after, "calling_card_modes", mode):
+            queue_celebration(
+                "🃏 CALLING CARD MODE COMPLETE",
+                f"{mode} calling cards are 100% complete.",
+                "major",
+            )
+
+    for mode in after.get("title_modes", {}):
+        if crossed_to_done(before, after, "title_modes", mode):
+            queue_celebration(
+                "🏷 TITLE MODE COMPLETE",
+                f"All {mode} titles are unlocked.",
+                "major",
+            )
+
+    if not before.get("title_total", False) and after.get("title_total", False):
+        queue_celebration(
+            "👑 ALL TITLES COMPLETE",
+            "The full title collection is complete.",
+            "major",
+        )
+
 def is_true_cell(value):
     return str(value).strip().upper() in {"TRUE", "YES", "DONE", "COMPLETE", "COMPLETED", "✅"}
 
@@ -706,6 +1071,8 @@ def quick_update_status_columns(filename, dataframe):
     return [
         column for column in dataframe.columns
         if column not in ignored_columns
+        and not column.endswith("_required")
+        and not column.endswith("_target")
     ]
 
 def render_quick_completion_grid():
@@ -781,6 +1148,8 @@ def render_quick_completion_grid():
     )
 
     if st.button("SAVE QUICK UPDATE", use_container_width=True):
+        milestone_before = capture_milestone_snapshot()
+
         updated_dataframe = dataframe.copy()
         for row_index, edited_row in edited_dataframe.iterrows():
             for column in status_columns:
@@ -788,6 +1157,13 @@ def render_quick_completion_grid():
 
         updated_dataframe = normalise_calling_card_completion(updated_dataframe, filename)
         save_quick_update_csv(filename, updated_dataframe)
+        milestone_after = capture_milestone_snapshot()
+        queue_milestone_celebrations(milestone_before, milestone_after)
+        queue_celebration(
+            "📌 QUICK UPDATE SAVED",
+            f"{selected_label} updated. Commander orders reloaded from clean CSV data.",
+            "minor",
+        )
 
         st.session_state.bo7_completion_state = load_completion_state()
         st.session_state.bo7_tasks = apply_completion_state(
@@ -906,6 +1282,55 @@ st.markdown(
         font-family: monospace;
         margin-bottom: 0.75rem;
     }
+
+    .completion-card {
+        border: 1px solid rgba(255,255,255,0.12);
+        border-left: 4px solid #666666;
+        border-radius: 0.55rem;
+        padding: 0.8rem 0.9rem;
+        margin-bottom: 0.75rem;
+        background: rgba(255,255,255,0.035);
+    }
+
+    .completion-card-done {
+        border-left-color: #30d158;
+        background: rgba(48,209,88,0.10);
+        box-shadow: 0 0 18px rgba(48,209,88,0.08);
+    }
+
+    .completion-status {
+        font-size: 0.72rem;
+        font-weight: 850;
+        letter-spacing: 0.14em;
+        color: #999999;
+        text-transform: uppercase;
+        margin-bottom: 0.25rem;
+    }
+
+    .completion-card-done .completion-status {
+        color: #30d158;
+    }
+
+    .completion-label {
+        font-size: 1rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 0.2rem;
+    }
+
+    .completion-pct {
+        font-size: 1.55rem;
+        font-weight: 900;
+        color: #ffffff;
+        line-height: 1.1;
+    }
+
+    .completion-count {
+        font-size: 0.85rem;
+        color: #aaaaaa;
+        font-family: monospace;
+        margin-top: 0.15rem;
+    }
     @media (max-width: 900px) {
         .commander-title { font-size: 2.2rem; }
         .order-weapon { font-size: 2rem; }
@@ -949,9 +1374,11 @@ with tab_mission:
  
     # ── STATE 2: ACTIVE PLAN ──
     st.caption(
-    f"Current account level: "
-    f"{float(st.session_state.bo7_account_params.get('account_level', 1.0)):g}"
+        f"Current account level: "
+        f"{float(st.session_state.bo7_account_params.get('account_level', 1.0)):g}"
     )
+
+    render_queued_celebrations()
 
     if plan and plan.get("stops"):
         st.markdown(f"<div class='order-mode'>☣ {plan['mode']} — SESSION PLAN ACTIVE</div>", unsafe_allow_html=True)
@@ -1145,10 +1572,16 @@ with tab_mission:
 
                 with col1:
                     if st.button("✅ Done", key=f"done_{task_id}", use_container_width=True):
+                        milestone_before = capture_milestone_snapshot()
+
                         csv_updated = (
                             write_camo_completion_from_stop(stop)
                             or write_reticle_completion_from_stop(stop)
                         )
+
+                        if csv_updated:
+                            milestone_after = capture_milestone_snapshot()
+                            queue_milestone_celebrations(milestone_before, milestone_after)
 
                         log_plan_stop(stop, "Camo completed", "Successful operation")
                         _maybe_spend_token()
@@ -1159,6 +1592,8 @@ with tab_mission:
                             blame="Successful operation",
                             notes="CSV updated" if csv_updated else "Logged only",
                         )
+
+                        queue_stop_celebration(stop, csv_updated)
 
                         if csv_updated:
                             reload_commander_from_csv()
@@ -1231,8 +1666,16 @@ with tab_mission:
             )
 
             if st.button("END SESSION", use_container_width=True):
+                levels_gained = float(st.session_state.bo7_account_levels_gained)
+
+                st.session_state.bo7_last_debrief = build_session_debrief(
+                    plan=st.session_state.bo7_session_plan,
+                    stop_results=st.session_state.bo7_stop_results,
+                    account_levels_gained=levels_gained,
+                )
+
                 log_account_level_gain(
-                    levels_gained=float(st.session_state.bo7_account_levels_gained),
+                    levels_gained=levels_gained,
                     plan=st.session_state.bo7_session_plan,
                 )
 
@@ -1246,6 +1689,7 @@ with tab_mission:
     # ── STATE 1: NO ACTIVE PLAN ──
     else:
         task_summary = summarise_tasks(st.session_state.bo7_tasks)
+        render_session_debrief()
  
         st.caption(
             f"Tasks loaded: {task_summary['total']} · "
@@ -1398,6 +1842,7 @@ with tab_quick_update:
         "Tick everything you actually completed, save, then generate the next order."
     )
     render_quick_completion_grid()
+    
 
 # ─── TRACKER ──────────────────────────────────────────────────────────────────
 
@@ -1438,6 +1883,28 @@ with tab_tracker:
 
         return 0, 0
 
+    def render_completion_card(label, done, total):
+        done = int(done or 0)
+        total = int(total or 0)
+        pct = _pct(done, total)
+
+        is_done = total > 0 and done >= total
+
+        status_label = "✅ DONE" if is_done else "IN PROGRESS"
+        card_class = "completion-card completion-card-done" if is_done else "completion-card"
+        pct_text = "100%" if is_done else f"{pct:.1f}%"
+
+        st.markdown(
+            f"""
+            <div class="{card_class}">
+                <div class="completion-status">{status_label}</div>
+                <div class="completion-label">{label}</div>
+                <div class="completion-pct">{pct_text}</div>
+                <div class="completion-count">{done}/{total}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
     overall = {
         "BO7 Total": {"done": 0, "total": 0, "sections": []},
@@ -1594,10 +2061,10 @@ with tab_tracker:
         data = overall.get(mode, {"done": 0, "total": 0})
 
         with overall_top_cols[i]:
-            st.metric(
+            render_completion_card(
                 mode,
-                f"{_pct(data['done'], data['total']):.1f}%",
-                f"{data['done']}/{data['total']}",
+                data["done"],
+                data["total"],
             )
 
     extra_modes = [
@@ -1612,10 +2079,10 @@ with tab_tracker:
             data = overall[mode]
 
             with extra_cols[i % len(extra_cols)]:
-                st.metric(
+                render_completion_card(
                     mode,
-                    f"{_pct(data['done'], data['total']):.1f}%",
-                    f"{data['done']}/{data['total']}",
+                    data["done"],
+                    data["total"],
                 )
 
     with st.expander("Overall completion breakdown"):
@@ -1671,24 +2138,24 @@ with tab_tracker:
     total_cols = st.columns(3)
 
     with total_cols[0]:
-        st.metric(
+        render_completion_card(
             "All Mastery Badges",
-            f"{_pct(total_badges['done'], total_badges['total']):.1f}%",
-            f"{total_badges['done']}/{total_badges['total']}",
+            total_badges["done"],
+            total_badges["total"],
         )
 
     with total_cols[1]:
-        st.metric(
+        render_completion_card(
             "Weapon Completion",
-            f"{_pct(weapon_badges['done'], weapon_badges['total']):.1f}%",
-            f"{weapon_badges['done']}/{weapon_badges['total']}",
+            weapon_badges["done"],
+            weapon_badges["total"],
         )
 
     with total_cols[2]:
-        st.metric(
+        render_completion_card(
             "Support Item Completion",
-            f"{_pct(support_badges['done'], support_badges['total']):.1f}%",
-            f"{support_badges['done']}/{support_badges['total']}",
+            support_badges["done"],
+            support_badges["total"],
         )
 
     diamond_groups = mb.get("diamond_groups", {})
@@ -1711,46 +2178,38 @@ with tab_tracker:
     diamond_cols = st.columns(5)
 
     with diamond_cols[0]:
-        st.metric(
+        render_completion_card(
             "All Diamond Groups",
-            f"{_pct(all_diamond_group_done, all_diamond_group_total):.1f}%",
-            f"{all_diamond_group_done}/{all_diamond_group_total}",
+            all_diamond_group_done,
+            all_diamond_group_total,
         )
 
     with diamond_cols[1]:
-        st.metric(
+        render_completion_card(
             "MP Groups",
-            f"{_pct(mp_diamond_groups['done'], mp_diamond_groups['total']):.1f}%",
-            f"{mp_diamond_groups['done']}/{mp_diamond_groups['total']}",
+            mp_diamond_groups["done"],
+            mp_diamond_groups["total"],
         )
 
     with diamond_cols[2]:
-        st.metric(
+        render_completion_card(
             "ZM Groups",
-            f"{_pct(zm_diamond_groups['done'], zm_diamond_groups['total']):.1f}%",
-            f"{zm_diamond_groups['done']}/{zm_diamond_groups['total']}",
+            zm_diamond_groups["done"],
+            zm_diamond_groups["total"],
         )
 
     with diamond_cols[3]:
-        st.metric(
+        render_completion_card(
             "Weapon Groups",
-            f"{_pct(
-                weapon_mp_diamond_groups['done'] + weapon_zm_diamond_groups['done'],
-                weapon_mp_diamond_groups['total'] + weapon_zm_diamond_groups['total'],
-            ):.1f}%",
-            f"{weapon_mp_diamond_groups['done'] + weapon_zm_diamond_groups['done']}/"
-            f"{weapon_mp_diamond_groups['total'] + weapon_zm_diamond_groups['total']}",
+            weapon_mp_diamond_groups["done"] + weapon_zm_diamond_groups["done"],
+            weapon_mp_diamond_groups["total"] + weapon_zm_diamond_groups["total"],
         )
 
     with diamond_cols[4]:
-        st.metric(
+        render_completion_card(
             "Support Groups",
-            f"{_pct(
-                equipment_mp_diamond_groups['done'] + equipment_zm_diamond_groups['done'],
-                equipment_mp_diamond_groups['total'] + equipment_zm_diamond_groups['total'],
-            ):.1f}%",
-            f"{equipment_mp_diamond_groups['done'] + equipment_zm_diamond_groups['done']}/"
-            f"{equipment_mp_diamond_groups['total'] + equipment_zm_diamond_groups['total']}",
+            equipment_mp_diamond_groups["done"] + equipment_zm_diamond_groups["done"],
+            equipment_mp_diamond_groups["total"] + equipment_zm_diamond_groups["total"],
         )
 
     individual_rows = mb.get("individual_diamond_rows", {})
@@ -1768,31 +2227,31 @@ with tab_tracker:
     row_cols = st.columns(4)
 
     with row_cols[0]:
-        st.metric(
+        render_completion_card(
             "Weapon MP Rows",
-            f"{_pct(weapon_mp_rows['done'], weapon_mp_rows['total']):.1f}%",
-            f"{weapon_mp_rows['done']}/{weapon_mp_rows['total']}",
+            weapon_mp_rows["done"],
+            weapon_mp_rows["total"],
         )
 
     with row_cols[1]:
-        st.metric(
+        render_completion_card(
             "Weapon ZM Rows",
-            f"{_pct(weapon_zm_rows['done'], weapon_zm_rows['total']):.1f}%",
-            f"{weapon_zm_rows['done']}/{weapon_zm_rows['total']}",
+            weapon_zm_rows["done"],
+            weapon_zm_rows["total"],
         )
 
     with row_cols[2]:
-        st.metric(
+        render_completion_card(
             "Support MP Rows",
-            f"{_pct(equipment_mp_rows['done'], equipment_mp_rows['total']):.1f}%",
-            f"{equipment_mp_rows['done']}/{equipment_mp_rows['total']}",
+            equipment_mp_rows["done"],
+            equipment_mp_rows["total"],
         )
 
     with row_cols[3]:
-        st.metric(
+        render_completion_card(
             "Support ZM Rows",
-            f"{_pct(equipment_zm_rows['done'], equipment_zm_rows['total']):.1f}%",
-            f"{equipment_zm_rows['done']}/{equipment_zm_rows['total']}",
+            equipment_zm_rows["done"],
+            equipment_zm_rows["total"],
         )
 
     st.divider()
@@ -1859,24 +2318,24 @@ with tab_tracker:
     top_cols = st.columns(3)
 
     with top_cols[0]:
-        st.metric(
+        render_completion_card(
             "Total Weapon Level Completion",
-            f"{_pct(total_weapon_level['done'], total_weapon_level['total']):.1f}%",
-            f"{total_weapon_level['done']}/{total_weapon_level['total']}",
+            total_weapon_level["done"],
+            total_weapon_level["total"],
         )
 
     with top_cols[1]:
-        st.metric(
+        render_completion_card(
             "Weapon Prestige",
-            f"{_pct(weapon_prestige_only['done'], weapon_prestige_only['total']):.1f}%",
-            f"{weapon_prestige_only['done']}/{weapon_prestige_only['total']}",
+            weapon_prestige_only["done"],
+            weapon_prestige_only["total"],
         )
 
     with top_cols[2]:
-        st.metric(
+        render_completion_card(
             "WPM + Level Grind",
-            f"{_pct(wpm_and_levels['done'], wpm_and_levels['total']):.1f}%",
-            f"{wpm_and_levels['done']}/{wpm_and_levels['total']}",
+            wpm_and_levels["done"],
+            wpm_and_levels["total"],
         )
 
     st.markdown("### Stage Breakdown")
@@ -1887,10 +2346,10 @@ with tab_tracker:
         data = prestige_stage_data(stage)
 
         with prestige_cols[i]:
-            st.metric(
+            render_completion_card(
                 data["label"],
-                f"{_pct(data['done'], data['total']):.1f}%",
-                f"{data['done']}/{data['total']} weapons",
+                data["done"],
+                data["total"],
             )
 
     st.caption(
@@ -1909,33 +2368,39 @@ with tab_tracker:
         "Infestation (Zombies)", "Apocalypse (Warzone)",
     ]
     camo_cols = st.columns(4)
+
     for i, chain_label in enumerate(camo_order):
-        data = camos.get(chain_label, {"base_done":0,"base_total":0,"mastery_done":0,"mastery_total":0})
+        data = camos.get(
+            chain_label,
+            {
+                "base_done": 0,
+                "base_total": 0,
+                "mastery_unlock_done": 0,
+                "mastery_unlock_total": 30,
+                "mastery_done": 0,
+                "mastery_total": 0,
+            },
+        )
+
         with camo_cols[i]:
             st.markdown(f"**{chain_label.split(' (')[0]}**")
-            base_pct = _pct(data["base_done"], data["base_total"])
-            unlock_done = data.get("mastery_unlock_done", min(data["mastery_done"], 30))
-            unlock_total = data.get("mastery_unlock_total", 30)
-            unlock_pct = _pct(unlock_done, unlock_total)
 
-            true_mastery_pct = _pct(data["mastery_done"], data["mastery_total"])
-
-            st.metric(
+            render_completion_card(
                 "Base Camo",
-                f"{base_pct:.1f}%",
-                f"{data['base_done']}/{data['base_total']}",
+                data["base_done"],
+                data["base_total"],
             )
 
-            st.metric(
+            render_completion_card(
                 "Calling Card Unlock",
-                f"{unlock_pct:.1f}%",
-                f"{unlock_done}/{unlock_total}",
+                data.get("mastery_unlock_done", min(data["mastery_done"], 30)),
+                data.get("mastery_unlock_total", 30),
             )
 
-            st.metric(
+            render_completion_card(
                 "True Final Camos",
-                f"{true_mastery_pct:.1f}%",
-                f"{data['mastery_done']}/{data['mastery_total']}",
+                data["mastery_done"],
+                data["mastery_total"],
             )
     st.divider()
  
@@ -1943,10 +2408,16 @@ with tab_tracker:
     st.markdown("## Calling Card Completion by Mode")
     cc = summary["calling_cards"]
     cc_cols = st.columns(4)
+
     for i, mode in enumerate(["Co-Op / Endgame", "Multiplayer", "Zombies", "Warzone"]):
         done, total = cc.get(mode, (0, 0))
+
         with cc_cols[i]:
-            st.metric(mode, f"{_pct(done, total):.1f}%", f"{done}/{total}")
+            render_completion_card(
+                mode,
+                done,
+                total,
+            )
  
     st.divider()
  
@@ -1969,10 +2440,10 @@ with tab_tracker:
     top_cols = st.columns(1)
 
     with top_cols[0]:
-        st.metric(
+        render_completion_card(
             "Total Reticle Completion",
-            f"{_pct(ret_total['done'], ret_total['total']):.1f}%",
-            f"{ret_total['done']}/{ret_total['total']}",
+            ret_total["done"],
+            ret_total["total"],
         )
 
     st.markdown("### Mode Breakdown")
@@ -1990,10 +2461,10 @@ with tab_tracker:
         data = reticle_metric_data(ret_by_mode.get(mode, {}))
 
         with mode_cols[i]:
-            st.metric(
+            render_completion_card(
                 label,
-                f"{_pct(data['done'], data['total']):.1f}%",
-                f"{data['done']}/{data['total']}",
+                data["done"],
+                data["total"],
             )
 
     st.markdown("### Stage 100 Detail")
@@ -2005,10 +2476,10 @@ with tab_tracker:
         data = reticle_metric_data(ret_stage_100.get(mode, {}))
 
         with stage_cols[i]:
-            st.metric(
+            render_completion_card(
                 f"{label} Stage 100",
-                f"{_pct(data['done'], data['total']):.1f}%",
-                f"{data['done']}/{data['total']}",
+                data["done"],
+                data["total"],
             )
 
     st.divider()
@@ -2022,10 +2493,10 @@ with tab_tracker:
 
     st.markdown("### Total Title Completion")
 
-    st.metric(
+    render_completion_card(
         "All Titles",
-        f"{_pct(title_total['done'], title_total['total']):.1f}%",
-        f"{title_total['done']}/{title_total['total']}",
+        title_total["done"],
+        title_total["total"],
     )
 
     st.markdown("### Mode Breakdown")
@@ -2057,10 +2528,10 @@ with tab_tracker:
             data = title_by_mode.get(mode, {"done": 0, "total": 0})
 
             with title_cols[i % len(title_cols)]:
-                st.metric(
+                render_completion_card(
                     mode,
-                    f"{_pct(data['done'], data['total']):.1f}%",
-                    f"{data['done']}/{data['total']}",
+                    data["done"],
+                    data["total"],
                 )
     else:
         st.info("No titles data found.")
@@ -2085,10 +2556,10 @@ with tab_tracker:
 
     st.markdown("### Total Colour Completion")
 
-    st.metric(
+    render_completion_card(
         "All Colours",
-        f"{_pct(colours_total['done'], colours_total['total']):.1f}%",
-        f"{colours_total['done']}/{colours_total['total']}",
+        colours_total["done"],
+        colours_total["total"],
     )
 
     if colours_by_category:
@@ -2099,10 +2570,10 @@ with tab_tracker:
 
         for i, (category, data) in enumerate(category_items):
             with category_cols[i % len(category_cols)]:
-                st.metric(
+                render_completion_card(
                     category,
-                    f"{_pct(data['done'], data['total']):.1f}%",
-                    f"{data['done']}/{data['total']}",
+                    data["done"],
+                    data["total"],
                 )
 
     if colours_by_source:
@@ -2113,10 +2584,10 @@ with tab_tracker:
 
         for i, (source, data) in enumerate(source_items):
             with source_cols[i % len(source_cols)]:
-                st.metric(
+                render_completion_card(
                     source,
-                    f"{_pct(data['done'], data['total']):.1f}%",
-                    f"{data['done']}/{data['total']}",
+                    data["done"],
+                    data["total"],
                 )
 
     st.divider()
@@ -2124,16 +2595,22 @@ with tab_tracker:
     # ── AUGMENTS (Zombies only) ──
     st.markdown("## Augments (Zombies)")
     aug_done, aug_total = summary["augments"]
-    st.metric("Perk-A-Colas / Ammo Mods / Field Upgrades", f"{_pct(aug_done, aug_total):.1f}%",
-               f"{aug_done}/{aug_total}")
+    render_completion_card(
+        "Perk-A-Colas / Ammo Mods / Field Upgrades",
+        aug_done,
+        aug_total,
+    )
  
     st.divider()
  
     # ── OVERCLOCKS (Multiplayer only) ──
     st.markdown("## Overclocks (Multiplayer)")
     oc_done, oc_total = summary["overclocks"]
-    st.metric("Scorestreaks / Lethals / Tacticals / Field Upgrades", f"{_pct(oc_done, oc_total):.1f}%",
-               f"{oc_done}/{oc_total}")
+    render_completion_card(
+        "Scorestreaks / Lethals / Tacticals / Field Upgrades",
+        oc_done,
+        oc_total,
+    )
  
     st.divider()
  
@@ -2144,7 +2621,11 @@ with tab_tracker:
         intel_cols = st.columns(min(len(intel), 4))
         for i, (map_name, (done, total)) in enumerate(intel.items()):
             with intel_cols[i % len(intel_cols)]:
-                st.metric(map_name, f"{_pct(done, total):.1f}%", f"{done}/{total}")
+                render_completion_card(
+                    map_name,
+                    done,
+                    total,
+                )
     else:
         st.info("No intel data found.")
  
@@ -2156,7 +2637,11 @@ with tab_tracker:
  
     if "zombies_total" in rewards:
         z_done, z_total = rewards["zombies_total"]
-        st.markdown(f"**Zombies Rewards (Main Quests, Relics, Survival, etc.) — {_pct(z_done, z_total):.1f}% ({z_done}/{z_total})**")
+        render_completion_card(
+            "Zombies Rewards",
+            z_done,
+            z_total,
+        )
         with st.expander("Breakdown by map"):
             by_map = rewards.get("zombies_by_map", {})
             rows = [
@@ -2167,7 +2652,11 @@ with tab_tracker:
  
     if "endgame_operations_total" in rewards:
         e_done, e_total = rewards["endgame_operations_total"]
-        st.markdown(f"**Endgame Operations (Act I/II/III) — {_pct(e_done, e_total):.1f}% ({e_done}/{e_total})**")
+        render_completion_card(
+            "Endgame Operations",
+            e_done,
+            e_total,
+        )
         with st.expander("Breakdown by Operation"):
             by_act = rewards.get("endgame_operations_by_act", {})
             rows = [

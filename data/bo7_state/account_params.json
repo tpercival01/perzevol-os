@@ -1,13 +1,13 @@
 {
-    "double_xp_tokens": {
-        "weapon_15": 0,
-        "weapon_30": 0,
-        "weapon_45": 0,
-        "weapon_60": 0,
-        "account_15": 0,
-        "account_30": 0,
-        "account_45": 0,
-        "account_60": 0
-    },
-    "account_level": 534
+  "double_xp_tokens": {
+    "weapon_15": 0,
+    "weapon_30": 0,
+    "weapon_45": 0,
+    "weapon_60": 0,
+    "account_15": 0,
+    "account_30": 0,
+    "account_45": 0,
+    "account_60": 0
+  },
+  "account_level": 536.0
 }
