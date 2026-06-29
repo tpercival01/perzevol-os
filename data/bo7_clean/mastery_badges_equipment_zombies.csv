@@ -1,14 +1,14 @@
 mode,category,item,bronze_required,silver_required,gold_required,diamond_required,bronze_complete,silver_complete,gold_complete,diamond_complete
-Zombies,Support,ARC-XD,100,250,500,8,TRUE,TRUE,FALSE,FALSE
+Zombies,Support,ARC-XD,100,250,500,8,TRUE,TRUE,TRUE,TRUE
 Zombies,Support,LDBR,100,250,500,8,TRUE,FALSE,FALSE,FALSE
-Zombies,Support,Sentry Turret,100,250,500,8,TRUE,TRUE,TRUE,FALSE
-Zombies,Support,Hand Cannon,100,250,500,8,TRUE,FALSE,FALSE,FALSE
-Zombies,Support,D.A.W.G.,100,250,500,8,TRUE,TRUE,TRUE,FALSE
-Zombies,Support,HKDs,100,250,500,8,TRUE,TRUE,TRUE,FALSE
-Zombies,Support,Mangler Cannon,100,250,500,8,TRUE,TRUE,TRUE,FALSE
-Zombies,Support,Disciple Injection,100,250,500,8,TRUE,TRUE,TRUE,FALSE
+Zombies,Support,Sentry Turret,100,250,500,8,TRUE,TRUE,TRUE,TRUE
+Zombies,Support,Hand Cannon,100,250,500,8,TRUE,TRUE,TRUE,TRUE
+Zombies,Support,D.A.W.G.,100,250,500,8,TRUE,TRUE,TRUE,TRUE
+Zombies,Support,HKDs,100,250,500,8,TRUE,TRUE,TRUE,TRUE
+Zombies,Support,Mangler Cannon,100,250,500,8,TRUE,TRUE,TRUE,TRUE
+Zombies,Support,Disciple Injection,100,250,500,8,TRUE,TRUE,TRUE,TRUE
 Zombies,Support,Lockshot,100,250,500,8,FALSE,FALSE,FALSE,FALSE
-Zombies,Support,Ion Core,100,250,500,8,TRUE,TRUE,FALSE,FALSE
+Zombies,Support,Ion Core,100,250,500,8,TRUE,TRUE,TRUE,TRUE
 Zombies,Lethals,Frag,50,100,250,7,TRUE,TRUE,TRUE,TRUE
 Zombies,Lethals,Cluster Grenade,50,100,250,7,TRUE,TRUE,TRUE,TRUE
 Zombies,Lethals,Semtex,50,100,250,7,TRUE,TRUE,TRUE,TRUE

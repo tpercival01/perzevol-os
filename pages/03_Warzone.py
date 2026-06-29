@@ -6,6 +6,13 @@ from datetime import datetime
 
 import streamlit as st
 
+st.set_page_config(
+    page_title="Perzevol OS - BO7 Completion Commander",
+    page_icon="☣",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+
 from modules.warzone.killchain_engine import (
     BLAME_OPTIONS,
     ENERGY_LEVELS,
@@ -13,6 +20,9 @@ from modules.warzone.killchain_engine import (
     MOTIVATION_LEVELS,
     RESULT_OPTIONS,
     SESSION_GOALS,
+    COMMANDER_MODES,
+    FOCUS_TARGETS,
+    ANCHOR_COLLECTIONS,
     apply_mission_result,
     generate_commander_reply,
     generate_mission,
@@ -264,15 +274,31 @@ def append_session_log(row):
         "blame",
         "notes",
         "account_levels_gained",
+        "actual_minutes_played",
     ]
+
     file_exists = SESSION_LOG_PATH.exists()
+
+    if file_exists:
+        with SESSION_LOG_PATH.open("r", encoding="utf-8", newline="") as file:
+            reader = csv.DictReader(file)
+            existing_fieldnames = reader.fieldnames or []
+            existing_rows = list(reader)
+
+        if existing_fieldnames != fieldnames:
+            with SESSION_LOG_PATH.open("w", encoding="utf-8", newline="") as file:
+                writer = csv.DictWriter(file, fieldnames=fieldnames)
+                writer.writeheader()
+                for existing_row in existing_rows:
+                    writer.writerow({key: existing_row.get(key, "") for key in fieldnames})
+
     with SESSION_LOG_PATH.open("a", encoding="utf-8", newline="") as file:
         writer = csv.DictWriter(file, fieldnames=fieldnames)
         if not file_exists:
             writer.writeheader()
         writer.writerow({key: row.get(key, "") for key in fieldnames})
 
-def log_account_level_gain(levels_gained: float, plan: dict):
+def log_account_level_gain(levels_gained: float, plan: dict, actual_minutes_played: int = 0):
     if levels_gained <= 0:
         return
 
@@ -291,6 +317,7 @@ def log_account_level_gain(levels_gained: float, plan: dict):
         "blame": "Successful operation",
         "notes": f"+{levels_gained:g} account levels",
         "account_levels_gained": levels_gained,
+        "actual_minutes_played": actual_minutes_played,
     })
 
 def mark_task_complete(task, reason="Manual completion"):
@@ -320,6 +347,26 @@ def reset_persistent_state():
 
 def task_label(task):
     return f"{task['mode']} | {task['weapon']} — {task['camo']} | {task['challenge_text']}"
+
+def sorted_task_values(tasks, field: str, mode: str = ""):
+    values = set()
+
+    for task in tasks:
+        if mode and mode != "Global Cleanup" and task.get("mode") != mode:
+            continue
+
+        value = str(task.get(field, "")).strip()
+        if value:
+            values.add(value)
+
+    return sorted(values)
+
+
+def safe_select_index(options, selected):
+    if selected in options:
+        return options.index(selected)
+    return 0
+
 
 def stop_status(task_id):
     return st.session_state.bo7_stop_results.get(task_id, {}).get("status", "pending")
@@ -420,6 +467,20 @@ def initialise_state():
         st.session_state.bo7_celebrations = []
     if "bo7_last_debrief" not in st.session_state:
         st.session_state.bo7_last_debrief = None
+    if "bo7_actual_minutes_played" not in st.session_state:
+        st.session_state.bo7_actual_minutes_played = 0
+    if "bo7_form_commander_mode" not in st.session_state:
+        st.session_state.bo7_form_commander_mode = COMMANDER_MODES[0]
+    if "bo7_form_focus_targets" not in st.session_state:
+        st.session_state.bo7_form_focus_targets = []
+    if "bo7_form_anchor_weapon" not in st.session_state:
+        st.session_state.bo7_form_anchor_weapon = ""
+    if "bo7_form_anchor_class" not in st.session_state:
+        st.session_state.bo7_form_anchor_class = ""
+    if "bo7_form_anchor_collection" not in st.session_state:
+        st.session_state.bo7_form_anchor_collection = ANCHOR_COLLECTIONS[0]
+    if "bo7_form_minimum_closeness" not in st.session_state:
+        st.session_state.bo7_form_minimum_closeness = 80
 
 
 
@@ -448,6 +509,7 @@ QUICK_UPDATE_FILES = {
     "Calling cards — Warzone": "calling_cards_wz.csv",
     # Titles
     "Titles": "titles.csv",
+    "Endgame unlocks": "rewards_endgame_unlocks.csv",
 }
 
 QUICK_UPDATE_METADATA_COLUMNS = {
@@ -465,6 +527,10 @@ QUICK_UPDATE_METADATA_COLUMNS = {
     "requirement",
     "criteria",
     "max_level",
+    "unlock_criteria",
+    "source",
+    "item_type",
+    "operator",
 }
  
 QUICK_UPDATE_ID_COLUMNS = {
@@ -488,6 +554,7 @@ QUICK_UPDATE_ID_COLUMNS = {
     "calling_cards_wz.csv": ["mode", "category", "sub_category", "challenge", "requirement",
                               "tier1_target", "tier2_target", "tier3_target", "tier4_target", "tier5_target"],
     "titles.csv": ["mode", "title", "criteria"],
+    "rewards_endgame_unlocks.csv": ["category", "operator", "item_type", "item", "unlock_criteria", "source"],
 }
 
 
@@ -619,6 +686,288 @@ def write_reticle_completion_from_stop(stop) -> bool:
 
     return True
 
+def write_reticle_reached_from_stop(stop, reached_stage: str) -> bool:
+    """
+    Marks all reticle stages up to reached_stage as TRUE.
+
+    Supports task IDs shaped like:
+    Reticle:{mode}:{reticle}:{stage_percent}
+
+    Mode-specific, so Warzone reticle progress does not touch MP/ZM/Co-Op rows.
+    """
+    if not reached_stage or reached_stage == "No extra update":
+        return False
+
+    task_id = str(stop.get("task_id", "")).strip()
+
+    if not task_id.startswith("Reticle:"):
+        return False
+
+    parts = task_id.split(":", 3)
+
+    if len(parts) != 4:
+        return False
+
+    _prefix, mode, reticle, _stage_percent = parts
+
+    stage_order = ["20", "40", "60", "80", "100"]
+
+    if reached_stage not in stage_order:
+        return False
+
+    dataframe = load_quick_update_csv("reticles.csv")
+
+    if dataframe.empty:
+        return False
+
+    required_columns = {"mode", "reticle"}
+
+    if not required_columns.issubset(set(dataframe.columns)):
+        return False
+
+    row_mask = (
+        dataframe["mode"].fillna("").str.strip().eq(mode)
+        & dataframe["reticle"].fillna("").str.strip().eq(reticle)
+    )
+
+    if not row_mask.any():
+        return False
+
+    reached_index = stage_order.index(reached_stage)
+
+    for stage in stage_order[:reached_index + 1]:
+        column = f"stage_{stage}_complete"
+        if column in dataframe.columns:
+            dataframe.loc[row_mask, column] = "TRUE"
+
+    save_quick_update_csv("reticles.csv", dataframe)
+
+    return True
+
+
+def camo_reached_options_from_stop(stop) -> list[str]:
+    task_id = str(stop.get("task_id", "")).strip()
+
+    if not task_id.startswith("Camo:"):
+        return ["No extra update"]
+
+    parts = task_id.split(":", 4)
+
+    if len(parts) != 5:
+        return ["No extra update"]
+
+    _prefix, mode, chain, weapon, camo_name = parts
+    filename = CAMO_CHAIN_FILES.get(chain)
+
+    if not filename:
+        return ["No extra update"]
+
+    dataframe = load_quick_update_csv(filename)
+
+    if dataframe.empty:
+        return ["No extra update"]
+
+    row_mask = (
+        dataframe["mode"].fillna("").str.strip().eq(mode)
+        & dataframe["chain"].fillna("").str.strip().eq(chain)
+        & dataframe["weapon"].fillna("").str.strip().eq(weapon)
+    )
+
+    if not row_mask.any():
+        return ["No extra update"]
+
+    id_columns = {"mode", "chain", "weapon_class", "weapon"}
+    camo_columns = [
+        column for column in dataframe.columns
+        if column not in id_columns
+        and str(dataframe.loc[row_mask, column].iloc[0]).strip().upper() not in {"N/A", "NA", "NONE", ""}
+    ]
+
+    if camo_name in camo_columns:
+        camo_columns = camo_columns[camo_columns.index(camo_name):]
+
+    return ["No extra update"] + camo_columns
+
+
+def write_camo_reached_from_stop(stop, reached_camo: str) -> bool:
+    """
+    Marks all camo columns up to reached_camo as TRUE for the stop weapon.
+
+    This handles real sessions where the Commander asked for Military 5-9,
+    but you kept going and reached Golden Dragon, Doomsteel, etc.
+    """
+    if not reached_camo or reached_camo == "No extra update":
+        return False
+
+    task_id = str(stop.get("task_id", "")).strip()
+
+    if not task_id.startswith("Camo:"):
+        return False
+
+    parts = task_id.split(":", 4)
+
+    if len(parts) != 5:
+        return False
+
+    _prefix, mode, chain, weapon, _assigned_camo = parts
+    filename = CAMO_CHAIN_FILES.get(chain)
+
+    if not filename:
+        return False
+
+    dataframe = load_quick_update_csv(filename)
+
+    if dataframe.empty:
+        return False
+
+    row_mask = (
+        dataframe["mode"].fillna("").str.strip().eq(mode)
+        & dataframe["chain"].fillna("").str.strip().eq(chain)
+        & dataframe["weapon"].fillna("").str.strip().eq(weapon)
+    )
+
+    if not row_mask.any():
+        return False
+
+    id_columns = {"mode", "chain", "weapon_class", "weapon"}
+    camo_columns = [
+        column for column in dataframe.columns
+        if column not in id_columns
+        and str(dataframe.loc[row_mask, column].iloc[0]).strip().upper() not in {"N/A", "NA", "NONE", ""}
+    ]
+
+    if reached_camo not in camo_columns:
+        return False
+
+    reached_index = camo_columns.index(reached_camo)
+
+    for column in camo_columns[:reached_index + 1]:
+        dataframe.loc[row_mask, column] = "TRUE"
+
+    save_quick_update_csv(filename, dataframe)
+
+    return True
+
+
+def write_weapon_level_progress_from_stop(
+    stop,
+    levels_gained: float = 0.0,
+    prestiged_reset: bool = False,
+) -> dict:
+    """
+    Updates current weapon level in weapon_prestige.csv.
+
+    v1 behaviour:
+    - Adds levels_gained to current_level.
+    - Creates current_level column if missing.
+    - Caps visible current_level at max_level before prestige reset.
+    - If prestiged_reset is True:
+        - marks p1_complete if not already done
+        - else marks p2_complete if not already done
+        - resets current_level to 0
+    """
+    weapon = str(stop.get("weapon", "")).strip()
+
+    if not weapon:
+        return {"updated": False, "message": "No weapon found on stop."}
+
+    dataframe = load_quick_update_csv("weapon_prestige.csv")
+
+    if dataframe.empty:
+        return {"updated": False, "message": "weapon_prestige.csv not found."}
+
+    if "weapon" not in dataframe.columns:
+        return {"updated": False, "message": "weapon_prestige.csv missing weapon column."}
+
+    if "current_level" not in dataframe.columns:
+        dataframe["current_level"] = "0"
+
+    row_mask = dataframe["weapon"].fillna("").str.strip().eq(weapon)
+
+    if not row_mask.any():
+        return {"updated": False, "message": f"{weapon} not found in weapon_prestige.csv."}
+
+    row_index = dataframe.index[row_mask][0]
+    row = dataframe.loc[row_index]
+
+    try:
+        current_level = float(str(row.get("current_level", "0")).strip() or 0)
+    except ValueError:
+        current_level = 0.0
+
+    try:
+        max_level = float(str(row.get("max_level", "0")).strip() or 0)
+    except ValueError:
+        max_level = 0.0
+
+    levels_gained = max(0.0, float(levels_gained or 0.0))
+    new_level = current_level + levels_gained
+
+    if max_level > 0:
+        new_level = min(new_level, max_level)
+
+    prestige_marked = ""
+
+    if prestiged_reset:
+        if "p1_complete" in dataframe.columns and not is_true_cell(row.get("p1_complete", "")):
+            dataframe.loc[row_index, "p1_complete"] = "TRUE"
+            prestige_marked = "Prestige 1"
+        elif "p2_complete" in dataframe.columns and not is_true_cell(row.get("p2_complete", "")):
+            dataframe.loc[row_index, "p2_complete"] = "TRUE"
+            prestige_marked = "Prestige 2"
+
+        dataframe.loc[row_index, "current_level"] = "0"
+    else:
+        dataframe.loc[row_index, "current_level"] = f"{new_level:g}"
+
+    save_quick_update_csv("weapon_prestige.csv", dataframe)
+
+    if prestiged_reset and prestige_marked:
+        return {
+            "updated": True,
+            "message": f"{weapon}: {prestige_marked} marked complete. Level reset to 0.",
+            "hit_cap": False,
+            "prestige_marked": prestige_marked,
+        }
+
+    hit_cap = max_level > 0 and new_level >= max_level
+
+    return {
+        "updated": True,
+        "message": f"{weapon}: +{levels_gained:g} levels. Current level {new_level:g}/{max_level:g}.",
+        "hit_cap": hit_cap,
+        "prestige_marked": "",
+    }
+
+
+def queue_weapon_level_celebration(stop: dict, level_result: dict):
+    if not level_result.get("updated"):
+        return
+
+    weapon = stop.get("weapon", "Weapon")
+    message = level_result.get("message", "")
+
+    if level_result.get("prestige_marked"):
+        queue_celebration(
+            "⚙️ WEAPON PRESTIGE RESET",
+            message,
+            "major",
+        )
+        return
+
+    if level_result.get("hit_cap"):
+        queue_celebration(
+            "🔺 WEAPON LEVEL CAP REACHED",
+            f"{weapon} hit its current level cap. Prestige/reset is available.",
+            "major",
+        )
+        return
+
+    queue_celebration(
+        "📈 WEAPON LEVELS LOGGED",
+        message,
+        "minor",
+    )
 
 def reload_commander_from_csv():
     st.session_state.bo7_completion_state = load_completion_state()
@@ -739,7 +1088,7 @@ def render_queued_celebrations():
 
     st.session_state.bo7_celebrations = []
 
-def build_session_debrief(plan: dict, stop_results: dict, account_levels_gained: float) -> dict:
+def build_session_debrief(plan: dict, stop_results: dict, account_levels_gained: float, actual_minutes_played: int = 0) -> dict:
     stops = plan.get("stops", []) if plan else []
 
     counts = {
@@ -790,6 +1139,7 @@ def build_session_debrief(plan: dict, stop_results: dict, account_levels_gained:
         "mode": plan.get("mode", "Unknown") if plan else "Unknown",
         "available_minutes": plan.get("available_minutes", 0) if plan else 0,
         "estimated_minutes": plan.get("estimated_minutes", 0) if plan else 0,
+        "actual_minutes_played": actual_minutes_played,
         "primary_route": route_summary.get("primary_route", "Unknown route"),
         "counts": counts,
         "completed_types": completed_types,
@@ -811,7 +1161,7 @@ def render_session_debrief():
 
     counts = debrief.get("counts", {})
 
-    debrief_cols = st.columns(5)
+    debrief_cols = st.columns(6)
 
     with debrief_cols[0]:
         st.metric("Done", counts.get("done", 0))
@@ -829,6 +1179,13 @@ def render_session_debrief():
         st.metric(
             "Account Levels",
             f"+{float(debrief.get('account_levels_gained', 0.0)):g}",
+        )
+
+    with debrief_cols[5]:
+        st.metric(
+            "Actual Time",
+            f"{int(debrief.get('actual_minutes_played', 0) or 0)} min",
+            f"{int(debrief.get('estimated_minutes', 0) or 0)} min est.",
         )
 
     st.success(
@@ -1013,11 +1370,58 @@ def row_counts_for_100_percent(row):
     return value not in OPTIONAL_100_PERCENT_VALUES
 
 
+def fill_inactive_calling_card_tiers(dataframe):
+    """
+    Calling-card rows often only have Tier 1, while Tier 2-5 targets are N/A.
+
+    For cockpit/grid display and saves, inactive tiers should behave as already
+    satisfied. This avoids red Xs on tiers that do not exist and prevents them
+    from blocking completed/master calculations.
+    """
+    if dataframe is None or dataframe.empty:
+        return dataframe
+
+    updated_dataframe = dataframe.copy()
+
+    for tier_number in range(1, 6):
+        complete_column = f"tier{tier_number}_complete"
+        target_column = f"tier{tier_number}_target"
+
+        if complete_column not in updated_dataframe.columns or target_column not in updated_dataframe.columns:
+            continue
+
+        inactive_mask = (
+            updated_dataframe[target_column]
+            .fillna("")
+            .astype(str)
+            .str.strip()
+            .str.upper()
+            .isin({"", "N/A", "NA", "NONE"})
+        )
+
+        updated_dataframe.loc[inactive_mask, complete_column] = "TRUE"
+
+    return updated_dataframe
+
+
+def calling_card_tier_is_applicable(row, tier_number: int) -> bool:
+    complete_column = f"tier{tier_number}_complete"
+    target_column = f"tier{tier_number}_target"
+
+    if target_column in row.index:
+        target_value = str(row.get(target_column, "")).strip().upper()
+        if target_value in {"", "N/A", "NA", "NONE"}:
+            return False
+
+    complete_value = str(row.get(complete_column, "")).strip().upper()
+    return complete_value not in {"", "N/A", "NA", "NONE"}
+
+
 def normalise_calling_card_completion(dataframe, filename):
     if filename not in CALLING_CARD_FILES_SET:
         return dataframe
 
-    updated_dataframe = dataframe.copy()
+    updated_dataframe = fill_inactive_calling_card_tiers(dataframe)
 
     tier_columns = [
         "tier1_complete",
@@ -1027,12 +1431,13 @@ def normalise_calling_card_completion(dataframe, filename):
         "tier5_complete",
     ]
 
-    # First pass: if every applicable tier is complete, mark the card complete.
+    # First pass: if every real/applicable tier is complete, mark the card complete.
+    # Tiers whose target is N/A are treated as already satisfied.
     for row_index, row in updated_dataframe.iterrows():
         applicable_tiers = [
-            column for column in tier_columns
+            column for tier_number, column in enumerate(tier_columns, start=1)
             if column in updated_dataframe.columns
-            and str(row.get(column, "")).strip().upper() not in {"", "N/A", "NA", "NONE"}
+            and calling_card_tier_is_applicable(row, tier_number)
         ]
 
         if applicable_tiers and all(is_true_cell(row.get(column, "")) for column in applicable_tiers):
@@ -1141,6 +1546,7 @@ def render_quick_completion_grid():
     edited_dataframe = st.data_editor(
         grid_dataframe,
         use_container_width=True,
+        height=720,
         hide_index=False,
         disabled=id_columns,
         column_config=column_config,
@@ -1155,6 +1561,7 @@ def render_quick_completion_grid():
             for column in status_columns:
                 updated_dataframe.loc[row_index, column] = bool_to_csv_value(edited_row[column])
 
+        updated_dataframe = apply_smart_completion_rules(updated_dataframe, filename)
         updated_dataframe = normalise_calling_card_completion(updated_dataframe, filename)
         save_quick_update_csv(filename, updated_dataframe)
         milestone_after = capture_milestone_snapshot()
@@ -1175,6 +1582,886 @@ def render_quick_completion_grid():
         st.success("Quick update saved. Orders reloaded from clean CSV data.")
         st.rerun()
 
+def render_weapon_level_quick_update():
+    st.caption(
+        "One-time setup for current weapon levels. After this, session stop logging can keep these updated."
+    )
+
+    filename = "weapon_prestige.csv"
+    dataframe = load_quick_update_csv(filename)
+
+    if dataframe.empty:
+        st.warning("No weapon_prestige.csv found.")
+        return
+
+    if "weapon" not in dataframe.columns:
+        st.warning("weapon_prestige.csv is missing the weapon column.")
+        return
+
+    if "current_level" not in dataframe.columns:
+        dataframe["current_level"] = "0"
+
+    editable_dataframe = dataframe.copy()
+
+    for column in ["current_level", "max_level"]:
+        if column in editable_dataframe.columns:
+            editable_dataframe[column] = pd.to_numeric(
+                editable_dataframe[column],
+                errors="coerce",
+            ).fillna(0)
+
+    display_columns = [
+        column for column in [
+            "weapon_class",
+            "weapon",
+            "current_level",
+            "max_level",
+            "p1_complete",
+            "p2_complete",
+            "wpm_complete",
+            "lvl_100_complete",
+            "lvl_150_complete",
+            "lvl_200_complete",
+            "lvl_250_complete",
+        ]
+        if column in editable_dataframe.columns
+    ]
+
+    class_options = ["All"]
+
+    if "weapon_class" in editable_dataframe.columns:
+        class_options += sorted(
+            value for value in editable_dataframe["weapon_class"].dropna().unique().tolist()
+            if str(value).strip()
+        )
+
+    selected_class = st.selectbox(
+        "Weapon class",
+        class_options,
+        key="weapon_level_quick_class",
+    )
+
+    filtered_dataframe = editable_dataframe.copy()
+
+    if selected_class != "All" and "weapon_class" in filtered_dataframe.columns:
+        filtered_dataframe = filtered_dataframe[
+            filtered_dataframe["weapon_class"] == selected_class
+        ]
+
+    edited_dataframe = st.data_editor(
+        filtered_dataframe[display_columns],
+        use_container_width=True,
+        height=720,
+        hide_index=False,
+        disabled=[
+            column for column in display_columns
+            if column not in {"current_level"}
+        ],
+        column_config={
+            "current_level": st.column_config.NumberColumn(
+                "Current Level",
+                min_value=0,
+                max_value=250,
+                step=1,
+            ),
+            "max_level": st.column_config.NumberColumn(
+                "Max Level",
+                disabled=True,
+            ),
+        },
+        key="weapon_level_quick_grid",
+    )
+
+    if st.button("SAVE WEAPON LEVELS", use_container_width=True):
+        updated_dataframe = dataframe.copy()
+
+        if "current_level" not in updated_dataframe.columns:
+            updated_dataframe["current_level"] = "0"
+
+        for row_index, edited_row in edited_dataframe.iterrows():
+            updated_dataframe.loc[row_index, "current_level"] = f"{float(edited_row['current_level']):g}"
+
+        save_quick_update_csv(filename, updated_dataframe)
+
+        st.session_state.bo7_completion_state = load_completion_state()
+        st.session_state.bo7_tasks = apply_completion_state(
+            load_tracker_tasks(),
+            st.session_state.bo7_completion_state,
+        )
+        st.session_state.bo7_progress = load_hub_progress()
+        st.session_state.bo7_latest_mission = None
+
+        queue_celebration(
+            "📈 WEAPON LEVELS UPDATED",
+            "Current weapon levels saved to weapon_prestige.csv.",
+            "minor",
+        )
+
+        st.success("Weapon levels saved. Commander orders reloaded.")
+        st.rerun()
+
+
+# ─── TRACKER COCKPIT HELPERS ─────────────────────────────────────────────────
+
+WEAPON_BADGE_DIAMOND_REQUIREMENTS = {
+    "Assault Rifles": 6,
+    "Submachine Guns": 6,
+    "Shotguns": 3,
+    "LMGs": 2,
+    "Marksman Rifles": 3,
+    "Sniper Rifles": 3,
+    "Pistols": 3,
+    "Launchers": 2,
+    "Specials": 2,
+    "Melee": 2,
+    "Wonder Weapons": 3,
+}
+
+COCKPIT_CONFIGS = {
+    "apocalypse_status.csv": {
+        "label": "Apocalypse / Warzone Camos",
+        "id_columns": ["weapon_class", "weapon"],
+        "filter_columns": ["weapon_class"],
+        "status_columns": None,
+        "cascade": "row_order",
+    },
+    "singularity_status.csv": {
+        "label": "Singularity / Multiplayer Camos",
+        "id_columns": ["weapon_class", "weapon"],
+        "filter_columns": ["weapon_class"],
+        "status_columns": None,
+        "cascade": "row_order",
+    },
+    "infestation_status.csv": {
+        "label": "Infestation / Zombies Camos",
+        "id_columns": ["weapon_class", "weapon"],
+        "filter_columns": ["weapon_class"],
+        "status_columns": None,
+        "cascade": "row_order",
+    },
+    "genesis_status.csv": {
+        "label": "Genesis / Co-Op Camos",
+        "id_columns": ["weapon_class", "weapon"],
+        "filter_columns": ["weapon_class"],
+        "status_columns": None,
+        "cascade": "row_order",
+    },
+    "weapon_prestige.csv": {
+        "label": "Weapon Prestige",
+        "id_columns": ["weapon_class", "weapon", "current_level", "max_level"],
+        "filter_columns": ["weapon_class"],
+        "status_columns": [
+            "p1_complete", "p2_complete", "wpm_complete",
+            "lvl_100_complete", "lvl_150_complete", "lvl_200_complete", "lvl_250_complete",
+        ],
+        "cascade": "row_order",
+    },
+    "mastery_badges_weapons.csv": {
+        "label": "Weapon Mastery Badges",
+        "id_columns": ["weapon_class", "weapon"],
+        "filter_columns": ["weapon_class"],
+        "status_columns": [
+            "mp_bronze_complete", "mp_silver_complete", "mp_gold_complete", "mp_diamond_complete",
+            "zm_bronze_complete", "zm_silver_complete", "zm_gold_complete", "zm_diamond_complete",
+        ],
+        "cascade": "weapon_badges",
+    },
+    "mastery_badges_equipment_mp.csv": {
+        "label": "MP Equipment Mastery Badges",
+        "id_columns": ["mode", "category", "item"],
+        "filter_columns": ["category"],
+        "status_columns": ["bronze_complete", "silver_complete", "gold_complete", "diamond_complete"],
+        "cascade": "equipment_badges",
+    },
+    "mastery_badges_equipment_zombies.csv": {
+        "label": "Zombies Equipment Mastery Badges",
+        "id_columns": ["mode", "category", "item"],
+        "filter_columns": ["category"],
+        "status_columns": ["bronze_complete", "silver_complete", "gold_complete", "diamond_complete"],
+        "cascade": "equipment_badges",
+    },
+    "reticles.csv": {
+        "label": "Reticles",
+        "id_columns": ["mode", "classification", "reticle"],
+        "filter_columns": ["mode", "classification"],
+        "status_columns": [
+            "stage_20_complete", "stage_40_complete", "stage_60_complete",
+            "stage_80_complete", "stage_100_complete",
+        ],
+        "cascade": "row_order",
+    },
+    "calling_cards_sp.csv": {
+        "label": "Co-Op / Endgame Calling Cards",
+        "id_columns": ["mode", "category", "sub_category", "challenge", "requirement"],
+        "filter_columns": ["category", "sub_category"],
+        "status_columns": [
+            "tier1_complete", "tier2_complete", "tier3_complete",
+            "tier4_complete", "tier5_complete", "completed",
+        ],
+        "cascade": "calling_cards",
+    },
+    "calling_cards_mp.csv": {
+        "label": "Multiplayer Calling Cards",
+        "id_columns": ["mode", "category", "sub_category", "challenge", "requirement"],
+        "filter_columns": ["category", "sub_category"],
+        "status_columns": [
+            "tier1_complete", "tier2_complete", "tier3_complete",
+            "tier4_complete", "tier5_complete", "completed",
+        ],
+        "cascade": "calling_cards",
+    },
+    "calling_cards_zm.csv": {
+        "label": "Zombies Calling Cards",
+        "id_columns": ["mode", "category", "sub_category", "challenge", "requirement"],
+        "filter_columns": ["category", "sub_category"],
+        "status_columns": [
+            "tier1_complete", "tier2_complete", "tier3_complete",
+            "tier4_complete", "tier5_complete", "completed",
+        ],
+        "cascade": "calling_cards",
+    },
+    "calling_cards_wz.csv": {
+        "label": "Warzone Calling Cards",
+        "id_columns": ["mode", "category", "sub_category", "challenge", "requirement"],
+        "filter_columns": ["category", "sub_category"],
+        "status_columns": [
+            "tier1_complete", "tier2_complete", "tier3_complete",
+            "tier4_complete", "tier5_complete", "completed",
+        ],
+        "cascade": "calling_cards",
+    },
+    "rewards_zombies.csv": {
+        "label": "Zombies Rewards",
+        "id_columns": ["map", "category", "item"],
+        "filter_columns": ["map", "category"],
+        "status_columns": ["earned"],
+        "cascade": "simple",
+    },
+    "rewards_endgame_operations.csv": {
+        "label": "Endgame Operations",
+        "id_columns": ["operation", "step"],
+        "filter_columns": ["operation"],
+        "status_columns": ["earned"],
+        "cascade": "simple",
+    },
+    "rewards_endgame_unlocks.csv": {
+        "label": "Endgame Unlocks",
+        "id_columns": ["category", "operator", "item_type", "item", "unlock_criteria", "source"],
+        "filter_columns": ["category", "operator", "item_type", "source"],
+        "status_columns": ["earned"],
+        "cascade": "simple",
+    },
+    "intel.csv": {
+        "label": "Intel",
+        "id_columns": ["mode", "map", "category", "item"],
+        "filter_columns": ["mode", "map", "category"],
+        "status_columns": ["found"],
+        "cascade": "simple",
+    },
+    "titles.csv": {
+        "label": "Titles",
+        "id_columns": ["mode", "title", "criteria"],
+        "filter_columns": ["mode"],
+        "status_columns": ["earned"],
+        "cascade": "simple",
+    },
+    "colours.csv": {
+        "label": "Colours",
+        "id_columns": ["level_required", "colour"],
+        "filter_columns": [],
+        "status_columns": ["unlocked"],
+        "cascade": "simple",
+    },
+    "augments_zombies.csv": {
+        "label": "Zombies Augments",
+        "id_columns": ["mode", "category", "item"],
+        "filter_columns": ["category"],
+        "status_columns": [
+            "minor1", "major1", "minor2", "major2", "minor3",
+            "major3", "minor4", "major4", "extra_slot",
+        ],
+        "cascade": "row_order",
+    },
+    "overclocks_mp.csv": {
+        "label": "Multiplayer Overclocks",
+        "id_columns": ["mode", "category", "item"],
+        "filter_columns": ["category"],
+        "status_columns": ["oc1_complete", "oc2_complete"],
+        "cascade": "row_order",
+    },
+}
+
+
+def cockpit_status_columns(filename: str, dataframe: pd.DataFrame) -> list[str]:
+    config = COCKPIT_CONFIGS.get(filename, {})
+    configured = config.get("status_columns")
+
+    if configured is not None:
+        return [column for column in configured if column in dataframe.columns]
+
+    id_columns = set(["mode", "chain", "weapon_class", "weapon"])
+    ignored = id_columns | QUICK_UPDATE_METADATA_COLUMNS
+
+    return [
+        column for column in dataframe.columns
+        if column not in ignored
+        and not column.endswith("_required")
+        and not column.endswith("_target")
+    ]
+
+
+def status_symbol(value) -> str:
+    text = str(value).strip().upper()
+
+    if text in {"N/A", "NA", "NONE", ""}:
+        return "N/A"
+
+    if is_true_cell(text):
+        return "✅"
+
+    return "❌"
+
+
+
+def style_status_grid(dataframe: pd.DataFrame, status_columns: list[str], id_columns: list[str]):
+    def cell_style(value):
+        text = str(value).strip()
+
+        if text == "✅":
+            return (
+                "background-color: rgba(48, 209, 88, 0.22); "
+                "color: #d9ffe2; "
+                "font-weight: 900; "
+                "text-align: center;"
+            )
+
+        if text == "❌":
+            return (
+                "background-color: rgba(255, 69, 58, 0.18); "
+                "color: #ffd8d6; "
+                "font-weight: 900; "
+                "text-align: center;"
+            )
+
+        if text.upper() in {"N/A", "NA", "NONE"}:
+            return (
+                "background-color: rgba(142, 142, 147, 0.16); "
+                "color: #b8b8b8; "
+                "font-weight: 700; "
+                "text-align: center;"
+            )
+
+        return ""
+
+    def header_style(column_name):
+        if column_name in id_columns:
+            return (
+                "background-color: rgba(255,255,255,0.08); "
+                "color: #ffffff; "
+                "font-weight: 900;"
+            )
+
+        return (
+            "background-color: rgba(255, 75, 75, 0.16); "
+            "color: #ffffff; "
+            "font-weight: 850; "
+            "text-align: center;"
+        )
+
+    styled = dataframe.style.applymap(cell_style, subset=status_columns)
+
+    for column in dataframe.columns:
+        styled = styled.set_properties(
+            subset=[column],
+            **{
+                "border": "1px solid rgba(255,255,255,0.08)",
+                "font-size": "0.92rem",
+            },
+        )
+
+    styled = styled.set_table_styles([
+        {
+            "selector": "th",
+            "props": [
+                ("background-color", "rgba(255,255,255,0.08)"),
+                ("color", "#ffffff"),
+                ("font-weight", "900"),
+                ("border", "1px solid rgba(255,255,255,0.12)"),
+                ("font-size", "0.86rem"),
+            ],
+        },
+        {
+            "selector": "td",
+            "props": [
+                ("border", "1px solid rgba(255,255,255,0.08)"),
+            ],
+        },
+    ])
+
+    for column in dataframe.columns:
+        styled = styled.set_properties(
+            subset=[column],
+            **({"text-align": "left"} if column in id_columns else {"text-align": "center"}),
+        )
+
+    return styled
+
+
+def cockpit_completion_caption(dataframe: pd.DataFrame, status_columns: list[str]) -> str:
+    total = 0
+    done = 0
+
+    for _, row in dataframe.iterrows():
+        for column in status_columns:
+            value = str(row.get(column, "")).strip().upper()
+
+            if value in {"", "N/A", "NA", "NONE"}:
+                continue
+
+            total += 1
+            if is_true_cell(value):
+                done += 1
+
+    return f"{done}/{total} complete ({_pct(done, total):.1f}%)"
+
+
+def fill_row_for_highest_true(dataframe: pd.DataFrame, status_columns: list[str]) -> pd.DataFrame:
+    updated = dataframe.copy()
+
+    for row_index, row in updated.iterrows():
+        highest_true_index = None
+
+        for index, column in enumerate(status_columns):
+            value = str(row.get(column, "")).strip().upper()
+
+            if value in {"", "N/A", "NA", "NONE"}:
+                continue
+
+            if is_true_cell(value):
+                highest_true_index = index
+
+        if highest_true_index is None:
+            continue
+
+        for column in status_columns[:highest_true_index + 1]:
+            value = str(row.get(column, "")).strip().upper()
+            if value not in {"", "N/A", "NA", "NONE"}:
+                updated.loc[row_index, column] = "TRUE"
+
+    return updated
+
+
+def apply_weapon_badge_smart_rules(dataframe: pd.DataFrame) -> pd.DataFrame:
+    updated = dataframe.copy()
+
+    for prefix in ["mp", "zm"]:
+        stage_columns = [
+            f"{prefix}_bronze_complete",
+            f"{prefix}_silver_complete",
+            f"{prefix}_gold_complete",
+            f"{prefix}_diamond_complete",
+        ]
+
+        existing_columns = [column for column in stage_columns if column in updated.columns]
+        updated = fill_row_for_highest_true(updated, existing_columns)
+
+        gold_column = f"{prefix}_gold_complete"
+        diamond_column = f"{prefix}_diamond_complete"
+
+        if gold_column not in updated.columns or diamond_column not in updated.columns:
+            continue
+
+        for weapon_class, requirement in WEAPON_BADGE_DIAMOND_REQUIREMENTS.items():
+            class_mask = updated["weapon_class"].fillna("").str.strip().eq(weapon_class)
+
+            if not class_mask.any():
+                continue
+
+            gold_count = int(updated.loc[class_mask, gold_column].apply(is_true_cell).sum())
+
+            if gold_count >= requirement:
+                updated.loc[class_mask, diamond_column] = "TRUE"
+
+    return updated
+
+
+def apply_equipment_badge_smart_rules(dataframe: pd.DataFrame) -> pd.DataFrame:
+    updated = dataframe.copy()
+    stage_columns = [
+        "bronze_complete",
+        "silver_complete",
+        "gold_complete",
+        "diamond_complete",
+    ]
+
+    updated = fill_row_for_highest_true(updated, [column for column in stage_columns if column in updated.columns])
+
+    if "category" not in updated.columns or "gold_complete" not in updated.columns or "diamond_complete" not in updated.columns:
+        return updated
+
+    for category in sorted(updated["category"].fillna("").unique().tolist()):
+        category_mask = updated["category"].fillna("").str.strip().eq(str(category).strip())
+
+        if not category_mask.any():
+            continue
+
+        required_values = updated.loc[category_mask, "diamond_required"].dropna().astype(str).str.strip()
+        required_values = [safe_int_like(value) for value in required_values if value and value.upper() not in {"N/A", "NA", "NONE"}]
+
+        if not required_values:
+            continue
+
+        required = max(required_values)
+        gold_count = int(updated.loc[category_mask, "gold_complete"].apply(is_true_cell).sum())
+
+        if required > 0 and gold_count >= required:
+            updated.loc[category_mask, "diamond_complete"] = "TRUE"
+
+    return updated
+
+
+def safe_int_like(value, fallback: int = 0) -> int:
+    try:
+        return int(float(str(value).replace(",", "").strip()))
+    except (TypeError, ValueError):
+        return fallback
+
+
+def apply_calling_card_smart_rules(dataframe: pd.DataFrame, filename: str) -> pd.DataFrame:
+    updated = fill_inactive_calling_card_tiers(dataframe)
+    tier_columns = [
+        "tier1_complete",
+        "tier2_complete",
+        "tier3_complete",
+        "tier4_complete",
+        "tier5_complete",
+    ]
+
+    updated = fill_row_for_highest_true(updated, [column for column in tier_columns if column in updated.columns])
+
+    existing_tiers = [column for column in tier_columns if column in updated.columns]
+
+    if "completed" in updated.columns:
+        for row_index, row in updated.iterrows():
+            if is_true_cell(row.get("completed", "")):
+                for tier_number, column in enumerate(existing_tiers, start=1):
+                    if calling_card_tier_is_applicable(row, tier_number):
+                        updated.loc[row_index, column] = "TRUE"
+                continue
+
+            applicable_tiers = [
+                column for tier_number, column in enumerate(existing_tiers, start=1)
+                if calling_card_tier_is_applicable(row, tier_number)
+            ]
+
+            if applicable_tiers and all(is_true_cell(row.get(column, "")) for column in applicable_tiers):
+                updated.loc[row_index, "completed"] = "TRUE"
+
+    return normalise_calling_card_completion(updated, filename)
+
+
+def apply_smart_completion_rules(dataframe: pd.DataFrame, filename: str) -> pd.DataFrame:
+    config = COCKPIT_CONFIGS.get(filename, {})
+    cascade = config.get("cascade", "simple")
+    status_columns = cockpit_status_columns(filename, dataframe)
+
+    if not status_columns:
+        return dataframe
+
+    if cascade == "row_order":
+        return fill_row_for_highest_true(dataframe, status_columns)
+
+    if cascade == "weapon_badges":
+        return apply_weapon_badge_smart_rules(dataframe)
+
+    if cascade == "equipment_badges":
+        return apply_equipment_badge_smart_rules(dataframe)
+
+    if cascade == "calling_cards":
+        return apply_calling_card_smart_rules(dataframe, filename)
+
+    return dataframe.copy()
+
+
+def save_cockpit_dataframe(filename: str, updated_dataframe: pd.DataFrame, success_label: str):
+    milestone_before = capture_milestone_snapshot()
+
+    updated_dataframe = apply_smart_completion_rules(updated_dataframe, filename)
+    if filename in CALLING_CARD_FILES_SET:
+        updated_dataframe = normalise_calling_card_completion(updated_dataframe, filename)
+
+    save_quick_update_csv(filename, updated_dataframe)
+
+    milestone_after = capture_milestone_snapshot()
+    queue_milestone_celebrations(milestone_before, milestone_after)
+
+    st.session_state.bo7_completion_state = load_completion_state()
+    st.session_state.bo7_tasks = apply_completion_state(
+        load_tracker_tasks(),
+        st.session_state.bo7_completion_state,
+    )
+    st.session_state.bo7_progress = load_hub_progress()
+    st.session_state.bo7_latest_mission = None
+
+    queue_celebration(
+        "✅ TRACKER COCKPIT SAVED",
+        f"{success_label} saved. Smart tick rules applied.",
+        "minor",
+    )
+
+
+def render_cockpit_editor(filename: str, title: str | None = None):
+    dataframe = load_quick_update_csv(filename)
+
+    if dataframe.empty:
+        st.warning(f"No data found for `{filename}`.")
+        return
+
+    config = COCKPIT_CONFIGS.get(filename, {})
+    label = title or config.get("label", filename)
+
+    status_columns = cockpit_status_columns(filename, dataframe)
+    id_columns = [
+        column for column in config.get("id_columns", QUICK_UPDATE_ID_COLUMNS.get(filename, []))
+        if column in dataframe.columns
+    ]
+
+    if not status_columns:
+        st.warning(f"No editable status columns found for `{filename}`.")
+        st.dataframe(dataframe, use_container_width=True, hide_index=True)
+        return
+
+    st.markdown(f"#### {label}")
+    st.caption(cockpit_completion_caption(dataframe, status_columns))
+
+    filtered_dataframe = dataframe.copy()
+
+    filter_columns = [
+        column for column in config.get("filter_columns", [])
+        if column in filtered_dataframe.columns
+    ]
+
+    if filter_columns:
+        filter_cols = st.columns(min(len(filter_columns), 4))
+
+        for index, column in enumerate(filter_columns):
+            options = ["All"] + sorted(
+                str(value) for value in filtered_dataframe[column].dropna().unique().tolist()
+                if str(value).strip()
+            )
+
+            with filter_cols[index % len(filter_cols)]:
+                selected = st.selectbox(
+                    column.replace("_", " ").title(),
+                    options,
+                    key=f"cockpit_filter_{filename}_{column}",
+                )
+
+            if selected != "All":
+                filtered_dataframe = filtered_dataframe[
+                    filtered_dataframe[column].fillna("").astype(str).str.strip().eq(selected)
+                ]
+
+    display_columns = [
+        column for column in id_columns + status_columns
+        if column in filtered_dataframe.columns
+    ]
+
+    if filtered_dataframe.empty:
+        st.info("No rows match the current filters.")
+        return
+
+    cockpit_dataframe = (
+        fill_inactive_calling_card_tiers(filtered_dataframe)
+        if filename in CALLING_CARD_FILES_SET
+        else filtered_dataframe
+    )
+
+    editor_dataframe = cockpit_dataframe[display_columns].copy()
+
+    for column in status_columns:
+        if column in editor_dataframe.columns:
+            editor_dataframe[column] = editor_dataframe[column].apply(is_true_cell)
+
+    disabled_columns = [
+        column for column in display_columns
+        if column not in status_columns
+    ]
+
+    column_config = {
+        column: st.column_config.CheckboxColumn(column.replace("_", " ").title())
+        for column in status_columns
+        if column in display_columns
+    }
+
+    preview_dataframe = cockpit_dataframe[display_columns].copy()
+    for column in status_columns:
+        if column in preview_dataframe.columns:
+            preview_dataframe[column] = preview_dataframe[column].apply(status_symbol)
+
+    st.markdown("##### Sheet View")
+    st.dataframe(
+        style_status_grid(preview_dataframe, status_columns, id_columns),
+        use_container_width=True,
+        height=720,
+        hide_index=True,
+    )
+
+    with st.expander("Edit tracker grid", expanded=False):
+        edited_dataframe = st.data_editor(
+            editor_dataframe,
+            use_container_width=True,
+            height=720,
+            hide_index=False,
+            disabled=disabled_columns,
+            column_config=column_config,
+            key=f"cockpit_editor_{filename}",
+        )
+
+    if st.button(f"SAVE {label.upper()}", use_container_width=True, key=f"cockpit_save_{filename}"):
+        updated_dataframe = dataframe.copy()
+
+        for row_index, edited_row in edited_dataframe.iterrows():
+            for column in status_columns:
+                if column not in edited_dataframe.columns:
+                    continue
+
+                original_value = str(updated_dataframe.loc[row_index, column]).strip().upper()
+
+                if original_value in {"N/A", "NA", "NONE", ""} and not bool(edited_row[column]):
+                    continue
+
+                updated_dataframe.loc[row_index, column] = bool_to_csv_value(edited_row[column])
+
+        save_cockpit_dataframe(filename, updated_dataframe, label)
+        st.success(f"{label} saved.")
+        st.rerun()
+
+
+def render_tracker_cockpit(summary: dict):
+    cockpit_tabs = st.tabs([
+        "Overview",
+        "Camos",
+        "Weapon Prestige",
+        "Weapon Badges",
+        "Equipment Badges",
+        "Reticles",
+        "Calling Cards",
+        "Rewards",
+        "Intel",
+        "Titles",
+        "Colours",
+        "Augments",
+        "Overclocks",
+    ])
+
+    with cockpit_tabs[0]:
+        st.markdown("### Tracker Cockpit")
+        st.caption(
+            "Sheet-style cockpit views live in the tabs above. Use the grids to tick progress directly. "
+            "Smart tick rules fill earlier milestones when you tick a later one."
+        )
+
+        summary_cols = st.columns(4)
+
+        with summary_cols[0]:
+            total = summary.get("overall", {}) if isinstance(summary.get("overall", {}), dict) else {}
+            st.metric("Open Steps", len(st.session_state.get("bo7_tasks", [])))
+
+        with summary_cols[1]:
+            st.metric("Camo Chains", "4")
+
+        with summary_cols[2]:
+            st.metric("Editable Trackers", "13")
+
+        with summary_cols[3]:
+            st.metric("Smart Fill", "ON")
+
+        st.info(
+            "Use Overview for the existing dashboard below, or jump into a cockpit tab for sheet-style editing."
+        )
+
+    with cockpit_tabs[1]:
+        st.markdown("### Camos")
+        camo_tabs = st.tabs(["Warzone", "Multiplayer", "Zombies", "Co-Op / Endgame"])
+        with camo_tabs[0]:
+            render_cockpit_editor("apocalypse_status.csv")
+        with camo_tabs[1]:
+            render_cockpit_editor("singularity_status.csv")
+        with camo_tabs[2]:
+            render_cockpit_editor("infestation_status.csv")
+        with camo_tabs[3]:
+            render_cockpit_editor("genesis_status.csv")
+
+    with cockpit_tabs[2]:
+        st.markdown("### Weapon Prestige")
+        st.caption(
+            "Ticking a later milestone fills the earlier prestige milestones. Current level is still edited from Quick Update → Weapon Levels."
+        )
+        render_cockpit_editor("weapon_prestige.csv")
+
+    with cockpit_tabs[3]:
+        st.markdown("### Weapon Mastery Badges")
+        st.caption(
+            "Ticking Silver fills Bronze. Ticking Gold fills Bronze/Silver. If the final Gold for a class is reached, Diamond auto-fills for that class."
+        )
+        render_cockpit_editor("mastery_badges_weapons.csv")
+
+    with cockpit_tabs[4]:
+        st.markdown("### Equipment Mastery Badges")
+        equipment_tabs = st.tabs(["Multiplayer", "Zombies"])
+        with equipment_tabs[0]:
+            render_cockpit_editor("mastery_badges_equipment_mp.csv")
+        with equipment_tabs[1]:
+            render_cockpit_editor("mastery_badges_equipment_zombies.csv")
+
+    with cockpit_tabs[5]:
+        st.markdown("### Reticles")
+        st.caption("Ticking Stage 100 fills Stage 20, 40, 60 and 80 for that mode and reticle only.")
+        render_cockpit_editor("reticles.csv")
+
+    with cockpit_tabs[6]:
+        st.markdown("### Calling Cards")
+        card_tabs = st.tabs(["Co-Op / Endgame", "Multiplayer", "Zombies", "Warzone"])
+        with card_tabs[0]:
+            render_cockpit_editor("calling_cards_sp.csv")
+        with card_tabs[1]:
+            render_cockpit_editor("calling_cards_mp.csv")
+        with card_tabs[2]:
+            render_cockpit_editor("calling_cards_zm.csv")
+        with card_tabs[3]:
+            render_cockpit_editor("calling_cards_wz.csv")
+
+    with cockpit_tabs[7]:
+        st.markdown("### Rewards / Operations")
+        reward_tabs = st.tabs(["Zombies Rewards", "Endgame Operations", "Endgame Unlocks"])
+        with reward_tabs[0]:
+            render_cockpit_editor("rewards_zombies.csv")
+        with reward_tabs[1]:
+            render_cockpit_editor("rewards_endgame_operations.csv")
+        with reward_tabs[2]:
+            render_cockpit_editor("rewards_endgame_unlocks.csv")
+
+    with cockpit_tabs[8]:
+        st.markdown("### Intel")
+        render_cockpit_editor("intel.csv")
+
+    with cockpit_tabs[9]:
+        st.markdown("### Titles")
+        render_cockpit_editor("titles.csv")
+
+    with cockpit_tabs[10]:
+        st.markdown("### Colours")
+        render_cockpit_editor("colours.csv")
+
+    with cockpit_tabs[11]:
+        st.markdown("### Augments")
+        render_cockpit_editor("augments_zombies.csv")
+
+    with cockpit_tabs[12]:
+        st.markdown("### Overclocks")
+        render_cockpit_editor("overclocks_mp.csv")
+
 
 initialise_state()
 
@@ -1187,8 +2474,11 @@ st.markdown(
         background: radial-gradient(circle at top, #141821 0%, #07080a 55%, #020303 100%);
     }
     .block-container {
-        padding-top: 2rem;
+        max-width: 98vw;
+        padding-top: 1rem;
         padding-bottom: 2rem;
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
     }
     .commander-title {
         font-size: 3.8rem;
@@ -1331,6 +2621,15 @@ st.markdown(
         font-family: monospace;
         margin-top: 0.15rem;
     }
+
+    .cockpit-note {
+        border-left: 4px solid #30d158;
+        background: rgba(48,209,88,0.08);
+        padding: 0.75rem 1rem;
+        margin: 0.75rem 0 1rem 0;
+        color: #d6f7df;
+        font-family: monospace;
+    }
     @media (max-width: 900px) {
         .commander-title { font-size: 2.2rem; }
         .order-weapon { font-size: 2rem; }
@@ -1382,6 +2681,23 @@ with tab_mission:
 
     if plan and plan.get("stops"):
         st.markdown(f"<div class='order-mode'>☣ {plan['mode']} — SESSION PLAN ACTIVE</div>", unsafe_allow_html=True)
+
+        guide_bits = []
+        if plan.get("commander_mode"):
+            guide_bits.append(f"Mode: {plan.get('commander_mode')}")
+        if plan.get("focus_targets"):
+            guide_bits.append("Focus: " + " + ".join(plan.get("focus_targets", [])))
+        if plan.get("anchor_weapon"):
+            guide_bits.append(f"Start weapon/item: {plan.get('anchor_weapon')}")
+        if plan.get("anchor_class"):
+            guide_bits.append(f"Start class/category: {plan.get('anchor_class')}")
+        if plan.get("anchor_collection") and plan.get("anchor_collection") != "Any stackable progress":
+            guide_bits.append(f"Collection: {plan.get('anchor_collection')}")
+        if plan.get("commander_mode") == "Closest finishes":
+            guide_bits.append(f"Threshold: {plan.get('minimum_closeness', 80)}%+")
+
+        if guide_bits:
+            st.caption("Commander guidance · " + " · ".join(guide_bits))
 
         diagnostics = plan.get("diagnostics", {})
         confidence = diagnostics.get("confidence", "Unknown")
@@ -1534,41 +2850,57 @@ with tab_mission:
                     st.divider()
                     continue
 
-                with st.expander("Used a Double XP token on this?"):
-                    used_token = st.checkbox(
-                        "Yes, spend a token",
-                        key=f"used_token_{task_id}",
-                    )
-                    token_type = None
-                    token_duration = None
-                    if used_token:
-                        tc1, tc2 = st.columns(2)
-                        with tc1:
-                            token_type = st.selectbox(
-                                "Type",
-                                DOUBLE_XP_TYPES,
-                                key=f"token_type_{task_id}",
-                                format_func=lambda x: x.title(),
-                            )
-                        with tc2:
-                            token_duration = st.selectbox(
-                                "Duration",
-                                DOUBLE_XP_DURATIONS,
-                                key=f"token_duration_{task_id}",
-                                format_func=lambda x: f"{x} min",
-                            )
-
                 col1, col2, col3 = st.columns(3)
+                weapon_level_key = f"weapon_levels_gained_{task_id}"
+                weapon_reset_key = f"weapon_prestige_reset_{task_id}"
 
-                def _maybe_spend_token():
-                    if used_token and token_type and token_duration:
-                        success = spend_double_xp_token(token_type, token_duration)
-                        st.session_state.bo7_account_params = load_account_params()
-                        if not success:
-                            st.warning(
-                                f"No {token_duration}-minute {token_type} tokens left in the bank. "
-                                "Logged anyway, but check Account Parameters."
-                            )
+                with st.expander("Weapon level progress", expanded=False):
+                    st.number_input(
+                        "Weapon levels gained on this stop",
+                        min_value=0.0,
+                        max_value=250.0,
+                        value=0.0,
+                        step=0.5,
+                        key=weapon_level_key,
+                    )
+
+                    st.checkbox(
+                        "I prestiged/reset this weapon after this stop",
+                        key=weapon_reset_key,
+                    )
+
+                    st.caption(
+                        "Use this for actual weapon level progress. If you hit the level cap and prestige in-game, tick the reset box before pressing Done or Partial."
+                    )
+
+                camo_reached_key = f"camo_reached_{task_id}"
+                reticle_reached_key = f"reticle_reached_{task_id}"
+
+                if stop.get("task_type") == "camo":
+                    with st.expander("Camo progress reached", expanded=False):
+                        st.selectbox(
+                            "Highest camo reached this stop",
+                            camo_reached_options_from_stop(stop),
+                            key=camo_reached_key,
+                        )
+
+                        st.caption(
+                            "Use this if you went further than the assigned camo. "
+                            "Selecting Golden Dragon marks every camo up to Golden Dragon complete for this weapon."
+                        )
+
+                if stop.get("task_type") == "reticle":
+                    with st.expander("Reticle progress reached", expanded=False):
+                        st.selectbox(
+                            "Highest reticle stage reached this stop",
+                            ["No extra update", "20", "40", "60", "80", "100"],
+                            key=reticle_reached_key,
+                        )
+
+                        st.caption(
+                            "Use this if you went further than the assigned reticle stage. "
+                            "Selecting 100 marks every stage up to 100 complete for this mode only."
+                        )
 
                 with col1:
                     if st.button("✅ Done", key=f"done_{task_id}", use_container_width=True):
@@ -1579,12 +2911,48 @@ with tab_mission:
                             or write_reticle_completion_from_stop(stop)
                         )
 
+                        camo_reached_updated = write_camo_reached_from_stop(
+                            stop,
+                            st.session_state.get(camo_reached_key, "No extra update"),
+                        )
+
+                        if camo_reached_updated:
+                            csv_updated = True
+                            queue_celebration(
+                                "🎨 CAMO PROGRESS SYNCED",
+                                f"{stop.get('weapon', 'Weapon')} updated through {st.session_state.get(camo_reached_key)}.",
+                                "minor",
+                            )
+
+                        reticle_reached_updated = write_reticle_reached_from_stop(
+                            stop,
+                            st.session_state.get(reticle_reached_key, "No extra update"),
+                        )
+
+                        if reticle_reached_updated:
+                            csv_updated = True
+                            queue_celebration(
+                                "🎯 RETICLE PROGRESS SYNCED",
+                                f"{stop.get('weapon', 'Reticle')} updated to stage {st.session_state.get(reticle_reached_key)} in {stop.get('mode', '')}.",
+                                "minor",
+                            )
+
+                        level_result = write_weapon_level_progress_from_stop(
+                            stop=stop,
+                            levels_gained=st.session_state.get(weapon_level_key, 0.0),
+                            prestiged_reset=st.session_state.get(weapon_reset_key, False),
+                        )
+
+                        if level_result.get("updated"):
+                            csv_updated = True
+                            queue_weapon_level_celebration(stop, level_result)
+
                         if csv_updated:
                             milestone_after = capture_milestone_snapshot()
                             queue_milestone_celebrations(milestone_before, milestone_after)
 
                         log_plan_stop(stop, "Camo completed", "Successful operation")
-                        _maybe_spend_token()
+
                         record_stop_result(
                             stop=stop,
                             status="done",
@@ -1602,8 +2970,53 @@ with tab_mission:
 
                 with col2:
                     if st.button("⚠️ Partial", key=f"partial_{task_id}", use_container_width=True):
+                        milestone_before = capture_milestone_snapshot()
+
                         log_plan_stop(stop, "Partial progress", "Human avoidance")
-                        _maybe_spend_token()
+
+                        csv_updated = False
+
+                        camo_reached_updated = write_camo_reached_from_stop(
+                            stop,
+                            st.session_state.get(camo_reached_key, "No extra update"),
+                        )
+
+                        if camo_reached_updated:
+                            csv_updated = True
+                            queue_celebration(
+                                "🎨 CAMO PROGRESS SYNCED",
+                                f"{stop.get('weapon', 'Weapon')} updated through {st.session_state.get(camo_reached_key)}.",
+                                "minor",
+                            )
+
+                        reticle_reached_updated = write_reticle_reached_from_stop(
+                            stop,
+                            st.session_state.get(reticle_reached_key, "No extra update"),
+                        )
+
+                        if reticle_reached_updated:
+                            csv_updated = True
+                            queue_celebration(
+                                "🎯 RETICLE PROGRESS SYNCED",
+                                f"{stop.get('weapon', 'Reticle')} updated to stage {st.session_state.get(reticle_reached_key)} in {stop.get('mode', '')}.",
+                                "minor",
+                            )
+
+                        level_result = write_weapon_level_progress_from_stop(
+                            stop=stop,
+                            levels_gained=st.session_state.get(weapon_level_key, 0.0),
+                            prestiged_reset=st.session_state.get(weapon_reset_key, False),
+                        )
+
+                        if level_result.get("updated"):
+                            csv_updated = True
+                            queue_weapon_level_celebration(stop, level_result)
+
+                        if csv_updated:
+                            milestone_after = capture_milestone_snapshot()
+                            queue_milestone_celebrations(milestone_before, milestone_after)
+                            reload_commander_from_csv()
+
                         record_stop_result(
                             stop=stop,
                             status="partial",
@@ -1643,11 +3056,17 @@ with tab_mission:
  
                 new_plan = rebuild_plan_after_progress(
                     tasks=st.session_state.bo7_tasks,
-                    preferred_mode=plan["mode"],
+                    preferred_mode=plan.get("preferred_mode", plan.get("mode", st.session_state.bo7_form_preferred_mode)),
                     session_goal=st.session_state.bo7_form_session_goal,
                     motivation=st.session_state.bo7_form_motivation,
                     completed_task_ids=resolved_stop_ids(),
                     remaining_minutes=remaining_minutes,
+                    commander_mode=plan.get("commander_mode", st.session_state.bo7_form_commander_mode),
+                    focus_targets=plan.get("focus_targets", st.session_state.bo7_form_focus_targets),
+                    anchor_weapon=plan.get("anchor_weapon", st.session_state.bo7_form_anchor_weapon),
+                    anchor_class=plan.get("anchor_class", st.session_state.bo7_form_anchor_class),
+                    anchor_collection=plan.get("anchor_collection", st.session_state.bo7_form_anchor_collection),
+                    minimum_closeness=plan.get("minimum_closeness", st.session_state.bo7_form_minimum_closeness),
                 )
  
                 st.session_state.bo7_session_plan = new_plan
@@ -1665,18 +3084,30 @@ with tab_mission:
                 key="account_levels_gained_input",
             )
 
+            st.session_state.bo7_actual_minutes_played = st.number_input(
+                "Actual minutes played",
+                min_value=0,
+                max_value=480,
+                value=int(st.session_state.bo7_actual_minutes_played or plan.get("estimated_minutes", 0) or plan.get("available_minutes", 0)),
+                step=5,
+                key="actual_minutes_played_input",
+            )
+
             if st.button("END SESSION", use_container_width=True):
                 levels_gained = float(st.session_state.bo7_account_levels_gained)
+                actual_minutes_played = int(st.session_state.bo7_actual_minutes_played or 0)
 
                 st.session_state.bo7_last_debrief = build_session_debrief(
                     plan=st.session_state.bo7_session_plan,
                     stop_results=st.session_state.bo7_stop_results,
                     account_levels_gained=levels_gained,
+                    actual_minutes_played=actual_minutes_played,
                 )
 
                 log_account_level_gain(
                     levels_gained=levels_gained,
                     plan=st.session_state.bo7_session_plan,
+                    actual_minutes_played=actual_minutes_played,
                 )
 
                 st.session_state.bo7_session_log = load_persisted_session_log()
@@ -1737,7 +3168,89 @@ with tab_mission:
                 index=MODES.index(st.session_state.bo7_form_avoided_mode),
                 key="select_avoided",
             )
- 
+
+        st.markdown("### Guide the Commander")
+
+        commander_mode = st.selectbox(
+            "Commander mode",
+            COMMANDER_MODES,
+            index=safe_select_index(COMMANDER_MODES, st.session_state.bo7_form_commander_mode),
+            help=(
+                "Optimise my grind keeps normal Commander behaviour. "
+                "Start from my itch anchors the plan around a weapon or class. "
+                "Closest finishes hunts nearly-done items."
+            ),
+            key="select_commander_mode",
+        )
+
+        focus_targets = st.multiselect(
+            "Priority focus",
+            FOCUS_TARGETS,
+            default=[
+                item for item in st.session_state.bo7_form_focus_targets
+                if item in FOCUS_TARGETS
+            ],
+            help="Strong bias, not a hard lock. Use this for Launchers + Scorestreaks style sessions.",
+            key="multiselect_focus_targets",
+        )
+
+        available_for_guidance = get_available_tasks(st.session_state.bo7_tasks)
+        guidance_mode_filter = "" if commander_mode == "Closest finishes" else preferred_mode
+
+        weapon_options = [""] + sorted_task_values(
+            available_for_guidance,
+            "weapon",
+            guidance_mode_filter,
+        )
+        class_options = [""] + sorted_task_values(
+            available_for_guidance,
+            "weapon_class",
+            guidance_mode_filter,
+        )
+
+        guide_cols = st.columns(3)
+
+        with guide_cols[0]:
+            anchor_weapon = st.selectbox(
+                "Start weapon / item",
+                weapon_options,
+                index=safe_select_index(weapon_options, st.session_state.bo7_form_anchor_weapon),
+                format_func=lambda value: "Any weapon/item" if not value else value,
+                key="select_anchor_weapon",
+            )
+
+        with guide_cols[1]:
+            anchor_class = st.selectbox(
+                "Start class / category",
+                class_options,
+                index=safe_select_index(class_options, st.session_state.bo7_form_anchor_class),
+                format_func=lambda value: "Any class/category" if not value else value,
+                key="select_anchor_class",
+            )
+
+        with guide_cols[2]:
+            anchor_collection = st.selectbox(
+                "Collection focus",
+                ANCHOR_COLLECTIONS,
+                index=safe_select_index(ANCHOR_COLLECTIONS, st.session_state.bo7_form_anchor_collection),
+                key="select_anchor_collection",
+            )
+
+        minimum_closeness = st.slider(
+            "Closest-finish threshold",
+            min_value=50,
+            max_value=95,
+            value=int(st.session_state.bo7_form_minimum_closeness),
+            step=5,
+            help="Only used by Closest finishes. Final-step style tasks can still appear even under this percentage.",
+            key="slider_minimum_closeness",
+        )
+
+        if commander_mode == "Start from my itch":
+            st.info("Start from my itch will build the route around your selected weapon, class, or collection first.")
+        elif commander_mode == "Closest finishes":
+            st.info("Closest finishes prioritises near-complete items. Use Global Cleanup as the mode to let it search across all modes.")
+
         st.divider()
  
         if st.button("GENERATE SESSION PLAN", type="primary", use_container_width=True):
@@ -1747,17 +3260,29 @@ with tab_mission:
             st.session_state.bo7_form_preferred_mode = preferred_mode
             st.session_state.bo7_form_avoided_mode = avoided_mode
             st.session_state.bo7_form_session_goal = session_goal
+            st.session_state.bo7_form_commander_mode = commander_mode
+            st.session_state.bo7_form_focus_targets = focus_targets
+            st.session_state.bo7_form_anchor_weapon = anchor_weapon
+            st.session_state.bo7_form_anchor_class = anchor_class
+            st.session_state.bo7_form_anchor_collection = anchor_collection
+            st.session_state.bo7_form_minimum_closeness = minimum_closeness
             st.session_state.bo7_completed_stop_ids = []
             st.session_state.bo7_stop_results = {}
- 
+
             new_plan = build_session_plan(
                 tasks=st.session_state.bo7_tasks,
                 preferred_mode=preferred_mode,
                 session_goal=session_goal,
                 motivation=motivation,
                 available_minutes=available_minutes,
+                commander_mode=commander_mode,
+                focus_targets=focus_targets,
+                anchor_weapon=anchor_weapon,
+                anchor_class=anchor_class,
+                anchor_collection=anchor_collection,
+                minimum_closeness=minimum_closeness,
             )
- 
+
             st.session_state.bo7_session_plan = new_plan
             st.rerun()
 
@@ -1789,59 +3314,28 @@ with tab_account:
 
     st.divider()
 
-    st.markdown("### Double XP Token Banks")
-    st.caption("COD gives these as separate banks per duration and per type. Enter what you currently have.")
- 
-    params = st.session_state.bo7_account_params
-    bank = params["double_xp_tokens"]
- 
-    st.markdown("**Weapon XP tokens**")
-    w_cols = st.columns(4)
-    for i, duration in enumerate(DOUBLE_XP_DURATIONS):
-        key = f"weapon_{duration}"
-        with w_cols[i]:
-            bank[key] = st.number_input(
-                f"{duration} min",
-                min_value=0,
-                max_value=50,
-                value=bank.get(key, 0),
-                step=1,
-                key=f"input_{key}",
-            )
- 
-    st.markdown("**Account XP tokens**")
-    a_cols = st.columns(4)
-    for i, duration in enumerate(DOUBLE_XP_DURATIONS):
-        key = f"account_{duration}"
-        with a_cols[i]:
-            bank[key] = st.number_input(
-                f"{duration} min",
-                min_value=0,
-                max_value=50,
-                value=bank.get(key, 0),
-                step=1,
-                key=f"input_{key}",
-            )
- 
-    if st.button("SAVE ACCOUNT PARAMETERS", type="primary", use_container_width=True):
-        params["double_xp_tokens"] = bank
-        save_account_params(params)
-        st.session_state.bo7_account_params = params
-        st.success("Saved.")
-        st.rerun()
- 
-    st.divider()
-    st.caption(f"Current bank: {token_bank_summary(params)}")
+    st.info(
+        "XP token bank tracking has been retired. Weapon level progress now lives in Quick Update → Weapon Levels and on each session stop."
+    )
+
+# ─── QUICK UPDATE ─────────────────────────────────────────────────────────────
 
 # ─── QUICK UPDATE ─────────────────────────────────────────────────────────────
 
 with tab_quick_update:
-    st.subheader("Quick Update")
-    st.markdown(
-        "Use this when you complete more than the Commander ordered. "
-        "Tick everything you actually completed, save, then generate the next order."
+    st.markdown("### Quick Update")
+
+    quick_update_mode = st.radio(
+        "Update type",
+        ["Completion Grid", "Weapon Levels"],
+        horizontal=True,
+        key="quick_update_mode",
     )
-    render_quick_completion_grid()
+
+    if quick_update_mode == "Completion Grid":
+        render_quick_completion_grid()
+    else:
+        render_weapon_level_quick_update()
     
 
 # ─── TRACKER ──────────────────────────────────────────────────────────────────
@@ -1851,6 +3345,10 @@ with tab_tracker:
     st.subheader("100% Tracker")
  
     summary = compute_full_tracker_summary(CLEAN_DATA_DIR)
+
+    render_tracker_cockpit(summary)
+    st.divider()
+    st.markdown("### Legacy Overview")
 
     def add_completion_bucket(buckets, mode, section, done, total):
         done = int(done or 0)
@@ -2042,7 +3540,10 @@ with tab_tracker:
     add_completion_bucket(overall, "Zombies", "Rewards", z_rewards_done, z_rewards_total)
 
     sp_rewards_done, sp_rewards_total = tuple_metric(rewards.get("endgame_operations_total", (0, 0)))
-    add_completion_bucket(overall, "Co-Op / Endgame", "Rewards", sp_rewards_done, sp_rewards_total)
+    add_completion_bucket(overall, "Co-Op / Endgame", "Operation Rewards", sp_rewards_done, sp_rewards_total)
+
+    endgame_unlock_done, endgame_unlock_total = tuple_metric(rewards.get("endgame_unlocks_total", (0, 0)))
+    add_completion_bucket(overall, "Co-Op / Endgame", "Endgame Unlocks", endgame_unlock_done, endgame_unlock_total)
 
     # Render
     st.markdown("## Overall Completion")

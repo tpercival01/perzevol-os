@@ -35,6 +35,38 @@ SESSION_GOALS = [
     "Pain session",
 ]
 
+COMMANDER_MODES = [
+    "Optimise my grind",
+    "Start from my itch",
+    "Closest finishes",
+    "Class cleanup",
+    "Mode completion push",
+]
+
+FOCUS_TARGETS = [
+    "Launchers",
+    "Pistols",
+    "Scorestreaks",
+    "Specials",
+    "Melee",
+    "Camos",
+    "Weapon Mastery Badges",
+    "Equipment Mastery Badges",
+    "Reticles",
+    "Calling Cards",
+    "Weapon Prestige",
+]
+
+ANCHOR_COLLECTIONS = [
+    "Any stackable progress",
+    "Camos",
+    "Weapon Mastery Badges",
+    "Equipment Mastery Badges",
+    "Reticles",
+    "Calling Cards",
+    "Weapon Prestige",
+]
+
 RESULT_OPTIONS = [
     "Camo completed",
     "Partial progress",
@@ -277,7 +309,127 @@ def default_avoid(mode: str, task_type: str, category: str) -> str:
 
     return "Avoid anything that does not move the active tracker item."
 
+def load_reticle_weapon_unlocks() -> list[dict[str, Any]]:
+    return load_csv_rows(CLEAN_FOLDER / "reticle_weapon_unlocks.csv")
 
+
+def weapon_level_lookup() -> dict[str, dict[str, Any]]:
+    rows = load_csv_rows(CLEAN_FOLDER / "weapon_prestige.csv")
+    return {clean(row.get("weapon", "")): row for row in rows if clean(row.get("weapon", ""))}
+
+
+def source_weapon_unlock_is_available(source_weapon: str, unlock_level: int) -> bool:
+    """
+    Attachment unlocks are treated as available if the source weapon has reached
+    the listed level, or if any prestige / later level milestone proves it has
+    already passed its base cap before.
+    """
+    if unlock_level <= 0:
+        return True
+
+    row = weapon_level_lookup().get(clean(source_weapon))
+
+    if not row:
+        return False
+
+    current_level = safe_int(row.get("current_level", 0), 0)
+
+    if current_level >= unlock_level:
+        return True
+
+    milestone_columns = [
+        "p1_complete",
+        "p2_complete",
+        "wpm_complete",
+        "lvl_100_complete",
+        "lvl_150_complete",
+        "lvl_200_complete",
+        "lvl_250_complete",
+    ]
+
+    return any(is_true(row.get(column, "")) for column in milestone_columns)
+
+
+def best_reticle_for_mode(
+    mode: str,
+    available_tasks: list[dict[str, Any]],
+    weapon: str = "",
+    weapon_class: str = "",
+) -> dict[str, Any] | None:
+    """
+    Returns the best active reticle task for a mode.
+
+    If weapon_class is supplied, this becomes compatibility-aware using
+    reticle_weapon_unlocks.csv. That prevents the Commander from suggesting
+    an optic that the assigned weapon class cannot actually use.
+    """
+    reticle_candidates = [
+        task for task in available_tasks
+        if task.get("mode") == mode
+        and task.get("task_type") == "reticle"
+        and not task.get("locked", False)
+    ]
+
+    if not reticle_candidates:
+        return None
+
+    unlock_rows = load_reticle_weapon_unlocks()
+    weapon_class = clean(weapon_class)
+    weapon = clean(weapon)
+
+    compatibility_notes: dict[str, str] = {}
+
+    if weapon_class and unlock_rows:
+        compatible_reticles: set[str] = set()
+
+        for row in unlock_rows:
+            reticle_name = clean(row.get("reticle", ""))
+            row_weapon_class = clean(row.get("weapon_class", ""))
+            source_weapon = clean(row.get("weapon", ""))
+            unlock_type = clean(row.get("unlock_type", "")).lower()
+            unlock_level = safe_int(row.get("unlock_level", 0), 0)
+
+            class_matches = row_weapon_class in {weapon_class, "Any"}
+            direct_weapon_matches = source_weapon == weapon
+
+            if not class_matches and not direct_weapon_matches:
+                continue
+
+            if unlock_type == "armory":
+                compatible_reticles.add(reticle_name)
+                compatibility_notes.setdefault(reticle_name, "requires Armory Unlock")
+                continue
+
+            if source_weapon_unlock_is_available(source_weapon, unlock_level):
+                compatible_reticles.add(reticle_name)
+                compatibility_notes.setdefault(
+                    reticle_name,
+                    f"unlock source: {source_weapon} level {unlock_level}",
+                )
+
+        reticle_candidates = [
+            task for task in reticle_candidates
+            if clean(task.get("weapon", "")) in compatible_reticles
+        ]
+
+        if not reticle_candidates:
+            return None
+
+    reticle_candidates.sort(
+        key=lambda task: (
+            unlock_leverage_bonus(task),
+            float(task.get("weapon_progress", 0.0)),
+        ),
+        reverse=True,
+    )
+
+    best = dict(reticle_candidates[0])
+    reticle_name = clean(best.get("weapon", ""))
+
+    if reticle_name in compatibility_notes:
+        best["compatibility_note"] = compatibility_notes[reticle_name]
+
+    return best
 # ---------------------------------------------------------------------------
 # CAMO CHAINS
 # ---------------------------------------------------------------------------
@@ -633,10 +785,21 @@ def build_weapon_prestige_tasks() -> list[dict[str, Any]]:
             label = get_rule(rules, "task_label", stage, stage.replace("_", " ").replace(" complete", "").title())
             max_level = clean(row.get("max_level", ""))
 
+            current_level = safe_int(row.get("current_level", 0), 0)
+            max_level_int = safe_int(max_level, 0)
+
+            level_cap_progress = 0.0
+
+            if max_level_int > 0:
+                level_cap_progress = min(100.0, (current_level / max_level_int) * 100)
+
             challenge_text = label
 
             if stage in {"p1_complete", "p2_complete"} and max_level:
-                challenge_text = f"{label}. Weapon max level is {max_level}."
+                challenge_text = (
+                    f"{label}. Current weapon level: {current_level}/{max_level}. "
+                    f"Reach level cap, then prestige/reset in-game."
+                )
 
             tasks.append(
                 make_task(
@@ -649,7 +812,10 @@ def build_weapon_prestige_tasks() -> list[dict[str, Any]]:
                     weapon=weapon,
                     camo=label,
                     challenge_text=challenge_text,
-                    progress=weapon_prestige_progress(row, order),
+                    progress=max(
+                        weapon_prestige_progress(row, order),
+                        level_cap_progress,
+                    ),
                     locked=False,
                     lock_reason="Weapon prestige task available.",
                     recommended_mode=get_rule(rules, "recommended_mode", "default", "Stack weapon prestige with active camo tasks where possible"),
@@ -1436,12 +1602,352 @@ def unlock_leverage_bonus(task: dict[str, Any]) -> float:
 
     return bonus
 
+
+def task_search_text(task: dict[str, Any]) -> str:
+    return " ".join(
+        clean(task.get(key, ""))
+        for key in [
+            "mode",
+            "task_type",
+            "chain",
+            "category",
+            "weapon_class",
+            "weapon",
+            "camo",
+            "challenge_text",
+        ]
+    ).lower()
+
+
+def collection_matches_task(task: dict[str, Any], anchor_collection: str) -> bool:
+    task_type = task.get("task_type", "")
+
+    if not anchor_collection or anchor_collection == "Any stackable progress":
+        return True
+
+    if anchor_collection == "Camos":
+        return task_type == "camo"
+
+    if anchor_collection == "Weapon Mastery Badges":
+        return task_type == "mastery_badge_weapon"
+
+    if anchor_collection == "Equipment Mastery Badges":
+        return task_type == "mastery_badge_equipment"
+
+    if anchor_collection == "Reticles":
+        return task_type == "reticle"
+
+    if anchor_collection == "Calling Cards":
+        return task_type in {"calling_card", "dark_ops"}
+
+    if anchor_collection == "Weapon Prestige":
+        return task_type == "weapon_prestige"
+
+    return False
+
+
+def focus_target_bonus(task: dict[str, Any], focus_targets: list[str] | None) -> float:
+    if not focus_targets:
+        return 0.0
+
+    task_type = task.get("task_type", "")
+    weapon_class = clean(task.get("weapon_class", ""))
+    category = clean(task.get("category", ""))
+    text = task_search_text(task)
+
+    bonus = 0.0
+
+    for focus in focus_targets:
+        if focus == "Launchers":
+            if weapon_class == "Launchers" or "launcher" in text:
+                bonus += 140
+            elif task_type in {"camo", "mastery_badge_weapon"} and "launch" in text:
+                bonus += 90
+
+        elif focus == "Pistols":
+            if weapon_class == "Pistols" or "pistol" in text or "handgun" in text:
+                bonus += 140
+            elif task_type in {"camo", "mastery_badge_weapon"} and "pistol" in text:
+                bonus += 90
+
+        elif focus == "Scorestreaks":
+            if weapon_class == "Scorestreaks" or category == "Scorestreaks" or "scorestreak" in text or "streak" in text:
+                bonus += 140
+            elif task_type == "mastery_badge_equipment":
+                bonus += 60
+
+        elif focus == "Specials":
+            if weapon_class == "Specials" or "special" in text:
+                bonus += 120
+
+        elif focus == "Melee":
+            if weapon_class == "Melee" or "melee" in text:
+                bonus += 120
+
+        elif focus == "Camos" and task_type == "camo":
+            bonus += 80
+
+        elif focus == "Weapon Mastery Badges" and task_type == "mastery_badge_weapon":
+            bonus += 100
+
+        elif focus == "Equipment Mastery Badges" and task_type == "mastery_badge_equipment":
+            bonus += 100
+
+        elif focus == "Reticles" and task_type == "reticle":
+            bonus += 80
+
+        elif focus == "Calling Cards" and task_type in {"calling_card", "dark_ops"}:
+            bonus += 80
+
+        elif focus == "Weapon Prestige" and task_type == "weapon_prestige":
+            bonus += 80
+
+    return bonus
+
+
+def guided_start_bonus(
+    task: dict[str, Any],
+    commander_mode: str = "Optimise my grind",
+    anchor_weapon: str = "",
+    anchor_class: str = "",
+    anchor_collection: str = "",
+) -> float:
+    if commander_mode not in {"Start from my itch", "Class cleanup"}:
+        return 0.0
+
+    weapon = clean(task.get("weapon", ""))
+    weapon_class = clean(task.get("weapon_class", ""))
+    text = task_search_text(task)
+    bonus = 0.0
+
+    if anchor_weapon and weapon == anchor_weapon:
+        bonus += 520
+
+    if anchor_weapon and anchor_weapon.lower() in text:
+        bonus += 220
+
+    if anchor_class and weapon_class == anchor_class:
+        bonus += 330
+
+    if anchor_class and anchor_class.lower() in text:
+        bonus += 160
+
+    if anchor_collection and anchor_collection != "Any stackable progress":
+        if collection_matches_task(task, anchor_collection):
+            bonus += 180
+        else:
+            bonus -= 25
+
+    if commander_mode == "Class cleanup" and anchor_class and weapon_class == anchor_class:
+        bonus += 220
+
+    return bonus
+
+
+def closest_finish_bonus(
+    task: dict[str, Any],
+    commander_mode: str = "Optimise my grind",
+    minimum_closeness: int = 80,
+) -> float:
+    if commander_mode != "Closest finishes":
+        return 0.0
+
+    progress = float(task.get("weapon_progress", 0.0))
+    text = task_search_text(task)
+
+    if progress < float(minimum_closeness):
+        return -90 + (progress * 0.25)
+
+    bonus = progress * 3.0
+
+    if progress >= 95:
+        bonus += 260
+    elif progress >= 90:
+        bonus += 220
+    elif progress >= 80:
+        bonus += 160
+    elif progress >= 70:
+        bonus += 100
+
+    final_terms = [
+        "final",
+        "tier 5",
+        "100%",
+        "stage 100",
+        "diamond",
+        "apocalypse",
+        "singularity",
+        "infestation",
+        "genesis",
+        "level 250",
+        "master",
+        "100 percenter",
+    ]
+
+    if any(term in text for term in final_terms):
+        bonus += 90
+
+    return bonus
+
+
+def task_meets_closeness(task: dict[str, Any], minimum_closeness: int) -> bool:
+    progress = float(task.get("weapon_progress", 0.0))
+    text = task_search_text(task)
+
+    if progress >= float(minimum_closeness):
+        return True
+
+    one_step_terms = [
+        "final",
+        "tier 5",
+        "stage 100",
+        "diamond",
+        "level 250",
+        "100 percenter",
+        "master",
+    ]
+
+    return any(term in text for term in one_step_terms)
+
+
+def guided_anchor_filter(
+    mode_tasks: list[dict[str, Any]],
+    *,
+    commander_mode: str,
+    preferred_mode: str,
+    anchor_weapon: str = "",
+    anchor_class: str = "",
+    anchor_collection: str = "",
+) -> tuple[list[dict[str, Any]], list[str]]:
+    """
+    Start from my itch should behave like a route anchor, not a tiny score bonus.
+
+    Order:
+    1. Exact selected weapon/item + selected collection.
+    2. Selected class/category + selected collection.
+    3. Selected collection in the chosen mode.
+    4. No route, with an explanation, rather than drifting to unrelated work.
+    """
+    if commander_mode not in {"Start from my itch", "Class cleanup"}:
+        return mode_tasks, []
+
+    anchor_weapon = clean(anchor_weapon)
+    anchor_class = clean(anchor_class)
+    anchor_collection = clean(anchor_collection)
+    has_collection_filter = bool(anchor_collection and anchor_collection != "Any stackable progress")
+
+    notes: list[str] = []
+
+    def weapon_matches(task: dict[str, Any]) -> bool:
+        if not anchor_weapon:
+            return False
+
+        weapon = clean(task.get("weapon", ""))
+        text = task_search_text(task)
+
+        return weapon == anchor_weapon or anchor_weapon.lower() in text
+
+    def class_matches(task: dict[str, Any]) -> bool:
+        if not anchor_class:
+            return False
+
+        weapon_class = clean(task.get("weapon_class", ""))
+        category = clean(task.get("category", ""))
+        chain = clean(task.get("chain", ""))
+        text = task_search_text(task)
+        anchor = anchor_class.lower()
+
+        return (
+            weapon_class == anchor_class
+            or category == anchor_class
+            or chain == anchor_class
+            or anchor in text
+        )
+
+    def collection_filter(candidate_tasks: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        if not has_collection_filter:
+            return candidate_tasks
+
+        return [
+            task for task in candidate_tasks
+            if collection_matches_task(task, anchor_collection)
+        ]
+
+    if anchor_weapon:
+        weapon_tasks = [task for task in mode_tasks if weapon_matches(task)]
+
+        if weapon_tasks:
+            weapon_collection_tasks = collection_filter(weapon_tasks)
+
+            if weapon_collection_tasks:
+                notes.append(
+                    f"Guided start locked onto {anchor_weapon}"
+                    + (f" · {anchor_collection}." if has_collection_filter else ".")
+                )
+                return weapon_collection_tasks, notes
+
+            notes.append(
+                f"{anchor_weapon} has active {preferred_mode} tasks, but none for "
+                f"{anchor_collection}. Treating that weapon/collection as done or unavailable."
+            )
+        else:
+            notes.append(
+                f"No active {preferred_mode} tasks found for {anchor_weapon}. "
+                "It may already be done for this mode, locked, or not present in the selected collection."
+            )
+
+    if anchor_class:
+        class_tasks = [task for task in mode_tasks if class_matches(task)]
+
+        if class_tasks:
+            class_collection_tasks = collection_filter(class_tasks)
+
+            if class_collection_tasks:
+                fallback = " Falling back to the selected class/category." if anchor_weapon else ""
+                notes.append(
+                    f"Guided start locked onto {anchor_class}"
+                    + (f" · {anchor_collection}." if has_collection_filter else ".")
+                    + fallback
+                )
+                return class_collection_tasks, notes
+
+            notes.append(
+                f"{anchor_class} has active {preferred_mode} tasks, but none for "
+                f"{anchor_collection}. Treating that class/collection as done or unavailable."
+            )
+        else:
+            notes.append(
+                f"No active {preferred_mode} tasks found for {anchor_class}. "
+                "It may already be done, locked, or not present in this mode."
+            )
+
+    if has_collection_filter:
+        collection_tasks = collection_filter(mode_tasks)
+
+        if collection_tasks:
+            notes.append(
+                f"Falling back to available {anchor_collection} tasks in {preferred_mode}."
+            )
+            return collection_tasks, notes
+
+    notes.append(
+        "Guided start found no matching active tasks, so no unrelated fallback route was generated."
+    )
+    return [], notes
+
+
 def score_task(
     task: dict[str, Any],
     preferred_mode: str,
     avoided_mode: str,
     session_goal: str,
     motivation: str,
+    commander_mode: str = "Optimise my grind",
+    focus_targets: list[str] | None = None,
+    anchor_weapon: str = "",
+    anchor_class: str = "",
+    anchor_collection: str = "",
+    minimum_closeness: int = 80,
 ) -> float:
     if task.get("locked", False):
         return -999999
@@ -1524,6 +2030,19 @@ def score_task(
         score -= 10
 
     score += unlock_leverage_bonus(task)
+    score += focus_target_bonus(task, focus_targets)
+    score += guided_start_bonus(
+        task=task,
+        commander_mode=commander_mode,
+        anchor_weapon=anchor_weapon,
+        anchor_class=anchor_class,
+        anchor_collection=anchor_collection,
+    )
+    score += closest_finish_bonus(
+        task=task,
+        commander_mode=commander_mode,
+        minimum_closeness=minimum_closeness,
+    )
 
     return score
 
@@ -1533,6 +2052,12 @@ def select_next_task(
     avoided_mode: str,
     session_goal: str,
     motivation: str,
+    commander_mode: str = "Optimise my grind",
+    focus_targets: list[str] | None = None,
+    anchor_weapon: str = "",
+    anchor_class: str = "",
+    anchor_collection: str = "",
+    minimum_closeness: int = 80,
 ) -> dict[str, Any] | None:
     available_tasks = get_available_tasks(tasks)
 
@@ -1547,6 +2072,12 @@ def select_next_task(
             avoided_mode=avoided_mode,
             session_goal=session_goal,
             motivation=motivation,
+            commander_mode=commander_mode,
+            focus_targets=focus_targets,
+            anchor_weapon=anchor_weapon,
+            anchor_class=anchor_class,
+            anchor_collection=anchor_collection,
+            minimum_closeness=minimum_closeness,
         ),
         reverse=True,
     )[0]
@@ -1559,6 +2090,12 @@ def get_ranked_tasks(
     session_goal: str,
     motivation: str,
     limit: int = 10,
+    commander_mode: str = "Optimise my grind",
+    focus_targets: list[str] | None = None,
+    anchor_weapon: str = "",
+    anchor_class: str = "",
+    anchor_collection: str = "",
+    minimum_closeness: int = 80,
 ) -> list[dict[str, Any]]:
     return sorted(
         get_available_tasks(tasks),
@@ -1568,6 +2105,12 @@ def get_ranked_tasks(
             avoided_mode=avoided_mode,
             session_goal=session_goal,
             motivation=motivation,
+            commander_mode=commander_mode,
+            focus_targets=focus_targets,
+            anchor_weapon=anchor_weapon,
+            anchor_class=anchor_class,
+            anchor_collection=anchor_collection,
+            minimum_closeness=minimum_closeness,
         ),
         reverse=True,
     )[:limit]
@@ -1656,6 +2199,12 @@ def build_clusters(
     preferred_mode: str = "",
     session_goal: str = "Balanced progress",
     motivation: str = "Decent",
+    commander_mode: str = "Optimise my grind",
+    focus_targets: list[str] | None = None,
+    anchor_weapon: str = "",
+    anchor_class: str = "",
+    anchor_collection: str = "",
+    minimum_closeness: int = 80,
 ) -> list[dict[str, Any]]:
     """
     Groups available tasks within a single mode into clusters using
@@ -1684,6 +2233,12 @@ def build_clusters(
                 avoided_mode="",
                 session_goal=session_goal,
                 motivation=motivation,
+                commander_mode=commander_mode,
+                focus_targets=focus_targets,
+                anchor_weapon=anchor_weapon,
+                anchor_class=anchor_class,
+                anchor_collection=anchor_collection,
+                minimum_closeness=minimum_closeness,
             ),
             reverse=True,
         )
@@ -1708,6 +2263,12 @@ def build_clusters(
                     avoided_mode="",
                     session_goal=session_goal,
                     motivation=motivation,
+                    commander_mode=commander_mode,
+                    focus_targets=focus_targets,
+                    anchor_weapon=anchor_weapon,
+                    anchor_class=anchor_class,
+                    anchor_collection=anchor_collection,
+                    minimum_closeness=minimum_closeness,
                 )
                 for task in scored_tasks
             ) / len(scored_tasks)
@@ -2182,10 +2743,23 @@ def build_weapon_prestige_stacking_hint(stop: dict[str, Any], available_tasks: l
 
         best = same_weapon_candidates[0]
 
+        anchor_mode = best.get("mode", "the best mode")
+        reticle = best_reticle_for_mode(anchor_mode, available_tasks, weapon=weapon, weapon_class=stop.get("weapon_class", ""))
+
+        reticle_text = ""
+        if reticle:
+            compatibility_note = reticle.get("compatibility_note", "")
+            note_text = f" ({compatibility_note})" if compatibility_note else ""
+            reticle_text = (
+                f" Also equip {reticle.get('weapon', 'an active reticle')} "
+                f"for {reticle.get('camo', 'reticle progress')}{note_text}."
+            )
+
         return (
-            f"Prestige anchor found. Play {best.get('mode', 'the best mode')} with {weapon} "
+            f"Prestige anchor found. Play {anchor_mode} with {weapon} "
             f"and stack prestige with {best.get('camo', best.get('category', 'active progress'))}. "
             f"The objective comes first, weapon XP happens passively."
+            f"{reticle_text}"
         )
 
     playable_anchor_types = {
@@ -2233,9 +2807,21 @@ def build_weapon_prestige_stacking_hint(stop: dict[str, Any], available_tasks: l
             ),
         )
 
+        reticle = best_reticle_for_mode(best_mode, available_tasks, weapon=weapon, weapon_class=stop.get("weapon_class", ""))
+
+        reticle_text = ""
+        if reticle:
+            compatibility_note = reticle.get("compatibility_note", "")
+            note_text = f" ({compatibility_note})" if compatibility_note else ""
+            reticle_text = (
+                f" Equip {reticle.get('weapon', 'an active reticle')} "
+                f"for {reticle.get('camo', 'reticle progress')}{note_text}."
+            )
+
         return (
             f"Prestige route needs an anchor. Play {best_mode} and use {weapon} "
             f"while clearing active {best_mode} objectives. Do not level the weapon in isolation."
+            f"{reticle_text}"
         )
 
     return (
@@ -2250,22 +2836,39 @@ def build_session_plan(
     motivation: str,
     available_minutes: int = 90,
     max_stops: int | None = None,
+    commander_mode: str = "Optimise my grind",
+    focus_targets: list[str] | None = None,
+    anchor_weapon: str = "",
+    anchor_class: str = "",
+    anchor_collection: str = "",
+    minimum_closeness: int = 80,
 ) -> dict[str, Any]:
     """
-    Builds an ordered, ranked session plan within a single locked mode.
+    Builds an ordered, ranked session plan.
 
-    Returns a dict with:
-      - mode
-      - stops: ordered list of {weapon/challenge, objective, progress, cluster_label}
-      - cluster_summary: which clusters were pulled from and why
+    Normal mode locks to preferred_mode.
+    Closest finishes can use all modes when preferred_mode is Global Cleanup.
+    Start from my itch keeps the chosen mode but uses weapon/class/collection as
+    the centre of gravity.
     """
     if max_stops is None:
         max_stops = stops_for_available_minutes(available_minutes)
 
+    focus_targets = focus_targets or []
     available = get_available_tasks(tasks)
-    mode_tasks = [t for t in available if t.get("mode") == preferred_mode]
 
-    if mode_major_collection_is_done(preferred_mode, tasks):
+    if commander_mode == "Closest finishes" and preferred_mode == "Global Cleanup":
+        mode_tasks = available
+        effective_mode = "Any Mode"
+    else:
+        mode_tasks = [t for t in available if t.get("mode") == preferred_mode]
+        effective_mode = preferred_mode
+
+    if (
+        commander_mode != "Closest finishes"
+        and preferred_mode != "Global Cleanup"
+        and mode_major_collection_is_done(preferred_mode, tasks)
+    ):
         meaningful_modes = [
             mode for mode in MODES
             if mode not in {preferred_mode, "Global Cleanup"}
@@ -2282,27 +2885,68 @@ def build_session_plan(
                 motivation=motivation,
                 available_minutes=available_minutes,
                 max_stops=max_stops,
+                commander_mode=commander_mode,
+                focus_targets=focus_targets,
+                anchor_weapon=anchor_weapon,
+                anchor_class=anchor_class,
+                anchor_collection=anchor_collection,
+                minimum_closeness=minimum_closeness,
             )
+
+    original_mode_task_count = len(mode_tasks)
+    guided_notes: list[str] = []
+
+    if commander_mode in {"Start from my itch", "Class cleanup"}:
+        mode_tasks, guided_notes = guided_anchor_filter(
+            mode_tasks,
+            commander_mode=commander_mode,
+            preferred_mode=preferred_mode,
+            anchor_weapon=anchor_weapon,
+            anchor_class=anchor_class,
+            anchor_collection=anchor_collection,
+        )
+
+    if commander_mode == "Closest finishes":
+        close_tasks = [
+            task for task in mode_tasks
+            if task_meets_closeness(task, minimum_closeness)
+        ]
+
+        if close_tasks:
+            mode_tasks = close_tasks
 
     if not mode_tasks:
         return {
-            "mode": preferred_mode,
+            "mode": effective_mode,
+            "preferred_mode": preferred_mode,
             "available_minutes": available_minutes,
             "stops": [],
             "cluster_summary": [],
-            "note": f"No available tasks found in {preferred_mode}.",
+            "note": " ".join(guided_notes) if guided_notes else f"No available tasks found for {effective_mode}.",
+            "commander_mode": commander_mode,
+            "focus_targets": focus_targets,
+            "anchor_weapon": anchor_weapon,
+            "anchor_class": anchor_class,
+            "anchor_collection": anchor_collection,
+            "minimum_closeness": minimum_closeness,
             "diagnostics": {
                 "confidence": "Low",
                 "confidence_score": 0,
-                "rationale": [f"No available tasks found in {preferred_mode}."],
+                "rationale": guided_notes or [f"No available tasks found for {effective_mode}."],
             },
         }
 
     clusters = build_clusters(
         tasks_in_mode=mode_tasks,
-        preferred_mode=preferred_mode,
+        preferred_mode=preferred_mode if effective_mode != "Any Mode" else "Global Cleanup",
         session_goal=session_goal,
         motivation=motivation,
+        commander_mode=commander_mode,
+        focus_targets=focus_targets,
+        anchor_weapon=anchor_weapon,
+        anchor_class=anchor_class,
+        anchor_collection=anchor_collection,
+        minimum_closeness=minimum_closeness,
     )
 
     stops: list[dict[str, Any]] = []
@@ -2358,9 +3002,9 @@ def build_session_plan(
             )
 
             estimated_used_minutes += estimated_minutes
- 
+
     diagnostics = build_plan_diagnostics(
-        preferred_mode=preferred_mode,
+        preferred_mode=effective_mode,
         mode_task_count=len(mode_tasks),
         clusters=clusters,
         stops=stops,
@@ -2370,13 +3014,22 @@ def build_session_plan(
         motivation=motivation,
     )
 
+    if guided_notes:
+        diagnostics.setdefault("rationale", []).extend(guided_notes)
+
+    if commander_mode == "Closest finishes" and len(mode_tasks) != original_mode_task_count:
+        diagnostics.setdefault("rationale", []).append(
+            f"Closest-finish filter kept {len(mode_tasks)} of {original_mode_task_count} available task(s) at {minimum_closeness}%+ or final-step equivalent."
+        )
+
     route_summary = build_route_summary(
         stops=stops,
         available_minutes=available_minutes,
     )
 
     return {
-        "mode": preferred_mode,
+        "mode": effective_mode,
+        "preferred_mode": preferred_mode,
         "available_minutes": available_minutes,
         "estimated_minutes": estimated_used_minutes,
         "stops": stops,
@@ -2384,7 +3037,14 @@ def build_session_plan(
         "note": "",
         "diagnostics": diagnostics,
         "route_summary": route_summary,
+        "commander_mode": commander_mode,
+        "focus_targets": focus_targets,
+        "anchor_weapon": anchor_weapon,
+        "anchor_class": anchor_class,
+        "anchor_collection": anchor_collection,
+        "minimum_closeness": minimum_closeness,
     }
+
 
 
 def rebuild_plan_after_progress(
@@ -2394,15 +3054,17 @@ def rebuild_plan_after_progress(
     motivation: str,
     completed_task_ids: list[str],
     remaining_minutes: int,
+    commander_mode: str = "Optimise my grind",
+    focus_targets: list[str] | None = None,
+    anchor_weapon: str = "",
+    anchor_class: str = "",
+    anchor_collection: str = "",
+    minimum_closeness: int = 80,
 ) -> dict[str, Any]:
     """
     Called after logging progress mid-session. Re-runs build_session_plan()
-    on the current task state (which already reflects the logged result),
-    excluding anything just completed, and rescales stop count to whatever
-    time is actually left. This is what gives the "dynamic" behaviour —
-    if you only get through stop 1, the next call naturally re-ranks and
-    re-sizes the plan based on what's actually left, rather than blindly
-    continuing a stale list.
+    on the current task state, preserving guided-start and closest-finish
+    controls from the original plan.
     """
     remaining_tasks = [
         t for t in tasks if t.get("task_id") not in completed_task_ids
@@ -2414,6 +3076,12 @@ def rebuild_plan_after_progress(
         session_goal=session_goal,
         motivation=motivation,
         available_minutes=remaining_minutes,
+        commander_mode=commander_mode,
+        focus_targets=focus_targets,
+        anchor_weapon=anchor_weapon,
+        anchor_class=anchor_class,
+        anchor_collection=anchor_collection,
+        minimum_closeness=minimum_closeness,
     )
 
 def generate_mission(
@@ -3414,6 +4082,17 @@ def compute_rewards_summary(clean_folder: Path) -> dict[str, Any]:
         result["endgame_operations_by_act"] = by_op
         total_done = re_ops["earned"].apply(_is_true).sum()
         result["endgame_operations_total"] = (int(total_done), len(re_ops))
+
+    re_unlocks = _load(clean_folder, "rewards_endgame_unlocks.csv")
+    if not re_unlocks.empty and "earned" in re_unlocks.columns:
+        by_category = {}
+        for category in re_unlocks["category"].unique():
+            sub = re_unlocks[re_unlocks["category"] == category]
+            done = sub["earned"].apply(_is_true).sum()
+            by_category[category] = (int(done), len(sub))
+        result["endgame_unlocks_by_category"] = by_category
+        total_done = re_unlocks["earned"].apply(_is_true).sum()
+        result["endgame_unlocks_total"] = (int(total_done), len(re_unlocks))
  
     return result
  
