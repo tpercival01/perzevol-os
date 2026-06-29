@@ -13,6 +13,13 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+st.set_page_config(
+    page_title="Perzevol OS - BO7 Completion Commander",
+    page_icon="☣",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+
 from modules.warzone.killchain_engine import (
     BLAME_OPTIONS,
     ENERGY_LEVELS,
@@ -20,6 +27,9 @@ from modules.warzone.killchain_engine import (
     MOTIVATION_LEVELS,
     RESULT_OPTIONS,
     SESSION_GOALS,
+    COMMANDER_MODES,
+    FOCUS_TARGETS,
+    ANCHOR_COLLECTIONS,
     apply_mission_result,
     generate_commander_reply,
     generate_mission,
@@ -345,6 +355,26 @@ def reset_persistent_state():
 def task_label(task):
     return f"{task['mode']} | {task['weapon']} — {task['camo']} | {task['challenge_text']}"
 
+def sorted_task_values(tasks, field: str, mode: str = ""):
+    values = set()
+
+    for task in tasks:
+        if mode and mode != "Global Cleanup" and task.get("mode") != mode:
+            continue
+
+        value = str(task.get(field, "")).strip()
+        if value:
+            values.add(value)
+
+    return sorted(values)
+
+
+def safe_select_index(options, selected):
+    if selected in options:
+        return options.index(selected)
+    return 0
+
+
 def stop_status(task_id):
     return st.session_state.bo7_stop_results.get(task_id, {}).get("status", "pending")
 
@@ -444,8 +474,6 @@ def initialise_state():
         st.session_state.bo7_celebrations = []
     if "bo7_last_debrief" not in st.session_state:
         st.session_state.bo7_last_debrief = None
-    if "bo7_actual_minutes_played" not in st.session_state:
-        st.session_state.bo7_actual_minutes_played = 0
 
 
 
@@ -2647,6 +2675,23 @@ with tab_mission:
     if plan and plan.get("stops"):
         st.markdown(f"<div class='order-mode'>☣ {plan['mode']} — SESSION PLAN ACTIVE</div>", unsafe_allow_html=True)
 
+        guide_bits = []
+        if plan.get("commander_mode"):
+            guide_bits.append(f"Mode: {plan.get('commander_mode')}")
+        if plan.get("focus_targets"):
+            guide_bits.append("Focus: " + " + ".join(plan.get("focus_targets", [])))
+        if plan.get("anchor_weapon"):
+            guide_bits.append(f"Start weapon/item: {plan.get('anchor_weapon')}")
+        if plan.get("anchor_class"):
+            guide_bits.append(f"Start class/category: {plan.get('anchor_class')}")
+        if plan.get("anchor_collection") and plan.get("anchor_collection") != "Any stackable progress":
+            guide_bits.append(f"Collection: {plan.get('anchor_collection')}")
+        if plan.get("commander_mode") == "Closest finishes":
+            guide_bits.append(f"Threshold: {plan.get('minimum_closeness', 80)}%+")
+
+        if guide_bits:
+            st.caption("Commander guidance · " + " · ".join(guide_bits))
+
         diagnostics = plan.get("diagnostics", {})
         confidence = diagnostics.get("confidence", "Unknown")
         confidence_score = diagnostics.get("confidence_score", 0)
@@ -3004,11 +3049,17 @@ with tab_mission:
  
                 new_plan = rebuild_plan_after_progress(
                     tasks=st.session_state.bo7_tasks,
-                    preferred_mode=plan["mode"],
+                    preferred_mode=plan.get("preferred_mode", plan.get("mode", st.session_state.bo7_form_preferred_mode)),
                     session_goal=st.session_state.bo7_form_session_goal,
                     motivation=st.session_state.bo7_form_motivation,
                     completed_task_ids=resolved_stop_ids(),
                     remaining_minutes=remaining_minutes,
+                    commander_mode=plan.get("commander_mode", st.session_state.bo7_form_commander_mode),
+                    focus_targets=plan.get("focus_targets", st.session_state.bo7_form_focus_targets),
+                    anchor_weapon=plan.get("anchor_weapon", st.session_state.bo7_form_anchor_weapon),
+                    anchor_class=plan.get("anchor_class", st.session_state.bo7_form_anchor_class),
+                    anchor_collection=plan.get("anchor_collection", st.session_state.bo7_form_anchor_collection),
+                    minimum_closeness=plan.get("minimum_closeness", st.session_state.bo7_form_minimum_closeness),
                 )
  
                 st.session_state.bo7_session_plan = new_plan
@@ -3110,7 +3161,89 @@ with tab_mission:
                 index=MODES.index(st.session_state.bo7_form_avoided_mode),
                 key="select_avoided",
             )
- 
+
+        st.markdown("### Guide the Commander")
+
+        commander_mode = st.selectbox(
+            "Commander mode",
+            COMMANDER_MODES,
+            index=safe_select_index(COMMANDER_MODES, st.session_state.bo7_form_commander_mode),
+            help=(
+                "Optimise my grind keeps normal Commander behaviour. "
+                "Start from my itch anchors the plan around a weapon or class. "
+                "Closest finishes hunts nearly-done items."
+            ),
+            key="select_commander_mode",
+        )
+
+        focus_targets = st.multiselect(
+            "Priority focus",
+            FOCUS_TARGETS,
+            default=[
+                item for item in st.session_state.bo7_form_focus_targets
+                if item in FOCUS_TARGETS
+            ],
+            help="Strong bias, not a hard lock. Use this for Launchers + Scorestreaks style sessions.",
+            key="multiselect_focus_targets",
+        )
+
+        available_for_guidance = get_available_tasks(st.session_state.bo7_tasks)
+        guidance_mode_filter = "" if commander_mode == "Closest finishes" else preferred_mode
+
+        weapon_options = [""] + sorted_task_values(
+            available_for_guidance,
+            "weapon",
+            guidance_mode_filter,
+        )
+        class_options = [""] + sorted_task_values(
+            available_for_guidance,
+            "weapon_class",
+            guidance_mode_filter,
+        )
+
+        guide_cols = st.columns(3)
+
+        with guide_cols[0]:
+            anchor_weapon = st.selectbox(
+                "Start weapon / item",
+                weapon_options,
+                index=safe_select_index(weapon_options, st.session_state.bo7_form_anchor_weapon),
+                format_func=lambda value: "Any weapon/item" if not value else value,
+                key="select_anchor_weapon",
+            )
+
+        with guide_cols[1]:
+            anchor_class = st.selectbox(
+                "Start class / category",
+                class_options,
+                index=safe_select_index(class_options, st.session_state.bo7_form_anchor_class),
+                format_func=lambda value: "Any class/category" if not value else value,
+                key="select_anchor_class",
+            )
+
+        with guide_cols[2]:
+            anchor_collection = st.selectbox(
+                "Collection focus",
+                ANCHOR_COLLECTIONS,
+                index=safe_select_index(ANCHOR_COLLECTIONS, st.session_state.bo7_form_anchor_collection),
+                key="select_anchor_collection",
+            )
+
+        minimum_closeness = st.slider(
+            "Closest-finish threshold",
+            min_value=50,
+            max_value=95,
+            value=int(st.session_state.bo7_form_minimum_closeness),
+            step=5,
+            help="Only used by Closest finishes. Final-step style tasks can still appear even under this percentage.",
+            key="slider_minimum_closeness",
+        )
+
+        if commander_mode == "Start from my itch":
+            st.info("Start from my itch will build the route around your selected weapon, class, or collection first.")
+        elif commander_mode == "Closest finishes":
+            st.info("Closest finishes prioritises near-complete items. Use Global Cleanup as the mode to let it search across all modes.")
+
         st.divider()
  
         if st.button("GENERATE SESSION PLAN", type="primary", use_container_width=True):
@@ -3120,17 +3253,29 @@ with tab_mission:
             st.session_state.bo7_form_preferred_mode = preferred_mode
             st.session_state.bo7_form_avoided_mode = avoided_mode
             st.session_state.bo7_form_session_goal = session_goal
+            st.session_state.bo7_form_commander_mode = commander_mode
+            st.session_state.bo7_form_focus_targets = focus_targets
+            st.session_state.bo7_form_anchor_weapon = anchor_weapon
+            st.session_state.bo7_form_anchor_class = anchor_class
+            st.session_state.bo7_form_anchor_collection = anchor_collection
+            st.session_state.bo7_form_minimum_closeness = minimum_closeness
             st.session_state.bo7_completed_stop_ids = []
             st.session_state.bo7_stop_results = {}
- 
+
             new_plan = build_session_plan(
                 tasks=st.session_state.bo7_tasks,
                 preferred_mode=preferred_mode,
                 session_goal=session_goal,
                 motivation=motivation,
                 available_minutes=available_minutes,
+                commander_mode=commander_mode,
+                focus_targets=focus_targets,
+                anchor_weapon=anchor_weapon,
+                anchor_class=anchor_class,
+                anchor_collection=anchor_collection,
+                minimum_closeness=minimum_closeness,
             )
- 
+
             st.session_state.bo7_session_plan = new_plan
             st.rerun()
 
