@@ -277,7 +277,127 @@ def default_avoid(mode: str, task_type: str, category: str) -> str:
 
     return "Avoid anything that does not move the active tracker item."
 
+def load_reticle_weapon_unlocks() -> list[dict[str, Any]]:
+    return load_csv_rows(CLEAN_FOLDER / "reticle_weapon_unlocks.csv")
 
+
+def weapon_level_lookup() -> dict[str, dict[str, Any]]:
+    rows = load_csv_rows(CLEAN_FOLDER / "weapon_prestige.csv")
+    return {clean(row.get("weapon", "")): row for row in rows if clean(row.get("weapon", ""))}
+
+
+def source_weapon_unlock_is_available(source_weapon: str, unlock_level: int) -> bool:
+    """
+    Attachment unlocks are treated as available if the source weapon has reached
+    the listed level, or if any prestige / later level milestone proves it has
+    already passed its base cap before.
+    """
+    if unlock_level <= 0:
+        return True
+
+    row = weapon_level_lookup().get(clean(source_weapon))
+
+    if not row:
+        return False
+
+    current_level = safe_int(row.get("current_level", 0), 0)
+
+    if current_level >= unlock_level:
+        return True
+
+    milestone_columns = [
+        "p1_complete",
+        "p2_complete",
+        "wpm_complete",
+        "lvl_100_complete",
+        "lvl_150_complete",
+        "lvl_200_complete",
+        "lvl_250_complete",
+    ]
+
+    return any(is_true(row.get(column, "")) for column in milestone_columns)
+
+
+def best_reticle_for_mode(
+    mode: str,
+    available_tasks: list[dict[str, Any]],
+    weapon: str = "",
+    weapon_class: str = "",
+) -> dict[str, Any] | None:
+    """
+    Returns the best active reticle task for a mode.
+
+    If weapon_class is supplied, this becomes compatibility-aware using
+    reticle_weapon_unlocks.csv. That prevents the Commander from suggesting
+    an optic that the assigned weapon class cannot actually use.
+    """
+    reticle_candidates = [
+        task for task in available_tasks
+        if task.get("mode") == mode
+        and task.get("task_type") == "reticle"
+        and not task.get("locked", False)
+    ]
+
+    if not reticle_candidates:
+        return None
+
+    unlock_rows = load_reticle_weapon_unlocks()
+    weapon_class = clean(weapon_class)
+    weapon = clean(weapon)
+
+    compatibility_notes: dict[str, str] = {}
+
+    if weapon_class and unlock_rows:
+        compatible_reticles: set[str] = set()
+
+        for row in unlock_rows:
+            reticle_name = clean(row.get("reticle", ""))
+            row_weapon_class = clean(row.get("weapon_class", ""))
+            source_weapon = clean(row.get("weapon", ""))
+            unlock_type = clean(row.get("unlock_type", "")).lower()
+            unlock_level = safe_int(row.get("unlock_level", 0), 0)
+
+            class_matches = row_weapon_class in {weapon_class, "Any"}
+            direct_weapon_matches = source_weapon == weapon
+
+            if not class_matches and not direct_weapon_matches:
+                continue
+
+            if unlock_type == "armory":
+                compatible_reticles.add(reticle_name)
+                compatibility_notes.setdefault(reticle_name, "requires Armory Unlock")
+                continue
+
+            if source_weapon_unlock_is_available(source_weapon, unlock_level):
+                compatible_reticles.add(reticle_name)
+                compatibility_notes.setdefault(
+                    reticle_name,
+                    f"unlock source: {source_weapon} level {unlock_level}",
+                )
+
+        reticle_candidates = [
+            task for task in reticle_candidates
+            if clean(task.get("weapon", "")) in compatible_reticles
+        ]
+
+        if not reticle_candidates:
+            return None
+
+    reticle_candidates.sort(
+        key=lambda task: (
+            unlock_leverage_bonus(task),
+            float(task.get("weapon_progress", 0.0)),
+        ),
+        reverse=True,
+    )
+
+    best = dict(reticle_candidates[0])
+    reticle_name = clean(best.get("weapon", ""))
+
+    if reticle_name in compatibility_notes:
+        best["compatibility_note"] = compatibility_notes[reticle_name]
+
+    return best
 # ---------------------------------------------------------------------------
 # CAMO CHAINS
 # ---------------------------------------------------------------------------
@@ -633,10 +753,21 @@ def build_weapon_prestige_tasks() -> list[dict[str, Any]]:
             label = get_rule(rules, "task_label", stage, stage.replace("_", " ").replace(" complete", "").title())
             max_level = clean(row.get("max_level", ""))
 
+            current_level = safe_int(row.get("current_level", 0), 0)
+            max_level_int = safe_int(max_level, 0)
+
+            level_cap_progress = 0.0
+
+            if max_level_int > 0:
+                level_cap_progress = min(100.0, (current_level / max_level_int) * 100)
+
             challenge_text = label
 
             if stage in {"p1_complete", "p2_complete"} and max_level:
-                challenge_text = f"{label}. Weapon max level is {max_level}."
+                challenge_text = (
+                    f"{label}. Current weapon level: {current_level}/{max_level}. "
+                    f"Reach level cap, then prestige/reset in-game."
+                )
 
             tasks.append(
                 make_task(
@@ -649,7 +780,10 @@ def build_weapon_prestige_tasks() -> list[dict[str, Any]]:
                     weapon=weapon,
                     camo=label,
                     challenge_text=challenge_text,
-                    progress=weapon_prestige_progress(row, order),
+                    progress=max(
+                        weapon_prestige_progress(row, order),
+                        level_cap_progress,
+                    ),
                     locked=False,
                     lock_reason="Weapon prestige task available.",
                     recommended_mode=get_rule(rules, "recommended_mode", "default", "Stack weapon prestige with active camo tasks where possible"),
@@ -2182,10 +2316,23 @@ def build_weapon_prestige_stacking_hint(stop: dict[str, Any], available_tasks: l
 
         best = same_weapon_candidates[0]
 
+        anchor_mode = best.get("mode", "the best mode")
+        reticle = best_reticle_for_mode(anchor_mode, available_tasks, weapon=weapon, weapon_class=stop.get("weapon_class", ""))
+
+        reticle_text = ""
+        if reticle:
+            compatibility_note = reticle.get("compatibility_note", "")
+            note_text = f" ({compatibility_note})" if compatibility_note else ""
+            reticle_text = (
+                f" Also equip {reticle.get('weapon', 'an active reticle')} "
+                f"for {reticle.get('camo', 'reticle progress')}{note_text}."
+            )
+
         return (
-            f"Prestige anchor found. Play {best.get('mode', 'the best mode')} with {weapon} "
+            f"Prestige anchor found. Play {anchor_mode} with {weapon} "
             f"and stack prestige with {best.get('camo', best.get('category', 'active progress'))}. "
             f"The objective comes first, weapon XP happens passively."
+            f"{reticle_text}"
         )
 
     playable_anchor_types = {
@@ -2233,9 +2380,21 @@ def build_weapon_prestige_stacking_hint(stop: dict[str, Any], available_tasks: l
             ),
         )
 
+        reticle = best_reticle_for_mode(best_mode, available_tasks, weapon=weapon, weapon_class=stop.get("weapon_class", ""))
+
+        reticle_text = ""
+        if reticle:
+            compatibility_note = reticle.get("compatibility_note", "")
+            note_text = f" ({compatibility_note})" if compatibility_note else ""
+            reticle_text = (
+                f" Equip {reticle.get('weapon', 'an active reticle')} "
+                f"for {reticle.get('camo', 'reticle progress')}{note_text}."
+            )
+
         return (
             f"Prestige route needs an anchor. Play {best_mode} and use {weapon} "
             f"while clearing active {best_mode} objectives. Do not level the weapon in isolation."
+            f"{reticle_text}"
         )
 
     return (
@@ -3414,6 +3573,17 @@ def compute_rewards_summary(clean_folder: Path) -> dict[str, Any]:
         result["endgame_operations_by_act"] = by_op
         total_done = re_ops["earned"].apply(_is_true).sum()
         result["endgame_operations_total"] = (int(total_done), len(re_ops))
+
+    re_unlocks = _load(clean_folder, "rewards_endgame_unlocks.csv")
+    if not re_unlocks.empty and "earned" in re_unlocks.columns:
+        by_category = {}
+        for category in re_unlocks["category"].unique():
+            sub = re_unlocks[re_unlocks["category"] == category]
+            done = sub["earned"].apply(_is_true).sum()
+            by_category[category] = (int(done), len(sub))
+        result["endgame_unlocks_by_category"] = by_category
+        total_done = re_unlocks["earned"].apply(_is_true).sum()
+        result["endgame_unlocks_total"] = (int(total_done), len(re_unlocks))
  
     return result
  

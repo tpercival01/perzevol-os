@@ -1,7 +1,13 @@
-mission_id,time,mode,target,challenge,recommended_mode,command,time_limit,result,blame,notes,account_levels_gained
-Camo:Zombies:Infestation:Ryden 45K:Doomsteel,2026-06-25T12:32:08,Zombies,Ryden 45K,Doomsteel: Eliminate 10 Elite Zombies,,Doomsteel,,Camo completed,Successful operation,Session plan stop 1,
-Reticle:Warzone:VAS MicroFlex:100,2026-06-25T13:01:06,Warzone,VAS MicroFlex,Get 100 eliminations while using VAS MicroFlex in Warzone.,,100% Reticle Progress,,Camo completed,Successful operation,Session plan stop 1,
-Reticle:Warzone:EAM xL Reflex:100,2026-06-25T16:40:15,Warzone,EAM xL Reflex,Get 100 eliminations while using EAM xL Reflex in Warzone.,,100% Reticle Progress,,Camo completed,Successful operation,Session plan stop 1,
-Reticle:Warzone:EMT3 Holo Mk.2:80,2026-06-25T16:50:07,Warzone,EMT3 Holo Mk.2,Get FALSE eliminations while using EMT3 Holo Mk.2 in Warzone.,,80% Reticle Progress,,Camo completed,Successful operation,Session plan stop 1,
-Reticle:Warzone:PrismaTech Digital Holo:40,2026-06-25T16:50:10,Warzone,PrismaTech Digital Holo,Get FALSE eliminations while using PrismaTech Digital Holo in Warzone.,,40% Reticle Progress,,Partial progress,Human avoidance,Session plan stop 2,
-AccountLevel:2026-06-25T16:50:14,2026-06-25T16:50:14,Warzone,Account Level,Session account level gain,Warzone,Account level progress logged at session end.,90,Account levels gained,Successful operation,+2 account levels,2.0
+mission_id,time,mode,target,challenge,recommended_mode,command,time_limit,result,blame,notes,account_levels_gained,actual_minutes_played
+Camo:Zombies:Infestation:Ryden 45K:Doomsteel,2026-06-25T12:32:08,Zombies,Ryden 45K,Doomsteel: Eliminate 10 Elite Zombies,,Doomsteel,,Camo completed,Successful operation,Session plan stop 1,,
+Reticle:Warzone:VAS MicroFlex:100,2026-06-25T13:01:06,Warzone,VAS MicroFlex,Get 100 eliminations while using VAS MicroFlex in Warzone.,,100% Reticle Progress,,Camo completed,Successful operation,Session plan stop 1,,
+Reticle:Warzone:EAM xL Reflex:100,2026-06-25T16:40:15,Warzone,EAM xL Reflex,Get 100 eliminations while using EAM xL Reflex in Warzone.,,100% Reticle Progress,,Camo completed,Successful operation,Session plan stop 1,,
+Reticle:Warzone:EMT3 Holo Mk.2:80,2026-06-25T16:50:07,Warzone,EMT3 Holo Mk.2,Get FALSE eliminations while using EMT3 Holo Mk.2 in Warzone.,,80% Reticle Progress,,Camo completed,Successful operation,Session plan stop 1,,
+Reticle:Warzone:PrismaTech Digital Holo:40,2026-06-25T16:50:10,Warzone,PrismaTech Digital Holo,Get FALSE eliminations while using PrismaTech Digital Holo in Warzone.,,40% Reticle Progress,,Partial progress,Human avoidance,Session plan stop 2,,
+AccountLevel:2026-06-25T16:50:14,2026-06-25T16:50:14,Warzone,Account Level,Session account level gain,Warzone,Account level progress logged at session end.,90,Account levels gained,Successful operation,+2 account levels,2.0,
+Weapon Prestige:Voyak KT-3:wpm_complete,2026-06-26T18:05:08,Global Cleanup,Voyak KT-3,Complete Weapon Prestige Mastery,,Complete Weapon Prestige Mastery,,Camo completed,Successful operation,Session plan stop 1,,
+AccountLevel:2026-06-26T18:05:45,2026-06-26T18:05:45,Global Cleanup,Account Level,Session account level gain,Global Cleanup,Account level progress logged at session end.,120,Account levels gained,Successful operation,+7 account levels,7.0,
+Camo:Zombies:Infestation:RK-9:Doomsteel,2026-06-27T10:33:48,Zombies,RK-9,Doomsteel: Eliminate 10 Elite Zombies,,Doomsteel,,Camo completed,Successful operation,Session plan stop 1,,
+Camo:Zombies:Infestation:Razor 9mm:Doomsteel,2026-06-27T11:39:16,Zombies,Razor 9mm,Doomsteel: Eliminate 10 Elite Zombies,,Doomsteel,,Camo completed,Successful operation,Session plan stop 2,,
+Camo:Zombies:Infestation:VS Recon:Doomsteel,2026-06-27T12:46:00,Zombies,VS Recon,Doomsteel: Eliminate 10 Elite Zombies,,Doomsteel,,Camo completed,Successful operation,Session plan stop 1,,
+Camo:Co-Op / Endgame:Genesis:Carbon 57:Moonstone,2026-06-27T18:56:52,Co-Op / Endgame,Carbon 57,Moonstone: In Endgame: eliminate 100 Zone III or Zone IV enemies,,Moonstone,,Camo completed,Successful operation,Session plan stop 1,,

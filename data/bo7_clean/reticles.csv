@@ -53,7 +53,7 @@ Zombies,Reflex,Millimeter Scanner,20,TRUE,40,TRUE,60,TRUE,80,TRUE,100,TRUE
 Warzone,Reflex,Millimeter Scanner,20,FALSE,40,FALSE,60,FALSE,80,FALSE,100,FALSE
 Co-Op / Endgame,Reflex,FANG HoverPoint ELO,20,TRUE,40,TRUE,60,TRUE,80,TRUE,100,TRUE
 Multiplayer,Reflex,FANG HoverPoint ELO,20,TRUE,40,TRUE,60,TRUE,80,TRUE,100,TRUE
-Zombies,Reflex,FANG HoverPoint ELO,20,TRUE,40,TRUE,60,TRUE,80,TRUE,100,FALSE
+Zombies,Reflex,FANG HoverPoint ELO,20,TRUE,40,TRUE,60,TRUE,80,TRUE,100,TRUE
 Warzone,Reflex,FANG HoverPoint ELO,20,TRUE,40,TRUE,60,TRUE,80,TRUE,100,TRUE
 Co-Op / Endgame,Holographics,PrismaTech Digital Holo,20,TRUE,40,TRUE,60,TRUE,80,FALSE,100,FALSE
 Multiplayer,Holographics,PrismaTech Digital Holo,20,TRUE,40,TRUE,60,TRUE,80,FALSE,100,FALSE
@@ -65,7 +65,7 @@ Zombies,Holographics,EMT3 Holo Mk.2,20,TRUE,40,TRUE,60,TRUE,80,TRUE,100,TRUE
 Warzone,Holographics,EMT3 Holo Mk.2,20,TRUE,40,TRUE,60,TRUE,80,TRUE,100,FALSE
 Co-Op / Endgame,Holographics,Kepler T-Range Holo,20,TRUE,40,TRUE,60,FALSE,80,FALSE,100,FALSE
 Multiplayer,Holographics,Kepler T-Range Holo,20,FALSE,40,FALSE,60,FALSE,80,FALSE,100,FALSE
-Zombies,Holographics,Kepler T-Range Holo,20,FALSE,40,FALSE,60,FALSE,80,FALSE,100,FALSE
+Zombies,Holographics,Kepler T-Range Holo,20,TRUE,40,TRUE,60,TRUE,80,TRUE,100,TRUE
 Warzone,Holographics,Kepler T-Range Holo,20,FALSE,40,FALSE,60,FALSE,80,FALSE,100,FALSE
 Co-Op / Endgame,Holographics,LTI Target Finder v.2,20,FALSE,40,FALSE,60,FALSE,80,FALSE,100,FALSE
 Multiplayer,Holographics,LTI Target Finder v.2,20,FALSE,40,FALSE,60,FALSE,80,FALSE,100,FALSE

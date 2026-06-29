@@ -154,3 +154,9 @@ Zombies,Dark Ops,Dark Ops,Torchbearer,Reach Round 25 without ever freezing on To
 Zombies,Dark Ops,Dark Ops,Deicide,Complete the Totenreich Main Quest at round 100 or more,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
 Zombies,Dark Ops,Dark Ops,Daily Tot,"Complete the Totenreich Main Quest with the Spider Fang, Civil Protector Head, and the Dancing Arnie Relics active",FALSE,,,,,FALSE,,,,,,TRUE,FALSE
 Zombies,Dark Ops,Dark Ops,Domineering,Complete Richtofen's Echoes of the Damned quest,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
+Zombies,Maps,Kowakujō,Obsidian Sins,Complete 100 Rounds on Kowakujō,FALSE,FALSE,FALSE,,,FALSE,25,50,100,,,TRUE,FALSE
+Zombies,Maps,Kowakujō,Hairball,Eliminate 25 Zombies in five seconds using the Nekomancer 25 times on Kowakujō,FALSE,,,,,FALSE,25,,,,,TRUE,FALSE
+Zombies,Maps,Kowakujō,Onied,Earn 50 Duelist Medals (Kill a Charged Oni with a Melee Weapon),FALSE,FALSE,FALSE,,,FALSE,10,25,50,,,TRUE,FALSE
+Zombies,Maps,Kowakujō,Citadel,Upgrade the Ghostly Rifleman trap on Kowakujō,FALSE,,,,,FALSE,1,,,,,TRUE,FALSE
+Zombies,Maps,Kowakujō,Par Course,Complete the Obstacle Course on Kowakujō,FALSE,,,,,FALSE,1,,,,,TRUE,FALSE
+Zombies,Maps,Kowakujō,Neko Café,Find all of the Stray Cats on Kowakujō,FALSE,,,,,FALSE,1,,,,,TRUE,FALSE

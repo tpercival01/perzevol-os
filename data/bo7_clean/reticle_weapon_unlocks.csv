@@ -1,0 +1,142 @@
+classification,reticle,weapon_class,weapon,unlock_level,unlock_type
+Mini Reflex,LTI Mini,Assault Rifles,M15 Mod 0,5,level
+Mini Reflex,LTI Mini,Submachine Guns,MPC-25,5,level
+Mini Reflex,LTI Mini,Shotguns,M10 Breacher,5,level
+Mini Reflex,LTI Mini,Pistols,CODA 9,5,level
+Mini Reflex,VAS MicroFlex,Assault Rifles,MXR-17,5,level
+Mini Reflex,VAS MicroFlex,Submachine Guns,RK-9,5,level
+Mini Reflex,VAS MicroFlex,Shotguns,M10 Breacher,10,level
+Mini Reflex,VAS MicroFlex,Pistols,Velox 5.7,16,level
+Mini Reflex,Lethal Tools ELO,Assault Rifles,Peacekeeper Mk1,5,level
+Mini Reflex,Lethal Tools ELO,Submachine Guns,Dravec 45,5,level
+Mini Reflex,Lethal Tools ELO,Shotguns,Echo 12,11,level
+Mini Reflex,Lethal Tools ELO,LMGs,XM325,5,level
+Mini Reflex,Lethal Tools ELO,Marksman Rifles,M8A1,5,level
+Mini Reflex,Lethal Tools ELO,Sniper Rifles,Shadow SK,25,level
+Mini Reflex,EAM Micro Dot,Assault Rifles,X9 Maverick,5,level
+Mini Reflex,EAM Micro Dot,Submachine Guns,Carbon 57,14,level
+Mini Reflex,EAM Micro Dot,Shotguns,Akita,11,level
+Mini Reflex,EAM Micro Dot,Pistols,Jäger 45,5,level
+Mini Reflex,Bowen Pixel Reflex,Pistols,Jäger 45,13,level
+Mini Reflex,Kepler Prism-IX Mini,Pistols,CODA 9,16,level
+Reflex,VAS LED,Assault Rifles,AK-27,5,level
+Reflex,VAS LED,Submachine Guns,Dravec 45,13,level
+Reflex,VAS LED,Shotguns,Akita,5,level
+Reflex,VAS LED,LMGs,MK.78,5,level
+Reflex,VAS LED,Marksman Rifles,Warden 308,5,level
+Reflex,VAS LED,Sniper Rifles,XR-3 Ion,5,level
+Reflex,VAS LED,Pistols,Velox 5.7,5,level
+Reflex,Kepler-Pro Red Dot,Assault Rifles,M15 Mod 0,12,level
+Reflex,Kepler-Pro Red Dot,Shotguns,Echo 12,17,level
+Reflex,Kepler-Pro Red Dot,LMGs,XM325,13,level
+Reflex,Kepler-Pro Red Dot,Marksman Rifles,M8A1,11,level
+Reflex,LTI Reflex,Assault Rifles,AK-27,12,level
+Reflex,LTI Reflex,Submachine Guns,Ryden 45K,5,level
+Reflex,LTI Reflex,LMGs,MK.78,9,level
+Reflex,Greaves Red Dot,Assault Rifles,Peacekeeper Mk1,12,level
+Reflex,Greaves Red Dot,Submachine Guns,RK-9,14,level
+Reflex,Greaves Red Dot,Marksman Rifles,M34 Novaline,5,level
+Reflex,Greaves Red Dot,Sniper Rifles,Shadow SK,5,level
+Reflex,K&S Slim Reflex,Assault Rifles,MXR-17,12,level
+Reflex,K&S Slim Reflex,Submachine Guns,Razor 9mm,14,level
+Reflex,K&S Slim Reflex,Shotguns,Echo 12,5,level
+Reflex,K&S Slim Reflex,LMGs,XM325,9,level
+Reflex,EAM xL Reflex,Assault Rifles,X9 Maverick,12,level
+Reflex,EAM xL Reflex,Submachine Guns,Razor 9mm,5,level
+Reflex,EAM xL Reflex,Shotguns,Echo 12,23,level
+Reflex,Millimeter Scanner,Assault Rifles,M15 Mod 0,41,level
+Reflex,Millimeter Scanner,Submachine Guns,Dravec 45,29,level
+Reflex,Millimeter Scanner,Shotguns,Echo 12,30,level
+Reflex,Millimeter Scanner,LMGs,XM325,31,level
+Reflex,Millimeter Scanner,Marksman Rifles,Warden 308,30,level
+Reflex,Millimeter Scanner,Sniper Rifles,VS Recon,25,level
+Reflex,FANG HoverPoint ELO,Any,Any,0,armory
+Holographics,PrismaTech Digital Holo,Assault Rifles,AK-27,22,level
+Holographics,PrismaTech Digital Holo,Submachine Guns,Ryden 45K,14,level
+Holographics,PrismaTech Digital Holo,Shotguns,M10 Breacher,15,level
+Holographics,PrismaTech Digital Holo,LMGs,XM325,17,level
+Holographics,PrismaTech Digital Holo,Marksman Rifles,Warden 308,20,level
+Holographics,PrismaTech Digital Holo,Sniper Rifles,Shadow SK,30,level
+Holographics,EMT3 Holo Mk.2,Assault Rifles,M15 Mod 0,22,level
+Holographics,EMT3 Holo Mk.2,Submachine Guns,MPC-25,14,level
+Holographics,EMT3 Holo Mk.2,Shotguns,Akita,17,level
+Holographics,EMT3 Holo Mk.2,LMGs,MK.78,13,level
+Holographics,EMT3 Holo Mk.2,Marksman Rifles,M8A1,29,level
+Holographics,EMT3 Holo Mk.2,Sniper Rifles,XR-3 Ion,17,level
+Holographics,Kepler T-Range Holo,Assault Rifles,DS20 Mirage,5,level
+Holographics,Kepler T-Range Holo,Submachine Guns,Ryden 45K,24,level
+Holographics,Kepler T-Range Holo,Shotguns,Akita,30,level
+Holographics,Kepler T-Range Holo,LMGs,MK.78,17,level
+Holographics,Kepler T-Range Holo,Marksman Rifles,M8A1,40,level
+Holographics,Kepler T-Range Holo,Sniper Rifles,VS Recon,35,level
+Holographics,LTI Target Finder v.2,Assault Rifles,MXR-17,32,level
+Holographics,LTI Target Finder v.2,Submachine Guns,Carbon 57,33,level
+Holographics,LTI Target Finder v.2,Shotguns,M10 Breacher,30,level
+Holographics,LTI Target Finder v.2,LMGs,MK.78,40,level
+Holographics,LTI Target Finder v.2,Marksman Rifles,M34 Novaline,23,level
+Holographics,LTI Target Finder v.2,Sniper Rifles,XR-3 Ion,23,level
+Magnification Scopes,Redwell 30-S 2x,Assault Rifles,X9 Maverick,22,level
+Magnification Scopes,Redwell 30-S 2x,Submachine Guns,Razor 9mm,24,level
+Magnification Scopes,Redwell 30-S 2x,Shotguns,Akita,23,level
+Magnification Scopes,Redwell 30-S 2x,LMGs,XM325,22,level
+Magnification Scopes,Redwell 30-S 2x,Marksman Rifles,M8A1,23,level
+Magnification Scopes,Redwell 30-S 2x,Sniper Rifles,Shadow SK,20,level
+Magnification Scopes,Greaves AccuSpot 3x,Assault Rifles,X9 Maverick,32,level
+Magnification Scopes,Greaves AccuSpot 3x,Submachine Guns,Carbon 57,24,level
+Magnification Scopes,Greaves AccuSpot 3x,Shotguns,M10 Breacher,20,level
+Magnification Scopes,Greaves AccuSpot 3x,LMGs,MK.78,22,level
+Magnification Scopes,Greaves AccuSpot 3x,Marksman Rifles,M34 Novaline,11,level
+Magnification Scopes,Greaves AccuSpot 3x,Sniper Rifles,VS Recon,15,level
+Magnification Scopes,Kepler Ultra 4x,Assault Rifles,M15 Mod 0,32,level
+Magnification Scopes,Kepler Ultra 4x,Submachine Guns,Dravec 45,21,level
+Magnification Scopes,Kepler Ultra 4x,LMGs,XM325,26,level
+Magnification Scopes,Kepler Ultra 4x,Marksman Rifles,Warden 308,10,level
+Magnification Scopes,Kepler Ultra 4x,Sniper Rifles,VS Recon,20,level
+Magnification Scopes,PrismaTech Turbo 4x,Assault Rifles,DS20 Mirage,12,level
+Magnification Scopes,PrismaTech Turbo 4x,Submachine Guns,MPC-25,24,level
+Magnification Scopes,PrismaTech Turbo 4x,LMGs,MK.78,26,level
+Magnification Scopes,PrismaTech Turbo 4x,Marksman Rifles,M8A1,17,level
+Magnification Scopes,PrismaTech Turbo 4x,Sniper Rifles,VS Recon,10,level
+Magnification Scopes,Circuit-Z Rangefinder,LMGs,MK.78,44,level
+Magnification Scopes,Circuit-Z Rangefinder,Marksman Rifles,Warden 308,40,level
+Magnification Scopes,Circuit-Z Rangefinder,Sniper Rifles,XR-3 Ion,40,level
+Magnification Scopes,RistRauch 7x,Assault Rifles,AK-27,32,level
+Magnification Scopes,RistRauch 7x,Marksman Rifles,M34 Novaline,17,level
+Magnification Scopes,RistRauch 7x,Sniper Rifles,VS Recon,5,level
+Magnification Scopes,Bowen Scout Scope,Pistols,Jäger 45,22,level
+Multizooms,EAM Dyad xL,Assault Rifles,Peacekeeper Mk1,22,level
+Multizooms,EAM Dyad xL,Submachine Guns,RK-9,24,level
+Multizooms,EAM Dyad xL,LMGs,XM325,35,level
+Multizooms,EAM Dyad xL,Marksman Rifles,Warden 308,15,level
+Multizooms,EAM Dyad xL,Sniper Rifles,XR-3 Ion,29,level
+Multizooms,VAS Duo Hybrid Sight,Assault Rifles,DS20 Mirage,22,level
+Multizooms,VAS Duo Hybrid Sight,Submachine Guns,Ryden 45K,33,level
+Multizooms,VAS Duo Hybrid Sight,LMGs,MK.78,35,level
+Multizooms,VAS Duo Hybrid Sight,Marksman Rifles,M8A1,35,level
+Multizooms,VAS Duo Hybrid Sight,Sniper Rifles,VS Recon,30,level
+Multizooms,EAM Dual Zoom,Assault Rifles,DS20 Mirage,32,level
+Multizooms,EAM Dual Zoom,Submachine Guns,Razor 9mm,33,level
+Multizooms,EAM Dual Zoom,LMGs,XM325,48,level
+Multizooms,EAM Dual Zoom,Marksman Rifles,M34 Novaline,29,level
+Multizooms,EAM Dual Zoom,Sniper Rifles,Shadow SK,15,level
+Multizooms,Greaves Ultra Zoom,Assault Rifles,Peacekeeper Mk1,32,level
+Multizooms,Greaves Ultra Zoom,LMGs,MK.78,31,level
+Multizooms,Greaves Ultra Zoom,Marksman Rifles,Warden 308,35,level
+Multizooms,Greaves Ultra Zoom,Sniper Rifles,XR-3 Ion,11,level
+Multizooms,Kepler Custom WVT-08,LMGs,XM325,40,level
+Multizooms,Kepler Custom WVT-08,Marksman Rifles,M34 Novaline,35,level
+Multizooms,Kepler Custom WVT-08,Sniper Rifles,Shadow SK,35,level
+Thermals,Solaris Holo-IR,Assault Rifles,AK-27,41,level
+Thermals,Solaris Holo-IR,Submachine Guns,RK-9,33,level
+Thermals,Solaris Holo-IR,Shotguns,M10 Breacher,25,level
+Thermals,Solaris Holo-IR,LMGs,XM325,44,level
+Thermals,Solaris Holo-IR,Marksman Rifles,M8A1,46,level
+Thermals,Solaris Holo-IR,Sniper Rifles,Shadow SK,40,level
+Thermals,Bowen X-25 IR,Assault Rifles,MXR-17,22,level
+Thermals,Bowen X-25 IR,Submachine Guns,MPC-25,33,level
+Thermals,Bowen X-25 IR,LMGs,MK.78,48,level
+Thermals,Bowen X-25 IR,Marksman Rifles,Warden 308,25,level
+Thermals,Bowen X-25 IR,Sniper Rifles,VS Recon,40,level
+Thermals,VAS Strix 6x Thermal,Assault Rifles,MXR-17,41,level
+Thermals,VAS Strix 6x Thermal,Marksman Rifles,M34 Novaline,40,level
+Thermals,VAS Strix 6x Thermal,Sniper Rifles,XR-3 Ion,35,level
