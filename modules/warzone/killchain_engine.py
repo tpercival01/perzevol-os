@@ -20,6 +20,7 @@ MOTIVATION_LEVELS = [
 ]
 
 MODES = [
+    "Commander chooses",
     "Warzone",
     "Multiplayer",
     "Zombies",
@@ -41,6 +42,7 @@ COMMANDER_MODES = [
     "Closest finishes",
     "Class cleanup",
     "Mode completion push",
+    "Completion stack",
 ]
 
 FOCUS_TARGETS = [
@@ -55,6 +57,11 @@ FOCUS_TARGETS = [
     "Reticles",
     "Calling Cards",
     "Weapon Prestige",
+    "Operations / Missions",
+    "Rewards / Unlocks",
+    "Map Challenges",
+    "Intel",
+    "Non-camo completion",
 ]
 
 ANCHOR_COLLECTIONS = [
@@ -65,6 +72,11 @@ ANCHOR_COLLECTIONS = [
     "Reticles",
     "Calling Cards",
     "Weapon Prestige",
+    "Operations / Missions",
+    "Rewards / Unlocks",
+    "Map Challenges",
+    "Intel",
+    "Non-camo completion",
 ]
 
 RESULT_OPTIONS = [
@@ -1273,8 +1285,9 @@ def build_calling_card_tasks() -> list[dict[str, Any]]:
             # Treat as complete if all applicable tiers are done,
             # even if the completed column was not set correctly in the CSV
             applicable_tiers = [
-                c for c, _, _ in tier_columns
+                c for c, target, _ in tier_columns
                 if is_applicable(row.get(c, ""))
+                and is_applicable(row.get(target, ""))
             ]
             if applicable_tiers and all(is_true(row.get(c, "")) for c in applicable_tiers):
                 continue
@@ -1284,7 +1297,7 @@ def build_calling_card_tasks() -> list[dict[str, Any]]:
 
             for complete_col, target_col, label in tier_columns:
                 val = row.get(complete_col, "")
-                if not is_applicable(val):
+                if not is_applicable(val) or not is_applicable(row.get(target_col, "")):
                     continue
                 if not is_true(val):
                     next_tier_label = label
@@ -1295,8 +1308,9 @@ def build_calling_card_tasks() -> list[dict[str, Any]]:
 
             # Progress
             applicable = [
-                c for c, _, _ in tier_columns
+                c for c, target, _ in tier_columns
                 if is_applicable(row.get(c, ""))
+                and is_applicable(row.get(target, ""))
             ]
             completed_count = sum(
                 1 for c in applicable if is_true(row.get(c, ""))
@@ -1386,6 +1400,321 @@ def build_title_tasks() -> list[dict[str, Any]]:
 
     return tasks
 
+
+def build_zombies_reward_tasks() -> list[dict[str, Any]]:
+    path = CLEAN_FOLDER / "rewards_zombies.csv"
+    rows = load_csv_rows(path)
+    tasks: list[dict[str, Any]] = []
+
+    for row in rows:
+        map_name = clean(row.get("map", ""))
+        category = clean(row.get("category", ""))
+        item = clean(row.get("item", ""))
+
+        if not map_name or not item:
+            continue
+
+        if is_true(row.get("earned", "")):
+            continue
+
+        tasks.append(
+            make_task(
+                task_id=f"Zombies Reward:{map_name}:{category}:{item}",
+                task_type="zombies_reward",
+                mode="Zombies",
+                chain="Rewards",
+                category=category or "Zombies Rewards",
+                weapon_class=map_name,
+                weapon=item,
+                camo=category or "Reward",
+                challenge_text=f"Earn {item} on {map_name}." + (f" Category: {category}." if category else ""),
+                progress=0.0,
+                locked=False,
+                lock_reason="Zombies reward available.",
+                recommended_mode=f"Play {map_name} and route directly towards this reward.",
+                mode_reason="Zombies reward contributes to 100% completion outside weapon camos.",
+                strategy="Prioritise the named reward objective, then stack camo, badge, reticle, and intel progress around it.",
+                avoid="Avoid leaving the map or side-routing unless it helps this reward.",
+            )
+        )
+
+    return tasks
+
+
+def build_endgame_operation_tasks() -> list[dict[str, Any]]:
+    path = CLEAN_FOLDER / "rewards_endgame_operations.csv"
+    rows = load_csv_rows(path)
+    tasks: list[dict[str, Any]] = []
+
+    for row in rows:
+        operation = clean(row.get("operation", ""))
+        step = clean(row.get("step", ""))
+
+        if not operation or not step:
+            continue
+
+        if is_true(row.get("earned", "")):
+            continue
+
+        tasks.append(
+            make_task(
+                task_id=f"Endgame Operation:{operation}:{step}",
+                task_type="endgame_operation",
+                mode="Co-Op / Endgame",
+                chain="Endgame Operations",
+                category=operation,
+                weapon_class=operation,
+                weapon=operation,
+                camo=step,
+                challenge_text=f"Complete {step} in {operation}.",
+                progress=0.0,
+                locked=False,
+                lock_reason="Endgame operation step available.",
+                recommended_mode="Endgame route that directly supports the selected operation step.",
+                mode_reason="Operation steps are dedicated Endgame completion and should not be buried under Genesis camos.",
+                strategy="Start the operation step first. Pick a Genesis-capable weapon only as secondary stacked progress.",
+                avoid="Avoid free-roam camo grinding if the operation step can be advanced instead.",
+            )
+        )
+
+    return tasks
+
+
+def build_endgame_unlock_tasks() -> list[dict[str, Any]]:
+    path = CLEAN_FOLDER / "rewards_endgame_unlocks.csv"
+    rows = load_csv_rows(path)
+    tasks: list[dict[str, Any]] = []
+
+    for row in rows:
+        category = clean(row.get("category", ""))
+        operator = clean(row.get("operator", ""))
+        item_type = clean(row.get("item_type", ""))
+        item = clean(row.get("item", ""))
+        unlock_criteria = clean(row.get("unlock_criteria", ""))
+        source = clean(row.get("source", ""))
+
+        if not item:
+            continue
+
+        if is_true(row.get("earned", "")):
+            continue
+
+        label = f"{item_type}: {item}" if item_type else item
+        context = " · ".join(part for part in [operator, source] if part)
+
+        tasks.append(
+            make_task(
+                task_id=f"Endgame Unlock:{category}:{operator}:{item_type}:{item}",
+                task_type="endgame_unlock",
+                mode="Co-Op / Endgame",
+                chain="Endgame Unlocks",
+                category=category or "Endgame Unlocks",
+                weapon_class=category or "Endgame Unlocks",
+                weapon=item,
+                camo=label,
+                challenge_text=unlock_criteria or f"Unlock {item}." + (f" Source: {source}." if source else ""),
+                raw_requirement=unlock_criteria,
+                progress=0.0,
+                locked=False,
+                lock_reason="Endgame unlock available.",
+                recommended_mode="Endgame route matching the unlock source.",
+                mode_reason=f"Endgame unlock cleanup: {context}" if context else "Endgame unlock cleanup.",
+                strategy="Route to the unlock source first, then stack weapon/camo progress only if it does not slow the objective.",
+                avoid="Avoid unrelated Genesis camo grinding until this unlock route is attempted.",
+            )
+        )
+
+    return tasks
+
+
+def build_intel_tasks() -> list[dict[str, Any]]:
+    path = CLEAN_FOLDER / "intel.csv"
+    rows = load_csv_rows(path)
+    tasks: list[dict[str, Any]] = []
+
+    for row in rows:
+        mode = clean(row.get("mode", ""))
+        map_name = clean(row.get("map", ""))
+        category = clean(row.get("category", ""))
+        item = clean(row.get("item", ""))
+
+        if not mode or not item:
+            continue
+
+        if is_true(row.get("found", "")):
+            continue
+
+        tasks.append(
+            make_task(
+                task_id=f"Intel:{mode}:{map_name}:{category}:{item}",
+                task_type="intel",
+                mode=mode,
+                chain="Intel",
+                category=category or "Intel",
+                weapon_class=map_name or mode,
+                weapon=item,
+                camo=f"{category} Intel" if category else "Intel",
+                challenge_text=f"Find {item}" + (f" on {map_name}" if map_name else "") + ".",
+                progress=0.0,
+                locked=False,
+                lock_reason="Intel item available.",
+                recommended_mode=default_recommended_mode(mode, "intel", "Intel"),
+                mode_reason="Intel is a non-camo completion item and should be paired with the relevant map/activity.",
+                strategy="Route to the intel location while stacking any compatible weapon progress.",
+                avoid="Avoid ending the session without checking the intel pickup if you entered the required map/activity.",
+            )
+        )
+
+    return tasks
+
+
+def build_colour_tasks() -> list[dict[str, Any]]:
+    path = CLEAN_FOLDER / "colours.csv"
+    rows = load_csv_rows(path)
+    tasks: list[dict[str, Any]] = []
+
+    for row in rows:
+        colour = clean(row.get("colour", ""))
+        level_required = clean(row.get("level_required", ""))
+
+        if not colour:
+            continue
+
+        if is_true(row.get("unlocked", "")):
+            continue
+
+        tasks.append(
+            make_task(
+                task_id=f"Colour:{colour}",
+                task_type="colour",
+                mode="Global Cleanup",
+                chain="Colours",
+                category="Colours",
+                weapon_class="Account Level",
+                weapon=colour,
+                camo="Colour Unlock",
+                challenge_text=f"Unlock {colour}" + (f" at account level {level_required}." if level_required else "."),
+                progress=0.0,
+                locked=False,
+                lock_reason="Colour unlock available.",
+                recommended_mode="Any efficient XP route.",
+                mode_reason="Colour unlock is account-level cleanup.",
+                strategy="Stack account XP with the current best completion route.",
+                avoid="Avoid playing only for colour unless it is one session away.",
+            )
+        )
+
+    return tasks
+
+
+def build_augment_tasks() -> list[dict[str, Any]]:
+    path = CLEAN_FOLDER / "augments_zombies.csv"
+    rows = load_csv_rows(path)
+    tasks: list[dict[str, Any]] = []
+    order = [
+        ("minor1", "Minor 1"),
+        ("major1", "Major 1"),
+        ("minor2", "Minor 2"),
+        ("major2", "Major 2"),
+        ("minor3", "Minor 3"),
+        ("major3", "Major 3"),
+        ("minor4", "Minor 4"),
+        ("major4", "Major 4"),
+        ("extra_slot", "Extra Slot"),
+    ]
+
+    for row in rows:
+        category = clean(row.get("category", ""))
+        item = clean(row.get("item", ""))
+
+        if not item:
+            continue
+
+        applicable = [column for column, _ in order if is_applicable(row.get(column, ""))]
+        completed = sum(1 for column in applicable if is_true(row.get(column, "")))
+        progress = (completed / len(applicable)) * 100 if applicable else 100.0
+
+        for column, label in order:
+            if column not in row:
+                continue
+
+            if not is_applicable(row.get(column, "")) or is_true(row.get(column, "")):
+                continue
+
+            tasks.append(
+                make_task(
+                    task_id=f"Augment:{category}:{item}:{column}",
+                    task_type="augment",
+                    mode="Zombies",
+                    chain="Augments",
+                    category=category or "Augments",
+                    weapon_class=category or "Augments",
+                    weapon=item,
+                    camo=label,
+                    challenge_text=f"Unlock {label} augment progress for {item}.",
+                    progress=progress,
+                    locked=False,
+                    lock_reason="Zombies augment progress available.",
+                    recommended_mode="Zombies XP route with high round speed.",
+                    mode_reason="Augments are Zombies completion and stack naturally with camo/badge work.",
+                    strategy="Use Zombies progression efficiently while doing another Zombies objective.",
+                    avoid="Avoid low-density setup loops that do not produce augment XP.",
+                )
+            )
+            break
+
+    return tasks
+
+
+def build_overclock_tasks() -> list[dict[str, Any]]:
+    path = CLEAN_FOLDER / "overclocks_mp.csv"
+    rows = load_csv_rows(path)
+    tasks: list[dict[str, Any]] = []
+    order = [("oc1_complete", "Overclock 1"), ("oc2_complete", "Overclock 2")]
+
+    for row in rows:
+        mode = clean(row.get("mode", "Multiplayer")) or "Multiplayer"
+        category = clean(row.get("category", ""))
+        item = clean(row.get("item", ""))
+
+        if not item:
+            continue
+
+        applicable = [column for column, _ in order if is_applicable(row.get(column, ""))]
+        completed = sum(1 for column in applicable if is_true(row.get(column, "")))
+        progress = (completed / len(applicable)) * 100 if applicable else 100.0
+
+        for column, label in order:
+            if column not in row:
+                continue
+
+            if not is_applicable(row.get(column, "")) or is_true(row.get(column, "")):
+                continue
+
+            tasks.append(
+                make_task(
+                    task_id=f"Overclock:{mode}:{category}:{item}:{column}",
+                    task_type="overclock",
+                    mode=mode,
+                    chain="Overclocks",
+                    category=category or "Overclocks",
+                    weapon_class=category or "Overclocks",
+                    weapon=item,
+                    camo=label,
+                    challenge_text=f"Unlock {label} for {item}.",
+                    progress=progress,
+                    locked=False,
+                    lock_reason="Overclock progress available.",
+                    recommended_mode=default_recommended_mode(mode, "overclock", category or "Overclocks"),
+                    mode_reason="Overclocks are Multiplayer completion and can stack with camo/calling-card work.",
+                    strategy="Equip or use the relevant item while progressing a Multiplayer route.",
+                    avoid="Avoid playlists that do not let you use this item consistently.",
+                )
+            )
+            break
+
+    return tasks
+
 def load_tracker_tasks() -> list[dict[str, Any]]:
     tasks: list[dict[str, Any]] = []
 
@@ -1400,8 +1729,15 @@ def load_tracker_tasks() -> list[dict[str, Any]]:
     tasks.extend(build_equipment_mastery_badge_tasks())
     tasks.extend(build_misc_challenge_tasks())
     tasks.extend(build_reticle_tasks())
-    tasks.extend(build_calling_card_tasks())   # NEW
-    tasks.extend(build_title_tasks())           # NEW
+    tasks.extend(build_calling_card_tasks())
+    tasks.extend(build_title_tasks())
+    tasks.extend(build_zombies_reward_tasks())
+    tasks.extend(build_endgame_operation_tasks())
+    tasks.extend(build_endgame_unlock_tasks())
+    tasks.extend(build_intel_tasks())
+    tasks.extend(build_colour_tasks())
+    tasks.extend(build_augment_tasks())
+    tasks.extend(build_overclock_tasks())
 
     return tasks
 
@@ -1619,8 +1955,58 @@ def task_search_text(task: dict[str, Any]) -> str:
     ).lower()
 
 
+
+def is_camo_like_task(task: dict[str, Any]) -> bool:
+    return task.get("task_type", "") in {"camo", "weapon_prestige"}
+
+
+def is_non_camo_completion_task(task: dict[str, Any]) -> bool:
+    task_type = task.get("task_type", "")
+    text = task_search_text(task)
+
+    if task_type in {
+        "calling_card",
+        "dark_ops",
+        "mastery_badge_weapon",
+        "mastery_badge_equipment",
+        "reticle",
+        "title",
+        "colour",
+        "augment",
+        "overclock",
+        "reward",
+        "zombies_reward",
+        "endgame_operation",
+        "endgame_unlock",
+        "intel",
+        "misc_challenge",
+    }:
+        return True
+
+    return any(term in text for term in [
+        "operation",
+        "mission",
+        "reward",
+        "unlock",
+        "intel",
+        "calling card",
+        "map",
+        "kowakujō",
+        "kowakujo",
+        "king killer",
+        "main quest",
+        "dark ops",
+        "title",
+        "colour",
+        "color",
+        "augment",
+        "overclock",
+    ])
+
+
 def collection_matches_task(task: dict[str, Any], anchor_collection: str) -> bool:
     task_type = task.get("task_type", "")
+    text = task_search_text(task)
 
     if not anchor_collection or anchor_collection == "Any stackable progress":
         return True
@@ -1643,8 +2029,26 @@ def collection_matches_task(task: dict[str, Any], anchor_collection: str) -> boo
     if anchor_collection == "Weapon Prestige":
         return task_type == "weapon_prestige"
 
-    return False
+    if anchor_collection == "Operations / Missions":
+        return task_type == "endgame_operation" or any(
+            term in text for term in ["operation", "mission", "step", "act iv", "king killer"]
+        )
 
+    if anchor_collection == "Rewards / Unlocks":
+        return task_type in {"reward", "zombies_reward", "endgame_unlock"} or any(
+            term in text for term in ["reward", "unlock", "operator skin", "blueprint", "calling card", "main quest"]
+        )
+
+    if anchor_collection == "Map Challenges":
+        return any(term in text for term in ["map", "kowakujō", "kowakujo", "main quest", "round", "starting room"])
+
+    if anchor_collection == "Intel":
+        return task_type == "intel" or "intel" in text
+
+    if anchor_collection == "Non-camo completion":
+        return is_non_camo_completion_task(task)
+
+    return False
 
 def focus_target_bonus(task: dict[str, Any], focus_targets: list[str] | None) -> float:
     if not focus_targets:
@@ -1936,6 +2340,66 @@ def guided_anchor_filter(
     return [], notes
 
 
+
+def completion_stack_bonus(
+    task: dict[str, Any],
+    commander_mode: str = "Optimise my grind",
+    anchor_collection: str = "",
+) -> float:
+    if commander_mode != "Completion stack":
+        return 0.0
+
+    task_type = task.get("task_type", "")
+    text = task_search_text(task)
+    bonus = 0.0
+
+    if collection_matches_task(task, anchor_collection):
+        bonus += 180
+
+    if is_non_camo_completion_task(task):
+        bonus += 160
+
+    if any(term in text for term in [
+        "operation",
+        "mission",
+        "act iv",
+        "king killer",
+        "step",
+        "main quest",
+        "map",
+        "kowakujō",
+        "kowakujo",
+        "reward",
+        "unlock",
+        "intel",
+    ]):
+        bonus += 140
+
+    if task_type in {"calling_card", "dark_ops"}:
+        bonus += 120
+
+    if task_type in {
+        "reward",
+        "zombies_reward",
+        "endgame_operation",
+        "endgame_unlock",
+        "intel",
+        "title",
+        "colour",
+        "augment",
+        "overclock",
+    }:
+        bonus += 120
+
+    if task_type == "camo":
+        bonus -= 70
+
+    if task_type == "weapon_prestige":
+        bonus -= 50
+
+    return bonus
+
+
 def score_task(
     task: dict[str, Any],
     preferred_mode: str,
@@ -2042,6 +2506,11 @@ def score_task(
         task=task,
         commander_mode=commander_mode,
         minimum_closeness=minimum_closeness,
+    )
+    score += completion_stack_bonus(
+        task=task,
+        commander_mode=commander_mode,
+        anchor_collection=anchor_collection,
     )
 
     return score
@@ -2177,9 +2646,20 @@ def cluster_key(task: dict[str, Any]) -> str:
     """
     task_type = task.get("task_type", "")
 
-    if task_type in {"calling_card", "dark_ops", "title"}:
+    if task_type in {
+        "calling_card",
+        "dark_ops",
+        "title",
+        "intel",
+        "zombies_reward",
+        "endgame_operation",
+        "endgame_unlock",
+        "colour",
+        "augment",
+        "overclock",
+    }:
         sub = task.get("weapon_class", "") or task.get("category", "")
-        return f"card:{sub}"
+        return f"{task_type}:{sub}"
 
     weapon_class = task.get("weapon_class", "")
     return f"class:{weapon_class}" if weapon_class else f"other:{task_type}"
@@ -2188,7 +2668,18 @@ def cluster_key(task: dict[str, Any]) -> str:
 def cluster_label(task: dict[str, Any]) -> str:
     task_type = task.get("task_type", "")
 
-    if task_type in {"calling_card", "dark_ops", "title"}:
+    if task_type in {
+        "calling_card",
+        "dark_ops",
+        "title",
+        "intel",
+        "zombies_reward",
+        "endgame_operation",
+        "endgame_unlock",
+        "colour",
+        "augment",
+        "overclock",
+    }:
         return task.get("weapon_class", "") or task.get("category", "Misc")
 
     return task.get("weapon_class", "Unclassified")
@@ -2276,12 +2767,20 @@ def build_clusters(
             else 0.0
         )
 
-        cluster_score = (
-            close_count * 100
-            + average_progress
-            + len(scored_tasks) * 2
-            + average_commander_score * 0.35
-        )
+        if commander_mode == "Completion stack":
+            cluster_score = (
+                close_count * 10
+                + average_progress * 0.25
+                + len(scored_tasks) * 3
+                + average_commander_score * 1.0
+            )
+        else:
+            cluster_score = (
+                close_count * 100
+                + average_progress
+                + len(scored_tasks) * 2
+                + average_commander_score * 0.35
+            )
 
         clusters.append(
             {
@@ -2355,6 +2854,13 @@ def build_route_summary(stops: list[dict[str, Any]], available_minutes: int) -> 
         "calling_card": "calling-card route",
         "dark_ops": "Dark Ops route",
         "title": "title cleanup",
+        "zombies_reward": "Zombies reward route",
+        "endgame_operation": "Endgame operation route",
+        "endgame_unlock": "Endgame unlock route",
+        "intel": "intel cleanup",
+        "colour": "colour cleanup",
+        "augment": "augment route",
+        "overclock": "overclock route",
     }
 
     primary_route = f"{primary_cluster} {task_type_labels.get(primary_task_type, primary_task_type)}"
@@ -2538,9 +3044,15 @@ def estimate_task_minutes(task: dict[str, Any]) -> int:
     text = f"{camo} {challenge}".lower()
 
     if mode == "Co-Op / Endgame":
+        if task_type in {"endgame_operation", "endgame_unlock"}:
+            return 45
+        if task_type == "intel":
+            return 25
         return 45
 
     if mode == "Zombies":
+        if task_type in {"zombies_reward", "augment", "intel"}:
+            return 35
         if "elite zombie" in text or "elite zombies" in text:
             return 45
         if task_type == "camo":
@@ -2554,6 +3066,8 @@ def estimate_task_minutes(task: dict[str, Any]) -> int:
         return 35
 
     if mode == "Multiplayer":
+        if task_type == "overclock":
+            return 25
         if task_type == "camo":
             return 25
         if task_type in {"mastery_badge_weapon", "mastery_badge_equipment"}:
@@ -2576,6 +3090,9 @@ def estimate_task_minutes(task: dict[str, Any]) -> int:
         return 45
 
     if task_type == "weapon_prestige":
+        return 30
+
+    if task_type in {"colour", "intel", "reward", "zombies_reward", "endgame_unlock", "endgame_operation", "augment", "overclock"}:
         return 30
 
     return 30
@@ -2829,6 +3346,136 @@ def build_weapon_prestige_stacking_hint(stop: dict[str, Any], available_tasks: l
         f"This is a low-stacking route."
     )
 
+
+def build_companion_objectives(
+    stop: dict[str, Any],
+    available_tasks: list[dict[str, Any]],
+    max_items: int = 4,
+) -> list[str]:
+    mode = stop.get("mode", "")
+    weapon = clean(stop.get("weapon", ""))
+    weapon_class = clean(stop.get("weapon_class", ""))
+    stop_task_id = stop.get("task_id", "")
+    stop_task_type = stop.get("task_type", "")
+
+    candidates: list[tuple[float, dict[str, Any]]] = []
+
+    for task in available_tasks:
+        if task.get("locked", False):
+            continue
+
+        if task.get("task_id") == stop_task_id:
+            continue
+
+        task_mode = task.get("mode", "")
+        task_type = task.get("task_type", "")
+        task_weapon = clean(task.get("weapon", ""))
+        task_weapon_class = clean(task.get("weapon_class", ""))
+        text = task_search_text(task)
+
+        if task_mode not in {mode, "Global Cleanup"}:
+            continue
+
+        score = 0.0
+
+        if task_weapon and weapon and task_weapon == weapon:
+            score += 120
+
+        if task_weapon_class and weapon_class and task_weapon_class == weapon_class:
+            score += 80
+
+        if task_type in {"calling_card", "dark_ops"}:
+            score += 90
+
+        if task_type in {"mastery_badge_weapon", "mastery_badge_equipment"}:
+            score += 80
+
+        if task_type == "reticle":
+            score += 70
+
+        if task_type in {"zombies_reward", "endgame_operation", "endgame_unlock", "intel", "title", "colour", "augment", "overclock"}:
+            score += 90
+
+        if any(term in text for term in [
+            "operation",
+            "mission",
+            "king killer",
+            "main quest",
+            "map",
+            "kowakujō",
+            "kowakujo",
+            "reward",
+            "unlock",
+            "intel",
+            "calling card",
+        ]):
+            score += 80
+
+        if stop_task_type != "camo" and task_type == "camo":
+            score += 45
+
+        if stop_task_type != "weapon_prestige" and task_type == "weapon_prestige":
+            score += 35
+
+        score += min(float(task.get("weapon_progress", 0.0)), 100.0) * 0.4
+        score += unlock_leverage_bonus(task)
+
+        if score <= 0:
+            continue
+
+        candidates.append((score, task))
+
+    candidates.sort(key=lambda item: item[0], reverse=True)
+
+    companion_lines: list[str] = []
+
+    for _, task in candidates[:max_items]:
+        task_type = task.get("task_type", "objective")
+        weapon = task.get("weapon", "")
+        camo = task.get("camo", "")
+        challenge = task.get("challenge_text", "")
+
+        label = camo or challenge or task_type
+
+        if weapon and weapon != label:
+            companion_lines.append(f"{weapon}: {label}")
+        else:
+            companion_lines.append(label)
+
+    return companion_lines
+
+
+def score_candidate_plan(plan: dict[str, Any]) -> float:
+    stops = plan.get("stops", [])
+
+    if not stops:
+        return -999999.0
+
+    diagnostics = plan.get("diagnostics", {})
+    route_summary = plan.get("route_summary", {})
+    task_mix = route_summary.get("task_mix", {}) if isinstance(route_summary, dict) else {}
+
+    score = float(diagnostics.get("confidence_score", 0) or 0)
+    score += len(stops) * 8
+    score += sum(len(stop.get("companion_objectives", [])) for stop in stops) * 5
+    score += sum(1 for stop in stops if is_non_camo_completion_task(stop)) * 35
+    score -= sum(1 for stop in stops if stop.get("task_type") == "camo") * 8
+
+    estimated = int(plan.get("estimated_minutes", 0) or 0)
+    available = int(plan.get("available_minutes", 0) or 0)
+    if available > 0:
+        if estimated <= available:
+            score += 20
+        elif estimated <= available + 15:
+            score += 8
+        else:
+            score -= 20
+
+    if task_mix.get("endgame_operation", 0) or task_mix.get("zombies_reward", 0) or task_mix.get("endgame_unlock", 0):
+        score += 30
+
+    return score
+
 def build_session_plan(
     tasks: list[dict[str, Any]],
     preferred_mode: str,
@@ -2856,6 +3503,81 @@ def build_session_plan(
 
     focus_targets = focus_targets or []
     available = get_available_tasks(tasks)
+
+    if preferred_mode == "Commander chooses":
+        candidate_modes = [
+            mode for mode in MODES
+            if mode not in {"Commander chooses", "Global Cleanup", avoided_mode if "avoided_mode" in locals() else ""}
+        ]
+        candidate_plans = [
+            build_session_plan(
+                tasks=tasks,
+                preferred_mode=mode,
+                session_goal=session_goal,
+                motivation=motivation,
+                available_minutes=available_minutes,
+                max_stops=max_stops,
+                commander_mode=commander_mode,
+                focus_targets=focus_targets,
+                anchor_weapon=anchor_weapon,
+                anchor_class=anchor_class,
+                anchor_collection=anchor_collection,
+                minimum_closeness=minimum_closeness,
+            )
+            for mode in candidate_modes
+        ]
+        candidate_plans = [plan for plan in candidate_plans if plan.get("stops")]
+
+        if not candidate_plans:
+            return {
+                "mode": "Commander chooses",
+                "preferred_mode": "Commander chooses",
+                "available_minutes": available_minutes,
+                "estimated_minutes": 0,
+                "stops": [],
+                "cluster_summary": [],
+                "note": "Commander could not find any available route across all modes.",
+                "diagnostics": {
+                    "confidence": "Low",
+                    "confidence_score": 0,
+                    "rationale": ["No available tasks found across all modes."],
+                },
+                "route_summary": build_route_summary([], available_minutes),
+                "commander_mode": commander_mode,
+                "focus_targets": focus_targets,
+                "anchor_weapon": anchor_weapon,
+                "anchor_class": anchor_class,
+                "anchor_collection": anchor_collection,
+                "minimum_closeness": minimum_closeness,
+                "mode_candidates": [],
+            }
+
+        scored_candidates = sorted(
+            ((score_candidate_plan(plan), plan) for plan in candidate_plans),
+            key=lambda item: item[0],
+            reverse=True,
+        )
+        best_score, best_plan = scored_candidates[0]
+
+        candidate_summary = [
+            {
+                "mode": plan.get("mode", ""),
+                "score": round(score, 1),
+                "estimated_minutes": plan.get("estimated_minutes", 0),
+                "stops": len(plan.get("stops", [])),
+                "primary_route": plan.get("route_summary", {}).get("primary_route", ""),
+            }
+            for score, plan in scored_candidates
+        ]
+
+        best_plan["preferred_mode"] = "Commander chooses"
+        best_plan["selected_mode"] = best_plan.get("mode", "")
+        best_plan["mode_candidates"] = candidate_summary
+        best_plan.setdefault("diagnostics", {}).setdefault("rationale", []).insert(
+            0,
+            f"Commander chose {best_plan.get('mode', 'Unknown')} after comparing all active modes.",
+        )
+        return best_plan
 
     if commander_mode == "Closest finishes" and preferred_mode == "Global Cleanup":
         mode_tasks = available
@@ -2985,6 +3707,11 @@ def build_session_plan(
             if stops and would_exceed_budget:
                 break
 
+            companion_objectives = build_companion_objectives(
+                stop=task,
+                available_tasks=available,
+            )
+
             stops.append(
                 {
                     "stop_number": len(stops) + 1,
@@ -2998,6 +3725,7 @@ def build_session_plan(
                     "mode": task.get("mode", ""),
                     "estimated_minutes": estimated_minutes,
                     "stacking_hint": build_stacking_hint(task, available) or build_weapon_prestige_hint(task, available),
+                    "companion_objectives": companion_objectives,
                 }
             )
 

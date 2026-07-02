@@ -13,13 +13,6 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-st.set_page_config(
-    page_title="Perzevol OS - BO7 Completion Commander",
-    page_icon="☣",
-    layout="wide",
-    initial_sidebar_state="expanded",
-)
-
 from modules.warzone.killchain_engine import (
     BLAME_OPTIONS,
     ENERGY_LEVELS,
@@ -462,6 +455,20 @@ def initialise_state():
         st.session_state.bo7_form_avoided_mode = MODES[2]
     if "bo7_form_session_goal" not in st.session_state:
         st.session_state.bo7_form_session_goal = SESSION_GOALS[0]
+    if "bo7_form_commander_mode" not in st.session_state:
+        st.session_state.bo7_form_commander_mode = COMMANDER_MODES[0]
+    if "bo7_form_focus_targets" not in st.session_state:
+        st.session_state.bo7_form_focus_targets = []
+    if "bo7_form_anchor_weapon" not in st.session_state:
+        st.session_state.bo7_form_anchor_weapon = ""
+    if "bo7_form_anchor_class" not in st.session_state:
+        st.session_state.bo7_form_anchor_class = ""
+    if "bo7_form_anchor_collection" not in st.session_state:
+        st.session_state.bo7_form_anchor_collection = ANCHOR_COLLECTIONS[0]
+    if "bo7_form_minimum_closeness" not in st.session_state:
+        st.session_state.bo7_form_minimum_closeness = 80
+    if "bo7_actual_minutes_played" not in st.session_state:
+        st.session_state.bo7_actual_minutes_played = 0
     if "bo7_session_plan" not in st.session_state:
         st.session_state.bo7_session_plan = None
     if "bo7_completed_stop_ids" not in st.session_state:
@@ -2825,6 +2832,12 @@ with tab_mission:
                 if stacking_hint:
                     st.info(stacking_hint)
 
+                companion_objectives = stop.get("companion_objectives", [])
+                if companion_objectives:
+                    with st.expander("Stack while doing this", expanded=True):
+                        for companion in companion_objectives:
+                            st.write(f"✅ {companion}")
+
                 if resolved:
                     result = st.session_state.bo7_stop_results.get(task_id, {})
                     st.caption(
@@ -3142,7 +3155,7 @@ with tab_mission:
             )
             preferred_mode = st.selectbox(
                 "Preferred mode", MODES,
-                index=MODES.index(st.session_state.bo7_form_preferred_mode),
+                index=safe_select_index(MODES, st.session_state.bo7_form_preferred_mode),
                 key="select_preferred",
             )
             session_goal = st.selectbox(
@@ -3159,7 +3172,7 @@ with tab_mission:
             )
             avoided_mode = st.selectbox(
                 "Avoid mode", MODES,
-                index=MODES.index(st.session_state.bo7_form_avoided_mode),
+                index=safe_select_index(MODES, st.session_state.bo7_form_avoided_mode),
                 key="select_avoided",
             )
 
@@ -3172,7 +3185,8 @@ with tab_mission:
             help=(
                 "Optimise my grind keeps normal Commander behaviour. "
                 "Start from my itch anchors the plan around a weapon or class. "
-                "Closest finishes hunts nearly-done items."
+                "Closest finishes hunts nearly-done items. "
+                "Completion stack prioritises non-camo completion and adds weapon progress as a side objective."
             ),
             key="select_commander_mode",
         )
@@ -3189,7 +3203,7 @@ with tab_mission:
         )
 
         available_for_guidance = get_available_tasks(st.session_state.bo7_tasks)
-        guidance_mode_filter = "" if commander_mode == "Closest finishes" else preferred_mode
+        guidance_mode_filter = "" if commander_mode == "Closest finishes" or preferred_mode == "Commander chooses" else preferred_mode
 
         weapon_options = [""] + sorted_task_values(
             available_for_guidance,
@@ -3236,7 +3250,7 @@ with tab_mission:
             max_value=95,
             value=int(st.session_state.bo7_form_minimum_closeness),
             step=5,
-            help="Only used by Closest finishes. Final-step style tasks can still appear even under this percentage.",
+            help="Used by Closest finishes. Final-step style tasks can still appear even under this percentage.",
             key="slider_minimum_closeness",
         )
 
@@ -3244,6 +3258,12 @@ with tab_mission:
             st.info("Start from my itch will build the route around your selected weapon, class, or collection first.")
         elif commander_mode == "Closest finishes":
             st.info("Closest finishes prioritises near-complete items. Use Global Cleanup as the mode to let it search across all modes.")
+        elif commander_mode == "Completion stack":
+            st.info(
+                "Completion stack avoids pure camo tunnel vision. It prefers operations, rewards, calling cards, intel, map challenges, badges, reticles, and then adds camos as stackable side progress."
+            )
+        elif preferred_mode == "Commander chooses":
+            st.info("Commander chooses will compare all active modes and pick the strongest route for your time, energy, and goal.")
 
         st.divider()
  
@@ -3274,6 +3294,39 @@ with tab_mission:
                 anchor_weapon=anchor_weapon,
                 anchor_class=anchor_class,
                 anchor_collection=anchor_collection,
+                minimum_closeness=minimum_closeness,
+            )
+
+            st.session_state.bo7_session_plan = new_plan
+            st.rerun()
+
+        if st.button("GENERATE NO-THINKING PLAN", use_container_width=True):
+            st.session_state.bo7_form_minutes = available_minutes
+            st.session_state.bo7_form_energy = energy
+            st.session_state.bo7_form_motivation = motivation
+            st.session_state.bo7_form_preferred_mode = "Commander chooses"
+            st.session_state.bo7_form_avoided_mode = "Global Cleanup"
+            st.session_state.bo7_form_session_goal = "Balanced progress"
+            st.session_state.bo7_form_commander_mode = "Optimise my grind"
+            st.session_state.bo7_form_focus_targets = []
+            st.session_state.bo7_form_anchor_weapon = ""
+            st.session_state.bo7_form_anchor_class = ""
+            st.session_state.bo7_form_anchor_collection = "Any stackable progress"
+            st.session_state.bo7_form_minimum_closeness = minimum_closeness
+            st.session_state.bo7_completed_stop_ids = []
+            st.session_state.bo7_stop_results = {}
+
+            new_plan = build_session_plan(
+                tasks=st.session_state.bo7_tasks,
+                preferred_mode="Commander chooses",
+                session_goal="Balanced progress",
+                motivation=motivation,
+                available_minutes=available_minutes,
+                commander_mode="Optimise my grind",
+                focus_targets=[],
+                anchor_weapon="",
+                anchor_class="",
+                anchor_collection="Any stackable progress",
                 minimum_closeness=minimum_closeness,
             )
 
