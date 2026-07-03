@@ -1,162 +1,162 @@
 mode,category,sub_category,challenge,requirement,tier1_complete,tier2_complete,tier3_complete,tier4_complete,tier5_complete,completed,tier1_target,tier2_target,tier3_target,tier4_target,tier5_target,counts_for_100_percent,display_as_extra
-Zombies,Career,Fresh Meat,Fresh Fiz,Drink 3 Perks,TRUE,,,,,TRUE,3,,,,,TRUE,FALSE
-Zombies,Career,Fresh Meat,Hotrodder,Upgrade your Weapon with the Pack-a-Punch Machine on Ol' Tessie,TRUE,,,,,TRUE,1,,,,,TRUE,FALSE
-Zombies,Career,Fresh Meat,Bargain Bin,Get 50 Eliminations with Weapons acquired from the Mystery Box,TRUE,,,,,TRUE,50,,,,,TRUE,FALSE
-Zombies,Career,Fresh Meat,Overmatch,Get 50 Eliminations with Pack-a-Punched Weapons,TRUE,,,,,TRUE,50,,,,,TRUE,FALSE
-Zombies,Career,Fresh Meat,MSRP,Get 50 Eliminations using Wall Buy Weapons,TRUE,,,,,TRUE,50,,,,,TRUE,FALSE
-Zombies,Career,Fresh Meat,Tourist,Visit all locations in Ashes of the Damned in a single match,TRUE,,,,,TRUE,1,,,,,TRUE,FALSE
-Zombies,Career,Trophy Hunter,Vehicular Zomslaughter,Earn 10 Shotgun! Medals (Rapidly Kill 10 Zombies with a Vehicle),TRUE,TRUE,TRUE,,,TRUE,1,5,10,,,TRUE,FALSE
-Zombies,Career,Trophy Hunter,Killer Efficiency,Get 2 Critical Kills with a single shot using Primary or Secondary weapons 25 times,TRUE,TRUE,TRUE,,,TRUE,5,10,25,,,TRUE,FALSE
-Zombies,Career,Trophy Hunter,Madness,Kill 100 Zombies with or that are affected by triggered Ammo Mod effects,TRUE,TRUE,TRUE,,,TRUE,25,50,100,,,TRUE,FALSE
-Zombies,Career,Trophy Hunter,Profiteer,"Exfil with 10,000 Essence or more",TRUE,,,,,TRUE,1,,,,,TRUE,FALSE
-Zombies,Career,Trophy Hunter,Red Mist,Earn 3 Distinguished Medals (view Medal Collection in Career for Medals list),TRUE,,,,,TRUE,3,,,,,TRUE,FALSE
-Zombies,Career,Trophy Hunter,Deadlift,Reach Round 20 and Exfil,TRUE,,,,,TRUE,1,,,,,TRUE,FALSE
+Zombies,Career,Fresh Meat,Fresh Fiz,Drink 3 Perks,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,3,,,,,TRUE,FALSE
+Zombies,Career,Fresh Meat,Hotrodder,Upgrade your Weapon with the Pack-a-Punch Machine on Ol' Tessie,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1,,,,,TRUE,FALSE
+Zombies,Career,Fresh Meat,Bargain Bin,Get 50 Eliminations with Weapons acquired from the Mystery Box,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,50,,,,,TRUE,FALSE
+Zombies,Career,Fresh Meat,Overmatch,Get 50 Eliminations with Pack-a-Punched Weapons,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,50,,,,,TRUE,FALSE
+Zombies,Career,Fresh Meat,MSRP,Get 50 Eliminations using Wall Buy Weapons,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,50,,,,,TRUE,FALSE
+Zombies,Career,Fresh Meat,Tourist,Visit all locations in Ashes of the Damned in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1,,,,,TRUE,FALSE
+Zombies,Career,Trophy Hunter,Vehicular Zomslaughter,Earn 10 Shotgun! Medals (Rapidly Kill 10 Zombies with a Vehicle),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1,5,10,,,TRUE,FALSE
+Zombies,Career,Trophy Hunter,Killer Efficiency,Get 2 Critical Kills with a single shot using Primary or Secondary weapons 25 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5,10,25,,,TRUE,FALSE
+Zombies,Career,Trophy Hunter,Madness,Kill 100 Zombies with or that are affected by triggered Ammo Mod effects,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,25,50,100,,,TRUE,FALSE
+Zombies,Career,Trophy Hunter,Profiteer,"Exfil with 10,000 Essence or more",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1,,,,,TRUE,FALSE
+Zombies,Career,Trophy Hunter,Red Mist,Earn 3 Distinguished Medals (view Medal Collection in Career for Medals list),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,3,,,,,TRUE,FALSE
+Zombies,Career,Trophy Hunter,Deadlift,Reach Round 20 and Exfil,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1,,,,,TRUE,FALSE
 Zombies,Career,Quarantined,Death Toll,"Eliminate 25,000 Zombies",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1000,2500,5000,10000,25000,TRUE,FALSE
 Zombies,Career,Quarantined,Head Popper,"Get 15,000 Critical Kills",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,500,1000,2500,7500,15000,TRUE,FALSE
 Zombies,Career,Quarantined,Going Rounds,Complete 500 Rounds,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,25,50,100,250,500,TRUE,FALSE
 Zombies,Career,Quarantined,Deathsmith,"Get 2,500 Zombie Kills with Equipment",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,100,250,500,1000,2500,TRUE,FALSE
 Zombies,Career,Quarantined,Scouring,"Get 10,000 Zombie Kills with Scorestreaks",TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,500,1000,2500,5000,10000,TRUE,FALSE
 Zombies,Career,Quarantined,Power Killer,"Get 10,000 Zombie Eliminations with Wonder Weapons",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,500,1000,2500,5000,10000,TRUE,FALSE
-Zombies,Hardened,Field Research,Ravaging,Earn 20 Stay Down Medals (Rapidly Kill 5 or more Ravagers),TRUE,TRUE,TRUE,,,TRUE,5.0,10.0,20.0,,,TRUE,FALSE
-Zombies,Hardened,Field Research,Devils Trap,Kill 10 Special Zombies or Elite Zombies while they are slowed by your Toxic Growth,TRUE,TRUE,TRUE,,,TRUE,1.0,5.0,10.0,,,TRUE,FALSE
-Zombies,Hardened,Field Research,Demon Engine,Kill 250 Zombies using Saw Blade traps,TRUE,TRUE,TRUE,,,TRUE,50.0,100.0,250.0,,,TRUE,FALSE
-Zombies,Hardened,Field Research,Sapper,Kill 5 Zombies Rapidly using C4 or Point Turrets 25 times,TRUE,TRUE,TRUE,,,TRUE,5.0,10.0,25.0,,,TRUE,FALSE
-Zombies,Hardened,Field Research,Malicious Munitions,Kill 20 Special or Elite Zombies while using their elemental weakness,TRUE,TRUE,TRUE,,,TRUE,5.0,10.0,20.0,,,TRUE,FALSE
-Zombies,Hardened,Field Research,Zursa Tamer,Kill 15 Zombies with a single Brain Rotted Zursa,TRUE,,,,,TRUE,1.0,,,,,TRUE,FALSE
-Zombies,Hardened,Kitted Out,Gumania,Consume 25 Epic or higher rarity Gobblegums,TRUE,TRUE,TRUE,,,TRUE,5.0,10.0,25.0,,,TRUE,FALSE
-Zombies,Hardened,Kitted Out,Calorific,Have 6 Perks equipped at one time,TRUE,,,,,TRUE,1.0,,,,,TRUE,FALSE
-Zombies,Hardened,Kitted Out,Auto Artisan,Kill 10 Ravagers or Elite Zombies while using Ol' Tessie's DG-2 Turret,TRUE,,,,,TRUE,10.0,,,,,TRUE,FALSE
-Zombies,Hardened,Kitted Out,Eat This!,Kill 50 Zombies with a single use of the HKDs Scorestreak,TRUE,,,,,TRUE,1.0,,,,,TRUE,FALSE
-Zombies,Hardened,Kitted Out,PAP'd & Loaded,"Have 25,000 Essence at once",TRUE,,,,,TRUE,1.0,,,,,TRUE,FALSE
-Zombies,Hardened,Kitted Out,Necronic,Earn a Lifedrinker Medal (Rapidly Kill 30 Zombies) while using the Necrofluid Gauntlet,TRUE,,,,,TRUE,1.0,,,,,TRUE,FALSE
-Zombies,Hardened,Trials & Tribulations,Ruthless Reliability,Achieve Epic or higher T.E.D.D. Tasks reward targets 20 times,TRUE,TRUE,TRUE,,,TRUE,5.0,10.0,20.0,,,TRUE,FALSE
-Zombies,Hardened,Trials & Tribulations,Overachiever,Kill 50 Zombies during a single T.E.D.D. Tasks 5 times,TRUE,,,,,TRUE,5.0,,,,,TRUE,FALSE
-Zombies,Hardened,Trials & Tribulations,Master Tasker,Achieve 3 Legendary T.E.D.D. Tasks reward targets in a single match,TRUE,,,,,TRUE,1.0,,,,,TRUE,FALSE
-Zombies,Hardened,Trials & Tribulations,Bullseye,Become an Axe Throwing Champion,TRUE,,,,,TRUE,1.0,,,,,TRUE,FALSE
-Zombies,Hardened,Trials & Tribulations,Arcross XD,Find a misplaced ARC-XD toy,TRUE,,,,,TRUE,1.0,,,,,TRUE,FALSE
-Zombies,Hardened,Trials & Tribulations,Soda Sommelier,Rehydrate at Exit 115,TRUE,,,,,TRUE,1.0,,,,,TRUE,FALSE
-Zombies,Prestige,Loadout Lunatic Prestige 1,Melting Barrels,"Earn 50 Massacre Medals (10 Rapid Zombie Kills) using LMGs, SMGs, or Assault Rifles",TRUE,,,,,TRUE,,,50.0,,,TRUE,FALSE
-Zombies,Prestige,Loadout Lunatic Prestige 1,Buckshot Ballet,Earn 50 Jackrabbit Medals (15 Zombie Kills without taking damage) while using Shotguns,TRUE,,,,,TRUE,,,50.0,,,TRUE,FALSE
-Zombies,Prestige,Loadout Lunatic Prestige 1,Dead Set,Earn 50 Deadeye Medals (5 Rapid Critical Kills) using Marksman Rifles or Sniper Rifles,TRUE,,,,,TRUE,,,50.0,,,TRUE,FALSE
-Zombies,Prestige,Loadout Lunatic Prestige 1,Action Hero,Earn 50 Stunner Medals (Rapidly Kill 10 Zombies affected by your Tactical) using Pistols,TRUE,,,,,TRUE,,,50.0,,,TRUE,FALSE
-Zombies,Prestige,Loadout Lunatic Prestige 1,Force Multiplier,Kill 3 or more Zombies with a single shot using Launchers 50 times,TRUE,,,,,TRUE,,,50.0,,,TRUE,FALSE
-Zombies,Prestige,Loadout Lunatic Prestige 1,Slaughter House,Kill 5 Zombies rapidly using Melee Weapons 50 times,TRUE,,,,,TRUE,,,50.0,,,TRUE,FALSE
-Zombies,Prestige,Perk Personified Prestige 2,Damage per Second,Kill an Elite Zombie in 20 seconds or less from it first being damaged while using Double Tap 3 times,TRUE,TRUE,TRUE,TRUE,,TRUE,,,1.0,2.0,3.0,TRUE,FALSE
-Zombies,Prestige,Perk Personified Prestige 2,Floptastic,Kill 5 Zombies with a single PHD Flopper explosion 5 times,TRUE,,,,,TRUE,,,5.0,,,TRUE,FALSE
-Zombies,Prestige,Perk Personified Prestige 2,Knock Out,Kill an Elite enemy with a Melee Macchiato punch,TRUE,,,,,TRUE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,Perk Personified Prestige 2,Chain Reaction,Rapidly Kill 5 or more Zombies with an Ammo Mod proc while Elemental Pop is active,TRUE,,,,,TRUE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,Perk Personified Prestige 2,X-Ray,Get 2 Critical Kills with a single shot 50 times with Death Perception active,TRUE,,,,,TRUE,,,50.0,,,TRUE,FALSE
-Zombies,Prestige,Perk Personified Prestige 2,Ethereal,Get 10 Wisp Kills with a single Companion Wisp from Wisp Tea,TRUE,,,,,TRUE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,Score Attack Prestige 3,Spice of Life,Kill 3 Elite Zombies with the Life Drain Attack while using the Disciple Mutant Injection,TRUE,,,,,TRUE,,,3.0,,,TRUE,FALSE
-Zombies,Prestige,Score Attack Prestige 3,Swarm Lord,Kill 10 Special Zombies or Elite Zombies with HKDs,TRUE,,,,,TRUE,,,10.0,,,TRUE,FALSE
-Zombies,Prestige,Score Attack Prestige 3,Angel of Death,Kill 25 Zombies with a single D.A.W.G. Scorestreak 5 times,TRUE,,,,,TRUE,,,5.0,,,TRUE,FALSE
-Zombies,Prestige,Score Attack Prestige 3,Slalom,Kill 15 Zombies with a single ARC-XD without it exploding,TRUE,,,,,TRUE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,Score Attack Prestige 3,Smited,Earn a Scorched Earth Medal (Kill 2 Elite Zombies with one Scorestreak),TRUE,,,,,TRUE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,Score Attack Prestige 3,Voice of Torment,Rapidly Kill 10 Zombies after stunning them with your Scream while in Disciple Mutant Injection 3 times,TRUE,,,,,TRUE,,,3.0,,,TRUE,FALSE
-Zombies,Prestige,WANDerful Prestige 4,Megaton,Rapidly Kill 15 Zombies with a single use of Energy Mine 3 times,TRUE,,,,,TRUE,,,3.0,,,TRUE,FALSE
-Zombies,Prestige,WANDerful Prestige 4,Wraith,Eliminate 25 Zombies during the duration of a single Aether Shroud 1 time,TRUE,,,,,TRUE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,WANDerful Prestige 4,Offensive Guard,Earn 5 Main Tank Medals (Kill 10 or more Zombies affected by Frenzied Guard),TRUE,,,,,TRUE,,,5.0,,,TRUE,FALSE
-Zombies,Prestige,WANDerful Prestige 4,Dark Magic,Kill 2 Special Zombies or Elite Zombies with a single use of Dark Flare,TRUE,,,,,TRUE,,,2.0,,,TRUE,FALSE
-Zombies,Prestige,WANDerful Prestige 4,Field Day,Rapidly Kill 50 Zombies using Field Upgrades,TRUE,,,,,TRUE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,WANDerful Prestige 4,Barbwire,Rapidly Kill 20 Zombies that are trapped in a single Toxic Growth,TRUE,,,,,TRUE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,Bandolier Prestige 5,Axe Champion,Kill 20 Zombies with Combat Axes without missing,TRUE,,,,,TRUE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,Bandolier Prestige 5,Tower Defense,Complete a Round only using Point Turrets to Kill Zombies from Round 10 onwards,TRUE,,,,,TRUE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,Bandolier Prestige 5,Monkey King,Kill 10 or more Zombies with a single Cymbal Monkey Explosion 10 times,TRUE,,,,,TRUE,,,10.0,,,TRUE,FALSE
-Zombies,Prestige,Bandolier Prestige 5,Thingamajig,Rapidly Kill 25 Zombies using LT53 Kazimirs 3 times,TRUE,,,,,TRUE,,,3.0,,,TRUE,FALSE
-Zombies,Prestige,Bandolier Prestige 5,Thermal Sunder,Earn 10 Crispy Medals (Kill 5 or more Zombies with a single Molotov),TRUE,,,,,TRUE,,,10.0,,,TRUE,FALSE
-Zombies,Prestige,Bandolier Prestige 5,Bomba,Kill 10 Zombies with a single explosion from Lethal Equipment 10 times,TRUE,,,,,TRUE,,,10.0,,,TRUE,FALSE
-Zombies,Prestige,Tacticality Prestige 6,Nightmare Killer,Rapidly Kill 10 Zombies 5 times using Zombies Brain Rotted by your Psych Grenades,TRUE,,,,,TRUE,,,5.0,,,TRUE,FALSE
-Zombies,Prestige,Tacticality Prestige 6,Gullible,Get 5 consecutive Critical Kills while Zombies are distracted by Decoy Grenades 3 times,TRUE,,,,,TRUE,,,3.0,,,TRUE,FALSE
-Zombies,Prestige,Tacticality Prestige 6,Target Locked,Kill a Special Zombie or Elite Zombie after using a Stim Shot 10 times,TRUE,,,,,TRUE,,,10.0,,,TRUE,FALSE
-Zombies,Prestige,Tacticality Prestige 6,Simon Says,Rapidly Kill 3 Ravagers that are stunned by your Stun Grenade 5 times,TRUE,,,,,TRUE,,,5.0,,,TRUE,FALSE
-Zombies,Prestige,Tacticality Prestige 6,Fearmonger,Use Hunter Bots to Kill a Zursa,TRUE,,,,,TRUE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,Tacticality Prestige 6,Tooltician,Kill a Zursa while it's affected by tactical equipment,TRUE,,,,,TRUE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,Endeavors Prestige 7,Mysticism,Use Pack-a-Punch Level III or higher Wonder Weapons to Kill 25 Elite Zombies,TRUE,TRUE,FALSE,FALSE,,FALSE,,,5.0,10.0,25.0,TRUE,FALSE
-Zombies,Prestige,Endeavors Prestige 7,Buy 1 Get 1,Earn a Two for One Medal (Kill 2 Special Zombies with a single shot),TRUE,,,,,TRUE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,Endeavors Prestige 7,Tinkerer,Earn a Lethality Medal (20 Rapid Kills with Lethals or Field Upgrades),TRUE,,,,,TRUE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,Endeavors Prestige 7,Head Hunter,Get 25 Rapid Critical Kills without reloading,TRUE,,,,,TRUE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,Endeavors Prestige 7,Power Tyrant,Earn a Fire Away Medal (Kill 50 Zombies with Scorestreaks in a single round),TRUE,,,,,TRUE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,Endeavors Prestige 7,Burning Rubber,Achieve Legendary Rewards for the Ol' Tessie Time Trial 3 times,TRUE,,,,,TRUE,,,3.0,,,TRUE,FALSE
-Zombies,Prestige,Elemental Ballistician Prestige 8,Electro Flux,Kill 1 Elite Zombie while it is stunned by Deadwire,TRUE,,,,,TRUE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,Elemental Ballistician Prestige 8,Pyrologist,Rapidly Kill 3 Zombies with the fire damage of Napalm Burst 5 times,TRUE,,,,,TRUE,,,5.0,,,TRUE,FALSE
-Zombies,Prestige,Elemental Ballistician Prestige 8,Carnival,Earn 15 Popping Off Medals (5 Rapid Kills with Firework explosions),TRUE,,,,,TRUE,,,15.0,,,TRUE,FALSE
-Zombies,Prestige,Elemental Ballistician Prestige 8,Puppeteer,Earn 15 Necromancer Medals (5 Kills with a single Brain-rotted Zombie),TRUE,,,,,TRUE,,,15.0,,,TRUE,FALSE
-Zombies,Prestige,Elemental Ballistician Prestige 8,Voidweaver,Earn 15 Graviton Medals (Teleported 5 or more Zombies with a single use of Shadow Rift),TRUE,,,,,TRUE,,,15.0,,,TRUE,FALSE
-Zombies,Prestige,Elemental Ballistician Prestige 8,Permafrost,Kill 10 Special Zombies or Elite Zombies that are slowed or frozen by Cryo Freeze,TRUE,,,,,TRUE,,,10.0,,,TRUE,FALSE
-Zombies,Prestige,Zurvivor Prestige 9,Round Robin,Complete 50 Rounds in Survival,TRUE,TRUE,TRUE,TRUE,,TRUE,,,10.0,25.0,50.0,TRUE,FALSE
-Zombies,Prestige,Zurvivor Prestige 9,Perfectionist,Complete 3 consecutive Rounds after Round 10 without taking damage,TRUE,,,,,TRUE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,Zurvivor Prestige 9,Frugal,"Reach Round 15 without using Perks, the Pack-a-Punch machine, or an Ammo Cache",TRUE,,,,,TRUE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,Zurvivor Prestige 9,Just the Start,Reach Round 30 in a single Survival match,TRUE,,,,,TRUE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,Zurvivor Prestige 9,Gladiator,Reach Round 20 while only using Melee Weapons,TRUE,,,,,TRUE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,Zurvivor Prestige 9,Foreboding,Reach Round 20 with Rampage Inducer active at all times,TRUE,,,,,TRUE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,Augmented Reality Prestige 10,Wisp Willing,Rapidly Kill 10 Zombies while they are attracted to the Wisp from Wisp Tea while using the Mask of Distraction Augment 3 times,TRUE,,,,,TRUE,,,3.0,,,TRUE,FALSE
-Zombies,Prestige,Augmented Reality Prestige 10,Finale,Kill 5 Zombies with a single Fireworks Ammo Mod activation while using the Starburst Augment 10 times,TRUE,,,,,TRUE,,,10.0,,,TRUE,FALSE
-Zombies,Prestige,Augmented Reality Prestige 10,Triple KO,Kill 3 Zombies with a single Melee Macchiato punch while using the Triple Shot Augment 5 times,TRUE,,,,,TRUE,,,5.0,,,TRUE,FALSE
-Zombies,Prestige,Augmented Reality Prestige 10,Sporangia,Kill 20 Zombies with a single use of Toxic Growth Field Upgrade while using the Pollination Augment,TRUE,,,,,TRUE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,Augmented Reality Prestige 10,Shadow Step,"Using the Void Sheath Augment for Aether Shroud, Kill 20 Zombies with a single charge",TRUE,,,,,TRUE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,Augmented Reality Prestige 10,Double Bubble,Rapidly Kill 10 Zombies while they are stunned by the Electric Cherry Augment for the Elemental Pop Perk 5 times,TRUE,,,,,TRUE,,,5.0,,,TRUE,FALSE
-Zombies,Prestige,Abracadavre Prestige Master,Stepping Stones,Complete 50 Rounds at Relic Tier I difficulty,FALSE,,,,,FALSE,,,50.0,,,TRUE,FALSE
-Zombies,Prestige,Abracadavre Prestige Master,Aether Investigator,Complete 50 Rounds at Relic Tier II difficulty,FALSE,,,,,FALSE,,,50.0,,,TRUE,FALSE
-Zombies,Prestige,Abracadavre Prestige Master,Chaos Sways,Complete 50 Rounds at Relic Tier III difficulty,FALSE,,,,,FALSE,,,50.0,,,TRUE,FALSE
-Zombies,Prestige,Abracadavre Prestige Master,Critical Priority,Reach Round 15 without buying ammo with the Bus Relic active,FALSE,,,,,FALSE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,Abracadavre Prestige Master,Run,Reach Round 20 with the Samantha's Teddy Bear Relic (Round start delay cut down by 75%) and Rampage Inducer active,FALSE,,,,,FALSE,,,1.0,,,TRUE,FALSE
-Zombies,Prestige,Abracadavre Prestige Master,Top Tier,Reach Round 15 on Cursed Tier III difficulty in the starting room without opening any doors,FALSE,,,,,FALSE,,,1.0,,,TRUE,FALSE
-Zombies,Maps,Astra Malorum,Malefic Mediations,Survive 50 Round on Astra Malorum,TRUE,TRUE,TRUE,,,TRUE,10.0,25.0,50.0,,,TRUE,FALSE
+Zombies,Hardened,Field Research,Ravaging,Earn 20 Stay Down Medals (Rapidly Kill 5 or more Ravagers),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5.0,10.0,20.0,,,TRUE,FALSE
+Zombies,Hardened,Field Research,Devils Trap,Kill 10 Special Zombies or Elite Zombies while they are slowed by your Toxic Growth,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,5.0,10.0,,,TRUE,FALSE
+Zombies,Hardened,Field Research,Demon Engine,Kill 250 Zombies using Saw Blade traps,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,50.0,100.0,250.0,,,TRUE,FALSE
+Zombies,Hardened,Field Research,Sapper,Kill 5 Zombies Rapidly using C4 or Point Turrets 25 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5.0,10.0,25.0,,,TRUE,FALSE
+Zombies,Hardened,Field Research,Malicious Munitions,Kill 20 Special or Elite Zombies while using their elemental weakness,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5.0,10.0,20.0,,,TRUE,FALSE
+Zombies,Hardened,Field Research,Zursa Tamer,Kill 15 Zombies with a single Brain Rotted Zursa,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,,,,,TRUE,FALSE
+Zombies,Hardened,Kitted Out,Gumania,Consume 25 Epic or higher rarity Gobblegums,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5.0,10.0,25.0,,,TRUE,FALSE
+Zombies,Hardened,Kitted Out,Calorific,Have 6 Perks equipped at one time,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,,,,,TRUE,FALSE
+Zombies,Hardened,Kitted Out,Auto Artisan,Kill 10 Ravagers or Elite Zombies while using Ol' Tessie's DG-2 Turret,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,10.0,,,,,TRUE,FALSE
+Zombies,Hardened,Kitted Out,Eat This!,Kill 50 Zombies with a single use of the HKDs Scorestreak,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,,,,,TRUE,FALSE
+Zombies,Hardened,Kitted Out,PAP'd & Loaded,"Have 25,000 Essence at once",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,,,,,TRUE,FALSE
+Zombies,Hardened,Kitted Out,Necronic,Earn a Lifedrinker Medal (Rapidly Kill 30 Zombies) while using the Necrofluid Gauntlet,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,,,,,TRUE,FALSE
+Zombies,Hardened,Trials & Tribulations,Ruthless Reliability,Achieve Epic or higher T.E.D.D. Tasks reward targets 20 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5.0,10.0,20.0,,,TRUE,FALSE
+Zombies,Hardened,Trials & Tribulations,Overachiever,Kill 50 Zombies during a single T.E.D.D. Tasks 5 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5.0,,,,,TRUE,FALSE
+Zombies,Hardened,Trials & Tribulations,Master Tasker,Achieve 3 Legendary T.E.D.D. Tasks reward targets in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,,,,,TRUE,FALSE
+Zombies,Hardened,Trials & Tribulations,Bullseye,Become an Axe Throwing Champion,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,,,,,TRUE,FALSE
+Zombies,Hardened,Trials & Tribulations,Arcross XD,Find a misplaced ARC-XD toy,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,,,,,TRUE,FALSE
+Zombies,Hardened,Trials & Tribulations,Soda Sommelier,Rehydrate at Exit 115,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,,,,,TRUE,FALSE
+Zombies,Prestige,Loadout Lunatic Prestige 1,Melting Barrels,"Earn 50 Massacre Medals (10 Rapid Zombie Kills) using LMGs, SMGs, or Assault Rifles",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,50.0,,,TRUE,FALSE
+Zombies,Prestige,Loadout Lunatic Prestige 1,Buckshot Ballet,Earn 50 Jackrabbit Medals (15 Zombie Kills without taking damage) while using Shotguns,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,50.0,,,TRUE,FALSE
+Zombies,Prestige,Loadout Lunatic Prestige 1,Dead Set,Earn 50 Deadeye Medals (5 Rapid Critical Kills) using Marksman Rifles or Sniper Rifles,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,50.0,,,TRUE,FALSE
+Zombies,Prestige,Loadout Lunatic Prestige 1,Action Hero,Earn 50 Stunner Medals (Rapidly Kill 10 Zombies affected by your Tactical) using Pistols,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,50.0,,,TRUE,FALSE
+Zombies,Prestige,Loadout Lunatic Prestige 1,Force Multiplier,Kill 3 or more Zombies with a single shot using Launchers 50 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,50.0,,,TRUE,FALSE
+Zombies,Prestige,Loadout Lunatic Prestige 1,Slaughter House,Kill 5 Zombies rapidly using Melee Weapons 50 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,50.0,,,TRUE,FALSE
+Zombies,Prestige,Perk Personified Prestige 2,Damage per Second,Kill an Elite Zombie in 20 seconds or less from it first being damaged while using Double Tap 3 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,2.0,3.0,TRUE,FALSE
+Zombies,Prestige,Perk Personified Prestige 2,Floptastic,Kill 5 Zombies with a single PHD Flopper explosion 5 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,,,TRUE,FALSE
+Zombies,Prestige,Perk Personified Prestige 2,Knock Out,Kill an Elite enemy with a Melee Macchiato punch,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,Perk Personified Prestige 2,Chain Reaction,Rapidly Kill 5 or more Zombies with an Ammo Mod proc while Elemental Pop is active,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,Perk Personified Prestige 2,X-Ray,Get 2 Critical Kills with a single shot 50 times with Death Perception active,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,50.0,,,TRUE,FALSE
+Zombies,Prestige,Perk Personified Prestige 2,Ethereal,Get 10 Wisp Kills with a single Companion Wisp from Wisp Tea,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,Score Attack Prestige 3,Spice of Life,Kill 3 Elite Zombies with the Life Drain Attack while using the Disciple Mutant Injection,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,3.0,,,TRUE,FALSE
+Zombies,Prestige,Score Attack Prestige 3,Swarm Lord,Kill 10 Special Zombies or Elite Zombies with HKDs,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,10.0,,,TRUE,FALSE
+Zombies,Prestige,Score Attack Prestige 3,Angel of Death,Kill 25 Zombies with a single D.A.W.G. Scorestreak 5 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,,,TRUE,FALSE
+Zombies,Prestige,Score Attack Prestige 3,Slalom,Kill 15 Zombies with a single ARC-XD without it exploding,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,Score Attack Prestige 3,Smited,Earn a Scorched Earth Medal (Kill 2 Elite Zombies with one Scorestreak),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,Score Attack Prestige 3,Voice of Torment,Rapidly Kill 10 Zombies after stunning them with your Scream while in Disciple Mutant Injection 3 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,3.0,,,TRUE,FALSE
+Zombies,Prestige,WANDerful Prestige 4,Megaton,Rapidly Kill 15 Zombies with a single use of Energy Mine 3 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,3.0,,,TRUE,FALSE
+Zombies,Prestige,WANDerful Prestige 4,Wraith,Eliminate 25 Zombies during the duration of a single Aether Shroud 1 time,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,WANDerful Prestige 4,Offensive Guard,Earn 5 Main Tank Medals (Kill 10 or more Zombies affected by Frenzied Guard),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,,,TRUE,FALSE
+Zombies,Prestige,WANDerful Prestige 4,Dark Magic,Kill 2 Special Zombies or Elite Zombies with a single use of Dark Flare,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,2.0,,,TRUE,FALSE
+Zombies,Prestige,WANDerful Prestige 4,Field Day,Rapidly Kill 50 Zombies using Field Upgrades,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,WANDerful Prestige 4,Barbwire,Rapidly Kill 20 Zombies that are trapped in a single Toxic Growth,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,Bandolier Prestige 5,Axe Champion,Kill 20 Zombies with Combat Axes without missing,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,Bandolier Prestige 5,Tower Defense,Complete a Round only using Point Turrets to Kill Zombies from Round 10 onwards,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,Bandolier Prestige 5,Monkey King,Kill 10 or more Zombies with a single Cymbal Monkey Explosion 10 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,10.0,,,TRUE,FALSE
+Zombies,Prestige,Bandolier Prestige 5,Thingamajig,Rapidly Kill 25 Zombies using LT53 Kazimirs 3 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,3.0,,,TRUE,FALSE
+Zombies,Prestige,Bandolier Prestige 5,Thermal Sunder,Earn 10 Crispy Medals (Kill 5 or more Zombies with a single Molotov),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,10.0,,,TRUE,FALSE
+Zombies,Prestige,Bandolier Prestige 5,Bomba,Kill 10 Zombies with a single explosion from Lethal Equipment 10 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,10.0,,,TRUE,FALSE
+Zombies,Prestige,Tacticality Prestige 6,Nightmare Killer,Rapidly Kill 10 Zombies 5 times using Zombies Brain Rotted by your Psych Grenades,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,,,TRUE,FALSE
+Zombies,Prestige,Tacticality Prestige 6,Gullible,Get 5 consecutive Critical Kills while Zombies are distracted by Decoy Grenades 3 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,3.0,,,TRUE,FALSE
+Zombies,Prestige,Tacticality Prestige 6,Target Locked,Kill a Special Zombie or Elite Zombie after using a Stim Shot 10 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,10.0,,,TRUE,FALSE
+Zombies,Prestige,Tacticality Prestige 6,Simon Says,Rapidly Kill 3 Ravagers that are stunned by your Stun Grenade 5 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,,,TRUE,FALSE
+Zombies,Prestige,Tacticality Prestige 6,Fearmonger,Use Hunter Bots to Kill a Zursa,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,Tacticality Prestige 6,Tooltician,Kill a Zursa while it's affected by tactical equipment,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,Endeavors Prestige 7,Mysticism,Use Pack-a-Punch Level III or higher Wonder Weapons to Kill 25 Elite Zombies,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,,,5.0,10.0,25.0,TRUE,FALSE
+Zombies,Prestige,Endeavors Prestige 7,Buy 1 Get 1,Earn a Two for One Medal (Kill 2 Special Zombies with a single shot),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,Endeavors Prestige 7,Tinkerer,Earn a Lethality Medal (20 Rapid Kills with Lethals or Field Upgrades),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,Endeavors Prestige 7,Head Hunter,Get 25 Rapid Critical Kills without reloading,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,Endeavors Prestige 7,Power Tyrant,Earn a Fire Away Medal (Kill 50 Zombies with Scorestreaks in a single round),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,Endeavors Prestige 7,Burning Rubber,Achieve Legendary Rewards for the Ol' Tessie Time Trial 3 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,3.0,,,TRUE,FALSE
+Zombies,Prestige,Elemental Ballistician Prestige 8,Electro Flux,Kill 1 Elite Zombie while it is stunned by Deadwire,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,Elemental Ballistician Prestige 8,Pyrologist,Rapidly Kill 3 Zombies with the fire damage of Napalm Burst 5 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,,,TRUE,FALSE
+Zombies,Prestige,Elemental Ballistician Prestige 8,Carnival,Earn 15 Popping Off Medals (5 Rapid Kills with Firework explosions),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,15.0,,,TRUE,FALSE
+Zombies,Prestige,Elemental Ballistician Prestige 8,Puppeteer,Earn 15 Necromancer Medals (5 Kills with a single Brain-rotted Zombie),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,15.0,,,TRUE,FALSE
+Zombies,Prestige,Elemental Ballistician Prestige 8,Voidweaver,Earn 15 Graviton Medals (Teleported 5 or more Zombies with a single use of Shadow Rift),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,15.0,,,TRUE,FALSE
+Zombies,Prestige,Elemental Ballistician Prestige 8,Permafrost,Kill 10 Special Zombies or Elite Zombies that are slowed or frozen by Cryo Freeze,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,10.0,,,TRUE,FALSE
+Zombies,Prestige,Zurvivor Prestige 9,Round Robin,Complete 50 Rounds in Survival,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,10.0,25.0,50.0,TRUE,FALSE
+Zombies,Prestige,Zurvivor Prestige 9,Perfectionist,Complete 3 consecutive Rounds after Round 10 without taking damage,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,Zurvivor Prestige 9,Frugal,"Reach Round 15 without using Perks, the Pack-a-Punch machine, or an Ammo Cache",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,Zurvivor Prestige 9,Just the Start,Reach Round 30 in a single Survival match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,Zurvivor Prestige 9,Gladiator,Reach Round 20 while only using Melee Weapons,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,Zurvivor Prestige 9,Foreboding,Reach Round 20 with Rampage Inducer active at all times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,Augmented Reality Prestige 10,Wisp Willing,Rapidly Kill 10 Zombies while they are attracted to the Wisp from Wisp Tea while using the Mask of Distraction Augment 3 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,3.0,,,TRUE,FALSE
+Zombies,Prestige,Augmented Reality Prestige 10,Finale,Kill 5 Zombies with a single Fireworks Ammo Mod activation while using the Starburst Augment 10 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,10.0,,,TRUE,FALSE
+Zombies,Prestige,Augmented Reality Prestige 10,Triple KO,Kill 3 Zombies with a single Melee Macchiato punch while using the Triple Shot Augment 5 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,,,TRUE,FALSE
+Zombies,Prestige,Augmented Reality Prestige 10,Sporangia,Kill 20 Zombies with a single use of Toxic Growth Field Upgrade while using the Pollination Augment,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,Augmented Reality Prestige 10,Shadow Step,"Using the Void Sheath Augment for Aether Shroud, Kill 20 Zombies with a single charge",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,Augmented Reality Prestige 10,Double Bubble,Rapidly Kill 10 Zombies while they are stunned by the Electric Cherry Augment for the Elemental Pop Perk 5 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,,,TRUE,FALSE
+Zombies,Prestige,Abracadavre Prestige Master,Stepping Stones,Complete 50 Rounds at Relic Tier I difficulty,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,50.0,,,TRUE,FALSE
+Zombies,Prestige,Abracadavre Prestige Master,Aether Investigator,Complete 50 Rounds at Relic Tier II difficulty,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,50.0,,,TRUE,FALSE
+Zombies,Prestige,Abracadavre Prestige Master,Chaos Sways,Complete 50 Rounds at Relic Tier III difficulty,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,50.0,,,TRUE,FALSE
+Zombies,Prestige,Abracadavre Prestige Master,Critical Priority,Reach Round 15 without buying ammo with the Bus Relic active,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,Abracadavre Prestige Master,Run,Reach Round 20 with the Samantha's Teddy Bear Relic (Round start delay cut down by 75%) and Rampage Inducer active,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Prestige,Abracadavre Prestige Master,Top Tier,Reach Round 15 on Cursed Tier III difficulty in the starting room without opening any doors,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Maps,Astra Malorum,Malefic Mediations,Survive 50 Round on Astra Malorum,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,10.0,25.0,50.0,,,TRUE,FALSE
 Zombies,Maps,Astra Malorum,Weapons Galore,"Eliminate 1,000 Zombies with your third primary weapon while Mule Kick is active on Astra Malorum",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,100.0,250.0,500.0,750.0,1000.0,TRUE,FALSE
-Zombies,Maps,Astra Malorum,Ravaged Repulsion,Survive 10 Ravager Rounds on Astra Malorum,TRUE,TRUE,TRUE,,,TRUE,1.0,5.0,10.0,,,TRUE,FALSE
-Zombies,Maps,Astra Malorum,Hard Reset,Defeat O.S.C.A.R. 10 times,TRUE,TRUE,TRUE,,,TRUE,1.0,5.0,10.0,,,TRUE,FALSE
-Zombies,Maps,Astra Malorum,Power Move,Turn on the power before round 5 on Astra Malorum,TRUE,,,,,TRUE,1.0,,,,,TRUE,FALSE
-Zombies,Maps,Astra Malorum,Unidentified Fighting Object,Earn 25 Massacre Medals (Killed 10 Zombies rapidly with a Weapon) using the LGM-1,TRUE,,,,,TRUE,25.0,,,,,TRUE,FALSE
-Zombies,Maps,Paradox Junction,Forlorn Fission,Complete 100 Rounds on Paradox Junction,FALSE,,FALSE,FALSE,,FALSE,,,25.0,50.0,100.0,TRUE,FALSE
-Zombies,Maps,Paradox Junction,Sunder Gun,Earn 25 Carnage Medals (Killed 15 Zombies rapidly with a Weapon) while using the Sundergat,FALSE,,,,,FALSE,,,25.0,,,TRUE,FALSE
-Zombies,Maps,Paradox Junction,Geiger Gunner,Earn 50 Supercritical Canine Medals (Killed 5 or more enemies with the effects of Radhound explosion) on Paradox Junction,FALSE,,FALSE,FALSE,,FALSE,,,10.0,25.0,50.0,TRUE,FALSE
-Zombies,Maps,Paradox Junction,Future's Past,Kill 2 Shock Mimics with a single shot 5 times on Paradox Junction,FALSE,,,,,FALSE,,,5.0,,,TRUE,FALSE
-Zombies,Maps,Paradox Junction,Damned Souls,Kill 20 Zombies with a single shot from a Launcher 5 times on Paradox Junction,FALSE,,,,,FALSE,,,5.0,,,TRUE,FALSE
-Zombies,Maps,Paradox Junction,Anima,Get 10 rapid Critical Kills using Melee Weapons 10 times on Paradox Junction,FALSE,,,,,FALSE,,,10.0,,,TRUE,FALSE
-Zombies,Maps,Totenreich,Ragnarok,Complete 100 Rounds on Totenreich,FALSE,,FALSE,FALSE,,FALSE,,,25.0,50.0,100.0,TRUE,FALSE
-Zombies,Maps,Totenreich,Aethereal,Kill 25 Zombies in 5 seconds using the Jotunn Star 25 times,FALSE,,,,,FALSE,,,25.0,,,TRUE,FALSE
-Zombies,Maps,Totenreich,Shield Dance,Earn 50 Shield Breaker Medals (Killed a Necropincer with a headshot while its shield was raised),FALSE,,FALSE,FALSE,,FALSE,,,10.0,25.0,50.0,TRUE,FALSE
-Zombies,Maps,Totenreich,Glocked & Loaded,Rapidly Kill 5 Zombies suspended by a Glocke Drop 25 times,FALSE,,FALSE,FALSE,,FALSE,,,5.0,10.0,25.0,TRUE,FALSE
-Zombies,Maps,Totenreich,Mecha Missive,Kill 30 Zombies with the Wunderbarrage 25 times,FALSE,,FALSE,FALSE,,FALSE,,,5.0,10.0,25.0,TRUE,FALSE
-Zombies,Maps,Totenreich,Helm Hobbyist,Collect all Viking Helmets in a single match,FALSE,,,,,FALSE,,,1.0,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Anathema,"Eliminate 1,000,000 Zombies",FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Armed to the Teeth,"Have 3 Pack-A-Punch Level III, Legendary Rarity Weapons equipped with Ammo Mods and 8 Perks active",FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Social Distancing,Reach Round 20 without taking damage,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Another Round,Reach Round 100,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Invincible,Survive to Round 50 without getting downed,TRUE,,,,,TRUE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Harbinger of Doom,Get 100 Kills with a single Scorestreak,TRUE,,,,,TRUE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Box Addict,Buy 30 Weapons from the Mystery Box in a single match,TRUE,,,,,TRUE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Mythic Cynic,Reach Round 50 with all Ashes of the Damned Relics active,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Showboat,Complete the Ashes of the Damned Main Quest at Round 100 or more,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Reliquary,Collect all Relics in Ashes of the Damned,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Hard Mode,"Complete the Ashes of the Damned Main Quest with the Blood Vials, Dragon, and Bus Relics active",FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Blitzed,Complete the Ashes of the Damned Main Quest with Samantha's Drawing and Teddy Bear Relics active in an hour or less,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Lucidity,Complete the Tank Dempsey side quest on Ashes of the Damned,TRUE,,,,,TRUE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Countdown,Kill an Elite Zombie by launching it with a jump pad,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,The One,Reach Round 999,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Action Hero,Shoot and Kill 100 Zombies without reloading,TRUE,,,,,TRUE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Boss Rush,Defeat the Ashes of the Damned Boss fight in 5 minutes or less,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Martial Artist,Reach Round 50 while only using Melee and Combat Axes,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Ingenuity,Reach Round 50 with the Dragon Wings and Lawyer's Pen Relics active,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Flushed for Cash,Earn 25M in Silverback Cash,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Serious Monkey Business,Defeat the Papaback in Hardcore,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,"The Usual, Please",Drink Juggernog 20 times in a single match,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Ready for Publishing,Fully Research all Augments for 30 different items,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,New Main,"Kill 1,000 Zombies with each of the 8 Dedicated Crew Operators",TRUE,,,,,TRUE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Echoes,Complete the Echoes of the Damned side quest,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Void Caller,"Complete round 50 with the Seed, Gong, and Dragon Relics active on Astra Malorum",FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Astronomical,"Complete the Astra Malorum Main Quest with the Spider Fang, Civil Protector Head, and Golden Spork Relics active",TRUE,,,,,TRUE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Chronomancer,Complete the Paradox Junction Main Quest only paying to Time Travel once,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Neutronomic,Complete the Paradox Junction Main Quest at round 100,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,The Bomba,Complete the Paradox Junction Main Quest with all Paradox Junction Relics active,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Relativity,Complete the Main Quest in under an hour,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Torchbearer,Reach Round 25 without ever freezing on Totenreich,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Deicide,Complete the Totenreich Main Quest at round 100 or more,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Daily Tot,"Complete the Totenreich Main Quest with the Spider Fang, Civil Protector Head, and the Dancing Arnie Relics active",FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Dark Ops,Dark Ops,Domineering,Complete Richtofen's Echoes of the Damned quest,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Zombies,Maps,Kowakujō,Obsidian Sins,Complete 100 Rounds on Kowakujō,FALSE,FALSE,FALSE,,,FALSE,25,50,100,,,TRUE,FALSE
-Zombies,Maps,Kowakujō,Hairball,Eliminate 25 Zombies in five seconds using the Nekomancer 25 times on Kowakujō,FALSE,,,,,FALSE,25,,,,,TRUE,FALSE
-Zombies,Maps,Kowakujō,Onied,Earn 50 Duelist Medals (Kill a Charged Oni with a Melee Weapon),FALSE,FALSE,FALSE,,,FALSE,10,25,50,,,TRUE,FALSE
-Zombies,Maps,Kowakujō,Citadel,Upgrade the Ghostly Rifleman trap on Kowakujō,FALSE,,,,,FALSE,1,,,,,TRUE,FALSE
-Zombies,Maps,Kowakujō,Par Course,Complete the Obstacle Course on Kowakujō,FALSE,,,,,FALSE,1,,,,,TRUE,FALSE
-Zombies,Maps,Kowakujō,Neko Café,Find all of the Stray Cats on Kowakujō,FALSE,,,,,FALSE,1,,,,,TRUE,FALSE
+Zombies,Maps,Astra Malorum,Ravaged Repulsion,Survive 10 Ravager Rounds on Astra Malorum,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,5.0,10.0,,,TRUE,FALSE
+Zombies,Maps,Astra Malorum,Hard Reset,Defeat O.S.C.A.R. 10 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,5.0,10.0,,,TRUE,FALSE
+Zombies,Maps,Astra Malorum,Power Move,Turn on the power before round 5 on Astra Malorum,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,,,,,TRUE,FALSE
+Zombies,Maps,Astra Malorum,Unidentified Fighting Object,Earn 25 Massacre Medals (Killed 10 Zombies rapidly with a Weapon) using the LGM-1,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,25.0,,,,,TRUE,FALSE
+Zombies,Maps,Paradox Junction,Forlorn Fission,Complete 100 Rounds on Paradox Junction,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,,,25.0,50.0,100.0,TRUE,FALSE
+Zombies,Maps,Paradox Junction,Sunder Gun,Earn 25 Carnage Medals (Killed 15 Zombies rapidly with a Weapon) while using the Sundergat,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,25.0,,,TRUE,FALSE
+Zombies,Maps,Paradox Junction,Geiger Gunner,Earn 50 Supercritical Canine Medals (Killed 5 or more enemies with the effects of Radhound explosion) on Paradox Junction,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,,,10.0,25.0,50.0,TRUE,FALSE
+Zombies,Maps,Paradox Junction,Future's Past,Kill 2 Shock Mimics with a single shot 5 times on Paradox Junction,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,,,TRUE,FALSE
+Zombies,Maps,Paradox Junction,Damned Souls,Kill 20 Zombies with a single shot from a Launcher 5 times on Paradox Junction,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,,,TRUE,FALSE
+Zombies,Maps,Paradox Junction,Anima,Get 10 rapid Critical Kills using Melee Weapons 10 times on Paradox Junction,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,10.0,,,TRUE,FALSE
+Zombies,Maps,Totenreich,Ragnarok,Complete 100 Rounds on Totenreich,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,,,25.0,50.0,100.0,TRUE,FALSE
+Zombies,Maps,Totenreich,Aethereal,Kill 25 Zombies in 5 seconds using the Jotunn Star 25 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,25.0,,,TRUE,FALSE
+Zombies,Maps,Totenreich,Shield Dance,Earn 50 Shield Breaker Medals (Killed a Necropincer with a headshot while its shield was raised),TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,,,10.0,25.0,50.0,TRUE,FALSE
+Zombies,Maps,Totenreich,Glocked & Loaded,Rapidly Kill 5 Zombies suspended by a Glocke Drop 25 times,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,,,5.0,10.0,25.0,TRUE,FALSE
+Zombies,Maps,Totenreich,Mecha Missive,Kill 30 Zombies with the Wunderbarrage 25 times,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,,,5.0,10.0,25.0,TRUE,FALSE
+Zombies,Maps,Totenreich,Helm Hobbyist,Collect all Viking Helmets in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Anathema,"Eliminate 1,000,000 Zombies",TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Armed to the Teeth,"Have 3 Pack-A-Punch Level III, Legendary Rarity Weapons equipped with Ammo Mods and 8 Perks active",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Social Distancing,Reach Round 20 without taking damage,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Another Round,Reach Round 100,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Invincible,Survive to Round 50 without getting downed,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Harbinger of Doom,Get 100 Kills with a single Scorestreak,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Box Addict,Buy 30 Weapons from the Mystery Box in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Mythic Cynic,Reach Round 50 with all Ashes of the Damned Relics active,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Showboat,Complete the Ashes of the Damned Main Quest at Round 100 or more,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Reliquary,Collect all Relics in Ashes of the Damned,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Hard Mode,"Complete the Ashes of the Damned Main Quest with the Blood Vials, Dragon, and Bus Relics active",TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Blitzed,Complete the Ashes of the Damned Main Quest with Samantha's Drawing and Teddy Bear Relics active in an hour or less,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Lucidity,Complete the Tank Dempsey side quest on Ashes of the Damned,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Countdown,Kill an Elite Zombie by launching it with a jump pad,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,The One,Reach Round 999,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Action Hero,Shoot and Kill 100 Zombies without reloading,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Boss Rush,Defeat the Ashes of the Damned Boss fight in 5 minutes or less,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Martial Artist,Reach Round 50 while only using Melee and Combat Axes,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Ingenuity,Reach Round 50 with the Dragon Wings and Lawyer's Pen Relics active,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Flushed for Cash,Earn 25M in Silverback Cash,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Serious Monkey Business,Defeat the Papaback in Hardcore,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,"The Usual, Please",Drink Juggernog 20 times in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Ready for Publishing,Fully Research all Augments for 30 different items,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,New Main,"Kill 1,000 Zombies with each of the 8 Dedicated Crew Operators",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Echoes,Complete the Echoes of the Damned side quest,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Void Caller,"Complete round 50 with the Seed, Gong, and Dragon Relics active on Astra Malorum",TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Astronomical,"Complete the Astra Malorum Main Quest with the Spider Fang, Civil Protector Head, and Golden Spork Relics active",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Chronomancer,Complete the Paradox Junction Main Quest only paying to Time Travel once,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Neutronomic,Complete the Paradox Junction Main Quest at round 100,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,The Bomba,Complete the Paradox Junction Main Quest with all Paradox Junction Relics active,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Relativity,Complete the Main Quest in under an hour,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Torchbearer,Reach Round 25 without ever freezing on Totenreich,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Deicide,Complete the Totenreich Main Quest at round 100 or more,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Daily Tot,"Complete the Totenreich Main Quest with the Spider Fang, Civil Protector Head, and the Dancing Arnie Relics active",TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Dark Ops,Dark Ops,Domineering,Complete Richtofen's Echoes of the Damned quest,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Zombies,Maps,Kowakujō,Obsidian Sins,Complete 100 Rounds on Kowakujō,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,25,50,100,,,TRUE,FALSE
+Zombies,Maps,Kowakujō,Hairball,Eliminate 25 Zombies in five seconds using the Nekomancer 25 times on Kowakujō,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,25,,,,,TRUE,FALSE
+Zombies,Maps,Kowakujō,Onied,Earn 50 Duelist Medals (Kill a Charged Oni with a Melee Weapon),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,10,25,50,,,TRUE,FALSE
+Zombies,Maps,Kowakujō,Citadel,Upgrade the Ghostly Rifleman trap on Kowakujō,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1,,,,,TRUE,FALSE
+Zombies,Maps,Kowakujō,Par Course,Complete the Obstacle Course on Kowakujō,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1,,,,,TRUE,FALSE
+Zombies,Maps,Kowakujō,Neko Café,Find all of the Stray Cats on Kowakujō,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1,,,,,TRUE,FALSE
