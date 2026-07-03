@@ -43,7 +43,6 @@ COMMANDER_MODES = [
     "Class cleanup",
     "Mode completion push",
     "Completion stack",
-    "Completion stack",
 ]
 
 FOCUS_TARGETS = [
@@ -73,11 +72,6 @@ ANCHOR_COLLECTIONS = [
     "Reticles",
     "Calling Cards",
     "Weapon Prestige",
-    "Operations / Missions",
-    "Rewards / Unlocks",
-    "Map Challenges",
-    "Intel",
-    "Non-camo completion",
     "Operations / Missions",
     "Rewards / Unlocks",
     "Map Challenges",
@@ -3161,102 +3155,6 @@ def build_weapon_prestige_hint(task: dict[str, Any], available_tasks: list[dict[
         f"This is a low-stacking route."
     )
 
-def build_companion_objectives(
-    stop: dict[str, Any],
-    available_tasks: list[dict[str, Any]],
-    max_items: int = 4,
-) -> list[str]:
-    mode = stop.get("mode", "")
-    weapon = clean(stop.get("weapon", ""))
-    weapon_class = clean(stop.get("weapon_class", ""))
-    stop_task_id = stop.get("task_id", "")
-    stop_task_type = stop.get("task_type", "")
-
-    candidates = []
-
-    for task in available_tasks:
-        if task.get("locked", False):
-            continue
-
-        if task.get("task_id") == stop_task_id:
-            continue
-
-        task_mode = task.get("mode", "")
-        task_type = task.get("task_type", "")
-        task_weapon = clean(task.get("weapon", ""))
-        task_weapon_class = clean(task.get("weapon_class", ""))
-        text = task_search_text(task)
-
-        if task_mode not in {mode, "Global Cleanup"}:
-            continue
-
-        score = 0
-
-        if task_weapon and weapon and task_weapon == weapon:
-            score += 120
-
-        if task_weapon_class and weapon_class and task_weapon_class == weapon_class:
-            score += 80
-
-        if task_type in {"calling_card", "dark_ops"}:
-            score += 90
-
-        if task_type in {"mastery_badge_weapon", "mastery_badge_equipment"}:
-            score += 80
-
-        if task_type == "reticle":
-            score += 70
-
-        if task_type in {"reward", "endgame_unlock", "intel", "title", "colour", "augment", "overclock"}:
-            score += 90
-
-        if any(term in text for term in [
-            "operation",
-            "mission",
-            "king killer",
-            "main quest",
-            "map",
-            "kowakujō",
-            "kowakujo",
-            "reward",
-            "unlock",
-            "intel",
-            "calling card",
-        ]):
-            score += 80
-
-        if stop_task_type != "camo" and task_type == "camo":
-            score += 45
-
-        if stop_task_type != "weapon_prestige" and task_type == "weapon_prestige":
-            score += 35
-
-        score += min(float(task.get("weapon_progress", 0.0)), 100.0) * 0.4
-        score += unlock_leverage_bonus(task)
-
-        if score <= 0:
-            continue
-
-        candidates.append((score, task))
-
-    candidates.sort(key=lambda item: item[0], reverse=True)
-
-    companion_lines = []
-
-    for _, task in candidates[:max_items]:
-        task_type = task.get("task_type", "objective")
-        weapon = task.get("weapon", "")
-        camo = task.get("camo", "")
-        challenge = task.get("challenge_text", "")
-
-        label = camo or challenge or task_type
-
-        if weapon and weapon != label:
-            companion_lines.append(f"{weapon}: {label}")
-        else:
-            companion_lines.append(label)
-
-    return companion_lines
 
 def build_stacking_hint(stop: dict[str, Any], available_tasks: list[dict[str, Any]]) -> str:
     """

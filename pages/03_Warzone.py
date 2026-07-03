@@ -481,29 +481,6 @@ def initialise_state():
         st.session_state.bo7_celebrations = []
     if "bo7_last_debrief" not in st.session_state:
         st.session_state.bo7_last_debrief = None
-    
-    if "bo7_form_commander_mode" not in st.session_state:
-        st.session_state.bo7_form_commander_mode = COMMANDER_MODES[0]
-
-    if "bo7_form_focus_targets" not in st.session_state:
-        st.session_state.bo7_form_focus_targets = []
-
-    if "bo7_form_anchor_weapon" not in st.session_state:
-        st.session_state.bo7_form_anchor_weapon = ""
-
-    if "bo7_form_anchor_class" not in st.session_state:
-        st.session_state.bo7_form_anchor_class = ""
-
-    if "bo7_form_anchor_collection" not in st.session_state:
-        st.session_state.bo7_form_anchor_collection = ANCHOR_COLLECTIONS[0]
-
-    if "bo7_form_minimum_closeness" not in st.session_state:
-        st.session_state.bo7_form_minimum_closeness = 80
-
-    if "bo7_actual_minutes_played" not in st.session_state:
-        st.session_state.bo7_actual_minutes_played = 0
-
-
 
 CLEAN_DATA_DIR = Path("data/bo7_clean")
 
@@ -3212,7 +3189,8 @@ with tab_mission:
             help=(
                 "Optimise my grind keeps normal Commander behaviour. "
                 "Start from my itch anchors the plan around a weapon or class. "
-                "Closest finishes hunts nearly-done items."
+                "Closest finishes hunts nearly-done items. "
+                "Completion stack prioritises non-camo completion and adds camo progress as a side objective."
             ),
             key="select_commander_mode",
         )
@@ -3284,6 +3262,10 @@ with tab_mission:
             st.info("Start from my itch will build the route around your selected weapon, class, or collection first.")
         elif commander_mode == "Closest finishes":
             st.info("Closest finishes prioritises near-complete items. Use Global Cleanup as the mode to let it search across all modes.")
+        elif commander_mode == "Completion stack":
+            st.info(
+                "Completion stack avoids pure camo tunnel vision. It prefers operations, rewards, calling cards, intel, map challenges, badges, reticles, and then adds camos as stackable side progress."
+            )
 
         st.divider()
  
