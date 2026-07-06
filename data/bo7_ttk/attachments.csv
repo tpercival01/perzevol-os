@@ -1,147 +1,809 @@
-attachment_id,attachment_name,slot,compatible_weapon_classes,compatible_guns,damage_pct,fire_rate_pct,ads_ms_add,sprint_to_fire_ms_add,recoil_pct,bullet_velocity_pct,range_pct,mag_size_add
-smg_redwell_shadex,Redwell Shade-X Suppressor,Muzzle,SMG,,0,0,0,0,-11,-5,0,0
-smg_monolithic_suppressor,Monolithic Suppressor,Muzzle,SMG,,0,0,55,0,0,20,0,0
-smg_lti_stentorian,LTI Stentorian Brake,Muzzle,SMG,,0,3,0,0,10,0,0,0
-smg_accel_recoil,Accelerated Recoil System,Fire Mods,SMG,,0,0,0,0,-11,0,0,0
-smg_redwell_tactical_laser,Redwell Tactical Laser,Laser,SMG,,0,0,0,0,0,0,0,0
-smg_lti_swiftpoint_laser,LTI SwiftPoint Laser,Laser,SMG,,0,0,-15,-15,0,0,0,0
-smg_vas_precision_shift_laser,VAS Precision Shift Laser,Laser,SMG,,0,0,0,0,0,0,0,0
-ar_redwell_shadex,Redwell Shade-X Suppressor,Muzzle,Assault Rifle,,0,0,0,0,-11,0,-5,0
-ar_monolithic_suppressor,Monolithic Suppressor,Muzzle,Assault Rifle,,0,0,55,0,0,10,8,0
-ar_lti_stentorian,LTI Stentorian Brake,Muzzle,Assault Rifle,,0,3,0,0,9,0,0,0
-dravec_bowen_45_suppressor,Bowen .45 Suppressor,Muzzle,SMG,Dravec 45,0,0,0,0,0,0,0,0
-dravec_hawker_series_45,Hawker Series 45,Muzzle,SMG,Dravec 45,0,0,0,0,-17,0,0,0
-dravec_hawker_stabilizer_mkii,Hawker Stabilizer MK.II,Muzzle,SMG,Dravec 45,0,0,0,0,-11,0,0,0
-dravec_hawker_hybrid_45,Hawker Hybrid .45,Muzzle,SMG,Dravec 45,0,0,0,0,0,0,0,0
-dravec_verse_14_barrel,14" Verse Barrel,Barrel,SMG,Dravec 45,0,0,10,0,0,8,7,0
-dravec_cloud_12_barrel,12" Cloud Barrel,Barrel,SMG,Dravec 45,0,0,-35,-45,0,0,0,0
-dravec_jetstream_18_barrel,18" Jetstream Barrel,Barrel,SMG,Dravec 45,0,0,-16,0,0,0,0,0
-dravec_eam_horizon_19_barrel,19" EAM Horizon Barrel,Barrel,SMG,Dravec 45,0,0,15,0,0,0,7,0
-dravec_predator_16_5_barrel,16.5" Predator Barrel,Barrel,SMG,Dravec 45,0,0,0,0,0,20,0,0
-dravec_gator_extended_mag,Gator Extended Mag,Magazine,SMG,Dravec 45,0,0,0,0,0,0,0,12
-dravec_frontgate_fast_loader,FrontGate Fast Loader,Magazine,SMG,Dravec 45,0,0,-15,-15,0,0,0,0
-dravec_lockjaw_extended_mag,Lockjaw Extended Mag,Magazine,SMG,Dravec 45,0,0,20,20,0,0,0,24
-dravec_helix_tac_grip,Helix-Tac Grip,Rear Grip,SMG,Dravec 45,0,0,0,-40,0,0,0,0
-dravec_quikarm_grip,QuikArm Grip,Rear Grip,SMG,Dravec 45,0,0,-55,0,0,0,0,0
-dravec_delta_axis_grip,Delta Axis Grip,Rear Grip,SMG,Dravec 45,0,0,7,0,-1,0,0,0
-dravec_vantix_8_grip,Vantix-8 Grip,Rear Grip,SMG,Dravec 45,0,0,0,0,-8,0,0,0
-dravec_herald_z1_grip,Herald-Z1 Grip,Rear Grip,SMG,Dravec 45,0,0,-27,0,0,0,0,0
-dravec_serval_q_step_stock,Serval Q-Step Stock,Stock,SMG,Dravec 45,0,0,-27,0,0,0,0,0
-dravec_endurance_ld_6_stock,Endurance LD-6 Stock,Stock,SMG,Dravec 45,0,0,30,0,-13,0,0,0
-dravec_converge_tactical_stock,Converge Tactical Stock,Stock,SMG,Dravec 45,0,0,0,0,0,0,0,0
-dravec_eam_heritage_stock,EAM Heritage Stock,Stock,SMG,Dravec 45,0,0,-18,-15,0,0,0,0
-dravec_defiant_45_skeletal_stock,Defiant-45 Skeletal Stock,Stock,SMG,Dravec 45,0,0,0,0,0,0,0,0
-dravec_mfs_agile_laser_pro,MFS Agile Laser Pro,Laser,SMG,Dravec 45,0,0,-15,-15,15,0,0,0
-dravec_eam_scatterline_laser,EAM ScatterLine Laser,Laser,SMG,Dravec 45,0,0,0,0,0,0,0,0
-dravec_bolt_carrier_group,Bolt Carrier Group,Fire Mods,SMG,Dravec 45,0,5,0,0,20,-10,-21,0
-dravec_overpressured_45_cal,45 Cal Overpressured,Fire Mods,SMG,Dravec 45,0,0,0,0,0,15,0,0
-dravec_fmj_45_cal,45 Cal FMJ,Fire Mods,SMG,Dravec 45,0,0,0,0,0,8,7,0
-carbon57_ks_compensator,K&S Compensator,Muzzle,SMG,CARBON 57,0,0,0,0,-20,0,0,0
-carbon57_ks_stalker,K&S Stalker 57-X,Muzzle,SMG,CARBON 57,0,0,0,0,0,0,0,0
-carbon57_ks_brake2b,K&S Brake-2B,Muzzle,SMG,CARBON 57,0,0,0,0,-5,0,0,0
-carbon57_kuhn_ported,Kühn Ported Comp,Muzzle,SMG,CARBON 57,0,0,0,0,0,0,0,0
-carbon57_rockleigh_14,14" Rockleigh Barrel,Barrel,SMG,CARBON 57,0,0,15,0,0,0,12,0
-carbon57_vas_radiant_8_5,8.5" VAS Radiant Barrel,Barrel,SMG,CARBON 57,0,0,-35,0,0,0,0,0
-carbon57_orbital_8_6,8.6" Orbital Light Barrel,Barrel,SMG,CARBON 57,0,0,-38,-35,0,0,0,0
-carbon57_ex3_heavy_10_2,10.2" EX-3 Heavy Barrel,Barrel,SMG,CARBON 57,0,0,0,6,0,12,14,0
-carbon57_greaves_11,11" Greaves Repose Barrel,Barrel,SMG,CARBON 57,0,0,10,0,0,8,7,0
-carbon57_fabricator_mag,Carbon 57 Fabricator Mag,Magazine,SMG,CARBON 57,0,0,11,0,0,0,0,5
-carbon57_mfs_renown_plus,MFS Renown Plus Mag,Magazine,SMG,CARBON 57,0,0,0,0,-10,0,0,10
-carbon57_bowen_sideline,Bowen Sideline Extended,Magazine,SMG,CARBON 57,0,0,20,20,0,0,0,20
-carbon57_compact246_fastmag,Compact-246 Fast Mag,Magazine,SMG,CARBON 57,0,0,-10,-10,0,0,0,0
-carbon57_oberon_tactical,Oberon Tactical Pad,Stock,SMG,CARBON 57,0,0,-32,-13,0,0,0,0
-carbon57_heavy_bound,Heavy Bound Pad,Stock,SMG,CARBON 57,0,0,15,0,-15,0,0,0
-carbon57_graph_aero,Graph-Aero Stock,Stock,SMG,CARBON 57,0,0,0,0,0,0,0,0
-carbon57_hammer_platoon,Hammer Platoon Pad,Stock,SMG,CARBON 57,0,0,-27,0,0,0,0,0
-carbon57_bowen_resolute,Bowen Resolute Pad,Stock,SMG,CARBON 57,0,0,12,0,0,0,0,0
-carbon57_overpressured,5.7x28mm Overpressured,Fire Mods,SMG,CARBON 57,0,0,0,0,0,20,0,0
-carbon57_enhanced_cycle,Enhanced Cycle System,Fire Mods,SMG,CARBON 57,0,4,0,0,20,-10,0,0
-carbon57_fmj,5.7x28mm FMJ,Fire Mods,SMG,CARBON 57,0,0,0,0,0,8,7,0
-carbon57_vas_convergence_foregrip,VAS Convergence Foregrip,Underbarrel,SMG,CARBON 57,0,0,0,0,-15,0,0,0
-carbon57_lateral_precision_grip,Lateral Precision Grip,Underbarrel,SMG,CARBON 57,0,0,0,0,-10,0,0,0
-carbon57_respire_handstop,Respire Handstop,Underbarrel,SMG,CARBON 57,0,0,0,0,0,0,0,0
-carbon57_vitalize_handstop,Vitalize Handstop,Underbarrel,SMG,CARBON 57,0,0,0,0,-10,0,0,0
-carbon57_quickstep_foregrip,Quickstep Foregrip,Underbarrel,SMG,CARBON 57,0,0,0,0,0,0,0,0
-carbon57_sapper_guard_handstop,Sapper Guard Handstop,Underbarrel,SMG,CARBON 57,0,0,0,0,-5,0,0,0
-carbon57_puck57_grip,Puck-57 Grip,Rear Grip,SMG,CARBON 57,0,0,-45,0,0,0,0,0
-carbon57_bombus_quick_grip,Bombus Quick Grip,Rear Grip,SMG,CARBON 57,0,0,-25,0,0,0,0,0
-carbon57_remus_sprint_grip,Remus Sprint Grip,Rear Grip,SMG,CARBON 57,0,0,0,-42,0,0,0,0
-carbon57_dulcet_control_grip,Dulcet Control Grip,Rear Grip,SMG,CARBON 57,0,0,7,0,-10,0,0,0
-carbon57_gollath_steady_grip,Gollath Steady Grip,Rear Grip,SMG,CARBON 57,0,0,0,0,-20,0,0,0
-carbon57_eam_scatterline_laser,EAM ScatterLine Laser,Laser,SMG,CARBON 57,0,0,0,0,0,0,0,0
-carbon57_emt3_agile_laser,EMT3 Agile Laser,Laser,SMG,CARBON 57,0,0,0,0,0,0,0,0
-mxr_greaves_ti_762,Greaves TI-762,Muzzle,Assault Rifle,MXR-17,0,0,0,0,0,0,0,0
-mxr_redwell_90_compensator,Redwell-90 Compensator,Muzzle,Assault Rifle,MXR-17,0,0,0,0,-20,0,0,0
-mxr_redwell_762_brake,Redwell 7.62 Brake,Muzzle,Assault Rifle,MXR-17,0,0,0,0,-12,0,0,0
-mxr_titan_r_762_compensator,Titan-R 7.62 Compensator,Muzzle,Assault Rifle,MXR-17,0,0,0,0,0,0,0,0
-mxr_imperial_20_barrel,20" Imperial Barrel,Barrel,Assault Rifle,MXR-17,0,0,15,0,0,0,22,0
-mxr_rapid_sterling_18_barrel,18" Rapid Sterling Barrel,Barrel,Assault Rifle,MXR-17,0,0,0,0,0,-4,40,0
-mxr_rift_m7_18_barrel,18" Rift-M7 Barrel,Barrel,Assault Rifle,MXR-17,0,0,10,0,0,8,8,0
-mxr_wrath_15_barrel,15" Wrath Barrel,Barrel,Assault Rifle,MXR-17,0,0,-23,-10,0,0,0,0
-mxr_greaves_scourge_17_barrel,17" Greaves Scourge Barrel,Barrel,Assault Rifle,MXR-17,0,0,35,16,-15,18,0,0
-mxr_vas_convergence_foregrip,VAS Convergence Foregrip,Underbarrel,Assault Rifle,MXR-17,0,0,0,0,-10,0,0,0
-mxr_lateral_precision_grip,Lateral Precision Grip,Underbarrel,Assault Rifle,MXR-17,0,0,0,0,0,0,0,0
-mxr_sentry_pro_handstop,Sentry Pro Handstop,Underbarrel,Assault Rifle,MXR-17,0,0,0,0,0,0,0,0
-mxr_enhance_32_handstop,Enhance-32 Handstop,Underbarrel,Assault Rifle,MXR-17,0,0,0,0,0,0,0,0
-mxr_quickstep_foregrip,Quickstep Foregrip,Underbarrel,Assault Rifle,MXR-17,0,0,0,0,0,0,0,0
-mxr_eam_steady_90_grip,EAM Steady-90 Grip,Underbarrel,Assault Rifle,MXR-17,0,0,0,0,0,0,0,0
-mxr_vault_extended_mag,Vault Extended Mag,Magazine,Assault Rifle,MXR-17,0,0,10,0,0,0,0,15
-mxr_twinpack_flip_mags,TwinPack Flip Mags,Magazine,Assault Rifle,MXR-17,0,0,0,0,0,0,0,10
-mxr_rhodes_drum_mag,Rhodes Drum Mag,Magazine,Assault Rifle,MXR-17,0,0,20,0,0,0,0,30
-mxr_celerity_grip,Celerity Grip,Rear Grip,Assault Rifle,MXR-17,0,0,-50,0,0,0,0,0
-mxr_bell_h81_grip,Bell-H81 Grip,Rear Grip,Assault Rifle,MXR-17,0,0,0,-40,0,0,0,0
-mxr_virgil_xi_grip,Virgil-XI Grip,Rear Grip,Assault Rifle,MXR-17,0,0,15,0,0,0,0,0
-mxr_arla_assail_grip,Arla Assail Grip,Rear Grip,Assault Rifle,MXR-17,0,0,-25,0,0,0,0,0
-mxr_fissure_grip,Fissure Grip,Rear Grip,Assault Rifle,MXR-17,0,0,0,0,-8,0,0,0
-mxr_greaves_covenant_stock,Greaves Covenant Stock,Stock,Assault Rifle,MXR-17,0,0,0,0,0,0,0,0
-mxr_galt_lux_stock,Galt-Lux Stock,Stock,Assault Rifle,MXR-17,0,0,-20,0,0,0,0,0
-mxr_winch_stock,Winch Stock,Stock,Assault Rifle,MXR-17,0,0,25,0,-15,0,0,0
-mxr_skeletal_stock,Skeletal Stock,Stock,Assault Rifle,MXR-17,0,0,-15,-20,0,0,0,0
-mxr_vas_th_09_stock,VAS TH-09 Stock,Stock,Assault Rifle,MXR-17,0,0,20,0,-10,0,0,0
-mxr_convergence_box_laser,Convergence Box Laser,Laser,Assault Rifle,MXR-17,0,0,0,0,0,0,0,0
-mxr_adaptive_tactical_laser_2mw,2mW Adaptive Tactical Laser,Laser,Assault Rifle,MXR-17,0,0,0,0,0,0,0,0
-mxr_instinct_laser_array_1mw,1mW Instinct Laser Array,Laser,Assault Rifle,MXR-17,0,0,-18,-15,0,0,0,0
-mxr_lockstep_laser_5mw,5mW Lockstep Laser,Laser,Assault Rifle,MXR-17,0,0,0,0,0,0,0,0
-mxr_motion_strike_laser_3mw,3mW Motion Strike Laser,Laser,Assault Rifle,MXR-17,0,0,0,0,0,0,0,0
-mxr_bolt_carrier_group,Bolt Carrier Group,Fire Mods,Assault Rifle,MXR-17,0,4,0,0,20,-15,-10,0
-mxr_nato_overpressured_762,7.62 NATO Overpressured,Fire Mods,Assault Rifle,MXR-17,0,0,0,0,0,20,0,0
-mxr_recoil_sync_unit,Recoil Sync Unit,Fire Mods,Assault Rifle,MXR-17,0,0,0,0,-10,0,0,0
-mxr_nato_fmj_762,7.62 NATO FMJ,Fire Mods,Assault Rifle,MXR-17,0,0,0,0,0,20,18,0
-smg_bowen_45_suppressor,Bowen .45 Suppressor,Muzzle,SMG,,0,0,0,0,0,0,0,0
-smg_hawker_hybrid_45,Hawker Hybrid .45,Muzzle,SMG,,0,0,0,0,0,0,0,0
-sturmwolf_hawker_series_45,Hawker Series 45,Muzzle,SMG,STURMWOLF 45,0,0,0,0,-14,0,0,0
-sturmwolf_hawker_stabilizer_mkii,Hawker Stabilizer MK.II,Muzzle,SMG,STURMWOLF 45,0,0,0,0,-8,0,0,0
-sturmwolf_perigee_14_8,14.8" Perigee Barrel,Barrel,SMG,STURMWOLF 45,0,0,15,0,0,0,12,0
-sturmwolf_piston_mosaic_13_2,13.2" Piston Mosaic Barrel,Barrel,SMG,STURMWOLF 45,0,0,-16,0,0,0,0,0
-sturmwolf_lethal_conflux_12_3,12.3" Lethal Conflux Barrel,Barrel,SMG,STURMWOLF 45,0,0,10,0,0,8,0,0
-sturmwolf_lti_ascendancy_11_5,11.5" LTI Ascendancy Barrel,Barrel,SMG,STURMWOLF 45,0,0,-35,-45,0,0,0,0
-sturmwolf_regnant_15,15" Regnant Barrel,Barrel,SMG,STURMWOLF 45,0,0,0,7,0,12,14,0
-sturmwolf_vas_convergence,VAS Convergence Foregrip,Underbarrel,SMG,STURMWOLF 45,0,0,0,0,-14,0,0,0
-sturmwolf_zero_shift_handstop,Zero Shift Handstop,Underbarrel,SMG,STURMWOLF 45,0,0,0,0,-5,0,0,0
-sturmwolf_lateral_precision,Lateral Precision Grip,Underbarrel,SMG,STURMWOLF 45,0,0,0,0,-10,0,0,0
-sturmwolf_respire_handstop,Respire Handstop,Underbarrel,SMG,STURMWOLF 45,0,0,0,0,0,0,0,0
-sturmwolf_quickstep_foregrip,Quickstep Foregrip,Underbarrel,SMG,STURMWOLF 45,0,0,0,0,0,0,0,0
-sturmwolf_envoy_foregrip,Envoy Foregrip,Underbarrel,SMG,STURMWOLF 45,0,0,0,0,-5,0,0,0
-sturmwolf_mfs_tigris_mag,MFS Tigris .40 Cal Mag,Magazine,SMG,STURMWOLF 45,18,-13,-10,-10,0,-20,0,-2
-sturmwolf_extended_mag_i,Extended Mag I,Magazine,SMG,STURMWOLF 45,0,0,0,0,0,0,0,16
-sturmwolf_lti_upend_flip_mag,LTI Upend Flip Mag,Magazine,SMG,STURMWOLF 45,0,0,0,0,0,0,0,5
-sturmwolf_b45_roar_drum,B-45 Roar Drum,Magazine,SMG,STURMWOLF 45,0,0,20,20,0,0,0,28
-sturmwolf_sanctum_speed_grip,Sanctum Speed Grip,Rear Grip,SMG,STURMWOLF 45,0,0,-65,0,0,0,0,0
-sturmwolf_aspire_comfort_grip,Aspire Comfort Grip,Rear Grip,SMG,STURMWOLF 45,0,0,0,0,-8,0,0,0
-sturmwolf_lti_pelage_grip,LTI Pelage Grip,Rear Grip,SMG,STURMWOLF 45,0,0,0,-42,0,0,0,0
-sturmwolf_motley_light_grip,Motley Light Grip,Rear Grip,SMG,STURMWOLF 45,0,0,15,0,-5,0,0,0
-sturmwolf_selene_rover_grip,Selene Rover Grip,Rear Grip,SMG,STURMWOLF 45,0,0,-35,0,0,0,0,0
-sturmwolf_corpus_x3_stock,Corpus-x3 Stock,Stock,SMG,STURMWOLF 45,0,0,-28,0,0,0,0,0
-sturmwolf_mink_stability_stock,Mink Stability Stock,Stock,SMG,STURMWOLF 45,0,0,30,0,-18,0,0,0
-sturmwolf_satellite_skeleton_stock,Satellite Skeleton Stock,Stock,SMG,STURMWOLF 45,0,0,-19,-16,0,0,0,0
-sturmwolf_lti_pride_stock,LTI Pride Stock,Stock,SMG,STURMWOLF 45,0,0,20,0,-10,0,0,0
-sturmwolf_itinerant_light_stock,Itinerant Light Stock,Stock,SMG,STURMWOLF 45,0,0,0,0,0,0,0,0
-sturmwolf_corpus_x3_stock,Corpus-x3 Stock,Stock,SMG,STURMWOLF 45,0,0,-28,0,0,0,0,0
-sturmwolf_mink_stability_stock,Mink Stability Stock,Stock,SMG,STURMWOLF 45,0,0,30,0,-18,0,0,0
-sturmwolf_satellite_skeleton_stock,Satellite Skeleton Stock,Stock,SMG,STURMWOLF 45,0,0,-19,-16,0,0,0,0
-sturmwolf_lti_pride_stock,LTI Pride Stock,Stock,SMG,STURMWOLF 45,0,0,20,0,-10,0,0,0
-sturmwolf_itinerant_light_stock,Itinerant Light Stock,Stock,SMG,STURMWOLF 45,0,0,0,0,0,0,0,0
-sturmwolf_45cal_overpressured,.45 Cal Overpressured,Fire Mods,SMG,STURMWOLF 45,0,0,0,0,0,15,0,0
-sturmwolf_recoil_spring_assembly,Recoil Spring Assembly,Fire Mods,SMG,STURMWOLF 45,0,0,0,0,-10,0,0,0
-sturmwolf_45cal_fmj,.45 Cal FMJ,Fire Mods,SMG,STURMWOLF 45,0,0,0,0,0,8,7,0
-sturmwolf_bolt_carrier_group,Bolt Carrier Group,Fire Mods,SMG,STURMWOLF 45,0,4,0,0,20,-10,-8,0
+attachment_id,attachment_name,slot,compatible_weapon_classes,compatible_guns,damage_pct,fire_rate_pct,ads_ms_add,sprint_to_fire_ms_add,recoil_pct,bullet_velocity_pct,range_pct,mag_size_add,ads_pct,sprint_to_fire_pct,reload_pct,jump_ads_pct,jump_sprint_to_fire_pct,movement_pct,sprint_pct,crouch_movement_pct,ads_movement_pct,gun_kick_pct,horizontal_recoil_pct,vertical_recoil_pct,first_shot_recoil_pct,kick_reset_speed_pct,flinch_resistance_pct,raw_stat_text,source,source_date,verification_status,verification_notes
+smg_redwell_shadex,Redwell Shade-X Suppressor,Muzzle,SMG,,0.0,0.0,0.0,0.0,-11.0,-5.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+smg_monolithic_suppressor,Monolithic Suppressor,Muzzle,SMG,,0.0,0.0,55.0,0.0,0.0,20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+smg_lti_stentorian,LTI Stentorian Brake,Muzzle,SMG,,0.0,3.0,0.0,0.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+smg_accel_recoil,Accelerated Recoil System,Fire Mods,SMG,,0.0,0.0,0.0,0.0,-11.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+smg_redwell_tactical_laser,Redwell Tactical Laser,Laser,SMG,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+smg_lti_swiftpoint_laser,LTI SwiftPoint Laser,Laser,SMG,,0.0,0.0,-15.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+smg_vas_precision_shift_laser,VAS Precision Shift Laser,Laser,SMG,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ar_redwell_shadex,Redwell Shade-X Suppressor,Muzzle,Assault Rifle,,0.0,0.0,0.0,0.0,-11.0,0.0,-5.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ar_monolithic_suppressor,Monolithic Suppressor,Muzzle,Assault Rifle,,0.0,0.0,55.0,0.0,0.0,10.0,8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ar_lti_stentorian,LTI Stentorian Brake,Muzzle,Assault Rifle,,0.0,3.0,0.0,0.0,9.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_bowen_45_suppressor,Bowen .45 Suppressor,Muzzle,SMG,Dravec 45,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_hawker_series_45,Hawker Series 45,Muzzle,SMG,Dravec 45,0.0,0.0,0.0,0.0,-17.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_hawker_stabilizer_mkii,Hawker Stabilizer MK.II,Muzzle,SMG,Dravec 45,0.0,0.0,0.0,0.0,-11.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_hawker_hybrid_45,Hawker Hybrid .45,Muzzle,SMG,Dravec 45,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_verse_14_barrel,"14"" Verse Barrel",Barrel,SMG,Dravec 45,0.0,0.0,10.0,0.0,0.0,8.0,7.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_cloud_12_barrel,"12"" Cloud Barrel",Barrel,SMG,Dravec 45,0.0,0.0,-35.0,-45.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_jetstream_18_barrel,"18"" Jetstream Barrel",Barrel,SMG,Dravec 45,0.0,0.0,-16.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_eam_horizon_19_barrel,"19"" EAM Horizon Barrel",Barrel,SMG,Dravec 45,0.0,0.0,15.0,0.0,0.0,0.0,7.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_predator_16_5_barrel,"16.5"" Predator Barrel",Barrel,SMG,Dravec 45,0.0,0.0,0.0,0.0,0.0,20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_gator_extended_mag,Gator Extended Mag,Magazine,SMG,Dravec 45,0.0,0.0,0.0,0.0,0.0,0.0,0.0,12.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_frontgate_fast_loader,FrontGate Fast Loader,Magazine,SMG,Dravec 45,0.0,0.0,-15.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_lockjaw_extended_mag,Lockjaw Extended Mag,Magazine,SMG,Dravec 45,0.0,0.0,20.0,20.0,0.0,0.0,0.0,24.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_helix_tac_grip,Helix-Tac Grip,Rear Grip,SMG,Dravec 45,0.0,0.0,0.0,-40.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_quikarm_grip,QuikArm Grip,Rear Grip,SMG,Dravec 45,0.0,0.0,-55.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_delta_axis_grip,Delta Axis Grip,Rear Grip,SMG,Dravec 45,0.0,0.0,7.0,0.0,-1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_vantix_8_grip,Vantix-8 Grip,Rear Grip,SMG,Dravec 45,0.0,0.0,0.0,0.0,-8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_herald_z1_grip,Herald-Z1 Grip,Rear Grip,SMG,Dravec 45,0.0,0.0,-27.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_serval_q_step_stock,Serval Q-Step Stock,Stock,SMG,Dravec 45,0.0,0.0,-27.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_endurance_ld_6_stock,Endurance LD-6 Stock,Stock,SMG,Dravec 45,0.0,0.0,30.0,0.0,-13.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_converge_tactical_stock,Converge Tactical Stock,Stock,SMG,Dravec 45,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_eam_heritage_stock,EAM Heritage Stock,Stock,SMG,Dravec 45,0.0,0.0,-18.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_defiant_45_skeletal_stock,Defiant-45 Skeletal Stock,Stock,SMG,Dravec 45,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_mfs_agile_laser_pro,MFS Agile Laser Pro,Laser,SMG,Dravec 45,0.0,0.0,-15.0,-15.0,15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_eam_scatterline_laser,EAM ScatterLine Laser,Laser,SMG,Dravec 45,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_bolt_carrier_group,Bolt Carrier Group,Fire Mods,SMG,Dravec 45,0.0,5.0,0.0,0.0,20.0,-10.0,-21.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_overpressured_45_cal,45 Cal Overpressured,Fire Mods,SMG,Dravec 45,0.0,0.0,0.0,0.0,0.0,15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+dravec_fmj_45_cal,45 Cal FMJ,Fire Mods,SMG,Dravec 45,0.0,0.0,0.0,0.0,0.0,8.0,7.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_ks_compensator,K&S Compensator,Muzzle,SMG,CARBON 57,0.0,0.0,0.0,0.0,-20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_ks_stalker,K&S Stalker 57-X,Muzzle,SMG,CARBON 57,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_ks_brake2b,K&S Brake-2B,Muzzle,SMG,CARBON 57,0.0,0.0,0.0,0.0,-5.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_kuhn_ported,Kühn Ported Comp,Muzzle,SMG,CARBON 57,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_rockleigh_14,"14"" Rockleigh Barrel",Barrel,SMG,CARBON 57,0.0,0.0,15.0,0.0,0.0,0.0,12.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_vas_radiant_8_5,"8.5"" VAS Radiant Barrel",Barrel,SMG,CARBON 57,0.0,0.0,-35.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_orbital_8_6,"8.6"" Orbital Light Barrel",Barrel,SMG,CARBON 57,0.0,0.0,-38.0,-35.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_ex3_heavy_10_2,"10.2"" EX-3 Heavy Barrel",Barrel,SMG,CARBON 57,0.0,0.0,0.0,6.0,0.0,12.0,14.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_greaves_11,"11"" Greaves Repose Barrel",Barrel,SMG,CARBON 57,0.0,0.0,10.0,0.0,0.0,8.0,7.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_fabricator_mag,Carbon 57 Fabricator Mag,Magazine,SMG,CARBON 57,0.0,0.0,11.0,0.0,0.0,0.0,0.0,5.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_mfs_renown_plus,MFS Renown Plus Mag,Magazine,SMG,CARBON 57,0.0,0.0,0.0,0.0,-10.0,0.0,0.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_bowen_sideline,Bowen Sideline Extended,Magazine,SMG,CARBON 57,0.0,0.0,20.0,20.0,0.0,0.0,0.0,20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_compact246_fastmag,Compact-246 Fast Mag,Magazine,SMG,CARBON 57,0.0,0.0,-10.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_oberon_tactical,Oberon Tactical Pad,Stock,SMG,CARBON 57,0.0,0.0,-32.0,-13.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_heavy_bound,Heavy Bound Pad,Stock,SMG,CARBON 57,0.0,0.0,15.0,0.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_graph_aero,Graph-Aero Stock,Stock,SMG,CARBON 57,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_hammer_platoon,Hammer Platoon Pad,Stock,SMG,CARBON 57,0.0,0.0,-27.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_bowen_resolute,Bowen Resolute Pad,Stock,SMG,CARBON 57,0.0,0.0,12.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_overpressured,5.7x28mm Overpressured,Fire Mods,SMG,CARBON 57,0.0,0.0,0.0,0.0,0.0,20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_enhanced_cycle,Enhanced Cycle System,Fire Mods,SMG,CARBON 57,0.0,4.0,0.0,0.0,20.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_fmj,5.7x28mm FMJ,Fire Mods,SMG,CARBON 57,0.0,0.0,0.0,0.0,0.0,8.0,7.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_vas_convergence_foregrip,VAS Convergence Foregrip,Underbarrel,SMG,CARBON 57,0.0,0.0,0.0,0.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_lateral_precision_grip,Lateral Precision Grip,Underbarrel,SMG,CARBON 57,0.0,0.0,0.0,0.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_respire_handstop,Respire Handstop,Underbarrel,SMG,CARBON 57,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_vitalize_handstop,Vitalize Handstop,Underbarrel,SMG,CARBON 57,0.0,0.0,0.0,0.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_quickstep_foregrip,Quickstep Foregrip,Underbarrel,SMG,CARBON 57,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_sapper_guard_handstop,Sapper Guard Handstop,Underbarrel,SMG,CARBON 57,0.0,0.0,0.0,0.0,-5.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_puck57_grip,Puck-57 Grip,Rear Grip,SMG,CARBON 57,0.0,0.0,-45.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_bombus_quick_grip,Bombus Quick Grip,Rear Grip,SMG,CARBON 57,0.0,0.0,-25.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_remus_sprint_grip,Remus Sprint Grip,Rear Grip,SMG,CARBON 57,0.0,0.0,0.0,-42.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_dulcet_control_grip,Dulcet Control Grip,Rear Grip,SMG,CARBON 57,0.0,0.0,7.0,0.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_gollath_steady_grip,Gollath Steady Grip,Rear Grip,SMG,CARBON 57,0.0,0.0,0.0,0.0,-20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_eam_scatterline_laser,EAM ScatterLine Laser,Laser,SMG,CARBON 57,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+carbon57_emt3_agile_laser,EMT3 Agile Laser,Laser,SMG,CARBON 57,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_greaves_ti_762,Greaves TI-762,Muzzle,Assault Rifle,MXR-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_redwell_90_compensator,Redwell-90 Compensator,Muzzle,Assault Rifle,MXR-17,0.0,0.0,0.0,0.0,-20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_redwell_762_brake,Redwell 7.62 Brake,Muzzle,Assault Rifle,MXR-17,0.0,0.0,0.0,0.0,-12.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_titan_r_762_compensator,Titan-R 7.62 Compensator,Muzzle,Assault Rifle,MXR-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_imperial_20_barrel,"20"" Imperial Barrel",Barrel,Assault Rifle,MXR-17,0.0,0.0,15.0,0.0,0.0,0.0,22.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_rapid_sterling_18_barrel,"18"" Rapid Sterling Barrel",Barrel,Assault Rifle,MXR-17,0.0,0.0,0.0,0.0,0.0,-4.0,40.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_rift_m7_18_barrel,"18"" Rift-M7 Barrel",Barrel,Assault Rifle,MXR-17,0.0,0.0,10.0,0.0,0.0,8.0,8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_wrath_15_barrel,"15"" Wrath Barrel",Barrel,Assault Rifle,MXR-17,0.0,0.0,-23.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_greaves_scourge_17_barrel,"17"" Greaves Scourge Barrel",Barrel,Assault Rifle,MXR-17,0.0,0.0,35.0,16.0,-15.0,18.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_vas_convergence_foregrip,VAS Convergence Foregrip,Underbarrel,Assault Rifle,MXR-17,0.0,0.0,0.0,0.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_lateral_precision_grip,Lateral Precision Grip,Underbarrel,Assault Rifle,MXR-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_sentry_pro_handstop,Sentry Pro Handstop,Underbarrel,Assault Rifle,MXR-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_enhance_32_handstop,Enhance-32 Handstop,Underbarrel,Assault Rifle,MXR-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_quickstep_foregrip,Quickstep Foregrip,Underbarrel,Assault Rifle,MXR-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_eam_steady_90_grip,EAM Steady-90 Grip,Underbarrel,Assault Rifle,MXR-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_vault_extended_mag,Vault Extended Mag,Magazine,Assault Rifle,MXR-17,0.0,0.0,10.0,0.0,0.0,0.0,0.0,15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_twinpack_flip_mags,TwinPack Flip Mags,Magazine,Assault Rifle,MXR-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_rhodes_drum_mag,Rhodes Drum Mag,Magazine,Assault Rifle,MXR-17,0.0,0.0,20.0,0.0,0.0,0.0,0.0,30.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_celerity_grip,Celerity Grip,Rear Grip,Assault Rifle,MXR-17,0.0,0.0,-50.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_bell_h81_grip,Bell-H81 Grip,Rear Grip,Assault Rifle,MXR-17,0.0,0.0,0.0,-40.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_virgil_xi_grip,Virgil-XI Grip,Rear Grip,Assault Rifle,MXR-17,0.0,0.0,15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_arla_assail_grip,Arla Assail Grip,Rear Grip,Assault Rifle,MXR-17,0.0,0.0,-25.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_fissure_grip,Fissure Grip,Rear Grip,Assault Rifle,MXR-17,0.0,0.0,0.0,0.0,-8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_greaves_covenant_stock,Greaves Covenant Stock,Stock,Assault Rifle,MXR-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_galt_lux_stock,Galt-Lux Stock,Stock,Assault Rifle,MXR-17,0.0,0.0,-20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_winch_stock,Winch Stock,Stock,Assault Rifle,MXR-17,0.0,0.0,25.0,0.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_skeletal_stock,Skeletal Stock,Stock,Assault Rifle,MXR-17,0.0,0.0,-15.0,-20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_vas_th_09_stock,VAS TH-09 Stock,Stock,Assault Rifle,MXR-17,0.0,0.0,20.0,0.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_convergence_box_laser,Convergence Box Laser,Laser,Assault Rifle,MXR-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_adaptive_tactical_laser_2mw,2mW Adaptive Tactical Laser,Laser,Assault Rifle,MXR-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_instinct_laser_array_1mw,1mW Instinct Laser Array,Laser,Assault Rifle,MXR-17,0.0,0.0,-18.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_lockstep_laser_5mw,5mW Lockstep Laser,Laser,Assault Rifle,MXR-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_motion_strike_laser_3mw,3mW Motion Strike Laser,Laser,Assault Rifle,MXR-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_bolt_carrier_group,Bolt Carrier Group,Fire Mods,Assault Rifle,MXR-17,0.0,4.0,0.0,0.0,20.0,-15.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_nato_overpressured_762,7.62 NATO Overpressured,Fire Mods,Assault Rifle,MXR-17,0.0,0.0,0.0,0.0,0.0,20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_recoil_sync_unit,Recoil Sync Unit,Fire Mods,Assault Rifle,MXR-17,0.0,0.0,0.0,0.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mxr_nato_fmj_762,7.62 NATO FMJ,Fire Mods,Assault Rifle,MXR-17,0.0,0.0,0.0,0.0,0.0,20.0,18.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+smg_bowen_45_suppressor,Bowen .45 Suppressor,Muzzle,SMG,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+smg_hawker_hybrid_45,Hawker Hybrid .45,Muzzle,SMG,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_hawker_series_45,Hawker Series 45,Muzzle,SMG,STURMWOLF 45,0.0,0.0,0.0,0.0,-14.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_hawker_stabilizer_mkii,Hawker Stabilizer MK.II,Muzzle,SMG,STURMWOLF 45,0.0,0.0,0.0,0.0,-8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_perigee_14_8,"14.8"" Perigee Barrel",Barrel,SMG,STURMWOLF 45,0.0,0.0,15.0,0.0,0.0,0.0,12.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_piston_mosaic_13_2,"13.2"" Piston Mosaic Barrel",Barrel,SMG,STURMWOLF 45,0.0,0.0,-16.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_lethal_conflux_12_3,"12.3"" Lethal Conflux Barrel",Barrel,SMG,STURMWOLF 45,0.0,0.0,10.0,0.0,0.0,8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_lti_ascendancy_11_5,"11.5"" LTI Ascendancy Barrel",Barrel,SMG,STURMWOLF 45,0.0,0.0,-35.0,-45.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_regnant_15,"15"" Regnant Barrel",Barrel,SMG,STURMWOLF 45,0.0,0.0,0.0,7.0,0.0,12.0,14.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_vas_convergence,VAS Convergence Foregrip,Underbarrel,SMG,STURMWOLF 45,0.0,0.0,0.0,0.0,-14.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_zero_shift_handstop,Zero Shift Handstop,Underbarrel,SMG,STURMWOLF 45,0.0,0.0,0.0,0.0,-5.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_lateral_precision,Lateral Precision Grip,Underbarrel,SMG,STURMWOLF 45,0.0,0.0,0.0,0.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_respire_handstop,Respire Handstop,Underbarrel,SMG,STURMWOLF 45,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_quickstep_foregrip,Quickstep Foregrip,Underbarrel,SMG,STURMWOLF 45,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_envoy_foregrip,Envoy Foregrip,Underbarrel,SMG,STURMWOLF 45,0.0,0.0,0.0,0.0,-5.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_extended_mag_i,Extended Mag I,Magazine,SMG,STURMWOLF 45,0.0,0.0,0.0,0.0,0.0,0.0,0.0,16.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_lti_upend_flip_mag,LTI Upend Flip Mag,Magazine,SMG,STURMWOLF 45,0.0,0.0,0.0,0.0,0.0,0.0,0.0,5.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_b45_roar_drum,B-45 Roar Drum,Magazine,SMG,STURMWOLF 45,0.0,0.0,20.0,20.0,0.0,0.0,0.0,28.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_sanctum_speed_grip,Sanctum Speed Grip,Rear Grip,SMG,STURMWOLF 45,0.0,0.0,-65.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_aspire_comfort_grip,Aspire Comfort Grip,Rear Grip,SMG,STURMWOLF 45,0.0,0.0,0.0,0.0,-8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_lti_pelage_grip,LTI Pelage Grip,Rear Grip,SMG,STURMWOLF 45,0.0,0.0,0.0,-42.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_motley_light_grip,Motley Light Grip,Rear Grip,SMG,STURMWOLF 45,0.0,0.0,15.0,0.0,-5.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_selene_rover_grip,Selene Rover Grip,Rear Grip,SMG,STURMWOLF 45,0.0,0.0,-35.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_corpus_x3_stock,Corpus-x3 Stock,Stock,SMG,STURMWOLF 45,0.0,0.0,-28.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_mink_stability_stock,Mink Stability Stock,Stock,SMG,STURMWOLF 45,0.0,0.0,30.0,0.0,-18.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_satellite_skeleton_stock,Satellite Skeleton Stock,Stock,SMG,STURMWOLF 45,0.0,0.0,-19.0,-16.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_lti_pride_stock,LTI Pride Stock,Stock,SMG,STURMWOLF 45,0.0,0.0,20.0,0.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_itinerant_light_stock,Itinerant Light Stock,Stock,SMG,STURMWOLF 45,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_45cal_overpressured,.45 Cal Overpressured,Fire Mods,SMG,STURMWOLF 45,0.0,0.0,0.0,0.0,0.0,15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_recoil_spring_assembly,Recoil Spring Assembly,Fire Mods,SMG,STURMWOLF 45,0.0,0.0,0.0,0.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_45cal_fmj,.45 Cal FMJ,Fire Mods,SMG,STURMWOLF 45,0.0,0.0,0.0,0.0,0.0,8.0,7.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vs_recon_dashline_speed_mag,DashLine Speed Mag,Magazine,,VS RECON,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-3.0,-6.0,-13.0,-4.0,-6.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vs_recon_contra_light_pad,Contra Light Pad,Stock,,VS RECON,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,16.0,4.0,30.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vs_recon_axispro_handguard,AxisPro Handguard,Underbarrel,,VS RECON,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-25.0,0.0,0.0,0.0,0.0,,,,,
+vs_recon_wyvern_extend_z_mag,Wyvern Extend-Z Mag,Magazine,,VS RECON,0.0,0.0,0.0,0.0,0.0,0.0,0.0,2.0,3.0,8.0,0.0,4.0,8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vs_recon_24_9_domain_barrel,"24.9"" Domain Barrel",Barrel,,VS RECON,0.0,0.0,0.0,0.0,0.0,0.0,22.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vs_recon_rl_7_62_compensator,RL-7.62 Compensator,Muzzle,,VS RECON,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0,0.0,-15.0,0.0,0.0,0.0,,,,,
+vs_recon_ristrauch_breach_pad,RistRauch Breach Pad,Stock,,VS RECON,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,30.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vs_recon_1mw_instinct_laser_array,1mW Instinct Laser Array,Laser,,VS RECON,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-3.0,-8.0,0.0,-3.0,-8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vs_recon_vs_poise_grip,VS Poise Grip,Rear Grip,,VS RECON,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,0.0,0.0,0.0,,,,,
+vs_recon_23_g_force_barrel,"23"" G-Force Barrel",Barrel,,VS RECON,0.0,0.0,0.0,0.0,0.0,27.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vs_recon_accelerated_recoil_system,Accelerated Recoil System,Fire Mods,,VS RECON,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-10.0,-10.0,0.0,0.0,0.0,,,,,
+vs_recon_stetig_c_handguard,Stetig-C Handguard,Underbarrel,,VS RECON,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0,0.0,0.0,0.0,0.0,,,,,
+vs_recon_vs_762_brake,VS-762 Brake,Muzzle,,VS RECON,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,-8.0,-50.0,-25.0,0.0,,,,,
+vs_recon_vs_r_extended_ii,VS-R Extended II,Magazine,,VS RECON,0.0,0.0,0.0,0.0,0.0,0.0,0.0,4.0,5.0,12.0,20.0,5.0,12.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vs_recon_21_engage_r_barrel,"21"" Engage-R Barrel",Barrel,,VS RECON,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-12.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vs_recon_skeletal_grip,Skeletal Grip,Rear Grip,,VS RECON,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-12.0,0.0,-12.0,-60.0,0.0,0.0,,,,,
+vs_recon_monolithic_suppressor,Monolithic Suppressor,Muzzle,,VS RECON,0.0,0.0,0.0,0.0,0.0,20.0,7.9,0.0,9.0,0.0,0.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vs_recon_breacher_hanguard,Breacher Hanguard,Underbarrel,,VS RECON,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,8.0,4.0,9.0,0.0,0.0,-15.0,0.0,0.0,0.0,0.0,,,,,
+vs_recon_light_bolt,Light Bolt,Fire Mods,,VS RECON,0.0,29.0,0.0,0.0,0.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,20.0,20.0,0.0,0.0,0.0,,,,,
+vs_recon_r_1_shelf_grip,R-1 Shelf Grip,Rear Grip,,VS RECON,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,0.0,-8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vs_recon_3mw_motion_strike_laser,3mW Motion Strike Laser,Laser,,VS RECON,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vs_recon_17_ristrauch_nimbus_barrel,"17"" RistRauch Nimbus Barrel",Barrel,,VS RECON,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-2.0,-8.0,0.0,-12.0,-17.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vs_recon_7_62_nato_overpressured,7.62 NATO Overpressured,Fire Mods,,VS RECON,0.0,0.0,0.0,0.0,0.0,15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vs_recon_outpost_raider_pad,Outpost Raider Pad,Stock,,VS RECON,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,16.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vs_recon_kinetic_lock_handguard,Kinetic Lock Handguard,Underbarrel,,VS RECON,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,8.0,0.0,9.0,16.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vs_recon_kinesis_grip,Kinesis Grip,Rear Grip,,VS RECON,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-4.0,0.0,0.0,-6.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vs_recon_19_3_tack_driver_barrel,"19.3"" Tack Driver Barrel",Barrel,,VS RECON,0.0,0.0,0.0,0.0,0.0,15.0,0.0,0.0,0.0,0.0,0.0,18.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vs_recon_lti_stentorian_brake,LTI Stentorian Brake,Muzzle,,VS RECON,0.0,3.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,10.0,-15.0,10.0,0.0,0.0,0.0,,,,,
+vs_recon_mfs_r_stop_handguard,MFS R-Stop Handguard,Underbarrel,,VS RECON,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-3.0,-8.0,0.0,-3.0,-8.0,0.0,0.0,0.0,0.0,-50.0,-50.0,-50.0,0.0,0.0,0.0,,,,,
+vs_recon_redwell_shade_x_suppressor,Redwell Shade-X Suppressor,Muzzle,,VS RECON,0.0,0.0,0.0,0.0,0.0,-13.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-11.0,-11.0,-11.0,0.0,0.0,0.0,,,,,
+hawker_hx_27_4_teleos_range_barrel,"27.4"" Teleos Range Barrel",Barrel,,HAWKER HX,0.0,0.0,0.0,0.0,0.0,0.0,25.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+hawker_hx_23_7_composite_11_barrel,"23.7"" Composite-11 Barrel",Barrel,,HAWKER HX,0.0,0.0,0.0,0.0,0.0,10.0,10.5,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+hawker_hx_light_bolt,Light Bolt,Fire Mods,,HAWKER HX,0.0,19.0,0.0,0.0,0.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,20.0,20.0,0.0,0.0,0.0,,,,,
+hawker_hx_volant_tight_grip,Volant Tight Grip,Rear Grip,,HAWKER HX,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-35.0,0.0,0.0,-35.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+hawker_hx_338_hawker_extension_mag,.338 Hawker Extension Mag,Magazine,,HAWKER HX,0.0,0.0,0.0,0.0,0.0,0.0,0.0,3.0,4.0,9.0,0.0,4.0,9.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+hawker_hx_recoil_spring_assembly,Recoil Spring Assembly,Fire Mods,,HAWKER HX,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-10.0,-10.0,0.0,0.0,0.0,,,,,
+hawker_hx_hawker_ridge_grip,Hawker Ridge Grip,Underbarrel,,HAWKER HX,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-35.0,0.0,0.0,0.0,0.0,,,,,
+hawker_hx_emt3_compensator,EMT3 Compensator,Muzzle,,HAWKER HX,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0,0.0,-15.0,0.0,0.0,0.0,,,,,
+hawker_hx_hawker_syncretic_grip,Hawker Syncretic Grip,Rear Grip,,HAWKER HX,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,0.0,0.0,0.0,,,,,
+hawker_hx_hawker_mobile_grip,Hawker Mobile Grip,Underbarrel,,HAWKER HX,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,9.0,0.0,8.0,18.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+hawker_hx_infiltrator_stock,Infiltrator Stock,Stock,,HAWKER HX,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,28.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+hawker_hx_bardo_light_stock,Bardo Light Stock,Stock,,HAWKER HX,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,11.0,2.0,16.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+shadow_sk_lw_trigger,LW Trigger,Fire Mods,,SHADOW SK,0.0,8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,25.0,25.0,25.0,0.0,0.0,0.0,,,,,
+shadow_sk_e_3_billet_skeleton_grip,E-3 Billet Skeleton Grip,Rear Grip,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-12.0,0.0,0.0,-11.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+shadow_sk_17_thrust_barrel,"17"" Thrust Barrel",Barrel,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-4.0,-10.0,0.0,-11.0,-16.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+shadow_sk_targil_extended_mag,Targil Extended Mag,Magazine,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,0.0,0.0,2.0,4.0,8.0,0.0,4.0,8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+shadow_sk_22_4_strand_barrel,"22.4"" Strand Barrel",Barrel,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,0.0,19.6,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+shadow_sk_preservation_stock,Preservation Stock,Stock,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,16.0,4.0,29.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+shadow_sk_parapet_riser,Parapet Riser,Comb,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-20.0,0.0,0.0,0.0,0.0,,,,,
+shadow_sk_emt3_compensator,EMT3 Compensator,Muzzle,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0,0.0,-15.0,0.0,0.0,0.0,,,,,
+shadow_sk_buffer_spring,Buffer Spring,Fire Mods,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-10.0,-10.0,0.0,0.0,0.0,,,,,
+shadow_sk_custom_flier_grip,Custom Flier Grip,Rear Grip,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-37.0,0.0,0.0,-36.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+shadow_sk_riptide_fast_mag,Riptide Fast Mag,Magazine,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-3.0,-6.0,-19.0,-3.0,-6.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+shadow_sk_t_flux_stock,T-Flux Stock,Stock,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,29.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+shadow_sk_freehold_control_grip,Freehold Control Grip,Rear Grip,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,0.0,0.0,0.0,,,,,
+shadow_sk_emt3_flowline_riser,EMT3 Flowline Riser,Comb,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,7.0,0.0,9.0,15.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+shadow_sk_18_3_dimpled_4150_barrel,"18.3"" Dimpled-4150 Barrel",Barrel,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,13.0,8.9,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+shadow_sk_stippled_comfort_grip,Stippled Comfort Grip,Rear Grip,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,-8.0,-60.0,0.0,0.0,,,,,
+shadow_sk_flourish_full_stock,Flourish Full Stock,Stock,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,15.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+shadow_sk_rapid_gulf_fast_mag_ii,Rapid Gulf Fast Mag II,Magazine,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-2.0,-4.0,-8.0,-19.0,-4.0,-8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+shadow_sk_e_firm_riser,E-Firm Riser,Comb,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-20.0,0.0,0.0,0.0,0.0,,,,,
+shadow_sk_3mw_motion_strike_laser,3mW Motion Strike Laser,Laser,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+shadow_sk_eclipse_7_62_brake,Eclipse 7.62 Brake,Muzzle,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,-8.0,-50.0,-43.0,0.0,,,,,
+shadow_sk_squadron_riser,Squadron Riser,Comb,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,7.0,4.0,9.0,0.0,0.0,-10.0,0.0,0.0,0.0,0.0,,,,,
+shadow_sk_progenitor_extended_ii,Progenitor Extended II,Magazine,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,0.0,0.0,4.0,5.0,12.0,25.0,5.0,12.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+shadow_sk_monolithic_suppressor,Monolithic Suppressor,Muzzle,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,20.0,7.1,0.0,10.0,0.0,0.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+shadow_sk_1mw_instinct_laser_array,1mW Instinct Laser Array,Laser,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-3.0,-8.0,0.0,-3.0,-8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+shadow_sk_vital_grace_grip,Vital Grace Grip,Rear Grip,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-6.0,0.0,0.0,-6.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+shadow_sk_19_6_emt3_fluted_barrel,"19.6"" EMT3 Fluted Barrel",Barrel,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,10.0,0.0,0.0,16.0,0.0,0.0,16.0,0.0,0.0,0.0,0.0,0.0,40.0,20.0,40.0,0.0,0.0,0.0,,,,,
+shadow_sk_300_wm_overpressured,.300 WM Overpressured,Fire Mods,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+shadow_sk_lti_stentorian_brake,LTI Stentorian Brake,Muzzle,,SHADOW SK,0.0,2.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,10.0,-20.0,10.0,0.0,0.0,0.0,,,,,
+shadow_sk_redwell_shade_x_suppressor,Redwell Shade-X Suppressor,Muzzle,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,-13.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-11.0,-11.0,-11.0,0.0,0.0,0.0,,,,,
+strider_300_quick_bolt,Quick Bolt,Fire Mods,,STRIDER 300,0.0,20.0,0.0,0.0,0.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,20.0,20.0,0.0,0.0,0.0,,,,,
+strider_300_prismatech_extended_ii,PrismaTech Extended II,Magazine,,STRIDER 300,0.0,0.0,0.0,0.0,0.0,0.0,0.0,4.0,6.8,13.6,11.5,7.0,13.8,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+strider_300_300_wm_overpressured,.300 WM Overpressured,Fire Mods,,STRIDER 300,0.0,0.0,0.0,0.0,0.0,20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+strider_300_lti_stentorian_brake,LTI Stentorian Brake,Muzzle,,STRIDER 300,0.0,2.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,10.0,-20.0,10.0,0.0,0.0,0.0,,,,,
+strider_300_redwell_shade_x_suppressor,Redwell Shade-X Suppressor,Muzzle,,STRIDER 300,0.0,0.0,0.0,0.0,0.0,-13.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-11.0,-11.0,-11.0,0.0,0.0,0.0,,,,,
+strider_300_21_2_carbon_atoll_barrel,"21.2"" Carbon Atoll Barrel",Barrel,,STRIDER 300,0.0,0.0,0.0,0.0,0.0,10.0,10.5,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+strider_300_ambulate_x4_stock,Ambulate-X4 Stock,Stock,,STRIDER 300,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,30.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+strider_300_hatch_quick_grip,Hatch Quick Grip,Rear Grip,,STRIDER 300,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-9.0,0.0,0.0,-6.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+xr_3_ion_21_lti_infinity_barrel,"21"" LTI Infinity Barrel",Barrel,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,0.0,25.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+xr_3_ion_lti_collapsed_stock,LTI Collapsed Stock,Stock,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,18.0,4.0,34.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+xr_3_ion_xr_omega_grip,XR-Omega Grip,Rear Grip,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-38.0,0.0,0.0,-38.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+xr_3_ion_trishot_compensator,TriShot Compensator,Muzzle,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-14.0,0.0,-15.0,0.0,0.0,0.0,,,,,
+xr_3_ion_neutralize_xr_handguard,Neutralize-XR Handguard,Underbarrel,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,-25.0,0.0,0.0,0.0,0.0,,,,,
+xr_3_ion_20_ion_trinity_barrel,"20"" Ion Trinity Barrel",Barrel,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,40.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+xr_3_ion_accelerated_recoil_system,Accelerated Recoil System,Fire Mods,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-10.0,-10.0,0.0,0.0,0.0,,,,,
+xr_3_ion_l_t_sling_grip,L.T. Sling Grip,Rear Grip,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-9.0,0.0,0.0,-6.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+xr_3_ion_overload_capacity_mag,Overload Capacity Mag,Magazine,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,0.0,0.0,2.0,3.0,8.0,0.0,3.0,8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+xr_3_ion_zero_s_handguard,Zero-S Handguard,Underbarrel,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0,0.0,0.0,0.0,0.0,,,,,
+xr_3_ion_1mw_instinct_laser_array,1mW Instinct Laser Array,Laser,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-4.0,-8.0,0.0,-3.0,-8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+xr_3_ion_triptych_brake,Triptych Brake,Muzzle,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,-8.0,-50.0,-47.0,0.0,,,,,
+xr_3_ion_15_fringe_barrel,"15"" Fringe Barrel",Barrel,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-5.0,-10.0,0.0,-11.0,-17.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+xr_3_ion_l9_vertigo_grip,L9 Vertigo Grip,Rear Grip,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,0.0,0.0,0.0,,,,,
+xr_3_ion_padded_crush_stock,Padded Crush Stock,Stock,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,28.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+xr_3_ion_19_revolution_barrel,"19"" Revolution Barrel",Barrel,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,13.0,0.0,0.0,19.0,0.0,0.0,0.0,0.0,0.0,-10.0,-10.0,-10.0,0.0,0.0,0.0,,,,,
+xr_3_ion_quick_charge,Quick Charge,Fire Mods,,XR-3 ION,0.0,16.0,0.0,0.0,0.0,-40.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,100.0,100.0,100.0,0.0,0.0,0.0,,,,,
+xr_3_ion_transit_ion_grip,Transit-Ion Grip,Rear Grip,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-5.0,0.0,0.0,-3.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+xr_3_ion_17_xr_adapt_barrel,"17"" XR-Adapt Barrel",Barrel,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,15.0,12.5,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+xr_3_ion_3mw_motion_strike_laser,3mW Motion Strike Laser,Laser,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,0.0,12.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+xr_3_ion_xr_initialize_grip,XR-Initialize Grip,Rear Grip,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-11.0,0.0,-12.0,-60.0,0.0,0.0,,,,,
+xr_3_ion_lightshield_stock,Lightshield Stock,Stock,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,19.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+xr_3_ion_7_62_nato_overpressured,7.62 NATO Overpressured,Fire Mods,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+xr_3_ion_monolithic_suppressor,Monolithic Suppressor,Muzzle,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,20.0,7.5,0.0,9.0,0.0,0.0,9.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+xr_3_ion_lti_enforcer_handguard,LTI Enforcer Handguard,Underbarrel,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,9.0,4.0,10.0,0.0,0.0,-15.0,0.0,0.0,0.0,0.0,,,,,
+xr_3_ion_mammoth_stack_extended,Mammoth Stack Extended,Magazine,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,0.0,0.0,6.0,5.0,12.0,12.0,5.0,12.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+xr_3_ion_lti_stentorian_brake,LTI Stentorian Brake,Muzzle,,XR-3 ION,0.0,2.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,10.0,-20.0,10.0,0.0,0.0,0.0,,,,,
+xr_3_ion_mfs_3x3_compensator,MFS 3x3 Compensator,Muzzle,,XR-3 ION,0.0,-28.0,0.0,0.0,0.0,0.0,0.0,0.0,25.0,0.0,0.0,25.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+xr_3_ion_redwell_shade_x_suppressor,Redwell Shade-X Suppressor,Muzzle,,XR-3 ION,0.0,0.0,0.0,0.0,0.0,-13.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-11.0,-11.0,-11.0,0.0,0.0,0.0,,,,,
+shadow_sk_mfs_convergence_box_laser,MFS Convergence Box Laser,Laser,,SHADOW SK,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-96.0,0.0,0.0,-96.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+razor_9mm_12_mfs_sidewinder_barrel,"12"" MFS Sidewinder Barrel",Barrel,,RAZOR 9MM,0.0,0.0,0.0,0.0,0.0,60.0,0.0,0.0,10.0,13.0,0.0,10.0,13.0,0.0,0.0,0.0,0.0,-50.0,-25.0,-25.0,0.0,0.0,0.0,,,,,
+razor_9mm_zealot_extended_mag_ii,Zealot Extended Mag II,Magazine,,RAZOR 9MM,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,10.0,13.0,21.0,10.0,13.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+razor_9mm_parabellum_overpressured,9mm Parabellum Overpressured,Fire Mods,,RAZOR 9MM,0.0,0.0,0.0,0.0,0.0,15.0,15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+sturmwolf_45_bolt_carrier_group_verified,Bolt Carrier Group,Fire Mods,,STURMWOLF 45,0.0,11.0,0.0,0.0,0.0,-10.0,-9.1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,25.0,20.0,0.0,0.0,0.0,,,,,
+ryden_45k_fraternity_flip_mag,Fraternity Flip Mag,Magazine,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-19.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_hawker_series_45,Hawker Series 45,Muzzle,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-19.0,0.0,-20.0,0.0,0.0,0.0,,,,,
+ryden_45k_45_cal_overpressured,.45 Cal Overpressured,Fire Mods,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_11_rauch_6l_r_barrel,"11"" Rauch 6L-R Barrel",Barrel,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-16.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-3.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_ventral_stock,Ventral Stock,Stock,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,22.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_bowen_45_suppressor,Bowen .45 Suppressor,Muzzle,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_lennox_grip,Lennox Grip,Rear Grip,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-32.0,0.0,0.0,-32.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_9_basilisk_barrel,"9"" Basilisk Barrel",Barrel,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-14.0,-25.0,0.0,-15.0,-24.0,6.0,2.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_recoil_sync_unit,Recoil Sync Unit,Fire Mods,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,-15.0,-8.0,0.0,0.0,0.0,,,,,
+ryden_45k_lateral_precision_grip,Lateral Precision Grip,Underbarrel,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,-25.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_10_5_greaves_whiptail_barrel,"10.5"" Greaves Whiptail Barrel",Barrel,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,8.0,0.0,0.0,5.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_vas_interlock_stock,VAS Interlock Stock,Stock,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,9.0,0.0,0.0,23.0,0.0,0.0,0.0,0.0,-4.0,-25.0,-25.0,-25.0,0.0,0.0,0.0,,,,,
+ryden_45k_hawker_stabilizer_mk_ii,Hawker Stabilizer MK.II,Muzzle,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-7.0,0.0,-8.0,-60.0,-60.0,0.0,,,,,
+ryden_45k_eam_lightpath_foregrip,EAM Lightpath Foregrip,Underbarrel,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,6.0,0.0,8.0,11.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_12_vienna_barrel,"12"" Vienna Barrel",Barrel,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_excess_grip,Excess Grip,Rear Grip,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-27.0,0.0,0.0,-25.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_bolt_carrier_group,Bolt Carrier Group,Fire Mods,,RYDEN 45K,0.0,5.0,0.0,0.0,0.0,-10.0,-23.1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,25.0,20.0,0.0,0.0,0.0,,,,,
+ryden_45k_forward_breach_mag,Forward Breach Mag,Magazine,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,11.0,14.0,17.0,10.0,14.0,-5.0,-2.0,0.0,-6.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_flowguard_foregrip,Flowguard Foregrip,Underbarrel,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,6.0,2.0,8.0,0.0,0.0,-15.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_10_5_slim_mod_barrel,"10.5"" Slim-Mod Barrel",Barrel,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,12.0,0.0,0.0,0.0,5.0,0.0,0.0,0.0,-4.0,-3.0,0.0,-4.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_monolithic_suppressor,Monolithic Suppressor,Muzzle,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,20.0,7.7,0.0,30.0,0.0,0.0,0.0,28.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_skeletonized_grip,Skeletonized Grip,Rear Grip,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,4.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-26.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_lti_swiftpoint_laser,LTI SwiftPoint Laser,Laser,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,-14.0,0.0,-8.0,-14.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_ske_02_stock,SKE-02 Stock,Stock,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,6.0,5.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-15.0,-10.0,0.0,0.0,0.0,,,,,
+ryden_45k_breakpoint_fast_mag,Breakpoint Fast Mag,Magazine,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-3.0,-5.0,-7.0,-33.0,-5.0,-7.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_vitalize_handstop,Vitalize Handstop,Underbarrel,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_eruption_grip,Eruption Grip,Rear Grip,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-19.0,0.0,0.0,-18.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_45_cal_fmj,.45 Cal FMJ,Fire Mods,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,8.0,8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_hawker_hybrid_45,Hawker Hybrid .45,Muzzle,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,5.0,5.0,0.0,5.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_emt3_agile_laser,EMT3 Agile Laser,Laser,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,19.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_collapsible_stock,Collapsible Stock,Stock,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,16.0,3.0,28.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_bounty_grip,Bounty Grip,Rear Grip,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-17.0,0.0,-18.0,-63.0,0.0,0.0,,,,,
+ryden_45k_vas_convergence_foregrip,VAS Convergence Foregrip,Underbarrel,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-14.0,-8.0,-15.0,0.0,0.0,0.0,,,,,
+ryden_45k_lti_stentorian_brake,LTI Stentorian Brake,Muzzle,,RYDEN 45K,0.0,3.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,7.0,-17.0,7.0,0.0,0.0,0.0,,,,,
+ryden_45k_mfs_full_stock,MFS Full Stock+,Stock,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,9.0,0.0,8.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ryden_45k_redwell_shade_x_suppressor,Redwell Shade-X Suppressor,Muzzle,,RYDEN 45K,0.0,0.0,0.0,0.0,0.0,-13.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-11.0,-11.0,-11.0,0.0,0.0,0.0,,,,,
+ak_27_lateral_precision_grip,Lateral Precision Grip,Underbarrel,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-25.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_emt3_compensator,EMT3 Compensator,Muzzle,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-19.0,0.0,-20.0,0.0,0.0,0.0,,,,,
+ak_27_dictum_light_grip,Dictum Light Grip,Rear Grip,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-43.0,0.0,0.0,-39.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_17_bystro_speed_barrel,"17"" Bystro Speed Barrel",Barrel,,AK-27,0.0,0.0,0.0,0.0,0.0,-6.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,7.0,0.0,-25.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_riker_flip_mag,Riker Flip Mag,Magazine,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,0.0,-25.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_caliban_light_stock,Caliban Light Stock,Stock,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,2.0,33.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_ironhold_angled_grip,Ironhold Angled Grip,Underbarrel,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_epitaph_extended_mag,Epitaph Extended Mag,Magazine,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,15.0,4.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-4.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_buffer_spring,Buffer Spring,Fire Mods,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,-12.0,-8.0,0.0,0.0,0.0,,,,,
+ak_27_swf_tishina_11,SWF Tishina-11,Muzzle,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_14_prism_light_barrel,"14"" Prism Light Barrel",Barrel,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,-12.0,0.0,-13.0,-17.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_7_62_soviet_overpressured,7.62 Soviet Overpressured,Fire Mods,,AK-27,0.0,0.0,0.0,0.0,0.0,20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_lithe_thin_grip,Lithe Thin Grip,Rear Grip,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-27.0,0.0,0.0,-25.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_viktor_7r_stock,Viktor-7R Stock,Stock,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,19.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_irondivide_fast_mag,IronDivide Fast Mag,Magazine,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-5.0,-4.0,-5.0,-30.0,-4.0,-4.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_kronos_heavy_grip,Kronos Heavy Grip,Rear Grip,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,3.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-25.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_prodigal_skeleton_stock,Prodigal Skeleton Stock,Stock,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-6.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_18_2_vostok_extended_barrel,"18.2"" Vostok Extended Barrel",Barrel,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,6.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_eclipse_7_62_brake,Eclipse 7.62 Brake,Muzzle,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-16.0,0.0,-16.0,-60.0,-67.0,0.0,,,,,
+ak_27_pugil_heavy_stock,Pugil Heavy Stock,Stock,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,0.0,17.0,0.0,0.0,0.0,0.0,-17.0,-15.0,-15.0,-15.0,-14.0,0.0,0.0,,,,,
+ak_27_7_62_soviet_fmj,7.62 Soviet FMJ,Fire Mods,,AK-27,0.0,0.0,0.0,0.0,0.0,18.0,14.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_strider_handstop,Strider Handstop,Underbarrel,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,6.0,0.0,8.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_emt3_ported_70,EMT3 Ported-70,Muzzle,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,5.0,5.0,0.0,5.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_17_6_vandal_heavy_barrel,"17.6"" Vandal Heavy Barrel",Barrel,,AK-27,0.0,0.0,0.0,0.0,0.0,15.0,0.0,0.0,15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-20.0,-20.0,-20.0,0.0,0.0,0.0,,,,,
+ak_27_czar_control_grip,Czar Control Grip,Rear Grip,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0,0.0,-15.0,-60.0,0.0,0.0,,,,,
+ak_27_3mw_motion_strike_laser,3mW Motion Strike Laser,Laser,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,14.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_saber_pack_heavy_drum,Saber Pack Heavy Drum,Magazine,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,8.0,8.0,6.0,8.0,8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_garin_advanced_grip,Garin Advanced Grip,Rear Grip,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0,0.0,0.0,-14.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_1mw_instinct_laser_array,1mW Instinct Laser Array,Laser,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-6.0,-10.0,0.0,-6.0,-9.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_flowguard_foregrip,Flowguard Foregrip,Underbarrel,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,6.0,2.0,8.0,0.0,0.0,-15.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_monolithic_suppressor,Monolithic Suppressor,Muzzle,,AK-27,0.0,0.0,0.0,0.0,0.0,12.0,8.0,0.0,23.0,0.0,0.0,21.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_swf_62_variable_stock,SWF-62 Variable Stock,Stock,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-15.0,-10.0,0.0,0.0,0.0,,,,,
+ak_27_16_3_swf_tumult_barrel,"16.3"" SWF Tumult Barrel",Barrel,,AK-27,0.0,0.0,0.0,0.0,0.0,16.5,26.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_vas_convergence_foregrip,VAS Convergence Foregrip,Underbarrel,,AK-27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-33.0,0.0,0.0,0.0,0.0,,,,,
+ak_27_lti_stentorian_brake,LTI Stentorian Brake,Muzzle,,AK-27,0.0,2.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,7.0,-18.0,8.0,0.0,0.0,0.0,,,,,
+ak_27_enhanced_cycle_system,Enhanced Cycle System,Fire Mods,,AK-27,0.0,19.0,0.0,0.0,0.0,-8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-20.0,-100.0,24.0,0.0,0.0,0.0,,,,,
+ak_27_redwell_shade_x_suppressor,Redwell Shade-X Suppressor,Muzzle,,AK-27,0.0,0.0,0.0,0.0,0.0,-13.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-11.0,-11.0,-11.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_14_5_e7_cuff_barrel,"14.5"" E7-Cuff Barrel",Barrel,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-11.0,-13.0,0.0,-16.0,-18.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_vulcan_reach_extension,Vulcan Reach Extension,Magazine,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,15.0,4.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-4.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_swift_b_guard_stock,Swift-B Guard Stock,Stock,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,22.0,3.0,35.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_kands_stalker_57_x,K&S Stalker 57-X,Muzzle,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_5_7x28mm_overpressured,5.7x28mm Overpressured,Fire Mods,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_lateral_precision_grip,Lateral Precision Grip,Underbarrel,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-25.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_rapid_lock_grip,Rapid-Lock Grip,Rear Grip,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-24.0,0.0,0.0,-26.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_kands_compensator,K&S Compensator,Muzzle,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-25.0,0.0,-25.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_snap_switch_magazines,Snap Switch Magazines,Magazine,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,0.0,-24.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_buffer_spring,Buffer Spring,Fire Mods,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-12.0,-12.0,-12.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_lti_swiftpoint_laser,LTI SwiftPoint Laser,Laser,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-9.0,-12.0,0.0,-9.0,-11.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_eam_dashfire_grip,EAM Dashfire Grip,Rear Grip,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-34.0,0.0,0.0,-32.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_k_hn_ported_comp,Kühn Ported Comp,Muzzle,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,5.0,5.0,0.0,5.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_vagrant_93_stock,Vagrant-93 Stock,Stock,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,23.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_23_5_longbow_barrel,"23.5"" Longbow Barrel",Barrel,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,7.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_sentry_pro_handstop,Sentry Pro Handstop,Underbarrel,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_reconclip_speed_mag,ReconClip Speed Mag,Magazine,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-4.0,-6.0,-26.0,-50.0,-6.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_monolithic_suppressor,Monolithic Suppressor,Muzzle,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,6.0,6.0,0.0,24.0,0.0,0.0,26.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_21_df_3_merge_barrel,"21"" DF-3 Merge Barrel",Barrel,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,8.0,0.0,0.0,4.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_kinetix_mk_1_grip,Kinetix-Mk 1 Grip,Rear Grip,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-18.0,0.0,-18.0,-60.0,0.0,0.0,,,,,
+peacekeeper_mk1_emt3_agile_laser,EMT3 Agile Laser,Laser,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_pathfinder_skel_stock,Pathfinder-Skel Stock,Stock,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-18.0,-20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_kands_brake_2b,K&S Brake-2B,Muzzle,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0,0.0,-15.0,-60.0,-67.0,0.0,,,,,
+peacekeeper_mk1_19_4_stimulus_barrel,"19.4"" Stimulus Barrel",Barrel,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,-6.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,-25.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_quickstep_foregrip,Quickstep Foregrip,Underbarrel,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,9.0,0.0,8.0,12.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_diveedge_7_grip,DiveEdge-7 Grip,Rear Grip,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-12.0,0.0,0.0,-13.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_barrage_extended_mag,Barrage Extended Mag,Magazine,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,9.0,12.0,13.0,9.0,12.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_eam_steady_90_grip,EAM Steady-90 Grip,Underbarrel,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,12.0,8.0,8.0,0.0,0.0,-18.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_accordance_grip,Accordance Grip,Rear Grip,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,3.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-20.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_5_7x28mm_fmj,5.7x28mm FMJ,Fire Mods,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,14.0,14.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_eam_blitzfire_stock,EAM Blitzfire Stock,Stock,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,9.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-20.0,-20.0,-20.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_bolt_carrier_group,Bolt Carrier Group,Fire Mods,,PEACEKEEPER MK1,0.0,11.0,0.0,0.0,0.0,-10.0,-27.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,15.0,20.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_vas_convergence_foregrip,VAS Convergence Foregrip,Underbarrel,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-24.0,-7.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_lti_stentorian_brake,LTI Stentorian Brake,Muzzle,,PEACEKEEPER MK1,0.0,3.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,8.0,-20.0,8.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_mfs_counterforce_c1_stock,MFS Counterforce-C1 Stock,Stock,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,8.0,9.0,0.0,21.0,9.0,0.0,0.0,0.0,0.0,-30.0,-30.0,-30.0,0.0,0.0,0.0,,,,,
+peacekeeper_mk1_redwell_shade_x_suppressor,Redwell Shade-X Suppressor,Muzzle,,PEACEKEEPER MK1,0.0,0.0,0.0,0.0,0.0,-13.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-11.0,-11.0,-11.0,0.0,0.0,0.0,,,,,
+ds20_mirage_5_56_nato_overpressured,5.56 NATO Overpressured,Fire Mods,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_weighted_stock,Weighted Stock,Stock,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,11.0,0.0,0.0,17.0,0.0,0.0,0.0,0.0,-15.0,-25.0,-25.0,-25.0,0.0,0.0,0.0,,,,,
+ds20_mirage_vas_5_56_suppressor,VAS 5.56 Suppressor,Muzzle,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_recoil_sync_unit,Recoil Sync Unit,Fire Mods,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-12.0,-12.0,-12.0,0.0,0.0,0.0,,,,,
+ds20_mirage_ironhold_angled_grip,Ironhold Angled Grip,Underbarrel,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-14.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_14_2_winged_barrel,"14.2"" Winged Barrel",Barrel,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,-14.0,0.0,-13.0,-18.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_pinion_flip_mags,Pinion Flip Mags,Magazine,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,0.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_assault_division_stock,Assault Division Stock,Stock,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,19.0,2.0,32.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_18_9_westerlies_barrel,"18.9"" Westerlies Barrel",Barrel,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,-5.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,-15.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_needletail_grip,Needletail Grip,Rear Grip,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-27.0,0.0,0.0,-24.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_andean_extended_mag,Andean Extended Mag,Magazine,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,15.0,4.0,0.0,18.0,0.0,0.0,0.0,0.0,0.0,4.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_monolithic_suppressor,Monolithic Suppressor,Muzzle,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,12.0,8.0,0.0,23.0,0.0,0.0,21.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_stratagem_tight_stock,Stratagem Tight Stock,Stock,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_1mw_instinct_laser_array,1mW Instinct Laser Array,Laser,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-6.0,-11.0,0.0,-6.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_20_rupture_barrel,"20"" Rupture Barrel",Barrel,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,6.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_redwell_5_56_compensator,Redwell 5.56 Compensator,Muzzle,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-19.0,0.0,-20.0,0.0,0.0,0.0,,,,,
+ds20_mirage_ulysses_grip,Ulysses Grip,Rear Grip,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-51.0,0.0,0.0,-43.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_force_stabilizer_handstop,Force Stabilizer Handstop,Underbarrel,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,-25.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_griffon_reserve_extended_i,Griffon Reserve Extended I,Magazine,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,7.0,9.0,22.0,8.0,9.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_titan_r_5_56_compensator,Titan-R 5.56 Compensator,Muzzle,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,5.0,5.0,0.0,5.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_strider_handstop,Strider Handstop,Underbarrel,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,7.0,0.0,8.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_5_56_nato_fmj,5.56 NATO FMJ,Fire Mods,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,20.0,14.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_picket_stability_grip,Picket Stability Grip,Rear Grip,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,3.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,-20.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_rl_5_56_brake,RL-5.56 Brake,Muzzle,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-11.0,0.0,-12.0,-60.0,-67.0,0.0,,,,,
+ds20_mirage_16_redwell_jx_201_barrel,"16"" Redwell JX-201 Barrel",Barrel,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,8.0,0.0,0.0,4.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_deltacruise_fast_mag,DeltaCruise Fast Mag,Magazine,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-5.0,-4.0,-6.0,-20.0,-4.0,-5.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_redwell_carrion_stock,Redwell Carrion Stock,Stock,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-12.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_3mw_motion_strike_laser,3mW Motion Strike Laser,Laser,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_viceroy_grip,Viceroy Grip,Rear Grip,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0,0.0,0.0,-13.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_sapper_guard_handstop,Sapper Guard Handstop,Underbarrel,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,10.0,8.0,8.0,0.0,0.0,-14.0,0.0,0.0,0.0,0.0,,,,,
+ds20_mirage_bolt_carrier_group,Bolt Carrier Group,Fire Mods,,DS20 MIRAGE,0.0,12.0,0.0,0.0,0.0,-10.0,-9.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,25.0,20.0,0.0,0.0,0.0,,,,,
+ds20_mirage_a1_c_control_grip,A1-C Control Grip,Rear Grip,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-14.0,0.0,-15.0,-60.0,0.0,0.0,,,,,
+ds20_mirage_trunk_mix_stock,Trunk Mix Stock,Stock,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-14.0,-14.0,-14.0,0.0,0.0,0.0,,,,,
+ds20_mirage_vas_convergence_foregrip,VAS Convergence Foregrip,Underbarrel,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-9.0,85.0,-11.0,0.0,0.0,0.0,,,,,
+ds20_mirage_lti_stentorian_brake,LTI Stentorian Brake,Muzzle,,DS20 MIRAGE,0.0,2.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,6.0,-7.0,9.0,0.0,0.0,0.0,,,,,
+ds20_mirage_redwell_shade_x_suppressor,Redwell Shade-X Suppressor,Muzzle,,DS20 MIRAGE,0.0,0.0,0.0,0.0,0.0,-13.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-11.0,-11.0,-11.0,0.0,0.0,0.0,,,,,
+m15_mod_0_backline_flip_mags,Backline Flip Mags,Magazine,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,0.0,-26.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_ironhold_angled_grip,Ironhold Angled Grip,Underbarrel,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_telescopic_stock,Telescopic Stock,Stock,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,22.0,3.0,37.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_20_delta_f2_barrel,"20"" Delta-F2 Barrel",Barrel,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,-5.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,7.0,0.0,-15.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_contour_grip,Contour Grip,Rear Grip,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-23.0,0.0,0.0,-24.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_5_56_nato_overpressured,5.56 NATO Overpressured,Fire Mods,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_18_bowen_watchtower_barrel,"18"" Bowen Watchtower Barrel",Barrel,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,40.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_redwell_5_56_compensator,Redwell 5.56 Compensator,Muzzle,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-17.0,0.0,-18.0,0.0,0.0,0.0,,,,,
+m15_mod_0_mayday_extended_mag,Mayday Extended Mag,Magazine,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,15.0,4.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-4.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_15_mirage_light_barrel,"15"" Mirage Light Barrel",Barrel,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-9.0,-9.0,0.0,-14.0,-16.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_bowen_linchpin_stock,Bowen Linchpin Stock,Stock,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,11.0,0.0,0.0,19.0,0.0,0.0,0.0,0.0,-14.0,-10.0,-10.0,-10.0,0.0,0.0,0.0,,,,,
+m15_mod_0_vas_5_56_suppressor,VAS 5.56 Suppressor,Muzzle,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_peregrine_grip,Peregrine Grip,Rear Grip,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-23.0,0.0,0.0,-22.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_rl_5_56_brake,RL-5.56 Brake,Muzzle,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-12.0,0.0,-12.0,-60.0,-67.0,0.0,,,,,
+m15_mod_0_wander_3v_stock,Wander-3V Stock,Stock,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-9.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,24.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_buffer_spring,Buffer Spring,Fire Mods,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-10.0,-10.0,0.0,0.0,0.0,,,,,
+m15_mod_0_nomad_reserve_fast_mag,Nomad Reserve Fast Mag,Magazine,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-5.0,-4.0,-5.0,-27.0,-4.0,-5.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_axis_shift_vertical_foregrip,Axis Shift Vertical Foregrip,Underbarrel,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-20.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_16_5_fusion_barrel,"16.5"" Fusion Barrel",Barrel,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,8.0,0.0,0.0,4.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_contraband_grip,Contraband Grip,Rear Grip,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,3.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_titan_r_5_56_compensator,Titan-R 5.56 Compensator,Muzzle,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,5.0,5.0,0.0,5.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_ultralight_tactical_stock,Ultralight Tactical Stock,Stock,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-6.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_3mw_motion_strike_laser,3mW Motion Strike Laser,Laser,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_eam_steady_90_grip,EAM Steady-90 Grip,Underbarrel,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,9.0,3.0,8.0,0.0,0.0,-10.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_hexcut_grip,Hexcut Grip,Rear Grip,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-11.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_monolithic_suppressor,Monolithic Suppressor,Muzzle,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,6.0,6.0,0.0,23.0,0.0,0.0,0.0,23.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_intervention_stock,Intervention Stock,Stock,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,9.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,-8.0,-8.0,0.0,0.0,0.0,,,,,
+m15_mod_0_quickstep_foregrip,Quickstep Foregrip,Underbarrel,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,9.0,0.0,8.0,12.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_1mw_instinct_laser_array,1mW Instinct Laser Array,Laser,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-6.0,-10.0,0.0,-6.0,-11.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_caravan_h2_grip,Caravan-H2 Grip,Rear Grip,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,-8.0,-60.0,0.0,0.0,,,,,
+m15_mod_0_bowen_bulwark_mag,Bowen Bulwark Mag,Magazine,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,30.0,8.0,10.0,47.0,8.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_bolt_carrier_group,Bolt Carrier Group,Fire Mods,,M15 MOD 0,0.0,7.0,0.0,0.0,0.0,-10.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,25.0,20.0,0.0,0.0,0.0,,,,,
+m15_mod_0_16_reticulated_barrel,"16"" Reticulated Barrel",Barrel,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,15.0,0.0,0.0,15.0,8.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-18.0,-20.0,-20.0,0.0,0.0,0.0,,,,,
+m15_mod_0_vas_convergence_foregrip,VAS Convergence Foregrip,Underbarrel,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-9.0,-9.0,0.0,0.0,0.0,,,,,
+m15_mod_0_lti_stentorian_brake,LTI Stentorian Brake,Muzzle,,M15 MOD 0,0.0,4.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,9.0,-15.0,11.0,0.0,0.0,0.0,,,,,
+m15_mod_0_mfs_5_56_nato_fmj,MFS 5.56 NATO FMJ,Fire Mods,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,-18.0,16.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+m15_mod_0_redwell_shade_x_suppressor,Redwell Shade-X Suppressor,Muzzle,,M15 MOD 0,0.0,0.0,0.0,0.0,0.0,-13.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-11.0,-11.0,-11.0,0.0,0.0,0.0,,,,,
+an_94_redwell_shade_x_suppressor,Redwell Shade-X Suppressor,Muzzle,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,-5.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-11.0,-11.0,-11.0,0.0,0.0,0.0,,,,,
+an_94_vernal_flip_mag,Vernal Flip Mag,Magazine,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-28.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+an_94_albatross_quick_grip,Albatross Quick Grip,Rear Grip,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-27.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+an_94_pelagic_stock,Pelagic Stock,Stock,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0,-15.0,-18.0,-15.0,0.0,0.0,0.0,,,,,
+an_94_duma_quick_mag,Duma Quick Mag,Magazine,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-5.0,-8.0,-8.0,-22.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+an_94_ironhold_angled_grip,Ironhold Angled Grip,Underbarrel,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-20.0,0.0,0.0,0.0,0.0,,,,,
+an_94_vas_5_56_suppressor,VAS 5.56 Suppressor,Muzzle,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+an_94_valens_extended_mag,Valens Extended Mag,Magazine,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,10.0,4.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-5.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+an_94_18_5_aphelion_barrel,"18.5"" Aphelion Barrel",Barrel,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,6.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+an_94_strider_handstop,Strider Handstop,Underbarrel,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,9.0,0.0,9.0,13.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+an_94_redwell_austral_stock,Redwell Austral Stock,Stock,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,22.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+an_94_1mw_instinct_laser_array,1mW Instinct Laser Array,Laser,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-6.0,-8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+an_94_redwell_5_56_compensator,Redwell 5.56 Compensator,Muzzle,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-20.0,0.0,-20.0,0.0,0.0,0.0,,,,,
+an_94_rl_5_56_brake,RL-5.56 Brake,Muzzle,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-16.0,0.0,-16.0,0.0,0.0,0.0,,,,,
+an_94_bowen_umbral_grip,Bowen Umbral Grip,Rear Grip,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+an_94_reverie_tactical_stock,Reverie Tactical Stock,Stock,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-6.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+an_94_16_hoarfrost_barrel,"16"" Hoarfrost Barrel",Barrel,,AN-94,0.0,0.0,0.0,0.0,0.0,8.0,0.0,0.0,4.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+an_94_buller_625_grip,Buller-625 Grip,Rear Grip,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,3.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0,0.0,0.0,0.0,0.0,,,,,
+an_94_bolt_carrier_group,Bolt Carrier Group,Fire Mods,,AN-94,0.0,7.0,0.0,0.0,0.0,-10.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,25.0,20.0,0.0,0.0,0.0,,,,,
+an_94_titan_r_5_56_compensator,Titan-R 5.56 Compensator,Muzzle,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,5.0,5.0,0.0,5.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+an_94_pro_am_mobility_stock,Pro-Am Mobility Stock,Stock,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,23.0,4.0,40.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+an_94_lateral_precision_grip,Lateral Precision Grip,Underbarrel,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-20.0,0.0,0.0,0.0,0.0,,,,,
+an_94_rexford_extended_ii,Rexford Extended II,Magazine,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,4.0,4.0,6.0,4.0,4.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+an_94_5_45_fmj,5.45 FMJ,Fire Mods,,AN-94,0.0,0.0,0.0,0.0,0.0,18.0,15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+an_94_14_3_lti_petrel_barrel,"14.3"" LTI Petrel Barrel",Barrel,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+an_94_liminal_grip,Liminal Grip,Rear Grip,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-35.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+an_94_trammel_stock,Trammel Stock,Stock,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-15.0,-10.0,0.0,0.0,0.0,,,,,
+an_94_buffer_spring,Buffer Spring,Fire Mods,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,-12.0,-8.0,0.0,0.0,0.0,,,,,
+an_94_monolithic_suppressor,Monolithic Suppressor,Muzzle,,AN-94,0.0,0.0,0.0,0.0,0.0,10.0,5.0,0.0,23.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+an_94_flowguard_foregrip,Flowguard Foregrip,Underbarrel,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,9.0,4.0,9.0,0.0,0.0,-10.0,0.0,0.0,0.0,0.0,,,,,
+an_94_chatham_control_grip,Chatham Control Grip,Rear Grip,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0,0.0,-15.0,0.0,0.0,0.0,,,,,
+an_94_5_45_overpressured,5.45 Overpressured,Fire Mods,,AN-94,0.0,0.0,0.0,0.0,0.0,20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+an_94_lti_stentorian_brake,LTI Stentorian Brake,Muzzle,,AN-94,0.0,2.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-31.0,2.0,0.0,0.0,0.0,,,,,
+an_94_vas_convergence_foregrip,VAS Convergence Foregrip,Underbarrel,,AN-94,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-67.0,-6.0,0.0,0.0,0.0,,,,,
+vx_compact_15_bowen_elara_barrel,"15"" Bowen Elara Barrel",Barrel,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,45.8,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_junket_fast_mag,Junket Fast Mag,Magazine,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,-9.0,-10.0,0.0,-9.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_lti_hutch_quick_grip,LTI Hutch Quick Grip,Rear Grip,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-28.0,0.0,0.0,-29.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_requite_stability_stock,Requite Stability Stock,Stock,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,19.0,0.0,0.0,20.0,0.0,0.0,0.0,0.0,-14.0,-15.0,-15.0,-15.0,0.0,0.0,0.0,,,,,
+vx_compact_5_7x28mm_fmj,5.7x28mm FMJ,Fire Mods,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,14.0,14.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_vas_5_56_suppressor,VAS 5.56 Suppressor,Muzzle,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_14_3_redwell_ascent,"14.3"" Redwell Ascent",Barrel,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,40.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_vitalize_handstop,Vitalize Handstop,Underbarrel,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,-20.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_cressida_mix_stock,Cressida Mix Stock,Stock,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,11.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_inclination_extended_mag,Inclination Extended Mag,Magazine,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,0.0,5.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_redwell_5_56_compensator,Redwell 5.56 Compensator,Muzzle,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-17.0,0.0,-18.0,0.0,0.0,0.0,,,,,
+vx_compact_eam_lightpath_foregrip,EAM Lightpath Foregrip,Underbarrel,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,9.0,0.0,7.0,12.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_5_7x28mm_overpressured,5.7x28mm Overpressured,Fire Mods,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_rl_5_56_brake,RL-5.56 Brake,Muzzle,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,-8.0,-60.0,-67.0,0.0,,,,,
+vx_compact_lateral_precision_grip,Lateral Precision Grip,Underbarrel,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,-20.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_acclivity_extended_mag_ii,Acclivity Extended Mag II,Magazine,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,0.0,15.0,9.0,10.0,18.0,9.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_gallant_stride_grip,Gallant Stride Grip,Rear Grip,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-46.0,0.0,0.0,-46.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_11_5_r_vault_barrel,"11.5"" R-Vault Barrel",Barrel,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-9.0,-13.0,0.0,-14.0,-19.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_flowguard_foregrip,Flowguard Foregrip,Underbarrel,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,9.0,4.0,7.0,0.0,0.0,-10.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_lti_bulford_grip,LTI Bulford Grip,Rear Grip,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,-8.0,-60.0,0.0,0.0,,,,,
+vx_compact_fulmen_aim_stock,Fulmen Aim Stock,Stock,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,22.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_12_6_lti_volute_barrel,"12.6"" LTI Volute Barrel",Barrel,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,20.0,22.9,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_bolt_carrier_group,Bolt Carrier Group,Fire Mods,,VX COMPACT,0.0,7.0,0.0,0.0,0.0,-10.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,10.0,10.0,10.0,0.0,0.0,0.0,,,,,
+vx_compact_lti_swiftpoint_laser,LTI SwiftPoint Laser,Laser,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-6.0,-10.0,0.0,-7.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_dobbins_grip,Dobbins Grip,Rear Grip,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0,0.0,0.0,-16.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_lactic_light_stock,Lactic Light Stock,Stock,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,24.0,4.0,34.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_monolithic_suppressor,Monolithic Suppressor,Muzzle,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,20.0,8.3,0.0,23.0,0.0,0.0,25.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_emt3_agile_laser,EMT3 Agile Laser,Laser,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,20.8,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_trion_grip,Trion Grip,Rear Grip,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_gravix_spread_stock,Gravix Spread Stock,Stock,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-20.0,-20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_recoil_sync_unit,Recoil Sync Unit,Fire Mods,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,-16.0,-8.0,0.0,0.0,0.0,,,,,
+vx_compact_lti_stentorian_brake,LTI Stentorian Brake,Muzzle,,VX COMPACT,0.0,4.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,6.0,-46.0,7.0,0.0,0.0,0.0,,,,,
+vx_compact_mfs_impetus_fast_mag,MFS Impetus Fast Mag,Magazine,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,0.0,5.0,0.0,0.0,-42.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-16.0,0.0,0.0,0.0,0.0,,,,,
+vx_compact_redwell_shade_x_suppressor,Redwell Shade-X Suppressor,Muzzle,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,-13.0,-13.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-11.0,-11.0,-11.0,0.0,0.0,0.0,,,,,
+vx_compact_vas_convergence_foregrip,VAS Convergence Foregrip,Underbarrel,,VX COMPACT,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-9.0,-14.0,-10.0,-40.0,0.0,0.0,,,,,
+mk35_isr_vas_5_56_suppressor,VAS 5.56 Suppressor,Muzzle,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_18_7_bowen_aileron_barrel,"18.7"" Bowen Aileron Barrel",Barrel,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,18.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_h_lock_foregrip,H-Lock Foregrip,Underbarrel,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,-20.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_libate_rt_fast_mag,Libate-RT Fast Mag,Magazine,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-5.0,-4.0,-4.0,-25.0,-4.0,-4.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_sarsen_sprint_grip,Sarsen Sprint Grip,Rear Grip,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-36.0,0.0,0.0,-36.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_greaves_cassin_stock,Greaves Cassin Stock,Stock,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,17.0,0.0,0.0,18.0,0.0,0.0,0.0,0.0,0.0,-15.0,-15.0,-15.0,0.0,0.0,0.0,,,,,
+mk35_isr_17_9_pn_cursus_barrel,"17.9"" PN-Cursus Barrel",Barrel,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,40.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_courser_light_stock,Courser Light Stock,Stock,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,23.0,4.0,36.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_gen_x04_extended_mag,Gen-X04 Extended Mag,Magazine,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_axis_shift_vertical_foregrip,Axis Shift Vertical Foregrip,Underbarrel,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,-20.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_redwell_5_56_compensator,Redwell 5.56 Compensator,Muzzle,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-14.0,0.0,-15.0,0.0,0.0,0.0,,,,,
+mk35_isr_1mw_instinct_laser_array,1mW Instinct Laser Array,Laser,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-6.0,-8.0,0.0,-6.0,-8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_patchwork_stability_grip,Patchwork Stability Grip,Rear Grip,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_bolt_carrier_group,Bolt Carrier Group,Fire Mods,,MK35 ISR,0.0,7.0,0.0,0.0,0.0,-10.0,-24.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,25.0,20.0,0.0,0.0,0.0,,,,,
+mk35_isr_siskin_flip_mag,Siskin Flip Mag,Magazine,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-14.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_15_3_weaver_2r_barrel,"15.3"" Weaver-2R Barrel",Barrel,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,-10.0,0.0,-13.0,-16.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_rl_5_56_brake,RL-5.56 Brake,Muzzle,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,-8.0,-60.0,-67.0,0.0,,,,,
+mk35_isr_r_v2_quick_grip,R-V2 Quick Grip,Rear Grip,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-25.0,0.0,0.0,-26.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_eam_stentor_tac_stock,EAM Stentor Tac Stock,Stock,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-18.0,-20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_5_56_nato_fmj,5.56 NATO FMJ,Fire Mods,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,14.0,14.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_bowen_siren_drum,Bowen Siren Drum,Magazine,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,8.0,8.0,9.0,8.0,8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_buffer_spring,Buffer Spring,Fire Mods,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-10.0,-10.0,0.0,0.0,0.0,,,,,
+mk35_isr_forager_hybrid_stock,Forager Hybrid Stock,Stock,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,11.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_3mw_motion_strike_laser,3mW Motion Strike Laser,Laser,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,19.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_17_lti_firetail_barrel,"17"" LTI Firetail Barrel",Barrel,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,8.0,0.0,0.0,4.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_verdugo_brigand_grip,Verdugo Brigand Grip,Rear Grip,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-13.0,0.0,0.0,-14.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_envoy_foregrip,Envoy Foregrip,Underbarrel,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,9.0,4.0,8.0,0.0,0.0,-10.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_bowen_st_move_stock,Bowen ST-Move Stock,Stock,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,22.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_monolithic_suppressor,Monolithic Suppressor,Muzzle,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,20.0,7.1,0.0,21.0,22.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_vas_knave_control_grip,VAS Knave Control Grip,Rear Grip,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,-8.0,-60.0,0.0,0.0,,,,,
+mk35_isr_strider_handstop,Strider Handstop,Underbarrel,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,9.0,0.0,8.0,13.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_5_56_nato_overpressured,5.56 NATO Overpressured,Fire Mods,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+mk35_isr_lti_stentorian_brake,LTI Stentorian Brake,Muzzle,,MK35 ISR,0.0,3.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,8.0,-21.0,8.0,0.0,0.0,0.0,,,,,
+mk35_isr_redwell_shade_x_suppressor,Redwell Shade-X Suppressor,Muzzle,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,-13.0,-11.9,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-11.0,-11.0,-11.0,0.0,0.0,0.0,,,,,
+mk35_isr_vas_convergence_foregrip,VAS Convergence Foregrip,Underbarrel,,MK35 ISR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-26.0,-9.0,-35.0,0.0,0.0,,,,,
+voyak_kt_3_lineguard_casket_mag,Lineguard Casket Mag,Magazine,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_bowen_tread_pad,Bowen Tread Pad,Stock,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_initiator_grip,Initiator Grip,Rear Grip,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-39.0,0.0,0.0,-39.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_swf_tishina_11,SWF Tishina-11,Muzzle,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_7_62_soviet_fmj,7.62 Soviet FMJ,Fire Mods,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,20.0,18.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_19_2_greaves_c5_barrel,"19.2"" Greaves-C5 Barrel",Barrel,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,38.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_1mw_instinct_laser_array,1mW Instinct Laser Array,Laser,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-7.0,-11.0,0.0,-8.0,-11.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_force_stabilizer_handstop,Force Stabilizer Handstop,Underbarrel,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-22.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_crisis_q_grip,Crisis-Q Grip,Rear Grip,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-26.0,-28.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_slipjoint_flip_mag,Slipjoint Flip Mag,Magazine,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,0.0,-24.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_path_net_grip,Path Net Grip,Rear Grip,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_14_hawker_fervor_barrel,"14"" Hawker Fervor Barrel",Barrel,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-7.0,-11.0,0.0,-13.0,-17.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_lancing_feather_mag,Lancing Feather Mag,Magazine,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-5.0,-6.0,-8.0,-34.0,-7.0,-8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_ridgeway_pad,Ridgeway Pad,Stock,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,22.0,4.0,33.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_7_62_soviet_overpressured,7.62 Soviet Overpressured,Fire Mods,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,22.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_emt3_compensator,EMT3 Compensator,Muzzle,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-12.0,0.0,-12.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_20_danko_barrel,"20"" Danko Barrel",Barrel,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,25.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_pleated_grip,Pleated Grip,Rear Grip,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-13.0,0.0,0.0,-14.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_ironhold_angled_grip,Ironhold Angled Grip,Underbarrel,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-13.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_contorso_pad,Contorso Pad,Stock,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,12.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_15_bowen_dualist_barrel,"15"" Bowen Dualist Barrel",Barrel,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,16.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_monolithic_suppressor,Monolithic Suppressor,Muzzle,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,15.0,8.0,0.0,23.0,0.0,0.0,24.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_bolt_carrier_group,Bolt Carrier Group,Fire Mods,,VOYAK KT-3,0.0,12.0,0.0,0.0,0.0,-8.0,-16.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,15.0,15.0,15.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_strider_handstop,Strider Handstop,Underbarrel,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,9.0,0.0,7.0,12.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_v_last_control_pad,V-Last Control Pad,Stock,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,0.0,0.0,22.0,0.0,0.0,0.0,0.0,-13.0,-15.0,-15.0,-15.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_sapper_guard_handstop,Sapper Guard Handstop,Underbarrel,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,9.0,4.0,7.0,0.0,0.0,-12.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_3mw_motion_strike_laser,3mW Motion Strike Laser,Laser,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,24.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_emt3_noco_pad,EMT3 Noco Pad,Stock,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-18.0,-20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_sk_garrison_drum,SK-Garrison Drum,Magazine,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,10.0,13.0,26.0,10.0,13.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_buffer_spring,Buffer Spring,Fire Mods,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-10.0,-10.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_eclipse_7_62_brake,Eclipse 7.62 Brake,Muzzle,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,0.0,-10.0,-60.0,-67.0,0.0,,,,,
+voyak_kt_3_vas_convergence_foregrip,VAS Convergence Foregrip,Underbarrel,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-34.0,-7.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_lti_stentorian_brake,LTI Stentorian Brake,Muzzle,,VOYAK KT-3,0.0,2.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,7.0,-20.0,7.0,0.0,0.0,0.0,,,,,
+voyak_kt_3_redwell_shade_x_suppressor,Redwell Shade-X Suppressor,Muzzle,,VOYAK KT-3,0.0,0.0,0.0,0.0,0.0,-13.0,-12.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-11.0,-11.0,-11.0,0.0,0.0,0.0,,,,,
+egrt_17_14_6_lti_verdin_barrel,"14.6"" LTI Verdin Barrel",Barrel,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-9.0,-13.0,0.0,-14.0,-19.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+egrt_17_verto_flip_mag,Verto Flip Mag,Magazine,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-32.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+egrt_17_eam_ibis_suppressor,EAM Ibis Suppressor,Muzzle,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+egrt_17_frigate_control_stock,Frigate Control Stock,Stock,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,19.0,0.0,0.0,20.0,0.0,0.0,0.0,0.0,-14.0,-15.0,-15.0,-15.0,0.0,0.0,0.0,,,,,
+egrt_17_buffer_springs,Buffer Springs,Fire Mods,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-10.0,-10.0,0.0,0.0,0.0,,,,,
+egrt_17_eam_capacitor_grip,EAM Capacitor Grip,Rear Grip,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-27.0,0.0,0.0,-29.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+egrt_17_20_7_hawker_nap_3_barrel,"20.7"" Hawker NAP-3 Barrel",Barrel,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,45.4,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+egrt_17_quickstep_foregrip,Quickstep Foregrip,Underbarrel,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,9.0,0.0,8.0,13.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+egrt_17_eam_acute_mag,EAM Acute Mag,Magazine,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,11.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+egrt_17_eam_tatter_stock,EAM Tatter Stock,Stock,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,14.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+egrt_17_sentry_pro_handstop,Sentry Pro Handstop,Underbarrel,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0,0.0,0.0,0.0,0.0,,,,,
+egrt_17_19_1_xr_compulsion_barrel,"19.1"" XR-Compulsion Barrel",Barrel,,EGRT-17,0.0,0.0,0.0,0.0,0.0,43.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+egrt_17_lattice_compensator,Lattice Compensator,Muzzle,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-16.0,0.0,-15.0,0.0,0.0,0.0,,,,,
+egrt_17_bowen_sentry_foregrip,Bowen Sentry Foregrip,Underbarrel,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-17.0,0.0,0.0,0.0,0.0,,,,,
+egrt_17_eam_nova_slim_mag,EAM Nova-Slim Mag,Magazine,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-4.0,-5.0,-5.0,-39.0,-6.0,-5.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+egrt_17_fervid_grip,Fervid Grip,Rear Grip,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-25.0,0.0,0.0,-25.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+egrt_17_bolt_carrier_group,Bolt Carrier Group,Fire Mods,,EGRT-17,0.0,14.0,0.0,0.0,0.0,-12.0,-4.5,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,15.0,20.0,0.0,0.0,0.0,,,,,
+egrt_17_1mw_instinct_laser_array,1mW Instinct Laser Array,Laser,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,-10.0,0.0,-8.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+egrt_17_17_9_eam_planar_barrel,"17.9"" EAM Planar Barrel",Barrel,,EGRT-17,0.0,0.0,0.0,0.0,0.0,22.0,25.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+egrt_17_eider_sidestep_stock,Eider Sidestep Stock,Stock,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,23.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+egrt_17_fuel_cell_x3_mag,Fuel Cell-X3 Mag,Magazine,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,21.0,8.0,10.0,13.0,9.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+egrt_17_lti_diode_grip,LTI Diode Grip,Rear Grip,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0,0.0,0.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+egrt_17_eam_finset_brake,EAM Finset Brake,Muzzle,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,-8.0,-60.0,-67.0,0.0,,,,,
+egrt_17_saker_speed_stock,Saker Speed Stock,Stock,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,23.0,4.0,36.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+egrt_17_bowen_dampener_grip,Bowen Dampener Grip,Rear Grip,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,0.0,0.0,0.0,,,,,
+egrt_17_monolithic_suppressor,Monolithic Suppressor,Muzzle,,EGRT-17,0.0,0.0,0.0,0.0,0.0,23.0,11.4,0.0,22.0,0.0,0.0,23.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+egrt_17_3mw_motion_strike_laser,3mW Motion Strike Laser,Laser,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,20.4,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+egrt_17_aura_bloom_stock,Aura Bloom Stock,Stock,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-7.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+egrt_17_nanite_grip,Nanite Grip,Rear Grip,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,-8.0,-60.0,0.0,0.0,,,,,
+egrt_17_eam_steady_90_grip,EAM Steady-90 Grip,Underbarrel,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,11.0,4.0,8.0,0.0,0.0,-10.0,0.0,0.0,0.0,0.0,,,,,
+egrt_17_vas_convergence_foregrip,VAS Convergence Foregrip,Underbarrel,,EGRT-17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-1.0,-9.0,0.0,0.0,0.0,,,,,
+egrt_17_lti_stentorian_brake,LTI Stentorian Brake,Muzzle,,EGRT-17,0.0,3.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,8.0,-15.0,7.0,0.0,0.0,0.0,,,,,
+egrt_17_mfs_heated_echo_rounds,MFS Heated Echo Rounds,Fire Mods,,EGRT-17,0.0,0.0,0.0,0.0,0.0,11.0,11.4,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,5.0,5.0,5.0,0.0,0.0,0.0,,,,,
+egrt_17_redwell_shade_x_suppressor,Redwell Shade-X Suppressor,Muzzle,,EGRT-17,0.0,0.0,0.0,0.0,0.0,-13.0,-11.4,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-10.0,-10.0,0.0,0.0,0.0,,,,,
+maddox_rfb_hallux_mix_grip,Hallux Mix Grip,Rear Grip,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,0.0,0.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_billing_extended_mag,Billing Extended Mag,Magazine,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_rout_stride_stock,Rout Stride Stock,Stock,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,22.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_eam_steady_90_grip,EAM Steady-90 Grip,Underbarrel,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,7.0,4.0,8.0,0.0,0.0,-7.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_21_turbine_booster_barrel,"21"" Turbine Booster Barrel",Barrel,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,32.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_buffer_spring,Buffer Spring,Fire Mods,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-10.0,-10.0,0.0,0.0,0.0,,,,,
+maddox_rfb_harlequin_grip,Harlequin Grip,Rear Grip,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-47.0,0.0,0.0,-47.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_voltaic_light_stock,Voltaic Light Stock,Stock,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,3.0,31.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_vas_556_suppressor,VAS 5.56 Suppressor,Muzzle,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_15_aviary_light_barrel,"15"" Aviary Light Barrel",Barrel,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,-13.0,0.0,-13.0,-19.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_556_nato_overpressured,5.56 NATO Overpressured,Fire Mods,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_h_lock_foregrip,H-Lock Foregrip,Underbarrel,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_furrow_control_stock,Furrow Control Stock,Stock,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,19.0,0.0,0.0,20.0,0.0,0.0,0.0,0.0,-14.0,-15.0,-15.0,-15.0,0.0,0.0,0.0,,,,,
+maddox_rfb_faraday_quick_grip,Faraday Quick Grip,Rear Grip,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-19.0,0.0,0.0,-20.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_plumage_fast_mag,Plumage Fast Mag,Magazine,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-13.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_redwell_556_compensator,Redwell 5.56 Compensator,Muzzle,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0,0.0,-15.0,0.0,0.0,0.0,,,,,
+maddox_rfb_vas_drift_lock_foregrip,VAS Drift Lock Foregrip,Underbarrel,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-20.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_556_nato_fmj,5.56 NATO FMJ,Fire Mods,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,14.0,14.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_mandible_extended_mag,Mandible Extended Mag,Magazine,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,8.0,11.0,17.0,8.0,11.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_bolt_carrier_group,Bolt Carrier Group,Fire Mods,,MADDOX RFB,0.0,6.0,0.0,0.0,0.0,-10.0,-10.5,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,25.0,20.0,0.0,0.0,0.0,,,,,
+maddox_rfb_vas_throng_stock,VAS Throng Stock,Stock,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-6.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_scarletfront_fast_mags,ScarletFront Fast Mags,Magazine,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-6.0,-8.0,-20.0,-6.0,-8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_vas_spire_grip,VAS Spire Grip,Rear Grip,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,-8.0,-60.0,0.0,0.0,,,,,
+maddox_rfb_1mw_instinct_laser_array,1mW Instinct Laser Array,Laser,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-5.0,-11.0,0.0,-5.0,-11.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_rl_556_brake,RL-5.56 Brake,Muzzle,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,-8.0,-60.0,-75.0,0.0,,,,,
+maddox_rfb_horus_accuracy_grip,Horus Accuracy Grip,Rear Grip,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-8.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_24_assemblage_barrel,"24"" Assemblage Barrel",Barrel,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,31.6,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_quickstep_foregrip,Quickstep Foregrip,Underbarrel,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,7.0,0.0,8.0,11.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_migrate_mix_stock,Migrate Mix Stock,Stock,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,11.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_monolithic_suppressor,Monolithic Suppressor,Muzzle,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,20.0,10.5,0.0,21.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_17_perfidy_75_barrel,"17"" Perfidy-75 Barrel",Barrel,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,16.0,15.8,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_3mw_motion_strike_laser,3mW Motion Strike Laser,Laser,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,21.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,
+maddox_rfb_vas_convergence_foregrip,VAS Convergence Foregrip,Underbarrel,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-28.0,-6.0,0.0,0.0,0.0,,,,,
+maddox_rfb_lti_stentorian_brake,LTI Stentorian Brake,Muzzle,,MADDOX RFB,0.0,2.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,10.0,-20.0,10.0,0.0,0.0,0.0,,,,,
+maddox_rfb_redwell_shade_x_suppressor,Redwell Shade-X Suppressor,Muzzle,,MADDOX RFB,0.0,0.0,0.0,0.0,0.0,-13.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-11.0,-11.0,-11.0,0.0,0.0,0.0,,,,,
+echo_12_bowen_defender_stock,Bowen Defender Stock,Stock,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,17.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,+17.0% Jump ADS,codmunity.gg,2026-07-06,needs_verification,Label: Control Stock. Unlock: Level 2.
+echo_12_recoil_sync_unit,Recoil Sync Unit,Fire Mods,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Recoil Springs. Unlock: Level 3.
+echo_12_dual_clone_suppressor,Dual Clone Suppressor,Muzzle,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Suppressor. Unlock: Level 4.
+echo_12_k_s_slim_reflex,K&S Slim Reflex,Optic,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Reflex 05. Unlock: Level 5.
+echo_12_vas_bravotap_drum,VAS BravoTap Drum,Magazine,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Fast Mag I. Unlock: Level 6.
+echo_12_17_3_nero_twin_barrel,"17.3"" Nero-Twin Barrel",Barrel,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Damage Barrel. Unlock: Level 7.
+echo_12_eam_ignition_grip,EAM Ignition Grip,Rear Grip,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0% Jump Sprint To Fire Speed,codmunity.gg,2026-07-06,needs_verification,Label: Sprint to Fire Grip. Unlock: Level 8.
+echo_12_1mw_instinct_laser_array,1mW Instinct Laser Array,Laser,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-4.0,-7.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-4.0% Jump ADS | -7.0% Jump Sprint To Fire Speed,codmunity.gg,2026-07-06,needs_verification,Label: Handling Laser. Unlock: Level 9.
+echo_12_echo_modified_choke,Echo Modified Choke,Muzzle,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: ADS Choke. Unlock: Level 10.
+echo_12_lethal_tools_elo,Lethal Tools ELO,Optic,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Mini Reflex 03. Unlock: Level 11.
+echo_12_15_ghostline_barrel,"15"" Ghostline Barrel",Barrel,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-12.0,-11.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-12.0% Jump ADS | -11.0% Jump Sprint To Fire Speed,codmunity.gg,2026-07-06,needs_verification,Label: Short Barrel. Unlock: Level 12.
+echo_12_greaves_stalker_stock,Greaves Stalker Stock,Stock,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Mobility Stock. Unlock: Level 13.
+echo_12_twin_dampener,Twin Dampener,Muzzle,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-50.0,-19.0,0.0,-50.0% First Shot Recoil Scale | -19.0% Kick Reset Speed,codmunity.gg,2026-07-06,needs_verification,Label: Muzzle Brake. Unlock: Level 14.
+echo_12_2mw_adaptive_tactical_laser,2mW Adaptive Tactical Laser,Laser,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Tactical Laser. Unlock: Level 15.
+echo_12_harbinger_grip,Harbinger Grip,Rear Grip,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Stabilization Grip. Unlock: Level 16.
+echo_12_kepler_pro_red_dot,Kepler-Pro Red Dot,Optic,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Reflex 02. Unlock: Level 17.
+echo_12_12_gauge_dragon_s_breath,12 Gauge Dragon's Breath,Fire Mods,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Incendiary Ammo. Unlock: Level 18.
+echo_12_16_1_proton_barrel,"16.1"" Proton Barrel",Barrel,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Hybrid Barrel. Unlock: Level 19.
+echo_12_monolithic_suppressor,Monolithic Suppressor,Muzzle,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Firepower Suppressor. Unlock: Level 20.
+echo_12_convergence_box_laser,Convergence Box Laser,Laser,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Steady Aim Laser. Unlock: Level 21.
+echo_12_scatterproof_stock,Scatterproof Stock,Stock,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Tactical Spread Stock. Unlock: Level 22.
+echo_12_eam_xl_reflex,EAM xL Reflex,Optic,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Reflex 06. Unlock: Level 23.
+echo_12_18_7_magellan_dual_barrel,"18.7"" Magellan Dual Barrel",Barrel,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Long Barrel. Unlock: Level 24.
+echo_12_phantom_17_grip,Phantom-17 Grip,Rear Grip,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-13.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-13.0% Jump ADS,codmunity.gg,2026-07-06,needs_verification,Label: Quickdraw Grip. Unlock: Level 25.
+echo_12_greaves_fortrex_drum,Greaves Fortrex Drum,Magazine,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,12.0,13.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,+12.0% Jump ADS | +13.0% Jump Sprint To Fire Speed,codmunity.gg,2026-07-06,needs_verification,Label: Extended Mag I. Unlock: Level 26.
+echo_12_12_gauge_slug,12 Gauge Slug,Fire Mods,,Echo 12,0.0,0.0,0.0,0.0,0.0,-25.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-15.0,-15.0,-15.0,0.0,0.0,0.0,-15.0% Gun Kick | -15.0% Horizontal Recoil | -15.0% Vertical Recoil | -25.0% Bullet Velocity,codmunity.gg,2026-07-06,needs_verification,Label: Shotgun Slugs. Unlock: Level 27.
+echo_12_extraction_stock,Extraction Stock,Stock,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: ADS Movement Stock. Unlock: Level 28.
+echo_12_5mw_lockstep_laser,5mw Lockstep Laser,Laser,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Strelok Laser. Unlock: Level 29.
+echo_12_millimeter_scanner,Millimeter Scanner,Optic,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Millimeter Scanner. Unlock: Level 30.
+echo_12_axel_control_grip,Axel Control Grip,Rear Grip,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-60.0,0.0,0.0,-60.0% First Shot Recoil Scale,codmunity.gg,2026-07-06,needs_verification,Label: Accuracy Grip. Unlock: Level 31.
+echo_12_binary_echo_choke,Binary Echo Choke,Muzzle,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Hip Spread Choke. Unlock: Level 32.
+echo_12_turnkey_rapid_drum,Turnkey Rapid Drum,Fire Mods,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Rapid Fire. Unlock: Level 33.
+echo_12_eam_stonewall_stock,EAM Stonewall Stock,Stock,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,9.0,0.0,0.0,0.0,0.0,0.0,0.0,+9.0% ADS Movement,codmunity.gg,2026-07-06,needs_verification,Label: Mobile Flinch Stock. Unlock: Level 34.
+echo_12_traverse_grip,Traverse Grip,Rear Grip,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-7.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-7.0% Jump ADS | -20.0% Slide to Fire | -20.0% Dive to Fire Speed,codmunity.gg,2026-07-06,needs_verification,Label: Mobile Quickdraw Grip. Unlock: Level 35.
+echo_12_3mw_motion_strike_laser,3mW Motion Strike Laser,Laser,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Stable Laser. Unlock: Level 36.
+echo_12_lti_stentorian_brake,LTI Stentorian Brake,Muzzle,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Fire Rate Brake. Unlock: Season 4 Battle Pass.
+echo_12_18_mfs_greyhound_barrel,"18"" MFS Greyhound Barrel",Barrel,,Echo 12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Stable Velocity Barrel+. Unlock: Weapon Prestige.
+echo_12_redwell_shade_x_suppressor,Redwell Shade-X Suppressor,Muzzle,,Echo 12,0.0,0.0,0.0,0.0,0.0,-13.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-11.0,-11.0,-11.0,0.0,0.0,0.0,-11.0% Gun Kick | -11.0% Horizontal Recoil | -11.0% Vertical Recoil | -13.0% Bullet Velocity | -15.0% range,codmunity.gg,2026-07-06,needs_verification,Label: Recoil Suppressor. Unlock: Weekly Challenge Reward.
+echo_12_echo_12_backlash_launcher_kit,Echo 12 Backlash Launcher Kit,Fire Mods,,Echo 12,0.0,-18.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-18.0% RPM,codmunity.gg,2026-07-06,needs_verification,Label: Launcher Conversion Kit. Unlock: Weekly Challenge Reward.
+akita_pioneer_blaze_grip,Pioneer Blaze Grip,Rear Grip,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-38.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-38.0% Jump Sprint To Fire Speed,codmunity.gg,2026-07-06,needs_verification,Label: Sprint to Fire Grip. Unlock: Level 2.
+akita_shell_carrier_extended_i,Shell Carrier Extended I,Magazine,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Extended Mag I. Unlock: Level 4.
+akita_vas_led,VAS LED,Optic,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Reflex 01. Unlock: Level 5.
+akita_buffer_spring,Buffer Spring,Fire Mods,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Recoil Springs. Unlock: Level 6.
+akita_venomous_stock,Venomous Stock,Stock,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: ADS Movement Stock. Unlock: Level 7.
+akita_eam_scatterline_laser,EAM ScatterLine Laser,Laser,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Steady Aim Laser. Unlock: Level 8.
+akita_12_security_cipher_barrel,"12"" Security Cipher Barrel",Barrel,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Bullet Velocity Barrel. Unlock: Level 9.
+akita_akita_full_bore_12,Akita Full Bore-12,Muzzle,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: ADS Choke. Unlock: Level 10.
+akita_eam_micro_dot,EAM Micro Dot,Optic,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Mini Reflex 04. Unlock: Level 11.
+akita_bravo_speed_rack,Bravo Speed Rack,Magazine,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Fast Mag I. Unlock: Level 12.
+akita_stippled_control_grip,Stippled Control Grip,Rear Grip,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Stabilization Grip. Unlock: Level 13.
+akita_sapper_guard_handstop,Sapper Guard Handstop,Underbarrel,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Mobile Recoil Handstop. Unlock: Level 14.
+akita_10_3_lightpad_strike_barrel,"10.3"" Lightpad Strike Barrel",Barrel,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-12.0,-22.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-12.0% Jump ADS | -22.0% Jump Sprint To Fire Speed,codmunity.gg,2026-07-06,needs_verification,Label: Short Barrel. Unlock: Level 15.
+akita_thinpoint_fast_mag,Thinpoint Fast Mag,Magazine,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-5.0,-8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-5.0% Jump ADS | -8.0% Jump Sprint To Fire Speed,codmunity.gg,2026-07-06,needs_verification,Label: Fast Mag II. Unlock: Level 16.
+akita_emt3_holo_mk_2,EMT3 Holo Mk.2,Optic,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Holo Sight 02. Unlock: Level 17.
+akita_hko_suppressor,HKO Suppressor,Muzzle,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Suppressor. Unlock: Level 18.
+akita_force_stabilizer_handstop,Force Stabilizer Handstop,Underbarrel,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Recoil Control Handstop. Unlock: Level 19.
+akita_vagabond_stock,Vagabond Stock,Stock,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Tactical Spread Stock. Unlock: Level 20.
+akita_granulated_fast_grip,Granulated Fast Grip,Rear Grip,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-29.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-29.0% Jump ADS,codmunity.gg,2026-07-06,needs_verification,Label: Quickdraw Grip. Unlock: Level 21.
+akita_redwell_tactical_laser,Redwell Tactical Laser,Laser,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Tactical Laser. Unlock: Level 22.
+akita_redwell_30_s_2x,Redwell 30-S 2x,Optic,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: 2x Optic. Unlock: Level 23.
+akita_9_4_phobos_heavy_barrel,"9.4"" Phobos Heavy Barrel",Barrel,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Damage Barrel. Unlock: Level 24.
+akita_strider_handstop,Strider Handstop,Underbarrel,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Mobility Handstop. Unlock: Level 25.
+akita_phantasm_12g_brake,Phantasm 12G Brake,Muzzle,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-50.0,-19.0,0.0,-50.0% First Shot Recoil Scale | -19.0% Kick Reset Speed,codmunity.gg,2026-07-06,needs_verification,Label: Muzzle Brake. Unlock: Level 26.
+akita_bulk_feed_extended_ii,Bulk Feed Extended II,Magazine,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,10.0,14.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,+10.0% Jump ADS | +14.0% Jump Sprint To Fire Speed,codmunity.gg,2026-07-06,needs_verification,Label: Extended Mag II. Unlock: Level 27.
+akita_mobile_security_stock,Mobile Security Stock,Stock,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Mobility Stock. Unlock: Level 28.
+akita_emt3_agile_laser,EMT3 Agile Laser,Laser,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Stable Laser. Unlock: Level 29.
+akita_kepler_t_range_holo,Kepler T-Range Holo,Optic,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Holo Range Sight. Unlock: Level 30.
+akita_paradise_gen_4_grip,Paradise Gen-4 Grip,Rear Grip,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-60.0,0.0,0.0,-60.0% First Shot Recoil Scale,codmunity.gg,2026-07-06,needs_verification,Label: Accuracy Grip. Unlock: Level 31.
+akita_10_splice_mix_barrel,"10"" Splice Mix Barrel",Barrel,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Hybrid Barrel. Unlock: Level 32.
+akita_monolithic_suppressor,Monolithic Suppressor,Muzzle,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Firepower Suppressor. Unlock: Level 33.
+akita_vas_precision_shift_laser,VAS Precision Shift Laser,Laser,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Strelok Laser. Unlock: Level 34.
+akita_zero_shift_handstop,Zero Shift Handstop,Underbarrel,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Steady Sway Handstop. Unlock: Level 34.
+akita_12_gauge_short_dragon_s_breath,12 Gauge Short Dragon's Breath,Fire Mods,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Incendiary Ammo. Unlock: Level 34.
+akita_illicit_motion_stock,Illicit Motion Stock,Stock,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Mobile Flinch Stock. Unlock: Level 35.
+akita_s_47_response_grip,S-47 Response Grip,Rear Grip,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-13.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-13.0% Jump ADS | -20.0% Slide to Fire | -20.0% Dive to Fire Speed,codmunity.gg,2026-07-06,needs_verification,Label: Mobile Quickdraw Grip. Unlock: Level 37.
+akita_fang_modified_choke,Fang Modified Choke,Muzzle,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Hip Spread Choke. Unlock: Level 39.
+akita_14_retriever_hunt_barrel,"14"" Retriever Hunt Barrel",Barrel,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Long Barrel. Unlock: Level 40.
+akita_enhanced_cycle_system,Enhanced Cycle System,Fire Mods,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Rapid Fire. Unlock: Level 41.
+akita_12_gauge_short_slug,12 Gauge Short Slug,Fire Mods,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Shotgun Slugs. Unlock: Level 42.
+akita_lti_swiftpoint_laser,LTI SwiftPoint Laser,Laser,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-5.0,-13.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-5.0% Jump ADS | -13.0% Jump Sprint To Fire Speed,codmunity.gg,2026-07-06,needs_verification,Label: Handling Laser. Unlock: Level 43.
+akita_vas_convergence_foregrip,VAS Convergence Foregrip,Underbarrel,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Bullet Deviation Foregrip. Unlock: Season 3 Battle Pass.
+akita_lti_stentorian_brake,LTI Stentorian Brake,Muzzle,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Fire Rate Brake. Unlock: Season 4 Battle Pass.
+akita_mfs_gd_7_shock_stock,MFS GD-7 Shock Stock,Stock,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-5.0,-13.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-5.0% Jump ADS | -13.0% Jump Sprint To Fire Speed,codmunity.gg,2026-07-06,needs_verification,Label: Mobility Handling Stock. Unlock: Weapon Prestige.
+akita_akita_scorchlink_akimbo,Akita Scorchlink Akimbo,Stock,,Akita,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,25.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,25.0,100.0,100.0,0.0,0.0,0.0,+25.0% Sprint To Fire | +25.0% Gun Kick | +100.0% Horizontal Recoil | +100.0% Vertical Recoil,codmunity.gg,2026-07-06,needs_verification,Label: Dual Wield Belt Fed. Unlock: Weekly Challenge Reward.
+akita_redwell_shade_x_suppressor,Redwell Shade-X Suppressor,Muzzle,,Akita,0.0,0.0,0.0,0.0,0.0,-13.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-11.0,-11.0,-11.0,0.0,0.0,0.0,-11.0% Gun Kick | -11.0% Horizontal Recoil | -11.0% Vertical Recoil | -13.0% Bullet Velocity | -15.0% range,codmunity.gg,2026-07-06,needs_verification,Label: Recoil Suppressor. Unlock: Weekly Challenge Reward.
+sg12_beadline_tactical_pad,Beadline Tactical Pad,Stock,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Tactical Spread Pad. Unlock: Level 2.
+sg12_eam_buffer_grip,EAM Buffer Grip,Rear Grip,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Stabilization Grip. Unlock: Level 3.
+sg12_20_hawker_reach_barrel,"20"" Hawker Reach Barrel",Barrel,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Long Barrel. Unlock: Level 4.
+sg12_collie_flip_mag,Collie Flip Mag,Magazine,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: 8 Round Flip Mag. Unlock: Level 5.
+sg12_5mw_lockstep_laser,5mW Lockstep Laser,Laser,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Strelok Laser. Unlock: Level 6.
+sg12_hko_suppressor,HKO Suppressor,Muzzle,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Suppressor. Unlock: Level 7.
+sg12_17_universal_barrel,"17"" Universal Barrel",Barrel,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Hybrid Barrel. Unlock: Level 8.
+sg12_align_lite_grip,Align-Lite Grip,Rear Grip,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Quickdraw Grip. Unlock: Level 9.
+sg12_ironhold_angled_grip,Ironhold Angled Grip,Underbarrel,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Steady Sway Handstop. Unlock: Level 10.
+sg12_3mw_motion_strike_laser,3mW Motion Strike Laser,Laser,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Stable Laser. Unlock: Level 11.
+sg12_b3_dragstep_pad,B3-Dragstep Pad,Stock,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: ADS Movement Pad. Unlock: Level 12.
+sg12_breacher_onyx_brake,Breacher Onyx Brake,Muzzle,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Muzzle Brake. Unlock: Level 13.
+sg12_h_comb_extended_mag,H-Comb Extended Mag,Magazine,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: 10 Round Extended Mag. Unlock: Level 14.
+sg12_19_lockshot_barrel,"19"" Lockshot Barrel",Barrel,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Bullet Velocity Barrel. Unlock: Level 15.
+sg12_dashbound_grip,Dashbound Grip,Rear Grip,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Sprint to Fire Grip. Unlock: Level 16.
+sg12_redwell_dash_handstop,Redwell Dash Handstop,Underbarrel,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Mobility Foregrip. Unlock: Level 17.
+sg12_akita_full_bore_12,Akita Full Bore-12,Muzzle,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: ADS Choke. Unlock: Level 18.
+sg12_convergence_box_laser,Convergence Box Laser,Laser,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Steady Aim Laser. Unlock: Level 19.
+sg12_accelerated_recoil_system,Accelerated Recoil System,Fire Mods,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Recoil Springs. Unlock: Level 20.
+sg12_streamline_fast_mag,Streamline Fast Mag,Magazine,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: 6 Round Fast Mag. Unlock: Level 21.
+sg12_15_eam_mini_cut_barrel,"15"" EAM-Mini Cut Barrel",Barrel,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Short Barrel. Unlock: Level 22.
+sg12_control_frame_pad,Control Frame Pad,Stock,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Mobile Flinch Pad. Unlock: Level 23.
+sg12_monolithic_suppressor,Monolithic Suppressor,Muzzle,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Firepower Suppressor. Unlock: Level 24.
+sg12_2mw_adaptive_tactical_laser,2mW Adaptive Tactical Laser,Laser,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Tactical Laser. Unlock: Level 25.
+sg12_lti_dawnvoid_grip,LTI DawnVoid Grip,Rear Grip,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Accuracy Grip. Unlock: Level 26.
+sg12_12_gauge_dragon_s_breath,12 Gauge Dragon's Breath,Fire Mods,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Incendiary Ammo. Unlock: Level 27.
+sg12_force_stabilizer_handstop,Force Stabilizer Handstop,Underbarrel,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Recoil Control Foregrip. Unlock: Level 28.
+sg12_overrun_pad,Overrun Pad,Stock,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Mobility Pad. Unlock: Level 29.
+sg12_18_crit_strike_barrel,"18"" Crit-Strike Barrel",Barrel,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Damage Barrel. Unlock: Level 30.
+sg12_lw_trigger,LW Trigger,Fire Mods,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Rapid Fire. Unlock: Level 31.
+sg12_1mw_instinct_laser_array,1mW Instinct Laser Array,Laser,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Handling Laser. Unlock: Level 32.
+sg12_fang_modified_choke,Fang Modified Choke,Muzzle,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Hip Spread Choke. Unlock: Level 33.
+sg12_anchor_pad,Anchor Pad,Stock,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Control Pad. Unlock: Level 34.
+sg12_12_gauge_slug,12 Gauge Slug,Fire Mods,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Shotgun Slugs. Unlock: Level 35.
+sg12_dropzone_grip,Dropzone Grip,Rear Grip,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Mobile Quickdraw Grip. Unlock: Level 36.
+sg12_bowen_bighorn_drum,Bowen Bighorn Drum,Magazine,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: 14 Round Drum. Unlock: Level 37.
+sg12_sapper_guard_handstop,Sapper Guard Handstop,Underbarrel,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Mobile Recoil Foregrip. Unlock: Level 38.
+sg12_vas_convergence_foregrip,VAS Convergence Foregrip,Underbarrel,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Bullet Deviation Foregrip. Unlock: Season 3 Battle Pass.
+sg12_lti_stentorian_brake,LTI Stentorian Brake,Muzzle,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Fire Rate Brake. Unlock: Season 4 Battle Pass.
+sg12_mfs_pulse_fire_taclight,MFS Pulse Fire Taclight,Laser,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Binary Fire Light. Unlock: Weapon Prestige.
+sg12_redwell_shade_x_suppressor,Redwell Shade-X Suppressor,Muzzle,,SG12,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Recoil Suppressor. Unlock: Weekly Challenge Reward.
+m10_breacher_no_stock,No Stock,Stock,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-21.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-21.0% Jump ADS,codmunity.gg,2026-07-06,needs_verification,Label: Quickdraw Grip. Unlock: Level 2.
+m10_breacher_redwell_agency_suppressor,Redwell Agency Suppressor,Muzzle,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Suppressor. Unlock: Level 3.
+m10_breacher_lti_mini,LTI Mini,Optic,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Mini Reflex 01. Unlock: Level 5.
+m10_breacher_17_overload_barrel,"17"" Overload Barrel",Barrel,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Heavy Barrel. Unlock: Level 6.
+m10_breacher_r_54_padded_stock,R-54 Padded Stock,Stock,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: ADS Movement Stock. Unlock: Level 7.
+m10_breacher_5mw_lockstep_laser,5mw Lockstep Laser,Laser,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Strelok Laser. Unlock: Level 8.
+m10_breacher_15_5_light_barrel,"15.5"" Light Barrel",Barrel,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,-51.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0% Jump ADS | -51.0% Jump Sprint To Fire Speed,codmunity.gg,2026-07-06,needs_verification,Label: Quick Load Barrel. Unlock: Level 9.
+m10_breacher_vas_microflex,VAS MicroFlex,Optic,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Mini Reflex 02. Unlock: Level 10.
+m10_breacher_buffer_spring,Buffer Spring,Fire Mods,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Recoil Springs. Unlock: Level 11.
+m10_breacher_force_stabilizer_handstop,Force Stabilizer Handstop,Underbarrel,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Recoil Control Handstop. Unlock: Level 12.
+m10_breacher_collapsible_stock,Collapsible Stock,Stock,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-14.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-25.0% Slide to Fire | -25.0% Dive to Fire Speed | -14.0% Jump Sprint To Fire Speed,codmunity.gg,2026-07-06,needs_verification,Label: Primed Stock. Unlock: Level 13.
+m10_breacher_17_4_redwell_5k_barrel,"17.4"" Redwell-5K Barrel",Barrel,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Long Barrel. Unlock: Level 14.
+m10_breacher_prismatech_digital_holo,PrismaTech Digital Holo,Optic,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Holo Sight 01. Unlock: Level 15.
+m10_breacher_breacher_precision_choke,Breacher Precision Choke,Muzzle,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: ADS Choke. Unlock: Level 16.
+m10_breacher_2mw_adaptive_tactical_laser,2mW Adaptive Tactical Laser,Laser,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Tactical Laser. Unlock: Level 17.
+m10_breacher_12_gauge_dragon_s_breath,12 Gauge Dragon's Breath,Fire Mods,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Incendiary Ammo. Unlock: Level 18.
+m10_breacher_sf_7x_stock,SF-7X Stock,Stock,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-25.0% Slide to Fire | -25.0% Dive to Fire Speed,codmunity.gg,2026-07-06,needs_verification,Label: Locomotion Stock. Unlock: Level 19.
+m10_breacher_greaves_accuspot_3x,Greaves AccuSpot 3x,Optic,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: 3x Optic. Unlock: Level 20.
+m10_breacher_monolithic_suppressor,Monolithic Suppressor,Muzzle,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,19.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,+19.0% Jump ADS,codmunity.gg,2026-07-06,needs_verification,Label: Firepower Suppressor. Unlock: Level 21.
+m10_breacher_19_8_bull_barrel,"19.8"" Bull Barrel",Barrel,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Heavy Long Barrel. Unlock: Level 22.
+m10_breacher_redwell_dash_handstop,Redwell Dash Handstop,Underbarrel,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Mobility Handstop. Unlock: Level 23.
+m10_breacher_m10_light_grip,M10 Light Grip,Stock,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-10.0% Jump ADS,codmunity.gg,2026-07-06,needs_verification,Label: Aim Speed Grip. Unlock: Level 24.
+m10_breacher_solaris_holo_ir,Solaris Holo-IR,Optic,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Thermal Holographic. Unlock: Level 25.
+m10_breacher_3mw_motion_strike_laser,3mW Motion Strike Laser,Laser,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Stable Laser. Unlock: Level 26.
+m10_breacher_12_gauge_slug,12 Gauge Slug,Fire Mods,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Shotgun Slugs. Unlock: Level 27.
+m10_breacher_14_zephyr_r_barrel,"14"" Zephyr-R Barrel",Barrel,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-19.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-19.0% Jump Sprint To Fire Speed,codmunity.gg,2026-07-06,needs_verification,Label: Sprint to Fire Barrel. Unlock: Level 28.
+m10_breacher_eam_steady_90_grip,EAM Steady-90 Grip,Underbarrel,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Mobile Recoil Foregrip. Unlock: Level 29.
+m10_breacher_lti_target_finder_v_2,LTI Target Finder v.2,Optic,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Target Finder. Unlock: Level 30.
+m10_breacher_convergence_box_laser,Convergence Box Laser,Laser,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Steady Aim Laser. Unlock: Level 31.
+m10_breacher_m10_cqb_choke,M10 CQB Choke,Muzzle,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Hip Spread Choke. Unlock: Level 32.
+m10_breacher_lw_skeleton_stock,LW Skeleton Stock,Stock,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-7.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-7.0% Jump Sprint To Fire Speed,codmunity.gg,2026-07-06,needs_verification,Label: Marathon-Ready Stock. Unlock: Level 33.
+m10_breacher_zero_shift_handstop,Zero Shift Handstop,Underbarrel,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Steady Sway Handstop. Unlock: Level 34.
+m10_breacher_1mw_instinct_laser_array,1mW Instinct Laser Array,Laser,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-5.0,-7.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-5.0% Jump ADS | -7.0% Jump Sprint To Fire Speed,codmunity.gg,2026-07-06,needs_verification,Label: Handling Laser. Unlock: Level 34.
+m10_breacher_pump_guide_rod,Pump Guide Rod,Fire Mods,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Rapid Fire. Unlock: Level 35.
+m10_breacher_breacher_onyx_brake,Breacher Onyx Brake,Muzzle,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-50.0,-67.0,0.0,-50.0% First Shot Recoil Scale | -67.0% Kick Reset Speed,codmunity.gg,2026-07-06,needs_verification,Label: Muzzle Brake. Unlock: Level 36.
+m10_breacher_vas_convergence_foregrip,VAS Convergence Foregrip,Underbarrel,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Bullet Deviation Foregrip. Unlock: Season 3 Battle Pass.
+m10_breacher_lti_stentorian_brake,LTI Stentorian Brake,Muzzle,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Fire Rate Brake. Unlock: Season 4 Battle Pass.
+m10_breacher_mfs_xk_lite_stock,MFS XK-Lite Stock,Stock,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-20.0% Slide to Fire | -20.0% Dive to Fire Speed,codmunity.gg,2026-07-06,needs_verification,Label: Pro Move Sprint Stock+. Unlock: Weapon Prestige.
+m10_breacher_redwell_shade_x_suppressor,Redwell Shade-X Suppressor,Muzzle,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,-13.0,-15.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-11.0,-11.0,-11.0,0.0,0.0,0.0,-11.0% Gun Kick | -11.0% Horizontal Recoil | -11.0% Vertical Recoil | -13.0% Bullet Velocity | -15.0% range,codmunity.gg,2026-07-06,needs_verification,Label: Recoil Suppressor. Unlock: Weekly Challenge Reward.
+m10_breacher_m10_breacher_argus_lever,M10 Breacher Argus Lever,Stock,,M10 Breacher,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,codmunity.gg,2026-07-06,needs_verification,Label: Lever Action. Unlock: Weekly Challenge Reward.

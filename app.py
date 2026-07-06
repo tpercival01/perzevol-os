@@ -18,11 +18,31 @@ cs2_metro = st.Page(
     icon="⏱️",
 )
 
+
+bo7_finish_line = st.Page(
+    "pages/07_BO7_Finish_Line.py",
+    title="BO7: Finish Line",
+    icon="🏁",
+)
+
+bo7_commander_launch = st.Page(
+    "pages/05_Commander_Launch.py",
+    title="BO7: Commander Launch",
+    icon="🚀",
+    default=True,
+)
+
+
+bo7_record_view = st.Page(
+    "pages/06_Commander_Record.py",
+    title="BO7: OBS Record View",
+    icon="🎬",
+)
+
 bo7_commander = st.Page(
     "pages/03_Warzone.py",
     title="BO7: Completion Commander",
     icon="☣️",
-    default=True,
 )
 
 bo7_ttk = st.Page(
@@ -33,7 +53,7 @@ bo7_ttk = st.Page(
 
 pg = st.navigation(
     {
-        "Active Experiments": [bo7_commander, bo7_ttk],
+        "Active Experiments": [bo7_commander_launch, bo7_finish_line, bo7_record_view, bo7_commander, bo7_ttk],
         "Archived Prototypes": [val_draft],
         "Development Pipeline": [cs2_metro],
     }

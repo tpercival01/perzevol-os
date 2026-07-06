@@ -1,5 +1,7 @@
 from pathlib import Path
 from math import ceil
+import re
+from html import unescape
 import pandas as pd
 from itertools import combinations, product
 
@@ -43,6 +45,111 @@ REQUIRED_ATTACHMENT_COLUMNS = [
     "mag_size_add",
 ]
 
+# Extended columns are optional for backwards compatibility with the current CSV.
+# They let the Oracle store Codmunity-style percentage modifiers without
+# manually converting each one into fixed millisecond deltas.
+OPTIONAL_ATTACHMENT_COLUMNS = [
+    "ads_pct",
+    "sprint_to_fire_pct",
+    "reload_pct",
+    "jump_ads_pct",
+    "jump_sprint_to_fire_pct",
+    "movement_pct",
+    "sprint_pct",
+    "crouch_movement_pct",
+    "ads_movement_pct",
+    "gun_kick_pct",
+    "horizontal_recoil_pct",
+    "vertical_recoil_pct",
+    "first_shot_recoil_pct",
+    "kick_reset_speed_pct",
+    "flinch_resistance_pct",
+    "raw_stat_text",
+    "source",
+    "source_date",
+    "verification_status",
+    "verification_notes",
+]
+
+EXTENDED_ATTACHMENT_COLUMNS = REQUIRED_ATTACHMENT_COLUMNS + [
+    column for column in OPTIONAL_ATTACHMENT_COLUMNS
+    if column not in REQUIRED_ATTACHMENT_COLUMNS
+]
+
+ATTACHMENT_NUMERIC_COLUMNS = {
+    "damage_pct",
+    "fire_rate_pct",
+    "ads_ms_add",
+    "sprint_to_fire_ms_add",
+    "recoil_pct",
+    "bullet_velocity_pct",
+    "range_pct",
+    "mag_size_add",
+    "ads_pct",
+    "sprint_to_fire_pct",
+    "reload_pct",
+    "jump_ads_pct",
+    "jump_sprint_to_fire_pct",
+    "movement_pct",
+    "sprint_pct",
+    "crouch_movement_pct",
+    "ads_movement_pct",
+    "gun_kick_pct",
+    "horizontal_recoil_pct",
+    "vertical_recoil_pct",
+    "first_shot_recoil_pct",
+    "kick_reset_speed_pct",
+    "flinch_resistance_pct",
+}
+
+
+# Columns that are actually modelled by the optimiser.
+# Rows with no modelled effect are useful for data entry, but must not be
+# allowed into "best build" output as if they were proven.
+MODELLED_ATTACHMENT_EFFECT_COLUMNS = [
+    "damage_pct",
+    "fire_rate_pct",
+    "ads_ms_add",
+    "sprint_to_fire_ms_add",
+    "recoil_pct",
+    "bullet_velocity_pct",
+    "range_pct",
+    "mag_size_add",
+    "ads_pct",
+    "sprint_to_fire_pct",
+    "reload_pct",
+    "jump_ads_pct",
+    "jump_sprint_to_fire_pct",
+    "movement_pct",
+    "sprint_pct",
+    "crouch_movement_pct",
+    "ads_movement_pct",
+    "gun_kick_pct",
+    "horizontal_recoil_pct",
+    "vertical_recoil_pct",
+    "first_shot_recoil_pct",
+    "kick_reset_speed_pct",
+    "flinch_resistance_pct",
+]
+
+UNMODELLED_ATTACHMENT_NAME_HINTS = {
+    "akimbo",
+    "slug",
+    "launcher kit",
+    "conversion",
+    "kit",
+}
+
+BLOCKED_VERIFICATION_STATUSES = {
+    "exclude",
+    "excluded",
+    "invalid",
+    "broken",
+    "do_not_use",
+    "unmodelled",
+    "conversion_unmodelled",
+}
+
 VALID_LOADOUT_PAIRS = {
     frozenset(("Assault Rifle", "SMG")),
     frozenset(("LMG", "SMG")),
@@ -65,10 +172,57 @@ def create_empty_templates():
         pd.DataFrame(columns=REQUIRED_GUN_COLUMNS).to_csv(GUNS_PATH, index=False)
 
     if not ATTACHMENTS_PATH.exists():
-        pd.DataFrame(columns=REQUIRED_ATTACHMENT_COLUMNS).to_csv(
+        pd.DataFrame(columns=EXTENDED_ATTACHMENT_COLUMNS).to_csv(
             ATTACHMENTS_PATH,
             index=False,
         )
+
+
+def numeric_cell(value, fallback: float = 0.0) -> float:
+    if pd.isna(value):
+        return fallback
+
+    text = str(value).strip().replace("%", "").replace(",", "")
+
+    if text == "":
+        return fallback
+
+    try:
+        return float(text)
+    except ValueError:
+        return fallback
+
+
+def normalise_numeric_columns(dataframe: pd.DataFrame, columns: set[str]) -> pd.DataFrame:
+    updated = dataframe.copy()
+
+    for column in columns:
+        if column in updated.columns:
+            updated[column] = updated[column].apply(lambda value: numeric_cell(value, 0.0))
+
+    return updated
+
+
+def ensure_attachment_columns(attachments: pd.DataFrame) -> pd.DataFrame:
+    updated = attachments.copy()
+
+    for column in EXTENDED_ATTACHMENT_COLUMNS:
+        if column not in updated.columns:
+            updated[column] = 0.0 if column in ATTACHMENT_NUMERIC_COLUMNS else ""
+
+    return normalise_numeric_columns(updated, ATTACHMENT_NUMERIC_COLUMNS)
+
+
+def slugify(value: str) -> str:
+    value = unescape(str(value or "").strip()).lower()
+    value = re.sub(r"[^a-z0-9]+", "_", value)
+    return value.strip("_")
+
+
+def strip_html(value: str) -> str:
+    value = re.sub(r"<[^>]+>", " ", str(value or ""))
+    value = unescape(value)
+    return re.sub(r"\s+", " ", value).strip()
 
 
 def load_guns():
@@ -100,7 +254,7 @@ def load_attachments():
     if missing_columns:
         raise ValueError(f"attachments.csv is missing columns: {missing_columns}")
 
-    return attachments
+    return ensure_attachment_columns(attachments)
 
 
 def load_ttk_data():
@@ -183,6 +337,64 @@ def split_list_cell(value):
     ]
 
 
+def normalise_match_value(value):
+    return str(value or "").strip().lower()
+
+
+def normalise_match_key(value):
+    """
+    Compatibility matching should not fail because one source says SG12 and
+    another says SG-12. The display name stays untouched, this key is only for
+    matching CSV compatibility cells.
+    """
+    return re.sub(r"[^a-z0-9]+", "", normalise_match_value(value))
+
+
+WEAPON_CLASS_ALIASES = {
+    "ar": "assaultrifle",
+    "ars": "assaultrifle",
+    "assaultrifles": "assaultrifle",
+    "smg": "smg",
+    "smgs": "smg",
+    "submachinegun": "smg",
+    "submachineguns": "smg",
+    "lmg": "lmg",
+    "lmgs": "lmg",
+    "shotgun": "shotgun",
+    "shotguns": "shotgun",
+    "sniperrifle": "sniperrifle",
+    "sniperrifles": "sniperrifle",
+    "marksmanrifle": "marksmanrifle",
+    "marksmanrifles": "marksmanrifle",
+    "pistol": "pistol",
+    "pistols": "pistol",
+    "launcher": "launcher",
+    "launchers": "launcher",
+    "special": "special",
+    "specials": "special",
+    "melee": "melee",
+}
+
+
+def normalise_weapon_class_key(value):
+    key = normalise_match_key(value)
+    return WEAPON_CLASS_ALIASES.get(key, key)
+
+
+def matches_compatible_value(actual, allowed_values, *, weapon_class=False):
+    if not allowed_values:
+        return True
+
+    if weapon_class:
+        actual_key = normalise_weapon_class_key(actual)
+        allowed_keys = {normalise_weapon_class_key(item) for item in allowed_values}
+    else:
+        actual_key = normalise_match_key(actual)
+        allowed_keys = {normalise_match_key(item) for item in allowed_values}
+
+    return actual_key in allowed_keys
+
+
 def attachment_is_compatible(gun, attachment):
     weapon_class = str(gun["weapon_class"]).strip()
     gun_name = str(gun["gun_name"]).strip()
@@ -195,17 +407,96 @@ def attachment_is_compatible(gun, attachment):
         attachment.get("compatible_guns", "")
     )
 
-    class_allowed = (
-        not compatible_classes
-        or weapon_class in compatible_classes
+    class_allowed = matches_compatible_value(
+        weapon_class,
+        compatible_classes,
+        weapon_class=True,
     )
 
-    gun_allowed = (
-        not compatible_guns
-        or gun_name in compatible_guns
+    gun_allowed = matches_compatible_value(
+        gun_name,
+        compatible_guns,
+        weapon_class=False,
     )
 
     return class_allowed and gun_allowed
+
+
+def attachment_modelled_effect_count(attachment) -> int:
+    return sum(
+        1
+        for column in MODELLED_ATTACHMENT_EFFECT_COLUMNS
+        if abs(numeric_cell(attachment.get(column, 0), 0.0)) > 0
+    )
+
+
+def attachment_modelled_effect_summary(attachment) -> str:
+    parts = []
+
+    for column in MODELLED_ATTACHMENT_EFFECT_COLUMNS:
+        value = numeric_cell(attachment.get(column, 0), 0.0)
+        if value == 0:
+            continue
+
+        label = column.replace("_pct", "%").replace("_add", "").replace("_", " ")
+        suffix = "%" if column.endswith("_pct") else ""
+        parts.append(f"{label}: {value:g}{suffix}")
+
+    return " | ".join(parts)
+
+
+def attachment_has_unmodelled_name_hint(attachment) -> bool:
+    name = normalise_match_value(attachment.get("attachment_name", ""))
+    return any(hint in name for hint in UNMODELLED_ATTACHMENT_NAME_HINTS)
+
+
+def attachment_is_blocked_for_oracle(attachment) -> bool:
+    status = normalise_match_value(attachment.get("verification_status", ""))
+    if status in BLOCKED_VERIFICATION_STATUSES:
+        return True
+
+    return attachment_has_unmodelled_name_hint(attachment)
+
+
+def attachment_is_modelled_for_oracle(attachment) -> bool:
+    if attachment_is_blocked_for_oracle(attachment):
+        return False
+
+    return attachment_modelled_effect_count(attachment) > 0
+
+
+def prepare_oracle_attachment_pool(compatible_attachments: pd.DataFrame) -> pd.DataFrame:
+    """
+    Keep only attachments with a modelled effect for optimiser output.
+
+    Zero-effect rows are still valid CSV inventory, but including them in a
+    brute-force optimiser creates fake confidence and random-looking builds.
+    Conversion-style rows such as slugs, akimbo, and launcher kits are also
+    blocked until their changed damage model is entered directly.
+    """
+    if compatible_attachments.empty:
+        return compatible_attachments.copy()
+
+    updated = compatible_attachments.copy()
+
+    updated["_modelled_effect_count"] = updated.apply(
+        attachment_modelled_effect_count,
+        axis=1,
+    )
+    updated["_blocked_for_oracle"] = updated.apply(
+        attachment_is_blocked_for_oracle,
+        axis=1,
+    )
+    updated["_modelled_for_oracle"] = (
+        (updated["_modelled_effect_count"] > 0)
+        & ~updated["_blocked_for_oracle"]
+    )
+    updated["_effect_summary"] = updated.apply(
+        attachment_modelled_effect_summary,
+        axis=1,
+    )
+
+    return updated[updated["_modelled_for_oracle"]].reset_index(drop=True)
 
 
 def get_compatible_attachments(gun, attachments):
@@ -222,11 +513,31 @@ def get_compatible_attachments(gun, attachments):
     return compatible.reset_index(drop=True)
 
 
+def effective_recoil_pct(attachment) -> float:
+    detailed_recoil_values = [
+        numeric_cell(attachment.get("gun_kick_pct", 0), 0.0),
+        numeric_cell(attachment.get("horizontal_recoil_pct", 0), 0.0),
+        numeric_cell(attachment.get("vertical_recoil_pct", 0), 0.0),
+    ]
+
+    detailed_recoil_values = [
+        value for value in detailed_recoil_values
+        if value != 0
+    ]
+
+    generic_recoil = numeric_cell(attachment.get("recoil_pct", 0), 0.0)
+
+    if detailed_recoil_values:
+        return generic_recoil + (sum(detailed_recoil_values) / len(detailed_recoil_values))
+
+    return generic_recoil
+
+
 def apply_attachment_to_stats(stats, attachment):
     updated = stats.copy()
 
-    damage_pct = float(attachment.get("damage_pct", 0) or 0)
-    range_pct = float(attachment.get("range_pct", 0) or 0)
+    damage_pct = numeric_cell(attachment.get("damage_pct", 0), 0.0)
+    range_pct = numeric_cell(attachment.get("range_pct", 0), 0.0)
 
     for stat in ["damage_close", "damage_mid", "damage_long"]:
         updated[stat] = updated[stat] * (1 + damage_pct / 100)
@@ -236,26 +547,42 @@ def apply_attachment_to_stats(stats, attachment):
 
     pct_modifiers = {
         "fire_rate_rpm": "fire_rate_pct",
-        "recoil": "recoil_pct",
         "bullet_velocity": "bullet_velocity_pct",
     }
 
-    add_modifiers = {
-        "ads_ms": "ads_ms_add",
-        "sprint_to_fire_ms": "sprint_to_fire_ms_add",
-        "mag_size": "mag_size_add",
-    }
-
     for stat, column in pct_modifiers.items():
-        value = float(attachment.get(column, 0) or 0)
+        value = numeric_cell(attachment.get(column, 0), 0.0)
         updated[stat] = updated[stat] * (1 + value / 100)
 
-    for stat, column in add_modifiers.items():
-        value = float(attachment.get(column, 0) or 0)
-        updated[stat] = updated[stat] + value
+    recoil_pct = effective_recoil_pct(attachment)
+    updated["recoil"] = updated["recoil"] * (1 + recoil_pct / 100)
+
+    # Existing hand-entered data can still use fixed millisecond deltas.
+    updated["ads_ms"] = updated["ads_ms"] + numeric_cell(attachment.get("ads_ms_add", 0), 0.0)
+    updated["sprint_to_fire_ms"] = updated["sprint_to_fire_ms"] + numeric_cell(
+        attachment.get("sprint_to_fire_ms_add", 0),
+        0.0,
+    )
+
+    # Codmunity-style data uses percentages. A negative percentage means faster.
+    ads_pct = numeric_cell(attachment.get("ads_pct", 0), 0.0)
+    sprint_to_fire_pct = numeric_cell(attachment.get("sprint_to_fire_pct", 0), 0.0)
+
+    # BO7 shotgun attachment tables often expose jump ADS / jump sprint-to-fire
+    # instead of plain ADS / sprint-to-fire. Use them as a conservative handling
+    # proxy so close-range builds are not scored as random zero-effect fillers.
+    if ads_pct == 0:
+        ads_pct = numeric_cell(attachment.get("jump_ads_pct", 0), 0.0) * 0.60
+
+    if sprint_to_fire_pct == 0:
+        sprint_to_fire_pct = numeric_cell(attachment.get("jump_sprint_to_fire_pct", 0), 0.0) * 0.80
+
+    updated["ads_ms"] = updated["ads_ms"] * (1 + ads_pct / 100)
+    updated["sprint_to_fire_ms"] = updated["sprint_to_fire_ms"] * (1 + sprint_to_fire_pct / 100)
+
+    updated["mag_size"] = updated["mag_size"] + numeric_cell(attachment.get("mag_size_add", 0), 0.0)
 
     return updated
-
 
 def build_loadout_preview(
     gun,
@@ -523,12 +850,41 @@ DOMINATION_STATS = [
     "bullet_velocity_pct",
     "range_pct",
     "mag_size_add",
+    "ads_pct",
+    "sprint_to_fire_pct",
+    "reload_pct",
+    "jump_ads_pct",
+    "jump_sprint_to_fire_pct",
+    "gun_kick_pct",
+    "horizontal_recoil_pct",
+    "vertical_recoil_pct",
+    "first_shot_recoil_pct",
+    "kick_reset_speed_pct",
+    "flinch_resistance_pct",
+    "movement_pct",
+    "sprint_pct",
+    "crouch_movement_pct",
+    "ads_movement_pct",
 ]
 
-# Stats where a lower value is better (penalties on ADS, sprint, etc.)
-# A negative ads_ms_add means faster ADS — that's good.
-# So for these stats: lower number = better.
-LOWER_IS_BETTER_ATTACHMENT = {"ads_ms_add", "sprint_to_fire_ms_add", "recoil_pct"}
+# Stats where a lower value is better. For Codmunity percentage fields,
+# negative ADS/recoil values are improvements and positive values are penalties.
+LOWER_IS_BETTER_ATTACHMENT = {
+    "ads_ms_add",
+    "sprint_to_fire_ms_add",
+    "recoil_pct",
+    "ads_pct",
+    "sprint_to_fire_pct",
+    "reload_pct",
+    "jump_ads_pct",
+    "jump_sprint_to_fire_pct",
+    "gun_kick_pct",
+    "horizontal_recoil_pct",
+    "vertical_recoil_pct",
+    "first_shot_recoil_pct",
+    "kick_reset_speed_pct",
+    "flinch_resistance_pct",
+}
 
 
 def attachment_dominates(a, b) -> bool:
@@ -543,8 +899,8 @@ def attachment_dominates(a, b) -> bool:
     strictly_better_on_one = False
 
     for stat in DOMINATION_STATS:
-        val_a = float(a.get(stat, 0) or 0)
-        val_b = float(b.get(stat, 0) or 0)
+        val_a = numeric_cell(a.get(stat, 0), 0.0)
+        val_b = numeric_cell(b.get(stat, 0), 0.0)
 
         if stat in LOWER_IS_BETTER_ATTACHMENT:
             # Lower is better — a dominates if val_a <= val_b
@@ -639,6 +995,203 @@ def generate_legal_attachment_combos(compatible_attachments, attachment_count):
         for combo in product(*grouped_options):
             yield combo
 
+def best_index_by_numeric(group: pd.DataFrame, column: str, prefer_high: bool = True):
+    if column not in group.columns:
+        return None
+
+    values = group[column].apply(lambda value: numeric_cell(value, 0.0))
+
+    if values.abs().sum() == 0:
+        return None
+
+    return values.idxmax() if prefer_high else values.idxmin()
+
+
+def best_index_by_recoil(group: pd.DataFrame):
+    if group.empty:
+        return None
+
+    values = group.apply(lambda row: effective_recoil_pct(row), axis=1)
+
+    if values.abs().sum() == 0:
+        return None
+
+    return values.idxmin()
+
+
+def attachment_fast_candidate_score(attachment, map_type, fight_type, build_goal) -> float:
+    """
+    Scenario-aware attachment shortlist score.
+
+    This is not the final Oracle score. It only decides which attachments are
+    worth sending into combo generation.
+    """
+    score = 0.0
+
+    build_goal_text = normalise_match_value(build_goal)
+    fight_type_text = normalise_match_value(fight_type)
+    map_type_text = normalise_match_value(map_type)
+
+    ads_weight = 1.0
+    sprint_to_fire_weight = 1.0
+    recoil_weight = 1.0
+    range_weight = 0.8
+    bullet_velocity_weight = 0.8
+    mag_weight = 0.7
+
+    if "aggressive" in build_goal_text or "close" in fight_type_text:
+        ads_weight += 0.7
+        sprint_to_fire_weight += 0.8
+        mag_weight += 0.2
+
+    if "low recoil" in build_goal_text or "long" in fight_type_text:
+        recoil_weight += 1.0
+        range_weight += 0.6
+        bullet_velocity_weight += 0.6
+
+    if "large map" in map_type_text or "battle royale" in map_type_text:
+        recoil_weight += 0.4
+        range_weight += 0.5
+        bullet_velocity_weight += 0.5
+        mag_weight += 0.4
+
+    score += numeric_cell(attachment.get("damage_pct", 0), 0.0) * 4.0
+    score += numeric_cell(attachment.get("fire_rate_pct", 0), 0.0) * 3.5
+    score += numeric_cell(attachment.get("range_pct", 0), 0.0) * range_weight
+    score += numeric_cell(attachment.get("bullet_velocity_pct", 0), 0.0) * bullet_velocity_weight
+    score += numeric_cell(attachment.get("mag_size_add", 0), 0.0) * mag_weight
+
+    score += -numeric_cell(attachment.get("ads_pct", 0), 0.0) * ads_weight
+    score += -numeric_cell(attachment.get("sprint_to_fire_pct", 0), 0.0) * sprint_to_fire_weight
+    score += -numeric_cell(attachment.get("jump_ads_pct", 0), 0.0) * 0.35
+    score += -numeric_cell(attachment.get("jump_sprint_to_fire_pct", 0), 0.0) * 0.35
+    score += -numeric_cell(attachment.get("reload_pct", 0), 0.0) * 0.35
+
+    score += -effective_recoil_pct(attachment) * recoil_weight
+    score += -numeric_cell(attachment.get("first_shot_recoil_pct", 0), 0.0) * 0.20
+    score += -numeric_cell(attachment.get("kick_reset_speed_pct", 0), 0.0) * 0.10
+
+    score += numeric_cell(attachment.get("movement_pct", 0), 0.0) * 0.35
+    score += numeric_cell(attachment.get("sprint_pct", 0), 0.0) * 0.25
+    score += numeric_cell(attachment.get("crouch_movement_pct", 0), 0.0) * 0.15
+    score += numeric_cell(attachment.get("ads_movement_pct", 0), 0.0) * 0.35
+
+    return float(score)
+
+
+def reduce_attachment_pool_for_fast_mode(
+    compatible_attachments: pd.DataFrame,
+    map_type: str,
+    fight_type: str,
+    build_goal: str,
+    candidate_limit_per_slot: int = 2,
+    hard_limit_per_slot: int = 3,
+) -> pd.DataFrame:
+    """
+    Keeps a scenario-aware shortlist per slot.
+
+    Fast mode deliberately stops being exhaustive. It keeps the best few
+    candidates per slot, while preserving important attachment types like
+    biggest mag, fastest mag, rapid fire, range, bullet velocity, recoil,
+    ADS, and sprint-to-fire.
+    """
+    if compatible_attachments.empty:
+        return compatible_attachments
+
+    if candidate_limit_per_slot <= 0:
+        return compatible_attachments
+
+    kept_groups = []
+
+    for slot, group in compatible_attachments.groupby("slot"):
+        group = group.copy()
+
+        clean_slot = normalise_match_value(slot)
+
+        group["_fast_candidate_score"] = group.apply(
+            lambda row: attachment_fast_candidate_score(
+                attachment=row,
+                map_type=map_type,
+                fight_type=fight_type,
+                build_goal=build_goal,
+            ),
+            axis=1,
+        )
+
+        forced_indices = []
+
+        def force(index):
+            if index is not None and index not in forced_indices:
+                forced_indices.append(index)
+
+        if clean_slot == "magazine":
+            force(best_index_by_numeric(group, "mag_size_add", prefer_high=True))
+            force(best_index_by_numeric(group, "reload_pct", prefer_high=False))
+
+        elif clean_slot == "fire mods":
+            force(best_index_by_numeric(group, "fire_rate_pct", prefer_high=True))
+            force(best_index_by_numeric(group, "bullet_velocity_pct", prefer_high=True))
+            force(best_index_by_numeric(group, "range_pct", prefer_high=True))
+            force(best_index_by_recoil(group))
+
+        elif clean_slot == "barrel":
+            force(best_index_by_numeric(group, "range_pct", prefer_high=True))
+            force(best_index_by_numeric(group, "bullet_velocity_pct", prefer_high=True))
+            force(best_index_by_numeric(group, "ads_pct", prefer_high=False))
+
+        elif clean_slot == "muzzle":
+            force(best_index_by_numeric(group, "range_pct", prefer_high=True))
+            force(best_index_by_numeric(group, "bullet_velocity_pct", prefer_high=True))
+            force(best_index_by_recoil(group))
+
+        elif clean_slot == "rear grip":
+            force(best_index_by_numeric(group, "ads_pct", prefer_high=False))
+            force(best_index_by_numeric(group, "sprint_to_fire_pct", prefer_high=False))
+            force(best_index_by_recoil(group))
+
+        elif clean_slot == "stock":
+            force(best_index_by_numeric(group, "ads_pct", prefer_high=False))
+            force(best_index_by_numeric(group, "ads_movement_pct", prefer_high=True))
+            force(best_index_by_numeric(group, "movement_pct", prefer_high=True))
+            force(best_index_by_recoil(group))
+
+        elif clean_slot == "underbarrel":
+            force(best_index_by_numeric(group, "movement_pct", prefer_high=True))
+            force(best_index_by_numeric(group, "ads_movement_pct", prefer_high=True))
+            force(best_index_by_recoil(group))
+
+        elif clean_slot == "laser":
+            force(best_index_by_numeric(group, "ads_pct", prefer_high=False))
+            force(best_index_by_numeric(group, "sprint_to_fire_pct", prefer_high=False))
+            force(best_index_by_numeric(group, "range_pct", prefer_high=True))
+
+        target_limit = max(
+            candidate_limit_per_slot,
+            min(len(forced_indices), hard_limit_per_slot),
+        )
+
+        selected_indices = list(forced_indices)
+
+        for index in group.sort_values("_fast_candidate_score", ascending=False).index:
+            if index not in selected_indices:
+                selected_indices.append(index)
+
+            if len(selected_indices) >= target_limit:
+                break
+
+        kept = group.loc[selected_indices].copy()
+        kept_groups.append(kept)
+
+    if not kept_groups:
+        return compatible_attachments
+
+    reduced = pd.concat(kept_groups, ignore_index=True)
+
+    if "_fast_candidate_score" in reduced.columns:
+        reduced = reduced.drop(columns=["_fast_candidate_score"])
+
+    return reduced.reset_index(drop=True)
+
 def optimise_loadouts_for_scenario(
     guns,
     attachments,
@@ -649,6 +1202,8 @@ def optimise_loadouts_for_scenario(
     weapon_class="Any",
     attachment_count=5,
     top_n=20,
+    optimiser_mode="Fast",
+    candidate_limit_per_slot=3,
 ):
     if guns.empty or attachments.empty:
         return pd.DataFrame()
@@ -661,6 +1216,7 @@ def optimise_loadouts_for_scenario(
         ]
 
     rows = []
+    use_fast_mode = normalise_match_value(optimiser_mode) != "deep"
 
     for _, gun in filtered_guns.iterrows():
         compatible_attachments = get_compatible_attachments(
@@ -668,14 +1224,28 @@ def optimise_loadouts_for_scenario(
             attachments=attachments,
         )
 
+        full_compatible_count = len(compatible_attachments)
+        compatible_attachments = prepare_oracle_attachment_pool(compatible_attachments)
+        unmodelled_attachments_ignored = max(0, full_compatible_count - len(compatible_attachments))
+
         unique_slot_count = compatible_attachments["slot"].dropna().nunique()
 
         if unique_slot_count < attachment_count:
             continue
 
-        # Remove attachments that are strictly dominated within their slot.
-        # A dominated attachment cannot appear in the optimal build — safe to drop.
         compatible_attachments = prune_dominated_attachments(compatible_attachments)
+
+        if use_fast_mode:
+            compatible_attachments = reduce_attachment_pool_for_fast_mode(
+                compatible_attachments=compatible_attachments,
+                map_type=map_type,
+                fight_type=fight_type,
+                build_goal=build_goal,
+                candidate_limit_per_slot=candidate_limit_per_slot,
+                hard_limit_per_slot=3,
+            )
+        else:
+            compatible_attachments = prune_dominated_attachments(compatible_attachments)
 
         for combo in generate_legal_attachment_combos(
             compatible_attachments=compatible_attachments,
@@ -706,6 +1276,18 @@ def optimise_loadouts_for_scenario(
                     "slots": " | ".join(
                         selected_attachments["slot"].tolist()
                     ),
+                    "modelled_attachment_count": int(
+                        selected_attachments.get("_modelled_effect_count", pd.Series(dtype=float)).fillna(0).astype(float).gt(0).sum()
+                    ) if "_modelled_effect_count" in selected_attachments.columns else len(selected_attachments),
+                    "unmodelled_attachments_ignored": unmodelled_attachments_ignored,
+                    "attachment_effects": " || ".join(
+                        f"{row.get('attachment_name', '')}: {row.get('_effect_summary', '')}"
+                        for _, row in selected_attachments.iterrows()
+                    ),
+                    "attachment_trust_note": (
+                        f"Only modelled attachments were allowed. Ignored {unmodelled_attachments_ignored} "
+                        "zero-effect or unmodelled conversion row(s)."
+                    ),
                     **preview,
                 }
             )
@@ -729,6 +1311,450 @@ def optimise_loadouts_for_scenario(
         .head(top_n)
         .reset_index(drop=True)
     )
+
+CODMUNITY_STAT_MAP = {
+    "ads speed": "ads_pct",
+    "sprint to fire": "sprint_to_fire_pct",
+    "sprint to fire speed": "sprint_to_fire_pct",
+    "reload speed": "reload_pct",
+    "jump ads": "jump_ads_pct",
+    "jump sprint to fire speed": "jump_sprint_to_fire_pct",
+    "slide to fire": "sprint_to_fire_pct",
+    "slide to fire speed": "sprint_to_fire_pct",
+    "dive to fire": "sprint_to_fire_pct",
+    "dive to fire speed": "sprint_to_fire_pct",
+    "bullet velocity": "bullet_velocity_pct",
+    "horizontal recoil": "horizontal_recoil_pct",
+    "vertical recoil": "vertical_recoil_pct",
+    "gun kick": "gun_kick_pct",
+    "first shot recoil scale": "first_shot_recoil_pct",
+    "kick reset speed": "kick_reset_speed_pct",
+    "magazine size": "mag_size_add",
+    "range": "range_pct",
+    "damage": "damage_pct",
+    "fire rate": "fire_rate_pct",
+    "rpm": "fire_rate_pct",
+    "movement": "movement_pct",
+    "sprint": "sprint_pct",
+    "crouch movement": "crouch_movement_pct",
+    "ads movement": "ads_movement_pct",
+    "flinch resistance": "flinch_resistance_pct",
+}
+
+
+def normalise_codmunity_stat_label(label: str) -> str:
+    label = strip_html(label).lower()
+    label = re.sub(r"\s+", " ", label)
+    return label.strip()
+
+
+def apply_codmunity_stat_to_attachment_row(row: dict, value: str, label: str):
+    clean_label = normalise_codmunity_stat_label(label)
+    column = CODMUNITY_STAT_MAP.get(clean_label)
+
+    if not column:
+        return
+
+    row[column] = numeric_cell(value, 0.0)
+
+
+def parse_codmunity_attachment_html(
+    html_text: str,
+    compatible_weapon_classes: str = "",
+    compatible_guns: str = "",
+    source: str = "codmunity.gg",
+    source_date: str = "",
+) -> pd.DataFrame:
+    """
+    Parses copied Codmunity attachment-table HTML into Oracle attachment rows.
+
+    This is designed for data entry, not blind trust. Parsed rows should be
+    spot-checked against one or two in-game expanded-stat screenshots before
+    they are appended to the master CSV.
+    """
+    rows = []
+    html_text = str(html_text or "")
+
+    for row_html in re.findall(r"<tr\b[^>]*>(.*?)</tr>", html_text, flags=re.I | re.S):
+        name_match = re.search(
+            r'class="[^"]*attachment-name[^"]*"[^>]*>(.*?)</span>',
+            row_html,
+            flags=re.I | re.S,
+        )
+        slot_match = re.search(
+            r'class="[^"]*slot[^"]*"[^>]*>(.*?)</span>',
+            row_html,
+            flags=re.I | re.S,
+        )
+
+        if not name_match or not slot_match:
+            continue
+
+        attachment_name = strip_html(name_match.group(1))
+        slot = strip_html(slot_match.group(1))
+
+        label_match = re.search(
+            r'class="[^"]*label[^"]*"[^>]*>(.*?)</span>',
+            row_html,
+            flags=re.I | re.S,
+        )
+        unlock_match = re.search(
+            r'class="[^"]*unlock[^"]*"[^>]*>(.*?)</span>',
+            row_html,
+            flags=re.I | re.S,
+        )
+
+        label = strip_html(label_match.group(1)) if label_match else ""
+        unlock = strip_html(unlock_match.group(1)) if unlock_match else ""
+
+        attachment_row = {
+            column: 0.0 if column in ATTACHMENT_NUMERIC_COLUMNS else ""
+            for column in EXTENDED_ATTACHMENT_COLUMNS
+        }
+
+        attachment_row.update({
+            "attachment_id": slugify(f"{compatible_guns or compatible_weapon_classes}_{attachment_name}"),
+            "attachment_name": attachment_name,
+            "slot": slot,
+            "compatible_weapon_classes": compatible_weapon_classes,
+            "compatible_guns": compatible_guns,
+            "source": source,
+            "source_date": source_date,
+            "verification_status": "needs_verification",
+            "verification_notes": f"Label: {label}. Unlock: {unlock}.".strip(),
+        })
+
+        raw_stat_parts = []
+
+        stat_items = re.findall(
+            r'class="[^"]*attachment-stats-item[^"]*"[^>]*>(.*?)</div>',
+            row_html,
+            flags=re.I | re.S,
+        )
+
+        for stat_html in stat_items:
+            highlight_match = re.search(
+                r'class="[^"]*highlight[^"]*"[^>]*>(.*?)</span>',
+                stat_html,
+                flags=re.I | re.S,
+            )
+
+            if not highlight_match:
+                continue
+
+            value = strip_html(highlight_match.group(1))
+            label_html = re.sub(
+                r'<span[^>]*class="[^"]*highlight[^"]*"[^>]*>.*?</span>',
+                " ",
+                stat_html,
+                flags=re.I | re.S,
+            )
+            stat_label = strip_html(label_html)
+
+            if value and stat_label:
+                raw_stat_parts.append(f"{value} {stat_label}")
+                apply_codmunity_stat_to_attachment_row(
+                    attachment_row,
+                    value=value,
+                    label=stat_label,
+                )
+
+        attachment_row["raw_stat_text"] = " | ".join(raw_stat_parts)
+
+        rows.append(attachment_row)
+
+    if not rows:
+        return pd.DataFrame(columns=EXTENDED_ATTACHMENT_COLUMNS)
+
+    dataframe = pd.DataFrame(rows)
+
+    return ensure_attachment_columns(dataframe)[EXTENDED_ATTACHMENT_COLUMNS]
+
+
+def build_attachment_verification_rows(
+    gun,
+    parsed_attachments: pd.DataFrame,
+    sample_size: int = 2,
+    random_state: int = 7,
+) -> pd.DataFrame:
+    """
+    Builds a small before/after stat check sheet for manual verification.
+
+    Thomas can compare these expected values against in-game expanded stats
+    for one or two attachments before we commit a weapon's attachment data.
+    """
+    if parsed_attachments.empty:
+        return pd.DataFrame()
+
+    candidates = parsed_attachments.copy()
+
+    if "raw_stat_text" in candidates.columns:
+        non_empty = candidates[candidates["raw_stat_text"].astype(str).str.strip() != ""]
+        if not non_empty.empty:
+            candidates = non_empty
+
+    sample_size = min(sample_size, len(candidates))
+
+    if sample_size <= 0:
+        return pd.DataFrame()
+
+    sample = candidates.sample(n=sample_size, random_state=random_state)
+
+    base_stats = {
+        "damage_close": numeric_cell(gun["damage_close"], 0.0),
+        "range_close_m": numeric_cell(gun["range_close_m"], 0.0),
+        "damage_mid": numeric_cell(gun["damage_mid"], 0.0),
+        "range_mid_m": numeric_cell(gun["range_mid_m"], 0.0),
+        "damage_long": numeric_cell(gun["damage_long"], 0.0),
+        "fire_rate_rpm": numeric_cell(gun["fire_rate_rpm"], 0.0),
+        "ads_ms": numeric_cell(gun["ads_ms"], 0.0),
+        "sprint_to_fire_ms": numeric_cell(gun["sprint_to_fire_ms"], 0.0),
+        "recoil": numeric_cell(gun["recoil"], 0.0),
+        "bullet_velocity": numeric_cell(gun["bullet_velocity"], 0.0),
+        "mag_size": numeric_cell(gun["mag_size"], 0.0),
+    }
+
+    rows = []
+
+    for _, attachment in sample.iterrows():
+        after = apply_attachment_to_stats(base_stats, attachment)
+
+        rows.append({
+            "attachment_name": attachment.get("attachment_name", ""),
+            "slot": attachment.get("slot", ""),
+            "raw_stat_text": attachment.get("raw_stat_text", ""),
+            "base_ads_ms": round(base_stats["ads_ms"], 2),
+            "expected_ads_ms": round(after["ads_ms"], 2),
+            "base_sprint_to_fire_ms": round(base_stats["sprint_to_fire_ms"], 2),
+            "expected_sprint_to_fire_ms": round(after["sprint_to_fire_ms"], 2),
+            "base_recoil": round(base_stats["recoil"], 2),
+            "expected_recoil": round(after["recoil"], 2),
+            "base_bullet_velocity": round(base_stats["bullet_velocity"], 2),
+            "expected_bullet_velocity": round(after["bullet_velocity"], 2),
+            "base_mag_size": round(base_stats["mag_size"], 2),
+            "expected_mag_size": round(after["mag_size"], 2),
+        })
+
+    return pd.DataFrame(rows)
+
+
+
+def find_gun_by_name(guns: pd.DataFrame, weapon_name: str) -> pd.DataFrame:
+    """
+    Case-insensitive gun lookup used by the Commander Weapon Optimiser.
+
+    Also tolerates punctuation differences such as SG12 vs SG-12.
+    """
+    if guns.empty or not weapon_name:
+        return guns.iloc[0:0].copy()
+
+    target = normalise_match_key(weapon_name)
+
+    return guns[
+        guns["gun_name"].apply(normalise_match_key) == target
+    ].reset_index(drop=True)
+
+
+def describe_weapon_build_data(
+    guns: pd.DataFrame,
+    attachments: pd.DataFrame,
+    weapon_name: str,
+    attachment_count: int = 5,
+) -> dict:
+    """
+    Reports whether a selected weapon has enough trusted attachment data to build.
+
+    Compatible attachment inventory is not enough. The optimiser only trusts
+    rows with modelled stat effects, and it blocks conversion-style parts until
+    their changed damage model is entered directly.
+    """
+    matched_guns = find_gun_by_name(guns, weapon_name)
+
+    if matched_guns.empty:
+        return {
+            "buildable": False,
+            "weapon_found": False,
+            "compatible_attachments": 0,
+            "compatible_slots": 0,
+            "trusted_attachments": 0,
+            "trusted_slots": 0,
+            "slots": [],
+            "trusted_slots_list": [],
+            "ignored_attachments": 0,
+            "message": f"{weapon_name} is not in guns.csv.",
+        }
+
+    gun = matched_guns.iloc[0]
+    compatible_attachments = get_compatible_attachments(gun, attachments)
+    trusted_attachments = prepare_oracle_attachment_pool(compatible_attachments)
+
+    slots = sorted(
+        str(slot).strip()
+        for slot in compatible_attachments["slot"].dropna().unique().tolist()
+        if str(slot).strip()
+    )
+
+    trusted_slots_list = sorted(
+        str(slot).strip()
+        for slot in trusted_attachments["slot"].dropna().unique().tolist()
+        if str(slot).strip()
+    )
+
+    compatible_count = len(compatible_attachments)
+    trusted_count = len(trusted_attachments)
+    compatible_slots = len(slots)
+    trusted_slots = len(trusted_slots_list)
+    ignored_attachments = max(0, compatible_count - trusted_count)
+    buildable = trusted_slots >= attachment_count
+
+    if buildable:
+        message = (
+            f"{gun['gun_name']} has {trusted_count} trusted/modelled attachments "
+            f"across {trusted_slots} slot(s). Ignoring {ignored_attachments} "
+            "zero-effect or unmodelled conversion row(s)."
+        )
+    elif trusted_slots == 0:
+        message = (
+            f"{gun['gun_name']} has compatible attachment rows, but none have trusted "
+            "modelled effects yet. The Oracle will not fake a best build."
+        )
+    else:
+        message = (
+            f"{gun['gun_name']} only has {trusted_slots} trusted/modelled slot(s): "
+            f"{', '.join(trusted_slots_list)}. Needs {attachment_count} for this run. "
+            f"Ignoring {ignored_attachments} zero-effect or unmodelled conversion row(s)."
+        )
+
+    return {
+        "buildable": buildable,
+        "weapon_found": True,
+        "compatible_attachments": compatible_count,
+        "compatible_slots": compatible_slots,
+        "trusted_attachments": trusted_count,
+        "trusted_slots": trusted_slots,
+        "slots": slots,
+        "trusted_slots_list": trusted_slots_list,
+        "ignored_attachments": ignored_attachments,
+        "message": message,
+    }
+
+
+def optimise_single_weapon_build(
+    guns: pd.DataFrame,
+    attachments: pd.DataFrame,
+    weapon_name: str,
+    map_type: str,
+    fight_type: str,
+    build_goal: str,
+    enemy_health: int = 300,
+    attachment_count: int = 5,
+    top_n: int = 10,
+) -> pd.DataFrame:
+    """
+    Brute-force the best build for one exact Commander-assigned weapon.
+
+    This is intentionally different from the full-loadout optimiser. It must
+    not dodge the assigned weapon just because another gun has a better score.
+    """
+    matched_guns = find_gun_by_name(guns, weapon_name)
+
+    if matched_guns.empty:
+        return pd.DataFrame()
+
+    data_status = describe_weapon_build_data(
+        guns=guns,
+        attachments=attachments,
+        weapon_name=weapon_name,
+        attachment_count=attachment_count,
+    )
+
+    if not data_status.get("buildable", False):
+        return pd.DataFrame()
+
+    return optimise_loadouts_for_scenario(
+        guns=matched_guns,
+        attachments=attachments,
+        map_type=map_type,
+        fight_type=fight_type,
+        build_goal=build_goal,
+        enemy_health=enemy_health,
+        weapon_class="Any",
+        attachment_count=attachment_count,
+        top_n=top_n,
+    )
+
+
+def build_ttk_data_warnings(
+    guns: pd.DataFrame,
+    attachments: pd.DataFrame,
+    attachment_count: int = 5,
+) -> list[str]:
+    """
+    Build data warnings using the real compatibility engine.
+
+    The older page-level check only looked at compatible_guns, which falsely
+    flagged guns that rely on class-wide attachment rows.
+    """
+    warnings: list[str] = []
+
+    if guns.empty:
+        warnings.append("guns.csv is empty.")
+        return warnings
+
+    if attachments.empty:
+        warnings.append("attachments.csv is empty.")
+        return warnings
+
+    missing_data = []
+    limited_data = []
+
+    for _, gun in guns.iterrows():
+        compatible = get_compatible_attachments(gun, attachments)
+        trusted = prepare_oracle_attachment_pool(compatible)
+        slots = sorted(
+            str(slot).strip()
+            for slot in trusted["slot"].dropna().unique().tolist()
+            if str(slot).strip()
+        )
+
+        if not slots:
+            missing_data.append(str(gun.get("gun_name", "Unknown")))
+        elif len(slots) < attachment_count:
+            limited_data.append(
+                f"{gun.get('gun_name', 'Unknown')} ({len(slots)}/{attachment_count} trusted/modelled slots)"
+            )
+
+    if missing_data:
+        warnings.append(
+            f"{len(missing_data)} gun(s) have no compatible attachment data: "
+            + ", ".join(missing_data)
+        )
+
+    if limited_data:
+        warnings.append(
+            f"{len(limited_data)} gun(s) have partial attachment data for {attachment_count}-attachment builds: "
+            + ", ".join(limited_data)
+        )
+
+    duplicate_guns = guns[guns.duplicated(subset=["gun_id"], keep=False)]
+    if not duplicate_guns.empty:
+        warnings.append(
+            "Duplicate gun_id rows found: "
+            + ", ".join(sorted(duplicate_guns["gun_id"].astype(str).unique().tolist()))
+        )
+
+    duplicate_attachments = attachments[
+        attachments.duplicated(subset=["attachment_id"], keep=False)
+    ]
+    if not duplicate_attachments.empty:
+        warnings.append(
+            "Duplicate attachment_id rows found: "
+            + ", ".join(sorted(duplicate_attachments["attachment_id"].astype(str).unique().tolist()))
+        )
+
+    return warnings
+
+
 
 def weapon_classes_for_pairing(loadout_pairing):
     if loadout_pairing == "AR + SMG":

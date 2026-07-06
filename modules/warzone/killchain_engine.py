@@ -1,11 +1,20 @@
 from __future__ import annotations
 
 import csv
+import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
+from dotenv import load_dotenv
+
+load_dotenv()
+
+try:
+    from groq import Groq
+except ImportError:  # pragma: no cover - optional dependency in some environments
+    Groq = None  # type: ignore[assignment]
 
 
 CLEAN_FOLDER = Path("data/bo7_clean")
@@ -536,35 +545,44 @@ def build_camo_challenge_text(
 
         remaining = [c for c in base if not is_true(row.get(c))]
         remaining_counts = []
+
         for c in remaining:
             idx = base.index(c)
             count = counts[idx] if idx < len(counts) else counts[-1]
             remaining_counts.append(count)
 
+        if not remaining_counts:
+            return f"Military camos complete for {weapon}."
+
+        first_target = remaining_counts[0]
+        final_target = remaining_counts[-1]
+
         if len(remaining) <= 1:
             return (
-                f"Get {remaining_counts[0]} {challenge_type} with {weapon}. "
+                f"Reach {first_target} total {challenge_type} with {weapon}. "
                 f"Final military camo — completing this unlocks Special camos."
             )
 
-        total = sum(remaining_counts)
         steps = " → ".join(str(c) for c in remaining_counts)
+
         return (
-            f"Get {remaining_counts[0]} {challenge_type} to start. "
+            f"Reach {first_target} total {challenge_type} to start. "
             f"{len(remaining)} military camos remaining for {weapon}: {steps}. "
-            f"Stay on {weapon} until all military camos are done "
-            f"({total} total {challenge_type.lower()} remaining)."
+            f"Stay on {weapon} until the final military target is reached: "
+            f"{final_target} total {challenge_type.lower()}."
         )
 
     if camo_name in special:
         remaining = [c for c in special if not is_true(row.get(c))]
         count = len(remaining)
+
         if count <= 1:
             return (
                 f"Complete the final Special camo for {weapon}. "
                 f"Check the in-game camo panel for the exact requirement. "
                 f"This unlocks Golden Damascus."
             )
+
         return (
             f"Complete {count} Special camos remaining for {weapon}. "
             f"Check each in-game. Do not leave {weapon} until all Specials are done — "
@@ -582,7 +600,6 @@ def build_camo_challenge_text(
         return f"{camo_name}: {challenge}"
 
     return "Check the in-game requirement."
-
 def build_camo_label(
     row: dict[str, Any],
     camo_name: str,
@@ -975,6 +992,18 @@ def build_equipment_mastery_badge_tasks() -> list[dict[str, Any]]:
     for path in files:
         rows = load_csv_rows(path)
 
+        gold_count_by_mode_category: dict[tuple[str, str], int] = {}
+        for source_row in rows:
+            mode_key = clean(source_row.get("mode", ""))
+            category_key = clean(source_row.get("category", ""))
+            if not mode_key or not category_key:
+                continue
+
+            key = (mode_key, category_key)
+            gold_count_by_mode_category.setdefault(key, 0)
+            if is_true(source_row.get("gold_complete", "")):
+                gold_count_by_mode_category[key] += 1
+
         for row in rows:
             mode = clean(row.get("mode", ""))
             category = clean(row.get("category", ""))
@@ -999,9 +1028,24 @@ def build_equipment_mastery_badge_tasks() -> list[dict[str, Any]]:
                 if is_true(value):
                     continue
 
+                locked = False
+                lock_reason = "Equipment mastery badge task available."
+
                 if stage == "diamond":
-                    required = clean(row.get("diamond_required", ""))
-                    challenge_text = f"Earn {required} Gold Mastery Badges for {category}."
+                    required = safe_int(row.get("diamond_required", 0), 0)
+                    current_gold = gold_count_by_mode_category.get((mode, category), 0)
+
+                    if required > 0 and current_gold < required:
+                        locked = True
+                        lock_reason = (
+                            f"Diamond locked: needs {required} Gold Mastery Badges "
+                            f"for {category}. Current: {current_gold}/{required}."
+                        )
+
+                    challenge_text = (
+                        f"Confirm {item} Diamond Mastery Badge once the {category} "
+                        f"Gold gate is complete ({current_gold}/{required})."
+                    )
                 else:
                     required = clean(row.get(f"{stage}_required", ""))
                     challenge_text = f"Complete {item} {stage.title()} Mastery Badge requirement: {required}."
@@ -1018,6 +1062,8 @@ def build_equipment_mastery_badge_tasks() -> list[dict[str, Any]]:
                         camo=f"{stage.title()} Mastery Badge",
                         challenge_text=challenge_text,
                         progress=badge_progress_from_columns(row, list(stage_columns.values())),
+                        locked=locked,
+                        lock_reason=lock_reason,
                     )
                 )
 
@@ -2586,6 +2632,123 @@ def time_limit_for_session(available_minutes: int, energy: str) -> int:
     return min(available_minutes, 75)
 
 
+def build_stop_explanation(stop: dict[str, Any]) -> list[str]:
+    """Return compact, human-readable reasons for why a planner stop was chosen."""
+    explanation: list[str] = []
+
+    recommended_mode = clean(stop.get("recommended_mode", ""))
+    if recommended_mode:
+        explanation.append(f"Recommended mode: {recommended_mode}")
+
+    mode_reason = clean(stop.get("mode_reason", ""))
+    if mode_reason:
+        explanation.append(f"Why this mode: {mode_reason}")
+
+    strategy = clean(stop.get("strategy", ""))
+    if strategy:
+        explanation.append(f"Execution: {strategy}")
+
+    progress = float(stop.get("weapon_progress", 0.0) or 0.0)
+    if progress >= 80:
+        explanation.append("Progress signal: this stop is already near-complete and is a strong finish point.")
+    elif progress >= 40:
+        explanation.append("Progress signal: this stop should feel rewarding now and keep momentum high.")
+    else:
+        explanation.append("Progress signal: this is a clean, low-friction objective for the current session.")
+
+    stacking_hint = clean(stop.get("stacking_hint", ""))
+    if stacking_hint:
+        explanation.append(f"Stacking: {stacking_hint}")
+    elif stop.get("companion_objectives"):
+        companion_preview = ", ".join(str(item) for item in stop.get("companion_objectives", [])[:2])
+        explanation.append(f"Stacking: {companion_preview}")
+
+    return explanation
+
+
+def build_recovery_suggestions(
+    tasks: list[dict[str, Any]],
+    current_stop: dict[str, Any],
+    *,
+    preferred_mode: str = "",
+    avoided_mode: str = "",
+    session_goal: str = "Balanced progress",
+    motivation: str = "Decent",
+    commander_mode: str = "Optimise my grind",
+    focus_targets: list[str] | None = None,
+    anchor_weapon: str = "",
+    anchor_class: str = "",
+    anchor_collection: str = "",
+    minimum_closeness: int = 80,
+    limit: int = 3,
+) -> list[dict[str, Any]]:
+    """Return ranked alternatives when the active stop becomes blocked or skipped."""
+    current_id = clean(current_stop.get("task_id", ""))
+    remaining_tasks = [
+        task
+        for task in tasks
+        if clean(task.get("task_id", "")) != current_id
+    ]
+
+    if not remaining_tasks:
+        return []
+
+    return get_ranked_tasks(
+        remaining_tasks,
+        preferred_mode,
+        avoided_mode,
+        session_goal,
+        motivation,
+        limit=limit,
+        commander_mode=commander_mode,
+        focus_targets=focus_targets,
+        anchor_weapon=anchor_weapon,
+        anchor_class=anchor_class,
+        anchor_collection=anchor_collection,
+        minimum_closeness=minimum_closeness,
+    )
+
+
+def build_recovery_plan(
+    tasks: list[dict[str, Any]],
+    current_stop: dict[str, Any],
+    *,
+    preferred_mode: str,
+    avoided_mode: str,
+    session_goal: str,
+    motivation: str,
+    remaining_minutes: int,
+    commander_mode: str = "Optimise my grind",
+    focus_targets: list[str] | None = None,
+    anchor_weapon: str = "",
+    anchor_class: str = "",
+    anchor_collection: str = "",
+    minimum_closeness: int = 80,
+    completed_task_ids: list[str] | None = None,
+) -> dict[str, Any]:
+    """Rebuild the session plan after a blocked or skipped stop so the commander adapts immediately."""
+    completed = list(completed_task_ids or [])
+    current_id = clean(current_stop.get("task_id", ""))
+    if current_id and current_id not in completed:
+        completed.append(current_id)
+
+    return rebuild_plan_after_progress(
+        tasks=tasks,
+        preferred_mode=preferred_mode,
+        session_goal=session_goal,
+        motivation=motivation,
+        completed_task_ids=completed,
+        remaining_minutes=remaining_minutes,
+        commander_mode=commander_mode,
+        focus_targets=focus_targets,
+        anchor_weapon=anchor_weapon,
+        anchor_class=anchor_class,
+        anchor_collection=anchor_collection,
+        minimum_closeness=minimum_closeness,
+        avoided_mode=avoided_mode,
+    )
+
+
 def generate_ai_commentary(task: dict[str, Any], motivation: str) -> str:
     task_type = task.get("task_type", "")
     mode = task.get("mode", "")
@@ -3472,6 +3635,7 @@ def build_session_plan(
     anchor_class: str = "",
     anchor_collection: str = "",
     minimum_closeness: int = 80,
+    avoided_mode: str = "",
 ) -> dict[str, Any]:
     """
     Builds an ordered, ranked session plan.
@@ -3488,9 +3652,13 @@ def build_session_plan(
     available = get_available_tasks(tasks)
 
     if preferred_mode == "Commander chooses":
+        excluded_modes = {"Commander chooses", "Global Cleanup"}
+        if avoided_mode:
+            excluded_modes.add(avoided_mode)
+
         candidate_modes = [
             mode for mode in MODES
-            if mode not in {"Commander chooses", "Global Cleanup", avoided_mode if "avoided_mode" in locals() else ""}
+            if mode not in excluded_modes
         ]
         candidate_plans = [
             build_session_plan(
@@ -3506,6 +3674,7 @@ def build_session_plan(
                 anchor_class=anchor_class,
                 anchor_collection=anchor_collection,
                 minimum_closeness=minimum_closeness,
+                avoided_mode=avoided_mode,
             )
             for mode in candidate_modes
         ]
@@ -3532,6 +3701,7 @@ def build_session_plan(
                 "anchor_class": anchor_class,
                 "anchor_collection": anchor_collection,
                 "minimum_closeness": minimum_closeness,
+                "avoided_mode": avoided_mode,
                 "mode_candidates": [],
             }
 
@@ -3596,15 +3766,20 @@ def build_session_plan(
                 anchor_class=anchor_class,
                 anchor_collection=anchor_collection,
                 minimum_closeness=minimum_closeness,
+                avoided_mode=avoided_mode,
             )
 
     original_mode_task_count = len(mode_tasks)
     guided_notes: list[str] = []
 
-    if commander_mode in {"Start from my itch", "Class cleanup"}:
+    if commander_mode in {"Start from my itch", "Class cleanup", "Completion stack"}:
         mode_tasks, guided_notes = guided_anchor_filter(
             mode_tasks,
-            commander_mode=commander_mode,
+            commander_mode=(
+                "Start from my itch"
+                if commander_mode == "Completion stack" and (anchor_weapon or anchor_class)
+                else commander_mode
+            ),
             preferred_mode=preferred_mode,
             anchor_weapon=anchor_weapon,
             anchor_class=anchor_class,
@@ -3634,6 +3809,7 @@ def build_session_plan(
             "anchor_class": anchor_class,
             "anchor_collection": anchor_collection,
             "minimum_closeness": minimum_closeness,
+            "avoided_mode": avoided_mode,
             "diagnostics": {
                 "confidence": "Low",
                 "confidence_score": 0,
@@ -3706,6 +3882,10 @@ def build_session_plan(
                     "task_type": task.get("task_type", ""),
                     "task_id": task.get("task_id", ""),
                     "mode": task.get("mode", ""),
+                    "chain": task.get("chain", ""),
+                    "category": task.get("category", ""),
+                    "weapon_class": task.get("weapon_class", ""),
+                    "recommended_mode": task.get("recommended_mode", ""),
                     "estimated_minutes": estimated_minutes,
                     "stacking_hint": build_stacking_hint(task, available) or build_weapon_prestige_hint(task, available),
                     "companion_objectives": companion_objectives,
@@ -3754,6 +3934,7 @@ def build_session_plan(
         "anchor_class": anchor_class,
         "anchor_collection": anchor_collection,
         "minimum_closeness": minimum_closeness,
+        "avoided_mode": avoided_mode,
     }
 
 
@@ -3771,6 +3952,7 @@ def rebuild_plan_after_progress(
     anchor_class: str = "",
     anchor_collection: str = "",
     minimum_closeness: int = 80,
+    avoided_mode: str = "",
 ) -> dict[str, Any]:
     """
     Called after logging progress mid-session. Re-runs build_session_plan()
@@ -3793,7 +3975,41 @@ def rebuild_plan_after_progress(
         anchor_class=anchor_class,
         anchor_collection=anchor_collection,
         minimum_closeness=minimum_closeness,
+        avoided_mode=avoided_mode,
     )
+
+def _generate_mission_supporting_text(
+    task: dict[str, Any],
+    session_goal: str,
+    motivation: str,
+    available_minutes: int,
+    energy: str,
+    *,
+    field_name: str,
+    fallback: str,
+) -> str:
+    if not task:
+        return fallback
+
+    prompt = (
+        "You are the BO7 Completion Commander. Write one concise mission-card sentence for the requested field. "
+        "Keep it tactical, clear, and human-readable.\n\n"
+        f"Field: {field_name}\n"
+        f"Task: {task.get('weapon', 'Unknown')} — {task.get('camo', 'Objective')}\n"
+        f"Mode: {task.get('mode', 'Unknown')}\n"
+        f"Recommended mode: {task.get('recommended_mode', 'Best available')}\n"
+        f"Session goal: {session_goal}\n"
+        f"Motivation: {motivation}\n"
+        f"Available time: {available_minutes} minutes\n"
+        f"Energy: {energy}"
+    )
+
+    groq_reply = _try_groq_text(prompt)
+    if groq_reply:
+        return groq_reply
+
+    return fallback
+
 
 def generate_mission(
     tasks: list[dict[str, Any]],
@@ -3843,10 +4059,22 @@ def generate_mission(
 
     time_limit = time_limit_for_session(available_minutes, energy)
 
-    command = (
-        f"Use {task['weapon']} / {task['camo']} in {task['mode']}. "
-        f"Complete the assigned objective. No switching until the result is logged."
+    command = generate_mission_command(
+        task,
+        session_goal=session_goal,
+        motivation=motivation,
+        available_minutes=available_minutes,
+        energy=energy,
     )
+
+    rationale_fallback = (
+        f"{task['weapon']} is {task['weapon_progress']:.2f}% through its current tracked route. "
+        f"The commander selected it for: {session_goal}."
+    )
+    stacked_fallback = f"{task['category']}, {task['chain']}, session footage, and overall 100% progress."
+    fallback_fallback = "If the task is wrong, impossible, or blocked, log 'Blocked / wrong requirement'. Do not silently switch tasks."
+    reward_fallback = "After completion, generate the next order. No free-choice match until the log is updated."
+    next_step_fallback = "Log completion, then generate the next highest-value unlocked task."
 
     return {
         "mission_id": datetime.now().strftime("BO7-%Y%m%d-%H%M%S"),
@@ -3871,14 +4099,51 @@ def generate_mission(
         "avoid": task["avoid"],
         "time_limit": f"{time_limit} minutes",
         "success_condition": f"Tick 'Camo completed' once this task is complete: {task['weapon']} — {task['camo']}.",
-        "why_this_target": (
-            f"{task['weapon']} is {task['weapon_progress']:.2f}% through its current tracked route. "
-            f"The commander selected it for: {session_goal}."
+        "why_this_target": _generate_mission_supporting_text(
+            task,
+            session_goal,
+            motivation,
+            available_minutes,
+            energy,
+            field_name="why_this_target",
+            fallback=rationale_fallback,
         ),
-        "stacked_progress": f"{task['category']}, {task['chain']}, session footage, and overall 100% progress.",
-        "fallback": "If the task is wrong, impossible, or blocked, log 'Blocked / wrong requirement'. Do not silently switch tasks.",
-        "reward": "After completion, generate the next order. No free-choice match until the log is updated.",
-        "next_if_completed": "Log completion, then generate the next highest-value unlocked task.",
+        "stacked_progress": _generate_mission_supporting_text(
+            task,
+            session_goal,
+            motivation,
+            available_minutes,
+            energy,
+            field_name="stacked_progress",
+            fallback=stacked_fallback,
+        ),
+        "fallback": _generate_mission_supporting_text(
+            task,
+            session_goal,
+            motivation,
+            available_minutes,
+            energy,
+            field_name="fallback",
+            fallback=fallback_fallback,
+        ),
+        "reward": _generate_mission_supporting_text(
+            task,
+            session_goal,
+            motivation,
+            available_minutes,
+            energy,
+            field_name="reward",
+            fallback=reward_fallback,
+        ),
+        "next_if_completed": _generate_mission_supporting_text(
+            task,
+            session_goal,
+            motivation,
+            available_minutes,
+            energy,
+            field_name="next_if_completed",
+            fallback=next_step_fallback,
+        ),
         "operator_note": operator_note.strip() or "No human excuse supplied.",
         "ai_commentary": generate_ai_commentary(task, motivation),
         "task_id": task["task_id"],
@@ -3918,6 +4183,122 @@ def summarise_sessions(session_log: list[dict[str, Any]]) -> dict[str, int]:
         "blocked": sum(1 for row in session_log if row.get("result") == "Blocked / wrong requirement"),
         "skipped": sum(1 for row in session_log if row.get("result") == "Skipped"),
     }
+
+
+def _build_groq_prompt(message: str, tasks: list[dict[str, Any]], latest_mission: dict[str, Any] | None, session_log: list[dict[str, Any]]) -> str:
+    summary = summarise_tasks(tasks)
+    mission_line = "No active mission."
+    if latest_mission:
+        mission_line = (
+            f"Active mission: {latest_mission.get('command', 'N/A')} | "
+            f"Target: {latest_mission.get('target', 'N/A')}"
+        )
+
+    mode_summary = ", ".join(
+        f"{mode}:{count}" for mode, count in sorted(summary.get("by_mode", {}).items())[:6]
+    ) or "none"
+
+    return (
+        "You are the BO7 Completion Commander. Reply in concise, tactical language. "
+        "Keep it under 90 words, focus on the next best action, and avoid fluff.\n\n"
+        f"Player message: {message}\n"
+        f"Mission state: {mission_line}\n"
+        f"Available task counts by mode: {mode_summary}\n"
+        f"Session log entries: {len(session_log)}"
+    )
+
+
+def _try_groq_text(prompt: str, *, system_prompt: str = "You are a concise Black Ops 7 completion commander.") -> str:
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key or Groq is None:
+        return ""
+
+    try:
+        client = Groq(api_key=api_key)
+        response = client.chat.completions.create(
+            model=os.getenv("GROQ_MODEL", "llama-3.1-8b-instant"),
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt},
+            ],
+            temperature=0.25,
+            max_tokens=180,
+        )
+        content = getattr(response.choices[0].message, "content", "")
+        return str(content).strip() if content else ""
+    except Exception:
+        return ""
+
+
+def _try_groq_reply(message: str, tasks: list[dict[str, Any]], latest_mission: dict[str, Any] | None, session_log: list[dict[str, Any]]) -> str:
+    return _try_groq_text(
+        _build_groq_prompt(message, tasks, latest_mission, session_log),
+        system_prompt="You are a concise Black Ops 7 completion commander.",
+    )
+
+
+def generate_plan_brief(plan: dict[str, Any], tasks: list[dict[str, Any]], session_log: list[dict[str, Any]] | None = None) -> str:
+    if not plan:
+        return ""
+
+    mode = plan.get("mode", "Unknown")
+    commander_mode = plan.get("commander_mode", "Optimise my grind")
+    stops = plan.get("stops", [])
+    available_minutes = plan.get("available_minutes", 0)
+    focus_targets = plan.get("focus_targets") or []
+    anchor_weapon = plan.get("anchor_weapon", "")
+    anchor_collection = plan.get("anchor_collection", "")
+
+    prompt = (
+        "You are the BO7 Completion Commander. Write a short, tactical update for the active session plan. "
+        "Keep it under 80 words and mention the current mode, route style, available time, and any important anchor.\n\n"
+        f"Mode: {mode}\n"
+        f"Commander mode: {commander_mode}\n"
+        f"Stops planned: {len(stops)}\n"
+        f"Available minutes: {available_minutes}\n"
+        f"Focus targets: {', '.join(focus_targets) if focus_targets else 'none'}\n"
+        f"Anchor weapon: {anchor_weapon or 'none'}\n"
+        f"Anchor collection: {anchor_collection or 'none'}\n"
+        f"Session log entries: {len(session_log or [])}"
+    )
+
+    groq_reply = _try_groq_text(prompt)
+    if groq_reply:
+        return groq_reply
+
+    focus_text = ", ".join(focus_targets) if focus_targets else "general progress"
+    anchor_text = anchor_weapon or anchor_collection or "the current target"
+    return (
+        f"Commander brief: {mode} route is set for {commander_mode}. "
+        f"You have {len(stops)} stop(s) planned over {available_minutes} minutes, "
+        f"with focus on {focus_text} and an anchor around {anchor_text}."
+    )
+
+
+def generate_mission_command(task: dict[str, Any], session_goal: str, motivation: str, available_minutes: int, energy: str) -> str:
+    if not task:
+        return "No mission assigned."
+
+    prompt = (
+        "You are the BO7 Completion Commander. Rewrite the mission order as a short, punchy in-game command. "
+        "Keep it under 40 words, clear, and tactical.\n\n"
+        f"Task: {task.get('weapon', 'Unknown')} — {task.get('camo', 'Objective')}\n"
+        f"Mode: {task.get('mode', 'Unknown')}\n"
+        f"Recommended mode: {task.get('recommended_mode', 'Best available')}\n"
+        f"Session goal: {session_goal}\n"
+        f"Motivation: {motivation}\n"
+        f"Available time: {available_minutes} minutes\n"
+        f"Energy: {energy}"
+    )
+
+    groq_reply = _try_groq_text(prompt)
+    if groq_reply:
+        return groq_reply
+
+    return (
+        f"Use {task.get('weapon', 'the target')} in {task.get('mode', 'the selected mode')} and finish the assigned objective. "
+        f"No switching until the tracker is updated."
+    )
 
 
 def generate_commander_reply(
@@ -3973,6 +4354,10 @@ def generate_commander_reply(
             f"By mode:\n{mode_lines if mode_lines else '- None'}\n\n"
             f"By type:\n{type_lines if type_lines else '- None'}"
         )
+
+    groq_reply = _try_groq_reply(message, tasks, latest_mission, session_log)
+    if groq_reply:
+        return groq_reply
 
     return (
         "Completion Commander online. Ask for status, locked tasks, or next mission. "

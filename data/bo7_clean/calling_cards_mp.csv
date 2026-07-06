@@ -1,123 +1,123 @@
 mode,category,sub_category,challenge,requirement,tier1_complete,tier2_complete,tier3_complete,tier4_complete,tier5_complete,completed,tier1_target,tier2_target,tier3_target,tier4_target,tier5_target,counts_for_100_percent,display_as_extra
-Multiplayer,Career,Boot Camp,Taking Names,Get 100 Eliminations,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,100,,,,,TRUE,FALSE
-Multiplayer,Career,Boot Camp,Team Player,Win 3 Matches,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,3,,,,,TRUE,FALSE
-Multiplayer,Career,Boot Camp,Next Gen Warfare,Get 5 Scorestreaks Kills,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,5,,,,,TRUE,FALSE
-Multiplayer,Career,Boot Camp,New Moves,Get a Kill shortly after performing a Wall Jump,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,1,,,,,TRUE,FALSE
-Multiplayer,Career,Boot Camp,Holding it Down,Get 10 Objective Kills,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,10,,,,,TRUE,FALSE
-Multiplayer,Career,Boot Camp,Numbers on the Board,"Earn 25,000 Total Score",TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,25000,,,,,TRUE,FALSE
-Multiplayer,Career,Elite Operator,Top Dog,Win a match with the highest Score of all players 10 times,TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,1,5,10,,,TRUE,FALSE
-Multiplayer,Career,Elite Operator,Surgical,Get 5 Headshots in a single match 10 times,TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,1,5,10,,,TRUE,FALSE
-Multiplayer,Career,Elite Operator,The Real Hero,Win 10 matches in Objective game modes with the most Objective Score,TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,1,5,10,,,TRUE,FALSE
-Multiplayer,Career,Elite Operator,Destructive Force,Finish a match with twice as many Eliminations than Deaths 10 times,TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,1,5,10,,,TRUE,FALSE
-Multiplayer,Career,Elite Operator,Rush Job,"Be the first player in a match to reach 5,000 score 10 times",TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,1,5,10,,,TRUE,FALSE
-Multiplayer,Career,Elite Operator,Hardcore Skills,Complete a Hardcore match in the top 3 Scoring players,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,1,,,,,TRUE,FALSE
-Multiplayer,Career,Grizzled Veteran,Eliminations Collector,"Get 10,000 Eliminations",TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,500,1000,2500,5000,10000,TRUE,FALSE
+Multiplayer,Career,Boot Camp,Taking Names,Get 100 Eliminations,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,100,,,,,TRUE,FALSE
+Multiplayer,Career,Boot Camp,Team Player,Win 3 Matches,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,3,,,,,TRUE,FALSE
+Multiplayer,Career,Boot Camp,Next Gen Warfare,Get 5 Scorestreaks Kills,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5,,,,,TRUE,FALSE
+Multiplayer,Career,Boot Camp,New Moves,Get a Kill shortly after performing a Wall Jump,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1,,,,,TRUE,FALSE
+Multiplayer,Career,Boot Camp,Holding it Down,Get 10 Objective Kills,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,10,,,,,TRUE,FALSE
+Multiplayer,Career,Boot Camp,Numbers on the Board,"Earn 25,000 Total Score",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,25000,,,,,TRUE,FALSE
+Multiplayer,Career,Elite Operator,Top Dog,Win a match with the highest Score of all players 10 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1,5,10,,,TRUE,FALSE
+Multiplayer,Career,Elite Operator,Surgical,Get 5 Headshots in a single match 10 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1,5,10,,,TRUE,FALSE
+Multiplayer,Career,Elite Operator,The Real Hero,Win 10 matches in Objective game modes with the most Objective Score,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1,5,10,,,TRUE,FALSE
+Multiplayer,Career,Elite Operator,Destructive Force,Finish a match with twice as many Eliminations than Deaths 10 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1,5,10,,,TRUE,FALSE
+Multiplayer,Career,Elite Operator,Rush Job,"Be the first player in a match to reach 5,000 score 10 times",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1,5,10,,,TRUE,FALSE
+Multiplayer,Career,Elite Operator,Hardcore Skills,Complete a Hardcore match in the top 3 Scoring players,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1,,,,,TRUE,FALSE
+Multiplayer,Career,Grizzled Veteran,Eliminations Collector,"Get 10,000 Eliminations",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,500,1000,2500,5000,10000,TRUE,FALSE
 Multiplayer,Career,Grizzled Veteran,Headshot Collector,"Get 1,000 Headshots",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,50,100,250,500,1000,TRUE,FALSE
 Multiplayer,Career,Grizzled Veteran,Winner,Win 250 matches,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,10,25,50,100,250,TRUE,FALSE
 Multiplayer,Career,Grizzled Veteran,Aggression,Get 500 Objective Kills,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,25,50,100,250,500,TRUE,FALSE
 Multiplayer,Career,Grizzled Veteran,Racked Up,"Earn 1,000,000 Score",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,50000,100000,250000,500000,1000000,TRUE,FALSE
 Multiplayer,Career,Grizzled Veteran,Dialed In,Get 250 Scorestreak Kills,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,25,50,125,150,250,TRUE,FALSE
-Multiplayer,Hardened,Killer,Double Killer,Earn 50 Double Kill Medals (2 rapid Kills),TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,10.0,25.0,50.0,,,TRUE,FALSE
-Multiplayer,Hardened,Killer,Triple Killer,Earn 25 Triple Kill Medals (3 rapid kills),TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,5.0,10.0,25.0,,,TRUE,FALSE
-Multiplayer,Hardened,Killer,Fury Killer,Earn a Fury Kill Medal (4 rapid Kills),TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,1.0,,,,,TRUE,FALSE
-Multiplayer,Hardened,Killer,Bloodthirsty Killer,Earn 50 Bloodthirsty Medals (5 Kills without dying),TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,10.0,25.0,50.0,,,TRUE,FALSE
-Multiplayer,Hardened,Killer,Merciless Killer,Earn 5 Merciless Medals (10 Kills without dying),TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,1.0,3.0,5.0,,,TRUE,FALSE
-Multiplayer,Hardened,Killer,Ruthless Killer,Earn a Ruthless Medal (15 Kills without dying),TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,1.0,,,,,TRUE,FALSE
-Multiplayer,Hardened,Going Ham,Finders Keepers,Get a Triple Kill with an Enemy Weapon you've picked up 3 times,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,1.0,2.0,3.0,,,TRUE,FALSE
-Multiplayer,Hardened,Going Ham,Slice & Dice,Get a Triple Kill with a Melee Weapon,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,1.0,,,,,TRUE,FALSE
-Multiplayer,Hardened,Going Ham,Power Tools,Get a Triple Kill using a Weapon Scorestreak,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,1.0,,,,,TRUE,FALSE
-Multiplayer,Hardened,Going Ham,Full Auto Mayhem,Get 3 Kills with an LMG without releasing the trigger,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,1.0,,,,,TRUE,FALSE
-Multiplayer,Hardened,Going Ham,Saving Ammo,Earn a Collateral Medal (Killed multiple uninjured enemies with the same shot),TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,1.0,,,,,TRUE,FALSE
-Multiplayer,Hardened,Going Ham,Four Piece Dinner,Earn a Quad Feed Medal (4 uninterupted Kills in the Kill Feed),TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,1.0,,,,,TRUE,FALSE
-Multiplayer,Hardened,Humiliation,Sneak Attack,Get 15 Back Stabber Medals (Kill and enemy from behind with a Melee Weapon),TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,5.0,10.0,15.0,,,TRUE,FALSE
-Multiplayer,Hardened,Humiliation,From the Grave,Earn 15 Afterlife Medals (Killed an enemy after you died),TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,5.0,10.0,15.0,,,TRUE,FALSE
-Multiplayer,Hardened,Humiliation,Unforgiving,Earn 30 Revenge Medals (Kill the enemy who Killed you),TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,10.0,20.0,30.0,,,TRUE,FALSE
-Multiplayer,Hardened,Humiliation,Trickster,Kill an enemy distracted by your Echo Unit Field Upgrade 5 times,TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,1.0,3.0,5.0,,,TRUE,FALSE
-Multiplayer,Hardened,Humiliation,Sticky Bomber,Earn 25 Stick Medals (Stick an enemy with a Semtex),TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,1.0,10.0,25.0,,,TRUE,FALSE
-Multiplayer,Hardened,Humiliation,Silent Assassin,Get a Kill with a Melee Weapon from behind while cloaked from the Active Camo Field Upgrade,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,1.0,,,,,TRUE,FALSE
-Multiplayer,Prestige,Super Killer Prestige 1,Super Double,Earn a Double Kill Medal (2 rapid kills) with both Kills being Headshots 10 times,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
+Multiplayer,Hardened,Killer,Double Killer,Earn 50 Double Kill Medals (2 rapid Kills),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,10.0,25.0,50.0,,,TRUE,FALSE
+Multiplayer,Hardened,Killer,Triple Killer,Earn 25 Triple Kill Medals (3 rapid kills),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5.0,10.0,25.0,,,TRUE,FALSE
+Multiplayer,Hardened,Killer,Fury Killer,Earn a Fury Kill Medal (4 rapid Kills),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,,,,,TRUE,FALSE
+Multiplayer,Hardened,Killer,Bloodthirsty Killer,Earn 50 Bloodthirsty Medals (5 Kills without dying),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,10.0,25.0,50.0,,,TRUE,FALSE
+Multiplayer,Hardened,Killer,Merciless Killer,Earn 5 Merciless Medals (10 Kills without dying),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,3.0,5.0,,,TRUE,FALSE
+Multiplayer,Hardened,Killer,Ruthless Killer,Earn a Ruthless Medal (15 Kills without dying),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,,,,,TRUE,FALSE
+Multiplayer,Hardened,Going Ham,Finders Keepers,Get a Triple Kill with an Enemy Weapon you've picked up 3 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,2.0,3.0,,,TRUE,FALSE
+Multiplayer,Hardened,Going Ham,Slice & Dice,Get a Triple Kill with a Melee Weapon,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,,,,,TRUE,FALSE
+Multiplayer,Hardened,Going Ham,Power Tools,Get a Triple Kill using a Weapon Scorestreak,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,,,,,TRUE,FALSE
+Multiplayer,Hardened,Going Ham,Full Auto Mayhem,Get 3 Kills with an LMG without releasing the trigger,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,,,,,TRUE,FALSE
+Multiplayer,Hardened,Going Ham,Saving Ammo,Earn a Collateral Medal (Killed multiple uninjured enemies with the same shot),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,,,,,TRUE,FALSE
+Multiplayer,Hardened,Going Ham,Four Piece Dinner,Earn a Quad Feed Medal (4 uninterupted Kills in the Kill Feed),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,,,,,TRUE,FALSE
+Multiplayer,Hardened,Humiliation,Sneak Attack,Get 15 Back Stabber Medals (Kill and enemy from behind with a Melee Weapon),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5.0,10.0,15.0,,,TRUE,FALSE
+Multiplayer,Hardened,Humiliation,From the Grave,Earn 15 Afterlife Medals (Killed an enemy after you died),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5.0,10.0,15.0,,,TRUE,FALSE
+Multiplayer,Hardened,Humiliation,Unforgiving,Earn 30 Revenge Medals (Kill the enemy who Killed you),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,10.0,20.0,30.0,,,TRUE,FALSE
+Multiplayer,Hardened,Humiliation,Trickster,Kill an enemy distracted by your Echo Unit Field Upgrade 5 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,3.0,5.0,,,TRUE,FALSE
+Multiplayer,Hardened,Humiliation,Sticky Bomber,Earn 25 Stick Medals (Stick an enemy with a Semtex),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,10.0,25.0,,,TRUE,FALSE
+Multiplayer,Hardened,Humiliation,Silent Assassin,Get a Kill with a Melee Weapon from behind while cloaked from the Active Camo Field Upgrade,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,,,,,TRUE,FALSE
+Multiplayer,Prestige,Super Killer Prestige 1,Super Double,Earn a Double Kill Medal (2 rapid kills) with both Kills being Headshots 10 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
 Multiplayer,Prestige,Super Killer Prestige 1,Super Triple,Earn a Triple Kill Medal (3 rapid kills) using Melee Weapons 3 times,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,,,1.0,2.0,3.0,TRUE,FALSE
-Multiplayer,Prestige,Super Killer Prestige 1,Super Fury,Earn 5 Fury Kill Medals (4 rapid kills),TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,5.0,,,TRUE,FALSE
-Multiplayer,Prestige,Super Killer Prestige 1,Super Thirsty,Earn 5 Objective Kills without dying,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,1.0,,,TRUE,FALSE
-Multiplayer,Prestige,Super Killer Prestige 1,Super Merciless,Get 10 Kills with Weapons without dying (all Kills must come from Weapons),TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,1.0,,,TRUE,FALSE
-Multiplayer,Prestige,Super Killer Prestige 1,Super Ruthless,Get 15 Kills without dying or activating any Scorestreaks,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,1.0,,,TRUE,FALSE
-Multiplayer,Prestige,Master Of Arms Prestige 2,Ol' Reliable,Get 300 Eliminations with Assault Rifles,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,50.0,150.0,300.0,TRUE,FALSE
-Multiplayer,Prestige,Master Of Arms Prestige 2,Rusher for Life,Get 300 Eliminations with SMGs,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,50.0,150.0,300.0,TRUE,FALSE
-Multiplayer,Prestige,Master Of Arms Prestige 2,Buckshot,Get 150 Point Blank Kills with Shotguns,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,25.0,75.0,150.0,TRUE,FALSE
-Multiplayer,Prestige,Master Of Arms Prestige 2,Squad Support,Get 300 Eliminations with LMGs,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,50.0,150.0,300.0,TRUE,FALSE
-Multiplayer,Prestige,Master Of Arms Prestige 2,Center Mass,Get 100 One Shot Kills with Sniper Rifles,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,25.0,50.0,100.0,TRUE,FALSE
-Multiplayer,Prestige,Master Of Arms Prestige 2,Faster Than Reloading,Get 150 Eliminations with Pistols,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,25.0,75.0,150.0,TRUE,FALSE
-Multiplayer,Prestige,Perk Pro Prestige 3,Running and Gunning,With the Gung Ho Perk equipped: get 25 Weapon Kills while sprinting,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,25.0,,,TRUE,FALSE
-Multiplayer,Prestige,Perk Pro Prestige 3,Steeled Resolve,With the Close Shave Perk equipped: get 30 Kills with Melee Weapons,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,30.0,,,TRUE,FALSE
-Multiplayer,Prestige,Perk Pro Prestige 3,Vultured,With the Scavenger Perk equipped: Kill an enemy after collecting ammo from an Ammo Pack 25 times,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,25.0,,,TRUE,FALSE
-Multiplayer,Prestige,Perk Pro Prestige 3,Unbreakable,With the Flak Jacket Perk equipped: get 5 Kills while damaged by an enemy Lethal,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,5.0,,,TRUE,FALSE
-Multiplayer,Prestige,Perk Pro Prestige 3,Saboteur,With the Engineer Perk equipped: destroy 10 enemy Scorestreaks or Equipment,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,10.0,,,TRUE,FALSE
-Multiplayer,Prestige,Perk Pro Prestige 3,Linked Up,With the Charge Link Perk equipped: Kill 20 enemies with or while assisted by Field Upgrades,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,20.0,,,TRUE,FALSE
-Multiplayer,Prestige,Big Plays Prestige 4,Movie Star,Get featured in the Best Play 10 times,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
-Multiplayer,Prestige,Big Plays Prestige 4,High Scorer,"Earn 10,000 Score in a single match",TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,1.0,,,TRUE,FALSE
-Multiplayer,Prestige,Big Plays Prestige 4,Gear Horde,Get a Kill with 5 Weapons you picked up in a single match,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,1.0,,,TRUE,FALSE
-Multiplayer,Prestige,Big Plays Prestige 4,Keep it 100,Get 100 Eliminations with a Weapon equipped with Shattered Gold Camo,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,100.0,,,TRUE,FALSE
-Multiplayer,Prestige,Big Plays Prestige 4,Jackpot,Get 5 Kills with a single Scorestreak acquired from a Care Package,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,1.0,,,TRUE,FALSE
-Multiplayer,Prestige,Big Plays Prestige 4,Bling,Get 250 Eliminations with a Weapon equipped with Arclight Camo,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,250.0,,,TRUE,FALSE
-Multiplayer,Prestige,Trade Tools Prestige 5,Can't Hide,Shoot through a wall to Kill an enemy revealed by your Pinpoint Grenade 3 times,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,,,1.0,2.0,3.0,TRUE,FALSE
-Multiplayer,Prestige,Trade Tools Prestige 5,Strange Trip,Kill 15 enemies who are halucinating from your Psych Grenade Tactical or Cradle Trap Field Upgrade,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,5.0,10.0,15.0,TRUE,FALSE
-Multiplayer,Prestige,Trade Tools Prestige 5,Fun Police,"Destroy 25 Scorestreaks, Equipment, or Field Upgrades with the Hunter Bot Tactical",TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,5.0,10.0,25.0,TRUE,FALSE
-Multiplayer,Prestige,Trade Tools Prestige 5,Luck or Skill?,Kill an enemy from at least 40 meters away with a thrown Lethal 15 times,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,5.0,10.0,15.0,TRUE,FALSE
-Multiplayer,Prestige,Trade Tools Prestige 5,Grouped Up,Get 30 Kills with the Cluster Grenade Lethal,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,5.0,15.0,30.0,TRUE,FALSE
-Multiplayer,Prestige,Trade Tools Prestige 5,Remote Operations,"Get 25 Objective Kills with the Point Turret, C4, or the Needle Drone Lethals",TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,5.0,15.0,25.0,TRUE,FALSE
-Multiplayer,Prestige,Special Ops Expert Prestige 6,Getting W's,"Earn 15,000 Objective Score",TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,5000.0,10000.0,15000.0,TRUE,FALSE
-Multiplayer,Prestige,Special Ops Expert Prestige 6,Blitzkrieg,Earn 10 Objective Kills in a single match 15 times,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,5.0,10.0,15.0,TRUE,FALSE
-Multiplayer,Prestige,Special Ops Expert Prestige 6,The Iron Curtain,Get 2 Kills while defending Objectives without leaving the Objective 15 times,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,5.0,10.0,15.0,TRUE,FALSE
-Multiplayer,Prestige,Special Ops Expert Prestige 6,Is it a Spider?,Kill an enemy with a Body Shield Explosion 3 times,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,1.0,2.0,3.0,TRUE,FALSE
-Multiplayer,Prestige,Special Ops Expert Prestige 6,Subterfuge,With a Suppressor Attachment equipped: Kill an enemy from behind with a Sniper Rifle 5 times,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,5.0,,,TRUE,FALSE
-Multiplayer,Prestige,Special Ops Expert Prestige 6,And My Axe,Get 3 Kills with the Combat Axe Lethal without dying,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,1.0,,,TRUE,FALSE
-Multiplayer,Prestige,Advanced Systems Prestige 7,On the Fritz,Affect 2 or more items with a single EMP Grenade Tactical 5 times,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,5.0,,,TRUE,FALSE
-Multiplayer,Prestige,Advanced Systems Prestige 7,Hunter/Killer,Get a Kill while piloting the Needle Drone Lethal 10 times,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,10.0,,,TRUE,FALSE
-Multiplayer,Prestige,Advanced Systems Prestige 7,Cloak Engaged,Get 15 Headshots while cloaked from the Active Camo Field Upgrade,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,15.0,,,TRUE,FALSE
-Multiplayer,Prestige,Advanced Systems Prestige 7,Now That's Just Rude,Kill 3 enemies in a single match with the Skewer Scorestreak,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,1.0,,,TRUE,FALSE
-Multiplayer,Prestige,Advanced Systems Prestige 7,Surprise Snipe,Kill 15 enemies through walls with the Gravemaker Scorestreak,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,15.0,,,TRUE,FALSE
-Multiplayer,Prestige,Advanced Systems Prestige 7,I'm In,Steal 5 Equipment or Scorestreaks with the Black Hat Field Upgrade,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,5.0,,,TRUE,FALSE
-Multiplayer,Prestige,Royal Flush Prestige 8,Fully Loaded,Get a Double Kill with both equipped Primary Weapons in the same life 3 times,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,3.0,,,TRUE,FALSE
-Multiplayer,Prestige,Royal Flush Prestige 8,One Man Army,With the Specialist Wildcard equipped: get 15 Kills while the Specialist Bonus is active,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,15.0,,,TRUE,FALSE
-Multiplayer,Prestige,Royal Flush Prestige 8,Very Greedy,With the Perk Greed Wildcard and 4 Perks of the same Combat Specialty equipped: get 100 Eliminations,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,100.0,,,TRUE,FALSE
-Multiplayer,Prestige,Royal Flush Prestige 8,Darken the Sky,With the High Roller Wildcard equipped: get a Kill with 4 different Scorestreaks in a single match,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,1.0,,,TRUE,FALSE
-Multiplayer,Prestige,Royal Flush Prestige 8,Catch,With the Danger Close Wildcard equipped: get 3 Kills with a Lethal without dying 5 times (excluding Combat Axes),FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,5.0,,,TRUE,FALSE
-Multiplayer,Prestige,Royal Flush Prestige 8,Finely Tuned,With the Gunfighter Wildcard equipped: get 3 Triple Kills with a Weapon that has 8 Attachments equipped,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,3.0,,,TRUE,FALSE
-Multiplayer,Prestige,Death Architect Prestige 9,Ready for Anything,Get a Kill with an Underbarrel Launcher equipped to an Assault Rifle 30 times,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,5.0,15.0,30.0,TRUE,FALSE
-Multiplayer,Prestige,Death Architect Prestige 9,Heavy Blockade,Get 50 Objective Kills while using a Control Stock Attachment,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,10.0,25.0,50.0,TRUE,FALSE
-Multiplayer,Prestige,Death Architect Prestige 9,Bottomless Mags,Get 3 Kills without reloading uing an Extended Magazine Attachment 10 times,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
-Multiplayer,Prestige,Death Architect Prestige 9,Quickdraw,With a Quickdraw Grip Attachment equipped: get a Kill immediately after aiming down sights 50 times,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,10.0,25.0,50.0,TRUE,FALSE
-Multiplayer,Prestige,Death Architect Prestige 9,Rushed Down,"Get 10 Double Kills with an SMG equipped with Grip, Stock, Magazine, and Muzzle Attachments",TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,10.0,,,TRUE,FALSE
-Multiplayer,Prestige,Death Architect Prestige 9,Expert Marksman,Get 25 Headshots while focused with a High Zoom Optic on a Sniper Rifle or Marksman Rifle,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,25.0,,,TRUE,FALSE
-Multiplayer,Prestige,Spliced Prestige 10,Silent Benefactor,Get 50 Stealth Kills while using the Operative Hybrid Combat Specialty,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,10.0,25.0,50.0,TRUE,FALSE
-Multiplayer,Prestige,Spliced Prestige 10,Phantom Strike,Get 50 Kills while hidden from the minimap from the Scout Hybrid Combat Specialty,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,10.0,25.0,50.0,TRUE,FALSE
-Multiplayer,Prestige,Spliced Prestige 10,Immovable Object,Get 50 Kills while the buff from the Tactician Hybrid Combat Specialty is active,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,10.0,25.0,50.0,TRUE,FALSE
-Multiplayer,Prestige,Spliced Prestige 10,Bouncer,Get 50 Kills while the buff from Enforcer Combat Specialty is active,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,10.0,25.0,50.0,TRUE,FALSE
-Multiplayer,Prestige,Spliced Prestige 10,Assassinated,Get a Kill without taking damage 20 times while using the Recon Combat Specialty,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,5.0,10.0,20.0,TRUE,FALSE
-Multiplayer,Prestige,Spliced Prestige 10,Cashing In,"Earn 10,000 bonus Score from the Strategist Combat Specialty",TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,2000.0,5000.0,10000.0,TRUE,FALSE
+Multiplayer,Prestige,Super Killer Prestige 1,Super Fury,Earn 5 Fury Kill Medals (4 rapid kills),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,,,TRUE,FALSE
+Multiplayer,Prestige,Super Killer Prestige 1,Super Thirsty,Earn 5 Objective Kills without dying,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Multiplayer,Prestige,Super Killer Prestige 1,Super Merciless,Get 10 Kills with Weapons without dying (all Kills must come from Weapons),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Multiplayer,Prestige,Super Killer Prestige 1,Super Ruthless,Get 15 Kills without dying or activating any Scorestreaks,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Multiplayer,Prestige,Master Of Arms Prestige 2,Ol' Reliable,Get 300 Eliminations with Assault Rifles,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,50.0,150.0,300.0,TRUE,FALSE
+Multiplayer,Prestige,Master Of Arms Prestige 2,Rusher for Life,Get 300 Eliminations with SMGs,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,50.0,150.0,300.0,TRUE,FALSE
+Multiplayer,Prestige,Master Of Arms Prestige 2,Buckshot,Get 150 Point Blank Kills with Shotguns,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,25.0,75.0,150.0,TRUE,FALSE
+Multiplayer,Prestige,Master Of Arms Prestige 2,Squad Support,Get 300 Eliminations with LMGs,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,50.0,150.0,300.0,TRUE,FALSE
+Multiplayer,Prestige,Master Of Arms Prestige 2,Center Mass,Get 100 One Shot Kills with Sniper Rifles,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,25.0,50.0,100.0,TRUE,FALSE
+Multiplayer,Prestige,Master Of Arms Prestige 2,Faster Than Reloading,Get 150 Eliminations with Pistols,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,25.0,75.0,150.0,TRUE,FALSE
+Multiplayer,Prestige,Perk Pro Prestige 3,Running and Gunning,With the Gung Ho Perk equipped: get 25 Weapon Kills while sprinting,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,25.0,,,TRUE,FALSE
+Multiplayer,Prestige,Perk Pro Prestige 3,Steeled Resolve,With the Close Shave Perk equipped: get 30 Kills with Melee Weapons,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,30.0,,,TRUE,FALSE
+Multiplayer,Prestige,Perk Pro Prestige 3,Vultured,With the Scavenger Perk equipped: Kill an enemy after collecting ammo from an Ammo Pack 25 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,25.0,,,TRUE,FALSE
+Multiplayer,Prestige,Perk Pro Prestige 3,Unbreakable,With the Flak Jacket Perk equipped: get 5 Kills while damaged by an enemy Lethal,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,,,TRUE,FALSE
+Multiplayer,Prestige,Perk Pro Prestige 3,Saboteur,With the Engineer Perk equipped: destroy 10 enemy Scorestreaks or Equipment,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,10.0,,,TRUE,FALSE
+Multiplayer,Prestige,Perk Pro Prestige 3,Linked Up,With the Charge Link Perk equipped: Kill 20 enemies with or while assisted by Field Upgrades,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,20.0,,,TRUE,FALSE
+Multiplayer,Prestige,Big Plays Prestige 4,Movie Star,Get featured in the Best Play 10 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
+Multiplayer,Prestige,Big Plays Prestige 4,High Scorer,"Earn 10,000 Score in a single match",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Multiplayer,Prestige,Big Plays Prestige 4,Gear Horde,Get a Kill with 5 Weapons you picked up in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Multiplayer,Prestige,Big Plays Prestige 4,Keep it 100,Get 100 Eliminations with a Weapon equipped with Shattered Gold Camo,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,100.0,,,TRUE,FALSE
+Multiplayer,Prestige,Big Plays Prestige 4,Jackpot,Get 5 Kills with a single Scorestreak acquired from a Care Package,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Multiplayer,Prestige,Big Plays Prestige 4,Bling,Get 250 Eliminations with a Weapon equipped with Arclight Camo,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,250.0,,,TRUE,FALSE
+Multiplayer,Prestige,Trade Tools Prestige 5,Can't Hide,Shoot through a wall to Kill an enemy revealed by your Pinpoint Grenade 3 times,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,,,1.0,2.0,3.0,TRUE,FALSE
+Multiplayer,Prestige,Trade Tools Prestige 5,Strange Trip,Kill 15 enemies who are halucinating from your Psych Grenade Tactical or Cradle Trap Field Upgrade,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,10.0,15.0,TRUE,FALSE
+Multiplayer,Prestige,Trade Tools Prestige 5,Fun Police,"Destroy 25 Scorestreaks, Equipment, or Field Upgrades with the Hunter Bot Tactical",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,10.0,25.0,TRUE,FALSE
+Multiplayer,Prestige,Trade Tools Prestige 5,Luck or Skill?,Kill an enemy from at least 40 meters away with a thrown Lethal 15 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,10.0,15.0,TRUE,FALSE
+Multiplayer,Prestige,Trade Tools Prestige 5,Grouped Up,Get 30 Kills with the Cluster Grenade Lethal,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,15.0,30.0,TRUE,FALSE
+Multiplayer,Prestige,Trade Tools Prestige 5,Remote Operations,"Get 25 Objective Kills with the Point Turret, C4, or the Needle Drone Lethals",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,15.0,25.0,TRUE,FALSE
+Multiplayer,Prestige,Special Ops Expert Prestige 6,Getting W's,"Earn 15,000 Objective Score",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5000.0,10000.0,15000.0,TRUE,FALSE
+Multiplayer,Prestige,Special Ops Expert Prestige 6,Blitzkrieg,Earn 10 Objective Kills in a single match 15 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,10.0,15.0,TRUE,FALSE
+Multiplayer,Prestige,Special Ops Expert Prestige 6,The Iron Curtain,Get 2 Kills while defending Objectives without leaving the Objective 15 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,10.0,15.0,TRUE,FALSE
+Multiplayer,Prestige,Special Ops Expert Prestige 6,Is it a Spider?,Kill an enemy with a Body Shield Explosion 3 times,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,,,1.0,2.0,3.0,TRUE,FALSE
+Multiplayer,Prestige,Special Ops Expert Prestige 6,Subterfuge,With a Suppressor Attachment equipped: Kill an enemy from behind with a Sniper Rifle 5 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,,,TRUE,FALSE
+Multiplayer,Prestige,Special Ops Expert Prestige 6,And My Axe,Get 3 Kills with the Combat Axe Lethal without dying,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Multiplayer,Prestige,Advanced Systems Prestige 7,On the Fritz,Affect 2 or more items with a single EMP Grenade Tactical 5 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,,,TRUE,FALSE
+Multiplayer,Prestige,Advanced Systems Prestige 7,Hunter/Killer,Get a Kill while piloting the Needle Drone Lethal 10 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,10.0,,,TRUE,FALSE
+Multiplayer,Prestige,Advanced Systems Prestige 7,Cloak Engaged,Get 15 Headshots while cloaked from the Active Camo Field Upgrade,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,15.0,,,TRUE,FALSE
+Multiplayer,Prestige,Advanced Systems Prestige 7,Now That's Just Rude,Kill 3 enemies in a single match with the Skewer Scorestreak,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Multiplayer,Prestige,Advanced Systems Prestige 7,Surprise Snipe,Kill 15 enemies through walls with the Gravemaker Scorestreak,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,15.0,,,TRUE,FALSE
+Multiplayer,Prestige,Advanced Systems Prestige 7,I'm In,Steal 5 Equipment or Scorestreaks with the Black Hat Field Upgrade,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,,,TRUE,FALSE
+Multiplayer,Prestige,Royal Flush Prestige 8,Fully Loaded,Get a Double Kill with both equipped Primary Weapons in the same life 3 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,3.0,,,TRUE,FALSE
+Multiplayer,Prestige,Royal Flush Prestige 8,One Man Army,With the Specialist Wildcard equipped: get 15 Kills while the Specialist Bonus is active,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,15.0,,,TRUE,FALSE
+Multiplayer,Prestige,Royal Flush Prestige 8,Very Greedy,With the Perk Greed Wildcard and 4 Perks of the same Combat Specialty equipped: get 100 Eliminations,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,100.0,,,TRUE,FALSE
+Multiplayer,Prestige,Royal Flush Prestige 8,Darken the Sky,With the High Roller Wildcard equipped: get a Kill with 4 different Scorestreaks in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Multiplayer,Prestige,Royal Flush Prestige 8,Catch,With the Danger Close Wildcard equipped: get 3 Kills with a Lethal without dying 5 times (excluding Combat Axes),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,,,TRUE,FALSE
+Multiplayer,Prestige,Royal Flush Prestige 8,Finely Tuned,With the Gunfighter Wildcard equipped: get 3 Triple Kills with a Weapon that has 8 Attachments equipped,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,3.0,,,TRUE,FALSE
+Multiplayer,Prestige,Death Architect Prestige 9,Ready for Anything,Get a Kill with an Underbarrel Launcher equipped to an Assault Rifle 30 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,15.0,30.0,TRUE,FALSE
+Multiplayer,Prestige,Death Architect Prestige 9,Heavy Blockade,Get 50 Objective Kills while using a Control Stock Attachment,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,10.0,25.0,50.0,TRUE,FALSE
+Multiplayer,Prestige,Death Architect Prestige 9,Bottomless Mags,Get 3 Kills without reloading uing an Extended Magazine Attachment 10 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
+Multiplayer,Prestige,Death Architect Prestige 9,Quickdraw,With a Quickdraw Grip Attachment equipped: get a Kill immediately after aiming down sights 50 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,10.0,25.0,50.0,TRUE,FALSE
+Multiplayer,Prestige,Death Architect Prestige 9,Rushed Down,"Get 10 Double Kills with an SMG equipped with Grip, Stock, Magazine, and Muzzle Attachments",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,10.0,,,TRUE,FALSE
+Multiplayer,Prestige,Death Architect Prestige 9,Expert Marksman,Get 25 Headshots while focused with a High Zoom Optic on a Sniper Rifle or Marksman Rifle,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,25.0,,,TRUE,FALSE
+Multiplayer,Prestige,Spliced Prestige 10,Silent Benefactor,Get 50 Stealth Kills while using the Operative Hybrid Combat Specialty,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,10.0,25.0,50.0,TRUE,FALSE
+Multiplayer,Prestige,Spliced Prestige 10,Phantom Strike,Get 50 Kills while hidden from the minimap from the Scout Hybrid Combat Specialty,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,10.0,25.0,50.0,TRUE,FALSE
+Multiplayer,Prestige,Spliced Prestige 10,Immovable Object,Get 50 Kills while the buff from the Tactician Hybrid Combat Specialty is active,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,10.0,25.0,50.0,TRUE,FALSE
+Multiplayer,Prestige,Spliced Prestige 10,Bouncer,Get 50 Kills while the buff from Enforcer Combat Specialty is active,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,10.0,25.0,50.0,TRUE,FALSE
+Multiplayer,Prestige,Spliced Prestige 10,Assassinated,Get a Kill without taking damage 20 times while using the Recon Combat Specialty,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,10.0,20.0,TRUE,FALSE
+Multiplayer,Prestige,Spliced Prestige 10,Cashing In,"Earn 10,000 bonus Score from the Strategist Combat Specialty",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,2000.0,5000.0,10000.0,TRUE,FALSE
 Multiplayer,Prestige,Ancient Veteran Prestige Master,Blood Drink,Earn 50 Bloodthirsty Medals (Get 5 Kills without dying),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,10.0,20.0,30.0,40.0,50.0,TRUE,FALSE
 Multiplayer,Prestige,Ancient Veteran Prestige Master,Warmonger,"Destroy 75 Scorestreaks, Equipment, or Field Upgrades",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,15.0,30.0,45.0,60.0,75.0,TRUE,FALSE
 Multiplayer,Prestige,Ancient Veteran Prestige Master,Big Game Hunter,"Earn 125 One Shot, One Kill Medals",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,25.0,50.0,75.0,100.0,125.0,TRUE,FALSE
 Multiplayer,Prestige,Ancient Veteran Prestige Master,Pack Mentality,Get 250 Objective Kills,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,50.0,100.0,150.0,200.0,250.0,TRUE,FALSE
 Multiplayer,Prestige,Ancient Veteran Prestige Master,Skull Collector,Get 500 Headshots,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,100.0,200.0,300.0,400.0,500.0,TRUE,FALSE
 Multiplayer,Prestige,Ancient Veteran Prestige Master,Well-Laid Plans,Get 125 Kills with Lethals or Field Upgrades,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,25.0,50.0,75.0,50.0,125.0,TRUE,FALSE
-Multiplayer,Dark Ops,Dark Ops,Frenzy Killer,Get a Frenzy Kill Medal (5 rapid Kills),TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Multiplayer,Dark Ops,Dark Ops,Mega Killer,Get a Mega Kill Medal (6 rapid Kills),TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Multiplayer,Dark Ops,Dark Ops,Ultra Killer,Get a Ultra Kill Medal (7 rapid Kills),FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,,,,TRUE,FALSE
-Multiplayer,Dark Ops,Dark Ops,Chain Killer,Get a Chain Kill Medal (more than 7 rapid Kills),FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,,,,TRUE,FALSE
-Multiplayer,Dark Ops,Dark Ops,Relentless Killer,Earn a Relentless Medal (20 Kills without dying),FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,,,,TRUE,FALSE
-Multiplayer,Dark Ops,Dark Ops,Brutal Killer,Earn a Brutal Medal (25 Kills without dying),FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,,,,TRUE,FALSE
-Multiplayer,Dark Ops,Dark Ops,Nuclear Killer,Earn a Nuclear Medal (30 Kills without dying),FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,,,,TRUE,FALSE
-Multiplayer,Dark Ops,Dark Ops,100k,"Get 100,000 Eliminations",FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,,,,TRUE,FALSE
-Multiplayer,Dark Ops,Dark Ops,Very Nuclear,Earn a Nuke with 25 different Weapons (all Kills towards each Nuke must come from a single Weapon),FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,,,,TRUE,FALSE
-Multiplayer,Dark Ops,Dark Ops,Nuked Out,Earn a Nuke in FFA without using Scorestreaks,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,,,,TRUE,FALSE
-Multiplayer,Dark Ops,Dark Ops,Circus Act,Earn a Bankshot Medal (Killed an enemy by banking the Combat Axe off a surface),FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,,,,TRUE,FALSE
-Multiplayer,Dark Ops,Dark Ops,Extreme Precision,Get 5 Headshots with a Sniper Rifle without reloading or dying,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,,,,TRUE,FALSE
-Multiplayer,Dark Ops,Dark Ops,Pushing the Limits,Unlock all Overclocks for 40 different items,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,,,,TRUE,FALSE
-Multiplayer,Dark Ops,Dark Ops,Same Day Delivery,Get 2 or more kills with a single Body Shield Explosion,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,,,,TRUE,FALSE
-Multiplayer,Dark Ops,Dark Ops,Touch Grass,Reach Weapon Prestige Master Max Level with 30 Weapons,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,,,,TRUE,FALSE
-Multiplayer,Dark Ops,Dark Ops,Trip Cap,Control all 3 objectives in Domination for 3 minutes straight,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,,,,TRUE,FALSE
-Multiplayer,Dark Ops,Dark Ops,Castled,Get 10 Kills without leaving one Objective Zone,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,,,,TRUE,FALSE
-Multiplayer,Dark Ops,Dark Ops,Reverse Card,Kill an enemy with the explosion caused by shooting an enemy piece of Equipment or Field Upgrade 1 time,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Multiplayer,Dark Ops,Dark Ops,Gift Horse,Kill an enemy with the Scorestreak you stole from their Care Package,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,,,,TRUE,FALSE
-Multiplayer,Dark Ops,Dark Ops,Hardcore Parkour,Finish the Ascent Freerun course in under 10 minutes 30 seconds with no Faults,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,,,,TRUE,FALSE
+Multiplayer,Dark Ops,Dark Ops,Frenzy Killer,Get a Frenzy Kill Medal (5 rapid Kills),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Multiplayer,Dark Ops,Dark Ops,Mega Killer,Get a Mega Kill Medal (6 rapid Kills),TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Multiplayer,Dark Ops,Dark Ops,Ultra Killer,Get a Ultra Kill Medal (7 rapid Kills),TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Multiplayer,Dark Ops,Dark Ops,Chain Killer,Get a Chain Kill Medal (more than 7 rapid Kills),TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Multiplayer,Dark Ops,Dark Ops,Relentless Killer,Earn a Relentless Medal (20 Kills without dying),TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Multiplayer,Dark Ops,Dark Ops,Brutal Killer,Earn a Brutal Medal (25 Kills without dying),TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Multiplayer,Dark Ops,Dark Ops,Nuclear Killer,Earn a Nuclear Medal (30 Kills without dying),TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Multiplayer,Dark Ops,Dark Ops,100k,"Get 100,000 Eliminations",TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Multiplayer,Dark Ops,Dark Ops,Very Nuclear,Earn a Nuke with 25 different Weapons (all Kills towards each Nuke must come from a single Weapon),TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Multiplayer,Dark Ops,Dark Ops,Nuked Out,Earn a Nuke in FFA without using Scorestreaks,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Multiplayer,Dark Ops,Dark Ops,Circus Act,Earn a Bankshot Medal (Killed an enemy by banking the Combat Axe off a surface),TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Multiplayer,Dark Ops,Dark Ops,Extreme Precision,Get 5 Headshots with a Sniper Rifle without reloading or dying,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Multiplayer,Dark Ops,Dark Ops,Pushing the Limits,Unlock all Overclocks for 40 different items,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Multiplayer,Dark Ops,Dark Ops,Same Day Delivery,Get 2 or more kills with a single Body Shield Explosion,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Multiplayer,Dark Ops,Dark Ops,Touch Grass,Reach Weapon Prestige Master Max Level with 30 Weapons,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Multiplayer,Dark Ops,Dark Ops,Trip Cap,Control all 3 objectives in Domination for 3 minutes straight,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Multiplayer,Dark Ops,Dark Ops,Castled,Get 10 Kills without leaving one Objective Zone,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Multiplayer,Dark Ops,Dark Ops,Reverse Card,Kill an enemy with the explosion caused by shooting an enemy piece of Equipment or Field Upgrade 1 time,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Multiplayer,Dark Ops,Dark Ops,Gift Horse,Kill an enemy with the Scorestreak you stole from their Care Package,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Multiplayer,Dark Ops,Dark Ops,Hardcore Parkour,Finish the Ascent Freerun course in under 10 minutes 30 seconds with no Faults,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE

@@ -1,126 +1,126 @@
 mode,category,sub_category,challenge,requirement,tier1_complete,tier2_complete,tier3_complete,tier4_complete,tier5_complete,completed,tier1_target,tier2_target,tier3_target,tier4_target,tier5_target,counts_for_100_percent,display_as_extra
-Warzone,Career,Basic Training,Elimination Extravaganza,Get 5 Eliminations,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,5.0,,,,,TRUE,FALSE
-Warzone,Career,Basic Training,Homework,Complete 3 Contracts,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,3.0,,,,,TRUE,FALSE
-Warzone,Career,Basic Training,Boxing Day,Open 10 Loot Crates,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,10.0,,,,,TRUE,FALSE
-Warzone,Career,Basic Training,And Another One,Complete 3 Matches,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,3.0,,,,,TRUE,FALSE
-Warzone,Career,Basic Training,Pings and Needles,Live Ping 2 enemies,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,2.0,,,,,TRUE,FALSE
-Warzone,Career,Basic Training,Deep Pockets,Make 15 Purchases at Buy Stations,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,15.0,,,,,TRUE,FALSE
-Warzone,Career,Warzone Tactician,Down Range,Get 20 Eliminations with SMGs while aiming down sights,TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,5.0,10.0,20,,,TRUE,FALSE
-Warzone,Career,Warzone Tactician,A Familiar Place,Earn 3 Top 10 Placements,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,3.0,,,,,TRUE,FALSE
-Warzone,Career,Warzone Tactician,Keep Fighting,"Deploy 3 Armor, Ammo, or Utility Boxes",TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,3.0,,,,,TRUE,FALSE
-Warzone,Career,Warzone Tactician,Spot and Snipe,Get 5 Eliminations with Sniper Rifles while aiming down sights,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,5.0,,,,,TRUE,FALSE
-Warzone,Career,Warzone Tactician,Crate Raider,Open a Legendary Supply Crate,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,1.0,,,,,TRUE,FALSE
-Warzone,Career,Warzone Tactician,Custom Service,Complete 2 Supply Run Contracts,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,2.0,,,,,TRUE,FALSE
+Warzone,Career,Basic Training,Elimination Extravaganza,Get 5 Eliminations,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5.0,,,,,TRUE,FALSE
+Warzone,Career,Basic Training,Homework,Complete 3 Contracts,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,3.0,,,,,TRUE,FALSE
+Warzone,Career,Basic Training,Boxing Day,Open 10 Loot Crates,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,10.0,,,,,TRUE,FALSE
+Warzone,Career,Basic Training,And Another One,Complete 3 Matches,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,3.0,,,,,TRUE,FALSE
+Warzone,Career,Basic Training,Pings and Needles,Live Ping 2 enemies,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,2.0,,,,,TRUE,FALSE
+Warzone,Career,Basic Training,Deep Pockets,Make 15 Purchases at Buy Stations,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,15.0,,,,,TRUE,FALSE
+Warzone,Career,Warzone Tactician,Down Range,Get 20 Eliminations with SMGs while aiming down sights,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5.0,10.0,20,,,TRUE,FALSE
+Warzone,Career,Warzone Tactician,A Familiar Place,Earn 3 Top 10 Placements,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,3.0,,,,,TRUE,FALSE
+Warzone,Career,Warzone Tactician,Keep Fighting,"Deploy 3 Armor, Ammo, or Utility Boxes",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,3.0,,,,,TRUE,FALSE
+Warzone,Career,Warzone Tactician,Spot and Snipe,Get 5 Eliminations with Sniper Rifles while aiming down sights,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5.0,,,,,TRUE,FALSE
+Warzone,Career,Warzone Tactician,Crate Raider,Open a Legendary Supply Crate,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,,,,,TRUE,FALSE
+Warzone,Career,Warzone Tactician,Custom Service,Complete 2 Supply Run Contracts,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,2.0,,,,,TRUE,FALSE
 Warzone,Career,Seasoned Soldier,Load n' Explode,Get 100 Eliminations with Loadout Weapons,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,10.0,25.0,50,75,100.0,TRUE,FALSE
 Warzone,Career,Seasoned Soldier,Can't Touch This,Get 2 Eliminations without dying 50 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5.0,10.0,20,30,50.0,TRUE,FALSE
 Warzone,Career,Seasoned Soldier,Mobility and Mayhem,Get 50 Eliminations while moving,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5.0,10.0,20,30,50.0,TRUE,FALSE
 Warzone,Career,Seasoned Soldier,The Crate Escape,Open 50 Legendary Supply Crates,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5.0,10.0,20,30,50.0,TRUE,FALSE
 Warzone,Career,Seasoned Soldier,Chronic Completionist,Complete 30 Contracts,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,3.0,5.0,10,20,30.0,TRUE,FALSE
 Warzone,Career,Seasoned Soldier,Cranium Pain,Get 50 Headshots,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5.0,10.0,20,30,50.0,TRUE,FALSE
-Warzone,Hardened,Weapon Specialist,One Thousand Cuts,Get 10 Eliminations with SMGs,TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,3.0,5.0,10.0,,,TRUE,FALSE
-Warzone,Hardened,Weapon Specialist,Fish in a Barrel,Get 10 Eliminations with Sniper Rifles,TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,3.0,5.0,10.0,,,TRUE,FALSE
-Warzone,Hardened,Weapon Specialist,Packing Heat,Get 5 Eliminations with Killstreaks,TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,1.0,3.0,5.0,,,TRUE,FALSE
-Warzone,Hardened,Weapon Specialist,Side Kick,Get 10 Eliminations with Pistols,TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,3.0,5.0,10.0,,,TRUE,FALSE
-Warzone,Hardened,Weapon Specialist,Workhorse,Get 10 Eliminations with Assault Rifles,TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,3.0,5.0,10.0,,,TRUE,FALSE
-Warzone,Hardened,Weapon Specialist,Ground Pound,Get 10 Eliminations using Ground Looted Weapons,TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,3.0,5.0,10.0,,,TRUE,FALSE
-Warzone,Hardened,Popping Off,Flawless Frogging,Get 2 Eliminations without taking damage in a single match 5 times,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,5.0,,,,,TRUE,FALSE
-Warzone,Hardened,Popping Off,Up Close,Get 2 Eliminations using hipfire without dying 2 times,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,2.0,,,,,TRUE,FALSE
-Warzone,Hardened,Popping Off,Sniped,Get 5 One-Shot Kills with Sniper Rifles,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,5.0,,,,,TRUE,FALSE
-Warzone,Hardened,Popping Off,Fearless Hunter,Complete 3 Bounty Contracts without dying 3 times,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,3.0,,,,,TRUE,FALSE
-Warzone,Hardened,Popping Off,Satisfied,Win 3 Matches,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,3.0,,,,,TRUE,FALSE
-Warzone,Hardened,Popping Off,Continuous,Get 3 Eliminations with guns without reloading,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,1.0,,,,,TRUE,FALSE
-Warzone,Hardened,Violent Tendencies,Pistolero,Get 5 Eliminations with Pistols while aiming down sights,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,5.0,,,,,TRUE,FALSE
-Warzone,Hardened,Violent Tendencies,Come Closer,Get 5 Eliminations with Melee Weapons,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,5.0,,,,,TRUE,FALSE
-Warzone,Hardened,Violent Tendencies,The Ultimate Insult,Get 3 Kills with grenade sticks,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,3.0,,,,,TRUE,FALSE
-Warzone,Hardened,Violent Tendencies,Finish Them,Perform 10 Finishing Moves,TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,3.0,5.0,10.0,,,TRUE,FALSE
-Warzone,Hardened,Violent Tendencies,Kill Collector,Get 2 One-Shot Kills with Sniper Rifles in a single match 3 times,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,3.0,,,,,TRUE,FALSE
-Warzone,Hardened,Violent Tendencies,Wanted Dead,Complete 3 Big Game Bounty Contracts,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,3.0,,,,,TRUE,FALSE
-Warzone,Prestige,Looter Shooter Prestige 1,Gun Nut,Loot 15 Weapons,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,5.0,10.0,15.0,TRUE,FALSE
-Warzone,Prestige,Looter Shooter Prestige 1,Level Up,Buy 5 Killstreaks at Buy Stations,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,5.0,,,TRUE,FALSE
-Warzone,Prestige,Looter Shooter Prestige 1,Cash Grab,Loot Cash 30 times,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,30.0,,,TRUE,FALSE
-Warzone,Prestige,Looter Shooter Prestige 1,Crate Expectations,Open 15 Loot Crates,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,15.0,,,TRUE,FALSE
-Warzone,Prestige,Looter Shooter Prestige 1,Buy and Fly,Make purchases at 3 different buy stations in a single match,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,1.0,,,TRUE,FALSE
-Warzone,Prestige,Looter Shooter Prestige 1,Vulture,Complete 2 Scavenger Contracts in a single match 5 times,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
-Warzone,Prestige,Weapon Wizardry Prestige 2,Assault Annihilator,Get 15 Eliminations with Assault Rifles,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,5.0,10.0,15.0,TRUE,FALSE
-Warzone,Prestige,Weapon Wizardry Prestige 2,Bullet Spitter,Get 15 Eliminations with SMGs,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,5.0,10.0,15.0,TRUE,FALSE
-Warzone,Prestige,Weapon Wizardry Prestige 2,Marksman Madness,Get 15 Eliminations with Marksman Rifles,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,5.0,10.0,15.0,TRUE,FALSE
-Warzone,Prestige,Weapon Wizardry Prestige 2,Sniper Spectacle,Get 15 Eliminations with Sniper Rifles,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,5.0,10.0,15.0,TRUE,FALSE
-Warzone,Prestige,Weapon Wizardry Prestige 2,Launcher Lunacy,Get 1 Elimination with Launchers,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,1.0,,,TRUE,FALSE
-Warzone,Prestige,Weapon Wizardry Prestige 2,Plus One,Get 3 Eliminations with Secondary Weapons,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,3.0,5.0,10.0,TRUE,FALSE
-Warzone,Prestige,Survival Instincts Prestige 3,Armor Up,Loot 30 Armor Plates,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,30.0,,,TRUE,FALSE
-Warzone,Prestige,Survival Instincts Prestige 3,Elevated,Earn 10 Top 15 placements,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
-Warzone,Prestige,Survival Instincts Prestige 3,Opportunist,Get 15 Eliminations using Ground Looted Weapons,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,5.0,10.0,15.0,TRUE,FALSE
-Warzone,Prestige,Survival Instincts Prestige 3,Cockroach,Buy Back or Revive 3 Players,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,3.0,,,TRUE,FALSE
-Warzone,Prestige,Survival Instincts Prestige 3,Fieldwork,Deploy 5 Field Upgrades,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,5.0,,,TRUE,FALSE
-Warzone,Prestige,Survival Instincts Prestige 3,Pingathon,Live Ping 2 enemies in a single match 1 time,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,1.0,,,TRUE,FALSE
-Warzone,Prestige,Combat Enthusiast Prestige 4,Locked in,Get 2 Eliminations with Assault Rifles without reloading 2 times,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,2.0,,,TRUE,FALSE
-Warzone,Prestige,Combat Enthusiast Prestige 4,Me Like Big Gun,Get 10 Eliminations with LMGs,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,3.0,5.0,10.0,TRUE,FALSE
-Warzone,Prestige,Combat Enthusiast Prestige 4,Road Rage,Get 5 Eliminations while riding in Vehicles,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,5.0,,,TRUE,FALSE
-Warzone,Prestige,Combat Enthusiast Prestige 4,Ping and Pop,Get 5 Eliminations on pinged enemies,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
-Warzone,Prestige,Combat Enthusiast Prestige 4,Insult and Injury,Get 10 Eliminations with Enemy Custom Weapons,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,3.0,5.0,10.0,TRUE,FALSE
-Warzone,Prestige,Combat Enthusiast Prestige 4,Head to Head,Get 2 Headshots in a single match 3 times,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,3.0,,,TRUE,FALSE
-Warzone,Prestige,Mission Completion Prestige 5,Data Scientist,Complete 10 Recon Contracts,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
-Warzone,Prestige,Mission Completion Prestige 5,Target Eliminator,Complete 10 Bounty Contracts,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
-Warzone,Prestige,Mission Completion Prestige 5,The Bigger Fish,Complete 5 Big Game Bounty Contracts,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
-Warzone,Prestige,Mission Completion Prestige 5,Go Go Go,Complete 10 Supply Run Contracts,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
-Warzone,Prestige,Mission Completion Prestige 5,Vulture,Complete 10 Scavenger Contracts,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
-Warzone,Prestige,Mission Completion Prestige 5,Marked for Death,Complete 5 Most Wanted Contracts,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
-Warzone,Prestige,Strategic Warfare Prestige 6,Eagle Eye,Activate 5 UAV Killstreaks,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,5.0,,,TRUE,FALSE
-Warzone,Prestige,Strategic Warfare Prestige 6,Bomb Drop,Activate 5 Cluster Strike Killstreaks,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,5.0,,,TRUE,FALSE
-Warzone,Prestige,Strategic Warfare Prestige 6,Air Support,Activate 5 Precision Air Strike Killstreaks,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,5.0,,,TRUE,FALSE
-Warzone,Prestige,Strategic Warfare Prestige 6,Self Care,Activate 3 Care Package Kill Streaks,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,3.0,,,TRUE,FALSE
-Warzone,Prestige,Strategic Warfare Prestige 6,Gold Digger,Get 3 Kills with Killstreaks,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,3.0,,,TRUE,FALSE
-Warzone,Prestige,Strategic Warfare Prestige 6,Renovator,Activate 2 Bunker Buster Killstreaks,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,2.0,,,TRUE,FALSE
-Warzone,Prestige,Lethal Hand Prestige 7,Primed,Get 5 Kills with Frag Grenades,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
-Warzone,Prestige,Lethal Hand Prestige 7,Claw Through,Get 3 Kills with Lethals,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,2.0,3.0,TRUE,FALSE
-Warzone,Prestige,Lethal Hand Prestige 7,Axe Chucker,Get 5 Kills with Combat Axes,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
-Warzone,Prestige,Lethal Hand Prestige 7,Effortless,Get 3 Kills with C4,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,2.0,3.0,TRUE,FALSE
-Warzone,Prestige,Lethal Hand Prestige 7,Burning Desire,Get 5 Kills with Molotovs,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
-Warzone,Prestige,Lethal Hand Prestige 7,Clingy,Get 5 Kills with Semtex,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
-Warzone,Prestige,Winner Winner Prestige 8,Built to Win,Purchase 10 Loadout Drops,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
-Warzone,Prestige,Winner Winner Prestige 8,Finders Killers,Get 3 Eliminations with Enemy Weapons without dying,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,1.0,,,TRUE,FALSE
-Warzone,Prestige,Winner Winner Prestige 8,Top of Class,Earn 3 Top 5 Placements,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,3.0,,,TRUE,FALSE
-Warzone,Prestige,Winner Winner Prestige 8,Heads Up,Get 3 Headshots with Sniper Rifles in a single match,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,1.0,,,TRUE,FALSE
-Warzone,Prestige,Winner Winner Prestige 8,Loot and Scoot,Open 3 Legendary Supply Crates without dying,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,1.0,,,TRUE,FALSE
-Warzone,Prestige,Winner Winner Prestige 8,Lobby Clearer,Wipe 5 Squads,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
-Warzone,Prestige,Headhole Prestige 9,Headshot Hotshot,Get 5 Eliminations with Assault Rifles,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
-Warzone,Prestige,Headhole Prestige 9,Fragger Fiend,Get 5 Headshots with SMGs,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
-Warzone,Prestige,Headhole Prestige 9,Perfect Perforator,Get 5 Headshots with Marksman Rifles,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
-Warzone,Prestige,Headhole Prestige 9,Sniper Sage,Get 5 Headshots with Sniper Rifles,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
-Warzone,Prestige,Headhole Prestige 9,Noggin Knocker,Get 5 Headshots with LMGs,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
-Warzone,Prestige,Headhole Prestige 9,Dome Dinger,Get 3 Headshots with Pistols,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,2.0,3.0,TRUE,FALSE
-Warzone,Prestige,Gladiator Prestige 10,Flex,Get 10 Eliminations with Melee Weapons,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
-Warzone,Prestige,Gladiator Prestige 10,Brutal,Get 10 Eliminations with Shotguns,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
-Warzone,Prestige,Gladiator Prestige 10,Master of Arms,Get 6 Headshots in a single match 10 times,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
-Warzone,Prestige,Gladiator Prestige 10,Know Your Enemy,Get 4 Eliminations with Enemy Weapons in a single match 3 times,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,3.0,,,TRUE,FALSE
-Warzone,Prestige,Gladiator Prestige 10,Keep it Tight,Get 2 Eliminations using hipfire in a single match 5 times,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,5.0,,,TRUE,FALSE
-Warzone,Prestige,Gladiator Prestige 10,The Most Dangerous Game,Complete 2 Big Game Bounty Contracts in a single match,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,1.0,,,TRUE,FALSE
-Warzone,Prestige,Ultimate Threat Prestige Master,Terminator,Get 3 Eliminations without dying 20 times,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,5.0,10.0,20.0,TRUE,FALSE
-Warzone,Prestige,Ultimate Threat Prestige Master,Make it Stick,Get 5 Kills with grenade sticks,FALSE,FALSE,TRUE,TRUE,FALSE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
-Warzone,Prestige,Ultimate Threat Prestige Master,Game Ender,Win 10 Matches,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
-Warzone,Prestige,Ultimate Threat Prestige Master,Killer Spotlight,Get 10 Eliminations while being a Most Wanted target,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
-Warzone,Prestige,Ultimate Threat Prestige Master,Gambit Runner,Complete 2 Big Game Bounty Contracts without dying 10 times,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
-Warzone,Prestige,Ultimate Threat Prestige Master,Performer,Get 5 Eliminations in a single match 15 times,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,,,5.0,10.0,15.0,TRUE,FALSE
-Warzone,Dark Ops,Ultimate Threat Prestige Master,Blind Lead,Get an Elimination using hipfire with a Sniper Rifle,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Warzone,Dark Ops,Ultimate Threat Prestige Master,Holstered,Get 5 Eliminations with Pistols in a single match,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Warzone,Dark Ops,Ultimate Threat Prestige Master,Boom Boom,Get 5 Eliminations with Launchers in a single match,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Warzone,Dark Ops,Ultimate Threat Prestige Master,Chop Chop,Get 1 Elimination while riding helicopters,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Warzone,Dark Ops,Ultimate Threat Prestige Master,Repeat Exploder,Get 3 Eliminations by sticking an enemy with a grenade in a single match,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Warzone,Dark Ops,Ultimate Threat Prestige Master,Make it Stick,Get an Elimination on a Most Wanted Contract Target with a grenade stick,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,,,,FALSE,TRUE
-Warzone,Dark Ops,Ultimate Threat Prestige Master,Last Cap Standing,Complete 5 Recon Contracts in a single match,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Warzone,Dark Ops,Ultimate Threat Prestige Master,Next,Complete 5 Bounty Contracts in a single match,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Warzone,Dark Ops,Ultimate Threat Prestige Master,Humbled,Complete 3 Big Game Bounty Contracts in a single match,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Warzone,Dark Ops,Ultimate Threat Prestige Master,Gotta Run,Complete 5 Supply Run Contracts in a single match,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,,,,FALSE,TRUE
-Warzone,Dark Ops,Ultimate Threat Prestige Master,All Mine,Complete 5 Scavenger Contracts in a single match,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,,,,FALSE,TRUE
-Warzone,Dark Ops,Ultimate Threat Prestige Master,Ascendance,Win 1 Match without dying,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Warzone,Dark Ops,Ultimate Threat Prestige Master,Flawless Feed,Get 4 Eliminations with Guns without reloading in a single match,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Warzone,Dark Ops,Ultimate Threat Prestige Master,One Round Crowns,Get 100 Headshots,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Warzone,Dark Ops,Ultimate Threat Prestige Master,Backlog,Complete 7 Contracts in a single match,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Warzone,Dark Ops,Ultimate Threat Prestige Master,Sliced,Get 5 Eliminations with Melee Weapons in a single match,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Warzone,Dark Ops,Ultimate Threat Prestige Master,The Cleaner,Wipe 50 Squads,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Warzone,Dark Ops,Ultimate Threat Prestige Master,Deleted,Get 20 Eliminations in a single match,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Warzone,Dark Ops,Ultimate Threat Prestige Master,Ground War,Get 100 Eliminations with Ground Loot Weapons,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Warzone,Dark Ops,Ultimate Threat Prestige Master,Efficient Execution,Get 5 One-Shot Eliminations with Sniper Rifles in a single match,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Warzone,Dark Ops,Ultimate Threat Prestige Master,Royalty,Compelte all 9 Black Ops Royale Operator Orders,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,,,,FALSE,TRUE
-Warzone,Dark Ops,Mastery,Warzone Dark Ops Master,Unlock the Warzone Dark Ops Master calling card.,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Warzone,100 Percenter,Mode Completion,Warzone 100 Percenter,Unlock the Warzone 100 Percenter calling card.,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
+Warzone,Hardened,Weapon Specialist,One Thousand Cuts,Get 10 Eliminations with SMGs,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,3.0,5.0,10.0,,,TRUE,FALSE
+Warzone,Hardened,Weapon Specialist,Fish in a Barrel,Get 10 Eliminations with Sniper Rifles,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,3.0,5.0,10.0,,,TRUE,FALSE
+Warzone,Hardened,Weapon Specialist,Packing Heat,Get 5 Eliminations with Killstreaks,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,3.0,5.0,,,TRUE,FALSE
+Warzone,Hardened,Weapon Specialist,Side Kick,Get 10 Eliminations with Pistols,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,3.0,5.0,10.0,,,TRUE,FALSE
+Warzone,Hardened,Weapon Specialist,Workhorse,Get 10 Eliminations with Assault Rifles,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,3.0,5.0,10.0,,,TRUE,FALSE
+Warzone,Hardened,Weapon Specialist,Ground Pound,Get 10 Eliminations using Ground Looted Weapons,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,3.0,5.0,10.0,,,TRUE,FALSE
+Warzone,Hardened,Popping Off,Flawless Frogging,Get 2 Eliminations without taking damage in a single match 5 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5.0,,,,,TRUE,FALSE
+Warzone,Hardened,Popping Off,Up Close,Get 2 Eliminations using hipfire without dying 2 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,2.0,,,,,TRUE,FALSE
+Warzone,Hardened,Popping Off,Sniped,Get 5 One-Shot Kills with Sniper Rifles,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5.0,,,,,TRUE,FALSE
+Warzone,Hardened,Popping Off,Fearless Hunter,Complete 3 Bounty Contracts without dying 3 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,3.0,,,,,TRUE,FALSE
+Warzone,Hardened,Popping Off,Satisfied,Win 3 Matches,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,3.0,,,,,TRUE,FALSE
+Warzone,Hardened,Popping Off,Continuous,Get 3 Eliminations with guns without reloading,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,,,,,TRUE,FALSE
+Warzone,Hardened,Violent Tendencies,Pistolero,Get 5 Eliminations with Pistols while aiming down sights,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5.0,,,,,TRUE,FALSE
+Warzone,Hardened,Violent Tendencies,Come Closer,Get 5 Eliminations with Melee Weapons,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5.0,,,,,TRUE,FALSE
+Warzone,Hardened,Violent Tendencies,The Ultimate Insult,Get 3 Kills with grenade sticks,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,3.0,,,,,TRUE,FALSE
+Warzone,Hardened,Violent Tendencies,Finish Them,Perform 10 Finishing Moves,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,3.0,5.0,10.0,,,TRUE,FALSE
+Warzone,Hardened,Violent Tendencies,Kill Collector,Get 2 One-Shot Kills with Sniper Rifles in a single match 3 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,3.0,,,,,TRUE,FALSE
+Warzone,Hardened,Violent Tendencies,Wanted Dead,Complete 3 Big Game Bounty Contracts,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,3.0,,,,,TRUE,FALSE
+Warzone,Prestige,Looter Shooter Prestige 1,Gun Nut,Loot 15 Weapons,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,10.0,15.0,TRUE,FALSE
+Warzone,Prestige,Looter Shooter Prestige 1,Level Up,Buy 5 Killstreaks at Buy Stations,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,,,TRUE,FALSE
+Warzone,Prestige,Looter Shooter Prestige 1,Cash Grab,Loot Cash 30 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,30.0,,,TRUE,FALSE
+Warzone,Prestige,Looter Shooter Prestige 1,Crate Expectations,Open 15 Loot Crates,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,15.0,,,TRUE,FALSE
+Warzone,Prestige,Looter Shooter Prestige 1,Buy and Fly,Make purchases at 3 different buy stations in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Warzone,Prestige,Looter Shooter Prestige 1,Vulture,Complete 2 Scavenger Contracts in a single match 5 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
+Warzone,Prestige,Weapon Wizardry Prestige 2,Assault Annihilator,Get 15 Eliminations with Assault Rifles,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,10.0,15.0,TRUE,FALSE
+Warzone,Prestige,Weapon Wizardry Prestige 2,Bullet Spitter,Get 15 Eliminations with SMGs,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,10.0,15.0,TRUE,FALSE
+Warzone,Prestige,Weapon Wizardry Prestige 2,Marksman Madness,Get 15 Eliminations with Marksman Rifles,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,10.0,15.0,TRUE,FALSE
+Warzone,Prestige,Weapon Wizardry Prestige 2,Sniper Spectacle,Get 15 Eliminations with Sniper Rifles,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,10.0,15.0,TRUE,FALSE
+Warzone,Prestige,Weapon Wizardry Prestige 2,Launcher Lunacy,Get 1 Elimination with Launchers,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Warzone,Prestige,Weapon Wizardry Prestige 2,Plus One,Get 3 Eliminations with Secondary Weapons,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,3.0,5.0,10.0,TRUE,FALSE
+Warzone,Prestige,Survival Instincts Prestige 3,Armor Up,Loot 30 Armor Plates,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,30.0,,,TRUE,FALSE
+Warzone,Prestige,Survival Instincts Prestige 3,Elevated,Earn 10 Top 15 placements,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
+Warzone,Prestige,Survival Instincts Prestige 3,Opportunist,Get 15 Eliminations using Ground Looted Weapons,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,10.0,15.0,TRUE,FALSE
+Warzone,Prestige,Survival Instincts Prestige 3,Cockroach,Buy Back or Revive 3 Players,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,3.0,,,TRUE,FALSE
+Warzone,Prestige,Survival Instincts Prestige 3,Fieldwork,Deploy 5 Field Upgrades,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,,,TRUE,FALSE
+Warzone,Prestige,Survival Instincts Prestige 3,Pingathon,Live Ping 2 enemies in a single match 1 time,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Warzone,Prestige,Combat Enthusiast Prestige 4,Locked in,Get 2 Eliminations with Assault Rifles without reloading 2 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,2.0,,,TRUE,FALSE
+Warzone,Prestige,Combat Enthusiast Prestige 4,Me Like Big Gun,Get 10 Eliminations with LMGs,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,3.0,5.0,10.0,TRUE,FALSE
+Warzone,Prestige,Combat Enthusiast Prestige 4,Road Rage,Get 5 Eliminations while riding in Vehicles,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,,,TRUE,FALSE
+Warzone,Prestige,Combat Enthusiast Prestige 4,Ping and Pop,Get 5 Eliminations on pinged enemies,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
+Warzone,Prestige,Combat Enthusiast Prestige 4,Insult and Injury,Get 10 Eliminations with Enemy Custom Weapons,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,3.0,5.0,10.0,TRUE,FALSE
+Warzone,Prestige,Combat Enthusiast Prestige 4,Head to Head,Get 2 Headshots in a single match 3 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,3.0,,,TRUE,FALSE
+Warzone,Prestige,Mission Completion Prestige 5,Data Scientist,Complete 10 Recon Contracts,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
+Warzone,Prestige,Mission Completion Prestige 5,Target Eliminator,Complete 10 Bounty Contracts,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
+Warzone,Prestige,Mission Completion Prestige 5,The Bigger Fish,Complete 5 Big Game Bounty Contracts,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
+Warzone,Prestige,Mission Completion Prestige 5,Go Go Go,Complete 10 Supply Run Contracts,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
+Warzone,Prestige,Mission Completion Prestige 5,Vulture,Complete 10 Scavenger Contracts,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
+Warzone,Prestige,Mission Completion Prestige 5,Marked for Death,Complete 5 Most Wanted Contracts,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
+Warzone,Prestige,Strategic Warfare Prestige 6,Eagle Eye,Activate 5 UAV Killstreaks,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,,,TRUE,FALSE
+Warzone,Prestige,Strategic Warfare Prestige 6,Bomb Drop,Activate 5 Cluster Strike Killstreaks,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,,,TRUE,FALSE
+Warzone,Prestige,Strategic Warfare Prestige 6,Air Support,Activate 5 Precision Air Strike Killstreaks,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,,,TRUE,FALSE
+Warzone,Prestige,Strategic Warfare Prestige 6,Self Care,Activate 3 Care Package Kill Streaks,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,3.0,,,TRUE,FALSE
+Warzone,Prestige,Strategic Warfare Prestige 6,Gold Digger,Get 3 Kills with Killstreaks,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,3.0,,,TRUE,FALSE
+Warzone,Prestige,Strategic Warfare Prestige 6,Renovator,Activate 2 Bunker Buster Killstreaks,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,2.0,,,TRUE,FALSE
+Warzone,Prestige,Lethal Hand Prestige 7,Primed,Get 5 Kills with Frag Grenades,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
+Warzone,Prestige,Lethal Hand Prestige 7,Claw Through,Get 3 Kills with Lethals,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,2.0,3.0,TRUE,FALSE
+Warzone,Prestige,Lethal Hand Prestige 7,Axe Chucker,Get 5 Kills with Combat Axes,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
+Warzone,Prestige,Lethal Hand Prestige 7,Effortless,Get 3 Kills with C4,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,2.0,3.0,TRUE,FALSE
+Warzone,Prestige,Lethal Hand Prestige 7,Burning Desire,Get 5 Kills with Molotovs,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
+Warzone,Prestige,Lethal Hand Prestige 7,Clingy,Get 5 Kills with Semtex,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
+Warzone,Prestige,Winner Winner Prestige 8,Built to Win,Purchase 10 Loadout Drops,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
+Warzone,Prestige,Winner Winner Prestige 8,Finders Killers,Get 3 Eliminations with Enemy Weapons without dying,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Warzone,Prestige,Winner Winner Prestige 8,Top of Class,Earn 3 Top 5 Placements,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,3.0,,,TRUE,FALSE
+Warzone,Prestige,Winner Winner Prestige 8,Heads Up,Get 3 Headshots with Sniper Rifles in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Warzone,Prestige,Winner Winner Prestige 8,Loot and Scoot,Open 3 Legendary Supply Crates without dying,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Warzone,Prestige,Winner Winner Prestige 8,Lobby Clearer,Wipe 5 Squads,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
+Warzone,Prestige,Headhole Prestige 9,Headshot Hotshot,Get 5 Eliminations with Assault Rifles,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
+Warzone,Prestige,Headhole Prestige 9,Fragger Fiend,Get 5 Headshots with SMGs,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
+Warzone,Prestige,Headhole Prestige 9,Perfect Perforator,Get 5 Headshots with Marksman Rifles,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
+Warzone,Prestige,Headhole Prestige 9,Sniper Sage,Get 5 Headshots with Sniper Rifles,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
+Warzone,Prestige,Headhole Prestige 9,Noggin Knocker,Get 5 Headshots with LMGs,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
+Warzone,Prestige,Headhole Prestige 9,Dome Dinger,Get 3 Headshots with Pistols,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,2.0,3.0,TRUE,FALSE
+Warzone,Prestige,Gladiator Prestige 10,Flex,Get 10 Eliminations with Melee Weapons,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
+Warzone,Prestige,Gladiator Prestige 10,Brutal,Get 10 Eliminations with Shotguns,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
+Warzone,Prestige,Gladiator Prestige 10,Master of Arms,Get 6 Headshots in a single match 10 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
+Warzone,Prestige,Gladiator Prestige 10,Know Your Enemy,Get 4 Eliminations with Enemy Weapons in a single match 3 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,3.0,,,TRUE,FALSE
+Warzone,Prestige,Gladiator Prestige 10,Keep it Tight,Get 2 Eliminations using hipfire in a single match 5 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,,,TRUE,FALSE
+Warzone,Prestige,Gladiator Prestige 10,The Most Dangerous Game,Complete 2 Big Game Bounty Contracts in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
+Warzone,Prestige,Ultimate Threat Prestige Master,Terminator,Get 3 Eliminations without dying 20 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,10.0,20.0,TRUE,FALSE
+Warzone,Prestige,Ultimate Threat Prestige Master,Make it Stick,Get 5 Kills with grenade sticks,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,3.0,5.0,TRUE,FALSE
+Warzone,Prestige,Ultimate Threat Prestige Master,Game Ender,Win 10 Matches,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
+Warzone,Prestige,Ultimate Threat Prestige Master,Killer Spotlight,Get 10 Eliminations while being a Most Wanted target,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
+Warzone,Prestige,Ultimate Threat Prestige Master,Gambit Runner,Complete 2 Big Game Bounty Contracts without dying 10 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,5.0,10.0,TRUE,FALSE
+Warzone,Prestige,Ultimate Threat Prestige Master,Performer,Get 5 Eliminations in a single match 15 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,10.0,15.0,TRUE,FALSE
+Warzone,Dark Ops,Ultimate Threat Prestige Master,Blind Lead,Get an Elimination using hipfire with a Sniper Rifle,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Warzone,Dark Ops,Ultimate Threat Prestige Master,Holstered,Get 5 Eliminations with Pistols in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Warzone,Dark Ops,Ultimate Threat Prestige Master,Boom Boom,Get 5 Eliminations with Launchers in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Warzone,Dark Ops,Ultimate Threat Prestige Master,Chop Chop,Get 1 Elimination while riding helicopters,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Warzone,Dark Ops,Ultimate Threat Prestige Master,Repeat Exploder,Get 3 Eliminations by sticking an enemy with a grenade in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Warzone,Dark Ops,Ultimate Threat Prestige Master,Make it Stick,Get an Elimination on a Most Wanted Contract Target with a grenade stick,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,FALSE,TRUE
+Warzone,Dark Ops,Ultimate Threat Prestige Master,Last Cap Standing,Complete 5 Recon Contracts in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Warzone,Dark Ops,Ultimate Threat Prestige Master,Next,Complete 5 Bounty Contracts in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Warzone,Dark Ops,Ultimate Threat Prestige Master,Humbled,Complete 3 Big Game Bounty Contracts in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Warzone,Dark Ops,Ultimate Threat Prestige Master,Gotta Run,Complete 5 Supply Run Contracts in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,FALSE,TRUE
+Warzone,Dark Ops,Ultimate Threat Prestige Master,All Mine,Complete 5 Scavenger Contracts in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,FALSE,TRUE
+Warzone,Dark Ops,Ultimate Threat Prestige Master,Ascendance,Win 1 Match without dying,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Warzone,Dark Ops,Ultimate Threat Prestige Master,Flawless Feed,Get 4 Eliminations with Guns without reloading in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Warzone,Dark Ops,Ultimate Threat Prestige Master,One Round Crowns,Get 100 Headshots,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Warzone,Dark Ops,Ultimate Threat Prestige Master,Backlog,Complete 7 Contracts in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Warzone,Dark Ops,Ultimate Threat Prestige Master,Sliced,Get 5 Eliminations with Melee Weapons in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Warzone,Dark Ops,Ultimate Threat Prestige Master,The Cleaner,Wipe 50 Squads,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Warzone,Dark Ops,Ultimate Threat Prestige Master,Deleted,Get 20 Eliminations in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Warzone,Dark Ops,Ultimate Threat Prestige Master,Ground War,Get 100 Eliminations with Ground Loot Weapons,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Warzone,Dark Ops,Ultimate Threat Prestige Master,Efficient Execution,Get 5 One-Shot Eliminations with Sniper Rifles in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Warzone,Dark Ops,Ultimate Threat Prestige Master,Royalty,Compelte all 9 Black Ops Royale Operator Orders,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,FALSE,TRUE
+Warzone,Dark Ops,Mastery,Warzone Dark Ops Master,Unlock the Warzone Dark Ops Master calling card.,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Warzone,100 Percenter,Mode Completion,Warzone 100 Percenter,Unlock the Warzone 100 Percenter calling card.,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE

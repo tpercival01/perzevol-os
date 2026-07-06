@@ -1,5 +1,7 @@
 import csv
+import html
 import json
+import re
 from pathlib import Path
 import pandas as pd
 from datetime import datetime
@@ -24,8 +26,12 @@ from modules.warzone.killchain_engine import (
     FOCUS_TARGETS,
     ANCHOR_COLLECTIONS,
     apply_mission_result,
+    build_recovery_plan,
+    build_recovery_suggestions,
+    build_stop_explanation,
     generate_commander_reply,
     generate_mission,
+    generate_plan_brief,
     get_available_tasks,
     get_ranked_tasks,
     load_hub_progress,
@@ -35,8 +41,27 @@ from modules.warzone.killchain_engine import (
     build_session_plan,
     rebuild_plan_after_progress,
     compute_full_tracker_summary,
-    _pct
+    _pct,
+    safe_int,
 )
+
+try:
+    from modules.warzone.ttk_oracle_engine import (
+        load_ttk_data,
+        optimise_single_weapon_build,
+    )
+    TTK_ORACLE_AVAILABLE = True
+except Exception:
+    load_ttk_data = None
+    optimise_single_weapon_build = None
+    TTK_ORACLE_AVAILABLE = False
+
+from modules.warzone.loadout_architect import (
+    attach_loadouts_to_plan,
+    build_loadout_for_stop as architect_build_loadout_for_stop,
+    load_loadout_templates as architect_load_loadout_templates,
+)
+from modules.warzone.series_director import attach_series_context_to_plan
 
 
 STATE_DIR = Path("data/bo7_state")
@@ -320,6 +345,63 @@ def log_account_level_gain(levels_gained: float, plan: dict, actual_minutes_play
         "actual_minutes_played": actual_minutes_played,
     })
 
+def log_objective_account_level_gain(
+    stop: dict,
+    plan: dict,
+    levels_gained: float = 0.0,
+):
+    """
+    Logs account XP at the moment it is earned, rather than waiting for End Session.
+
+    This updates the persistent account level immediately and keeps a running
+    session total for the debrief card.
+    """
+    try:
+        levels_gained = float(levels_gained or 0.0)
+    except (TypeError, ValueError):
+        levels_gained = 0.0
+
+    if levels_gained <= 0:
+        return {"updated": False, "message": ""}
+
+    add_account_levels(levels_gained)
+
+    current_total = float(st.session_state.get("bo7_account_levels_gained", 0.0) or 0.0)
+    st.session_state.bo7_account_levels_gained = current_total + levels_gained
+
+    weapon = stop.get("weapon", "Objective")
+    camo = stop.get("camo", "")
+    mode = stop.get("mode") or plan.get("mode", "Global Cleanup") if plan else stop.get("mode", "Global Cleanup")
+
+    append_session_log({
+        "mission_id": f"AccountLevel:{datetime.now().isoformat(timespec='seconds')}",
+        "time": datetime.now().isoformat(timespec="seconds"),
+        "mode": mode,
+        "target": "Account Level",
+        "challenge": f"Account level gain during {weapon}",
+        "recommended_mode": stop.get("recommended_mode", "") if stop else "",
+        "command": "Account level progress logged during the active objective.",
+        "time_limit": plan.get("available_minutes", "") if plan else "",
+        "result": "Account levels gained",
+        "blame": "Successful operation",
+        "notes": f"+{levels_gained:g} account levels during {weapon} - {camo}",
+        "account_levels_gained": levels_gained,
+        "actual_minutes_played": 0,
+    })
+
+    message = (
+        f"+{levels_gained:g} account levels logged now. "
+        f"Session total: +{st.session_state.bo7_account_levels_gained:g}."
+    )
+
+    queue_celebration(
+        "⚡ ACCOUNT LEVELS BANKED",
+        message,
+        "minor",
+    )
+
+    return {"updated": True, "message": message}
+
 def mark_task_complete(task, reason="Manual completion"):
     completion_state = load_completion_state()
     completion_state[task["task_id"]] = {
@@ -395,11 +477,12 @@ def log_plan_stop(stop, result, blame):
         "time_limit": "",
         "result": result,
         "blame": blame,
-        "notes": f"Session plan stop {stop.get('stop_number', '')}",
+        "notes": f"Session objective {stop.get('stop_number', '')}",
     })
 
-def record_stop_result(stop, status, result="", blame="", notes=""):
+def record_stop_result(stop, status, result="", blame="", notes="", timing=None):
     task_id = stop["task_id"]
+    timing = timing or {}
 
     st.session_state.bo7_stop_results[task_id] = {
         "status": status,
@@ -411,11 +494,117 @@ def record_stop_result(stop, status, result="", blame="", notes=""):
         "camo": stop.get("camo", ""),
         "mode": stop.get("mode", ""),
         "recorded_at": datetime.now().isoformat(timespec="seconds"),
+        "started_at": timing.get("started_at", ""),
+        "ended_at": timing.get("ended_at", ""),
+        "elapsed_minutes": timing.get("elapsed_minutes", 0),
+        "total_elapsed_minutes": timing.get("total_elapsed_minutes", 0),
+        "remaining_minutes_after": timing.get("remaining_minutes_after", 0),
     }
 
-    # Keep legacy list alive for anything else still reading it.
     if task_id not in st.session_state.bo7_completed_stop_ids:
         st.session_state.bo7_completed_stop_ids.append(task_id)
+
+def parse_timer_datetime(value: str):
+    if not value:
+        return None
+
+    try:
+        return datetime.fromisoformat(str(value))
+    except ValueError:
+        return None
+
+
+def elapsed_minutes_between(started_at: str, ended_at: str = "") -> int:
+    start = parse_timer_datetime(started_at)
+    end = parse_timer_datetime(ended_at) or datetime.now()
+
+    if not start:
+        return 0
+
+    seconds = max(0, (end - start).total_seconds())
+    return int(round(seconds / 60))
+
+
+def logged_stop_minutes() -> int:
+    total = 0
+
+    for result in st.session_state.get("bo7_stop_results", {}).values():
+        try:
+            total += int(float(result.get("elapsed_minutes", 0) or 0))
+        except ValueError:
+            continue
+
+    return total
+
+
+def plan_available_minutes(plan: dict) -> int:
+    return int(
+        plan.get("available_minutes", 0)
+        or st.session_state.get("bo7_form_minutes", 0)
+        or 0
+    )
+
+
+def active_stop_for_timing(plan: dict) -> dict:
+    stops = plan.get("stops", []) if plan else []
+
+    for stop in stops:
+        if not stop_is_resolved(stop.get("task_id", "")):
+            return stop
+
+    return {}
+
+
+def ensure_active_stop_timer(plan: dict):
+    if not plan:
+        return
+
+    now = datetime.now().isoformat(timespec="seconds")
+    active_stop = active_stop_for_timing(plan)
+    active_stop_id = active_stop.get("task_id", "")
+
+    if not st.session_state.get("bo7_session_started_at"):
+        st.session_state.bo7_session_started_at = now
+
+    if active_stop_id and st.session_state.get("bo7_active_stop_id") != active_stop_id:
+        st.session_state.bo7_active_stop_id = active_stop_id
+        st.session_state.bo7_active_stop_started_at = now
+
+
+def current_stop_elapsed_minutes() -> int:
+    return elapsed_minutes_between(
+        st.session_state.get("bo7_active_stop_started_at", "")
+    )
+
+
+def current_time_remaining(plan: dict) -> int:
+    available = plan_available_minutes(plan)
+    spent = logged_stop_minutes()
+    current = current_stop_elapsed_minutes()
+    return max(0, available - spent - current)
+
+
+def close_active_stop_timer(stop: dict, plan: dict) -> dict:
+    ended_at = datetime.now().isoformat(timespec="seconds")
+    started_at = st.session_state.get("bo7_active_stop_started_at") or ended_at
+
+    elapsed = elapsed_minutes_between(started_at, ended_at)
+    previous_elapsed = logged_stop_minutes()
+    total_elapsed = previous_elapsed + elapsed
+    remaining_after = max(0, plan_available_minutes(plan) - total_elapsed)
+
+    timing = {
+        "started_at": started_at,
+        "ended_at": ended_at,
+        "elapsed_minutes": elapsed,
+        "total_elapsed_minutes": total_elapsed,
+        "remaining_minutes_after": remaining_after,
+    }
+
+    st.session_state.bo7_active_stop_id = ""
+    st.session_state.bo7_active_stop_started_at = ""
+
+    return timing
 
 def initialise_state():
     if "bo7_completion_state" not in st.session_state:
@@ -477,86 +666,1071 @@ def initialise_state():
         st.session_state.bo7_stop_results = {}
     if "bo7_account_levels_gained" not in st.session_state:
         st.session_state.bo7_account_levels_gained = 0.0
+    if "bo7_account_levels_debrief_adjustment" not in st.session_state:
+        st.session_state.bo7_account_levels_debrief_adjustment = 0.0
     if "bo7_celebrations" not in st.session_state:
         st.session_state.bo7_celebrations = []
     if "bo7_last_debrief" not in st.session_state:
         st.session_state.bo7_last_debrief = None
+    if "bo7_recording_mode" not in st.session_state:
+        st.session_state.bo7_recording_mode = False
+    if "bo7_session_started_at" not in st.session_state:
+        st.session_state.bo7_session_started_at = ""
+    if "bo7_active_stop_id" not in st.session_state:
+        st.session_state.bo7_active_stop_id = ""
+    if "bo7_active_stop_started_at" not in st.session_state:
+        st.session_state.bo7_active_stop_started_at = ""
 
 CLEAN_DATA_DIR = Path("data/bo7_clean")
 
-QUICK_UPDATE_FILES = {
-    # Camos
-    "Apocalypse / Warzone camos": "apocalypse_status.csv",
-    "Singularity / Multiplayer camos": "singularity_status.csv",
-    "Infestation / Zombies camos": "infestation_status.csv",
-    "Genesis / Co-Op camos": "genesis_status.csv",
-    # Prestige & Badges
-    "Weapon prestige": "weapon_prestige.csv",
-    "Mastery badges — weapons": "mastery_badges_weapons.csv",
-    "Mastery badges — equipment MP": "mastery_badges_equipment_mp.csv",
-    "Mastery badges — equipment Zombies": "mastery_badges_equipment_zombies.csv",
-    # Reticles
-    "Reticles": "reticles.csv",
-    # Misc Challenges
-    "Misc challenges — MP": "misc_challenges_mp.csv",
-    "Misc challenges — Zombies": "misc_challenges_zombies.csv",
-    # Calling Cards
-    "Calling cards — Co-Op / Endgame": "calling_cards_sp.csv",
-    "Calling cards — Multiplayer": "calling_cards_mp.csv",
-    "Calling cards — Zombies": "calling_cards_zm.csv",
-    "Calling cards — Warzone": "calling_cards_wz.csv",
-    # Titles
-    "Titles": "titles.csv",
-    "Endgame unlocks": "rewards_endgame_unlocks.csv",
-}
+LOADOUT_TEMPLATE_FILE = CLEAN_DATA_DIR / "loadout_templates.csv"
 
-QUICK_UPDATE_METADATA_COLUMNS = {
-    "counts_for_100_percent",
-    "display_as_extra",
-    "stage_20_required",
-    "stage_40_required",
-    "stage_60_required",
-    "stage_80_required",
-    "stage_100_required",
-    "bronze_required",
-    "silver_required",
-    "gold_required",
-    "diamond_required",
-    "requirement",
-    "criteria",
-    "max_level",
-    "current_level",
-    "unlock_criteria",
-    "source",
-    "item_type",
-    "operator",
-}
- 
-QUICK_UPDATE_ID_COLUMNS = {
-    "apocalypse_status.csv": ["mode", "chain", "weapon_class", "weapon"],
-    "singularity_status.csv": ["mode", "chain", "weapon_class", "weapon"],
-    "infestation_status.csv": ["mode", "chain", "weapon_class", "weapon"],
-    "genesis_status.csv": ["mode", "chain", "weapon_class", "weapon"],
-    "weapon_prestige.csv": ["weapon_class", "weapon", "max_level", "current_level"],
-    "mastery_badges_weapons.csv": ["weapon_class", "weapon"],
-    "mastery_badges_equipment_mp.csv": ["mode", "category", "item"],
-    "mastery_badges_equipment_zombies.csv": ["mode", "category", "item"],
-    "reticles.csv": ["mode", "classification", "reticle"],
-    "misc_challenges_mp.csv": ["mode", "category", "sub_category", "challenge"],
-    "misc_challenges_zombies.csv": ["mode", "category", "sub_category", "challenge"],
-    "calling_cards_sp.csv": ["mode", "category", "sub_category", "challenge", "requirement",
-                              "tier1_target", "tier2_target", "tier3_target", "tier4_target", "tier5_target"],
-    "calling_cards_mp.csv": ["mode", "category", "sub_category", "challenge", "requirement",
-                              "tier1_target", "tier2_target", "tier3_target", "tier4_target", "tier5_target"],
-    "calling_cards_zm.csv": ["mode", "category", "sub_category", "challenge", "requirement",
-                              "tier1_target", "tier2_target", "tier3_target", "tier4_target", "tier5_target"],
-    "calling_cards_wz.csv": ["mode", "category", "sub_category", "challenge", "requirement",
-                              "tier1_target", "tier2_target", "tier3_target", "tier4_target", "tier5_target"],
-    "titles.csv": ["mode", "title", "criteria"],
-    "rewards_endgame_unlocks.csv": ["category", "operator", "item_type", "item", "unlock_criteria", "source"],
+PLAYABLE_WEAPON_CLASSES = {
+    "Assault Rifles",
+    "Submachine Guns",
+    "Shotguns",
+    "LMGs",
+    "Marksman Rifles",
+    "Sniper Rifles",
+    "Pistols",
+    "Launchers",
+    "Specials",
+    "Melee",
+    "Wonder Weapons",
 }
 
 
+def loadout_html(value) -> str:
+    return html.escape(str(value or "").strip())
+
+
+def loadout_clean(value) -> str:
+    return str(value or "").strip()
+
+
+def strip_goal_suffix_for_ttk(weapon_text: str) -> str:
+    text = loadout_clean(weapon_text)
+    text = re.sub(r"\s*\([^)]*\)\s*$", "", text).strip()
+    text = re.sub(r"\s+if safe, otherwise.*$", "", text, flags=re.IGNORECASE).strip()
+    return text
+
+
+@st.cache_data(show_spinner=False)
+def load_commander_ttk_data():
+    """
+    Loads TTK Oracle data for the Commander card.
+
+    The Commander should keep working if the TTK module or CSVs are missing,
+    so this returns an error string instead of raising into the UI.
+    """
+    if not TTK_ORACLE_AVAILABLE or load_ttk_data is None:
+        return pd.DataFrame(), pd.DataFrame(), "TTK Oracle module is not available."
+
+    try:
+        guns, attachments = load_ttk_data()
+        return guns, attachments, ""
+    except Exception as error:
+        return pd.DataFrame(), pd.DataFrame(), str(error)
+
+
+def normalise_ttk_weapon_key(value) -> str:
+    return (
+        str(value or "")
+        .strip()
+        .lower()
+        .replace("’", "'")
+        .replace("“", '"')
+        .replace("”", '"')
+    )
+
+
+def commander_ttk_match_weapon_name(guns: pd.DataFrame, weapon_name: str) -> str:
+    if guns.empty or "gun_name" not in guns.columns:
+        return ""
+
+    raw_weapon = loadout_clean(weapon_name)
+
+    candidates = [
+        raw_weapon,
+        raw_weapon.split("(", 1)[0].strip(),
+    ]
+
+    gun_names = [
+        loadout_clean(name)
+        for name in guns["gun_name"].dropna().astype(str).tolist()
+        if loadout_clean(name)
+    ]
+
+    name_lookup = {
+        normalise_ttk_weapon_key(name): name
+        for name in gun_names
+    }
+
+    for candidate in candidates:
+        matched = name_lookup.get(normalise_ttk_weapon_key(candidate))
+        if matched:
+            return matched
+
+    return ""
+
+
+def commander_ttk_defaults(stop: dict, plan: dict) -> dict:
+    mode = loadout_clean(stop.get("mode") or (plan or {}).get("mode"))
+    weapon_class = loadout_clean(stop.get("weapon_class"))
+
+    if mode == "Warzone":
+        return {
+            "supported": True,
+            "mode": mode,
+            "enemy_health": 300,
+            "map_type": "Large map / Battle Royale",
+            "fight_type": "Long range" if weapon_class in {"Sniper Rifles", "Marksman Rifles"} else "Mixed fights",
+            "build_goal": "Balanced meta build",
+        }
+
+    if mode == "Multiplayer":
+        return {
+            "supported": True,
+            "mode": mode,
+            "enemy_health": 100,
+            "map_type": "Small map / Resurgence",
+            "fight_type": "Mid range" if weapon_class in {"Sniper Rifles", "Marksman Rifles"} else "Close range",
+            "build_goal": "Balanced meta build",
+        }
+
+    return {
+        "supported": False,
+        "mode": mode or "Unknown",
+        "reason": "TTK Oracle auto-builds are currently enabled for Multiplayer and Warzone only.",
+    }
+
+
+def build_ttk_oracle_recommendation(primary_weapon: str, stop: dict, plan: dict) -> dict:
+    weapon_name = strip_goal_suffix_for_ttk(primary_weapon)
+
+    if not weapon_name:
+        return {
+            "status": "fallback",
+            "reason": "No assigned weapon found for the active objective.",
+        }
+
+    defaults = commander_ttk_defaults(stop, plan)
+
+    if not defaults.get("supported"):
+        return {
+            "status": "fallback",
+            "reason": defaults.get("reason", "Mode is not supported by Commander auto-builds yet."),
+            "mode": defaults.get("mode", ""),
+        }
+
+    guns, attachments, load_error = load_commander_ttk_data()
+
+    if load_error:
+        return {
+            "status": "fallback",
+            "reason": f"TTK data failed to load: {load_error}",
+        }
+
+    matched_weapon = commander_ttk_match_weapon_name(guns, weapon_name)
+
+    if not matched_weapon:
+        return {
+            "status": "fallback",
+            "reason": f"No TTK data found for {weapon_name}.",
+        }
+
+    if optimise_single_weapon_build is None:
+        return {
+            "status": "fallback",
+            "reason": "TTK optimiser is unavailable.",
+        }
+
+    results = pd.DataFrame()
+    used_attachment_count = 5
+
+    try:
+        for attachment_count in (5, 4, 3):
+            candidate_results = optimise_single_weapon_build(
+                guns=guns,
+                attachments=attachments,
+                weapon_name=matched_weapon,
+                map_type=defaults["map_type"],
+                fight_type=defaults["fight_type"],
+                build_goal=defaults["build_goal"],
+                enemy_health=int(defaults["enemy_health"]),
+                attachment_count=attachment_count,
+                top_n=1,
+            )
+
+            if candidate_results is not None and not candidate_results.empty:
+                results = candidate_results
+                used_attachment_count = attachment_count
+                break
+    except Exception as error:
+        return {
+            "status": "fallback",
+            "weapon": matched_weapon,
+            "reason": f"TTK Oracle failed for {matched_weapon}: {error}",
+        }
+
+    if results.empty:
+        reason = f"TTK Oracle has data for {matched_weapon}, but not enough trusted/modelled attachment data for a build."
+        try:
+            from modules.warzone.ttk_oracle_engine import describe_weapon_build_data
+            status = describe_weapon_build_data(
+                guns=guns,
+                attachments=attachments,
+                weapon_name=matched_weapon,
+                attachment_count=5,
+            )
+            reason = status.get("message", reason)
+        except Exception:
+            pass
+
+        return {
+            "status": "fallback",
+            "weapon": matched_weapon,
+            "reason": reason,
+        }
+
+    best = results.iloc[0]
+
+    return {
+        "status": "ok",
+        "weapon": loadout_clean(best.get("gun_name", matched_weapon)),
+        "weapon_class": loadout_clean(best.get("weapon_class", stop.get("weapon_class", ""))),
+        "attachments": loadout_clean(best.get("attachments", "")),
+        "slots": loadout_clean(best.get("slots", "")),
+        "attachment_count": used_attachment_count,
+        "attachment_trust_note": loadout_clean(best.get("attachment_trust_note", "")),
+        "raw_ttk_ms": float(best.get("raw_ttk_ms", 0) or 0),
+        "practical_ttk_ms": float(best.get("practical_ttk_ms", 0) or 0),
+        "ads_ms": float(best.get("ads_ms", 0) or 0),
+        "sprint_to_fire_ms": float(best.get("sprint_to_fire_ms", 0) or 0),
+        "recoil": float(best.get("recoil", 0) or 0),
+        "oracle_score": float(best.get("oracle_score", 0) or 0),
+        "enemy_health": int(defaults["enemy_health"]),
+        "map_type": defaults["map_type"],
+        "fight_type": defaults["fight_type"],
+        "build_goal": defaults["build_goal"],
+        "mode": defaults["mode"],
+    }
+
+
+def best_unfinished_singularity_weapon(anchor_class: str = "") -> str:
+    """
+    Pick a real Multiplayer weapon to carry while the main objective is not
+    itself a weapon task. This keeps no-thinking plans playable and still
+    moves the 100% tracker instead of showing a vague placeholder.
+    """
+    path = CLEAN_DATA_DIR / "singularity_status.csv"
+
+    if not path.exists():
+        return ""
+
+    dataframe = pd.read_csv(path, dtype=str).fillna("")
+    required_columns = {"weapon_class", "weapon"}
+
+    if not required_columns.issubset(set(dataframe.columns)):
+        return ""
+
+    id_columns = {"mode", "chain", "weapon_class", "weapon"}
+    camo_columns = [column for column in dataframe.columns if column not in id_columns]
+
+    if not camo_columns:
+        return ""
+
+    final_column = "Singularity" if "Singularity" in dataframe.columns else camo_columns[-1]
+    anchor_class = loadout_clean(anchor_class)
+
+    candidates = []
+
+    for _, row in dataframe.iterrows():
+        weapon = loadout_clean(row.get("weapon"))
+        weapon_class = loadout_clean(row.get("weapon_class"))
+
+        if not weapon:
+            continue
+
+        if anchor_class and anchor_class != "Any" and weapon_class != anchor_class:
+            continue
+
+        final_value = loadout_clean(row.get(final_column)).upper()
+
+        if final_value in {"TRUE", "YES", "DONE", "COMPLETE", "COMPLETED", "✅"}:
+            continue
+
+        if final_value in {"N/A", "NA", "NONE", ""}:
+            continue
+
+        applicable = [
+            column for column in camo_columns
+            if loadout_clean(row.get(column)).upper() not in {"N/A", "NA", "NONE", ""}
+        ]
+
+        if not applicable:
+            continue
+
+        completed = sum(
+            1 for column in applicable
+            if loadout_clean(row.get(column)).upper() in {"TRUE", "YES", "DONE", "COMPLETE", "COMPLETED", "✅"}
+        )
+
+        progress = (completed / len(applicable)) * 100
+        candidates.append((progress, weapon_class, weapon))
+
+    if not candidates and anchor_class:
+        return best_unfinished_singularity_weapon("")
+
+    if not candidates:
+        return ""
+
+    progress, weapon_class, weapon = sorted(candidates, reverse=True)[0]
+    return f"{weapon} ({weapon_class}, {progress:.0f}% Singularity)"
+
+
+def render_recording_markup(markup: str):
+    """
+    Streamlit markdown treats indented raw HTML blocks as code in some cases.
+    Compact the card markup before rendering so nested divs never leak as text.
+    """
+    compact_markup = "".join(
+        line.strip()
+        for line in str(markup or "").splitlines()
+        if line.strip()
+    )
+    st.markdown(compact_markup, unsafe_allow_html=True)
+
+
+def render_series_context_panel(plan: dict):
+    context = plan.get("series_context", {}) or {}
+
+    if not context:
+        return
+
+    proof_points = context.get("proof_points", []) or []
+    proof_preview = " · ".join(proof_points[:2]) if proof_points else "Show Commander decision, gameplay proof, and debrief."
+    morale = context.get("morale", {}) or {}
+
+    render_recording_markup(
+        f"""
+        <div class="recording-card director-card">
+            <div class="recording-eyebrow">SERIES DIRECTOR</div>
+            <div class="recording-section">
+                <span>MORALE OVERRIDE</span>
+                <p><strong>{loadout_html(morale.get("headline") or context.get("morale_headline") or "JUST ONE MORE CHALLENGE.")}</strong><br>{loadout_html(morale.get("line") or context.get("morale_line") or "Bank one visible piece of progress, then reassess.")}</p>
+            </div>
+            <h2>{loadout_html(context.get("episode_title", "AI Chose My BO7 Grind"))}</h2>
+            <p>{loadout_html(context.get("hook", ""))}</p>
+
+            <div class="recording-grid">
+                <div><span>Deadline</span><strong>{loadout_html(context.get("days_remaining", "?"))} days</strong></div>
+                <div><span>Pressure</span><strong>{loadout_html(context.get("pressure", "Unknown"))}</strong></div>
+                <div><span>Thumbnail</span><strong>{loadout_html(context.get("thumbnail_text", "AI CHOSE"))}</strong></div>
+                <div><span>Angle</span><strong>{loadout_html(context.get("completion_angle", "Completion"))}</strong></div>
+            </div>
+
+            <div class="recording-section">
+                <span>Why This Session Matters</span>
+                <p>{loadout_html(context.get("route_promise", ""))}<br>{loadout_html(context.get("pace_line", ""))}</p>
+            </div>
+
+            <div class="recording-section">
+                <span>Minimum Viable Win</span>
+                <p>{loadout_html(morale.get("micro_action") or context.get("morale_micro_action") or "Play the first stop and look only for proof.")}<br>{loadout_html(morale.get("rule") or context.get("morale_rule") or "A partial is still useful data.")}</p>
+            </div>
+
+            <div class="recording-section">
+                <span>Proof To Capture</span>
+                <p>{loadout_html(proof_preview)}</p>
+            </div>
+        </div>
+        """
+    )
+
+def load_loadout_templates() -> list[dict]:
+    if not LOADOUT_TEMPLATE_FILE.exists():
+        return []
+
+    with LOADOUT_TEMPLATE_FILE.open("r", encoding="utf-8", newline="") as file:
+        return [
+            row for row in csv.DictReader(file)
+            if loadout_clean(row.get("template_id"))
+        ]
+
+
+def current_recording_stop(plan: dict) -> dict:
+    stops = plan.get("stops", []) if plan else []
+
+    for stop in stops:
+        if not stop_is_resolved(stop.get("task_id", "")):
+            return stop
+
+    return stops[0] if stops else {}
+
+
+def stop_is_weapon_objective(stop: dict) -> bool:
+    task_type = loadout_clean(stop.get("task_type"))
+    weapon_class = loadout_clean(stop.get("weapon_class"))
+
+    if weapon_class in PLAYABLE_WEAPON_CLASSES:
+        return True
+
+    return task_type in {
+        "camo",
+        "mastery_badge_weapon",
+        "weapon_prestige",
+        "overclock",
+    }
+
+
+def companion_weapon_anchor(stop: dict, plan: dict) -> str:
+    weapon = loadout_clean(stop.get("weapon"))
+
+    if stop_is_weapon_objective(stop) and weapon:
+        return weapon
+
+    anchor_weapon = loadout_clean(plan.get("anchor_weapon") if plan else "")
+    if anchor_weapon:
+        return anchor_weapon
+
+    return ""
+
+
+def assigned_primary_for_loadout(template: dict, stop: dict, plan: dict) -> str:
+    primary_weapon = loadout_clean(template.get("primary_weapon"))
+    primary_role = loadout_clean(template.get("primary_role"))
+    route_type = loadout_clean(template.get("route_type"))
+    assigned_weapon = companion_weapon_anchor(stop, plan)
+    weapon_class = loadout_clean(stop.get("weapon_class"))
+
+    if primary_role == "replace_with_assigned_weapon" and assigned_weapon:
+        return assigned_weapon
+
+    if (
+        primary_role == "replace_with_assigned_weapon_if_sniper"
+        and assigned_weapon
+        and weapon_class == "Sniper Rifles"
+    ):
+        return assigned_weapon
+
+    if (
+        primary_role == "replace_with_assigned_genesis_weapon_if_safe"
+        and assigned_weapon
+        and loadout_clean(stop.get("mode")) == "Co-Op / Endgame"
+        and loadout_clean(stop.get("task_type")) == "camo"
+    ):
+        return f"{assigned_weapon} if the clear stays safe; otherwise {primary_weapon}"
+
+    if primary_role == "replace_with_best_unfinished_singularity_weapon":
+        anchor_class = loadout_clean(plan.get("anchor_class") if plan else "")
+        unfinished_weapon = best_unfinished_singularity_weapon(anchor_class)
+        return unfinished_weapon or primary_weapon
+
+    if route_type == "scorestreak" and not assigned_weapon:
+        return primary_weapon
+
+    return primary_weapon or assigned_weapon or "Use the assigned objective weapon"
+
+
+def score_loadout_template(template: dict, stop: dict, plan: dict) -> int:
+    score = safe_int(template.get("priority", 0), 0)
+
+    mode = loadout_clean(stop.get("mode") or plan.get("mode"))
+    template_mode = loadout_clean(template.get("mode"))
+    task_type = loadout_clean(stop.get("task_type"))
+    weapon_class = loadout_clean(stop.get("weapon_class"))
+    route_type = loadout_clean(template.get("route_type"))
+    template_class = loadout_clean(template.get("weapon_class"))
+
+    if template_mode == mode:
+        score += 100
+
+    if template_mode and template_mode != mode:
+        score -= 100
+
+    if mode == "Co-Op / Endgame" and route_type == "operation":
+        score += 80
+
+    if task_type in {"endgame_operation", "endgame_unlock"} and route_type == "operation":
+        score += 120
+
+    if task_type == "mastery_badge_equipment" and "Scorestreak" in loadout_clean(stop.get("weapon_class")):
+        if route_type == "scorestreak":
+            score += 130
+
+    if route_type == "scorestreak" and "Scorestreak" in loadout_clean(stop.get("category")):
+        score += 100
+
+    if weapon_class and template_class == weapon_class:
+        score += 130
+
+    if weapon_class == "Sniper Rifles" and template.get("template_id") == "mp_sniper":
+        score += 180
+
+    if task_type in {"camo", "mastery_badge_weapon", "weapon_prestige"} and route_type == "weapon_progress":
+        score += 80
+
+    if template_class == "Any" and route_type in {"scorestreak", "operation"}:
+        score += 25
+
+    return score
+
+
+def build_loadout_recommendation(plan: dict) -> dict:
+    templates = architect_load_loadout_templates()
+    stop = current_recording_stop(plan)
+
+    if not stop:
+        return {
+            "template": {},
+            "stop": stop,
+            "reason": "No active objective found for the current plan.",
+        }
+
+    precomputed = stop.get("loadout") or {}
+    loadout = precomputed or architect_build_loadout_for_stop(
+        stop=stop,
+        plan=plan,
+        tasks=st.session_state.get("bo7_tasks", []),
+        templates=templates,
+    )
+
+    template = loadout.get("template", {}) or {}
+    primary = loadout.get("primary", "")
+
+    ttk_oracle = build_ttk_oracle_recommendation(primary, stop, plan)
+
+    return {
+        "template": template,
+        "stop": stop,
+        "primary": primary,
+        "primary_attachments": loadout.get("primary_attachments", ""),
+        "primary_attachment_source": loadout.get("primary_attachment_source", "") or loadout.get("ttk_oracle_note", ""),
+        "secondary": loadout.get("secondary", ""),
+        "secondary_attachments": loadout.get("secondary_attachments", ""),
+        "wildcard": loadout.get("wildcard", ""),
+        "perks": loadout.get("perks", ""),
+        "tactical": loadout.get("tactical", ""),
+        "lethal": loadout.get("lethal", ""),
+        "field_upgrade": loadout.get("field_upgrade", ""),
+        "scorestreaks": loadout.get("scorestreaks", ""),
+        "skill_tracks": loadout.get("skill_tracks", ""),
+        "template_name": loadout.get("template_name", ""),
+        "primary_reason": loadout.get("primary_reason", ""),
+        "natural_goal": loadout.get("natural_goal", ""),
+        "natural_goal_source": loadout.get("natural_goal_source", ""),
+        "score": loadout.get("score", 0),
+        "reason": loadout.get("reason", ""),
+        "ttk_oracle": ttk_oracle,
+    }
+
+
+
+def render_recording_order_card(plan: dict):
+    stop = current_recording_stop(plan)
+
+    if not stop:
+        return
+
+    weapon = loadout_clean(stop.get("weapon")) or "Assigned Objective"
+    camo = loadout_clean(stop.get("camo")) or "Objective"
+    mode = loadout_clean(stop.get("mode") or plan.get("mode")) or "Unknown Mode"
+    task_type = loadout_clean(stop.get("task_type")) or "objective"
+    challenge = loadout_clean(stop.get("challenge_text")) or "Complete the assigned objective."
+    timebox = loadout_clean(plan.get("available_minutes", "?"))
+    stop_number = loadout_clean(stop.get("stop_number")) or "1"
+    total_stops = len(plan.get("stops", []) or [])
+
+    optional_stacks = stop.get("companion_objectives", []) or []
+    optional_stack_text = " · ".join(optional_stacks[:4]) if optional_stacks else "None assigned"
+
+    diagnostics = plan.get("diagnostics", {}) if plan else {}
+    confidence = loadout_clean(diagnostics.get("confidence", "Unknown"))
+    confidence_score = loadout_clean(diagnostics.get("confidence_score", 0))
+
+    why_bits = []
+    rationale = diagnostics.get("rationale", [])
+    if rationale:
+        why_bits.append(str(rationale[0]))
+
+    route_summary = plan.get("route_summary", {}) if plan else {}
+    primary_route = loadout_clean(route_summary.get("primary_route"))
+    if primary_route:
+        why_bits.append(f"Route: {primary_route}")
+
+    why_text = " ".join(why_bits) if why_bits else "Highest-value available route from the current tracker state."
+
+    intro_line = f"The Commander picked {weapon}. I do not get a reroll."
+    objective_line = f"The target is {camo}: {challenge}"
+    rule_line = "No rerolls unless the objective is impossible. The debrief decides if the route worked."
+
+    render_recording_markup(
+        f"""
+        <div class="recording-card decision-card">
+            <div class="decision-strip">COMMANDER DECISION LOCKED</div>
+            <div class="recording-eyebrow">AI CHOSE THE GRIND</div>
+            <div class="recording-title">{loadout_html(weapon)}</div>
+            <div class="recording-subtitle">{loadout_html(camo)}</div>
+
+            <div class="decision-command">
+                <span>Session Briefing</span>
+                <p>
+                    The Commander has selected {loadout_html(weapon)} for {loadout_html(mode)}.
+                    The target is {loadout_html(camo)}. Follow the route, bank progress, then let the debrief judge the session.
+                </p>
+            </div>
+
+            <div class="recording-grid">
+                <div><span>Mode</span><strong>{loadout_html(mode)}</strong></div>
+                <div><span>Timebox</span><strong>{loadout_html(timebox)} min</strong></div>
+                <div><span>Stop</span><strong>{loadout_html(stop_number)} / {loadout_html(total_stops)}</strong></div>
+            </div>
+
+            <div class="recording-grid">
+                <div><span>Type</span><strong>{loadout_html(task_type)}</strong></div>
+                <div><span>Confidence</span><strong>{loadout_html(confidence)}</strong></div>
+                <div><span>Score</span><strong>{loadout_html(confidence_score)} / 100</strong></div>
+            </div>
+
+            <div class="recording-section">
+                <span>Main Objective</span>
+                <p>{loadout_html(challenge)}</p>
+            </div>
+
+            <div class="recording-section">
+                <span>Why This Was Picked</span>
+                <p>{loadout_html(why_text)}</p>
+            </div>
+
+            <div class="recording-section">
+                <span>Optional Stacks</span>
+                <p>{loadout_html(optional_stack_text)}</p>
+            </div>
+
+            <div class="recording-section recording-lines">
+                <span>Recording Lines</span>
+                <p>
+                    <strong>Intro:</strong> {loadout_html(intro_line)}<br>
+                    <strong>Objective:</strong> {loadout_html(objective_line)}<br>
+                    <strong>Rule:</strong> {loadout_html(rule_line)}
+                </p>
+            </div>
+
+            <div class="recording-rule">RULE: NO REROLL UNLESS IMPOSSIBLE</div>
+        </div>
+        """
+    )
+
+def render_recording_loadout_card(plan: dict):
+    recommendation = build_loadout_recommendation(plan)
+    ttk_oracle = recommendation.get("ttk_oracle", {}) or {}
+    oracle_ready = ttk_oracle.get("status") == "ok"
+
+    if not recommendation.get("primary"):
+        st.warning(recommendation.get("reason", "No loadout recommendation available."))
+        return
+
+    natural_goal_text = loadout_clean(recommendation.get("natural_goal"))
+    natural_goal_source = loadout_clean(recommendation.get("natural_goal_source"))
+    primary_reason = loadout_clean(recommendation.get("primary_reason"))
+    streak_text = loadout_clean(recommendation.get("scorestreaks")) or "Scorestreaks not required"
+
+    skill_tracks = loadout_clean(recommendation.get("skill_tracks"))
+    if skill_tracks and skill_tracks != "N/A":
+        streak_text += " | Skill Tracks: " + skill_tracks
+
+    template_notes = loadout_clean(recommendation.get("reason"))
+
+    if oracle_ready:
+        card_title = "TTK Oracle Build"
+        primary_subtitle = f"Primary: {ttk_oracle.get('weapon')}"
+        primary_attachment_label = "TTK Oracle Attachments"
+        primary_attachment_text = ttk_oracle.get("attachments") or "No attachment list returned."
+        notes = (
+            f"TTK Oracle locked the Commander-assigned weapon for {ttk_oracle.get('mode')} "
+            f"at {ttk_oracle.get('enemy_health')} HP using {ttk_oracle.get('attachment_count', 5)} trusted attachment(s). {template_notes}"
+        )
+        oracle_section_html = f"""
+            <div class="recording-section">
+                <span>Oracle Readout</span>
+                <p>
+                    Raw TTK: {loadout_html(f"{ttk_oracle.get('raw_ttk_ms', 0):.0f} ms")} ·
+                    Practical TTK: {loadout_html(f"{ttk_oracle.get('practical_ttk_ms', 0):.0f} ms")} ·
+                    ADS: {loadout_html(f"{ttk_oracle.get('ads_ms', 0):.0f} ms")} ·
+                    Sprint-to-fire: {loadout_html(f"{ttk_oracle.get('sprint_to_fire_ms', 0):.0f} ms")} ·
+                    Recoil: {loadout_html(f"{ttk_oracle.get('recoil', 0):.1f}")}
+                </p>
+            </div>
+
+            <div class="recording-section">
+                <span>Oracle Scenario</span>
+                <p>
+                    {loadout_html(ttk_oracle.get("fight_type"))} ·
+                    {loadout_html(ttk_oracle.get("build_goal"))} ·
+                    Enemy health: {loadout_html(ttk_oracle.get("enemy_health"))} HP
+                </p>
+            </div>
+        """
+    else:
+        card_title = loadout_clean(recommendation.get("template_name")) or "Loadout Template"
+        primary_subtitle = f"Primary: {recommendation.get('primary')}"
+        primary_attachment_label = "Primary Attachments"
+        primary_attachment_text = recommendation.get("primary_attachments") or "No trusted Commander attachment build available."
+        oracle_reason = loadout_clean(ttk_oracle.get("reason"))
+        notes = template_notes
+        if oracle_reason:
+            notes = f"Template fallback. TTK Oracle: {oracle_reason} {template_notes}".strip()
+        oracle_section_html = ""
+
+    render_recording_markup(
+        f"""
+        <div class="recording-card loadout-card">
+            <div class="recording-eyebrow">LOADOUT COMMANDER</div>
+            <div class="recording-title">{loadout_html(card_title)}</div>
+            <div class="recording-subtitle">{loadout_html(primary_subtitle)}</div>
+
+            <div class="recording-grid">
+                <div>
+                    <span>Secondary</span>
+                    <strong>{loadout_html(recommendation.get("secondary") or "N/A")}</strong>
+                </div>
+                <div>
+                    <span>Wildcard</span>
+                    <strong>{loadout_html(recommendation.get("wildcard") or "N/A")}</strong>
+                </div>
+                <div>
+                    <span>Field Upgrade</span>
+                    <strong>{loadout_html(recommendation.get("field_upgrade") or "N/A")}</strong>
+                </div>
+            </div>
+
+            <div class="recording-section">
+                <span>{loadout_html(primary_attachment_label)}</span>
+                <p>{loadout_html(primary_attachment_text)}</p>
+            </div>
+
+            <div class="recording-section">
+                <span>Attachment Source</span>
+                <p>{loadout_html(recommendation.get("primary_attachment_source") or ttk_oracle.get("attachment_trust_note") or "Unknown")}</p>
+            </div>
+
+            <div class="recording-section">
+                <span>Why This Primary</span>
+                <p>{loadout_html(primary_reason or "Primary selected from the active objective and nearest natural weapon goal.")}</p>
+            </div>
+
+            <div class="recording-section">
+                <span>Natural Weapon Goal</span>
+                <p>{loadout_html(natural_goal_text or "No natural weapon goal found.")}<br><strong>Source:</strong> {loadout_html(natural_goal_source or "Unknown")}</p>
+            </div>
+
+            {oracle_section_html}
+
+            <div class="recording-section">
+                <span>Secondary Attachments</span>
+                <p>{loadout_html(recommendation.get("secondary_attachments") or "N/A")}</p>
+            </div>
+
+            <div class="recording-section">
+                <span>Equipment / Perks</span>
+                <p>Tactical: {loadout_html(recommendation.get("tactical") or "N/A")} · Lethal: {loadout_html(recommendation.get("lethal") or "N/A")} · Perks: {loadout_html(recommendation.get("perks") or "N/A")}</p>
+            </div>
+
+            <div class="recording-section">
+                <span>Streaks / Skill Tracks</span>
+                <p>{loadout_html(streak_text)}</p>
+            </div>
+
+            <div class="recording-rule">{loadout_html(notes)}</div>
+        </div>
+        """
+    )
+
+
+def render_recording_director_card(plan: dict):
+    stop = current_recording_stop(plan)
+
+    if not stop:
+        return
+
+    weapon = loadout_clean(stop.get("weapon")) or "assigned objective"
+    camo = loadout_clean(stop.get("camo")) or "objective"
+    mode = loadout_clean(stop.get("mode") or plan.get("mode")) or "selected mode"
+    challenge = loadout_clean(stop.get("challenge_text")) or "complete the assigned objective"
+    task_type = loadout_clean(stop.get("task_type")) or "objective"
+
+    optional_stacks = stop.get("companion_objectives", []) or []
+    optional_stack_text = " · ".join(optional_stacks[:3]) if optional_stacks else "No optional stack needed."
+
+    copy_bank = "\n".join([
+        f"HOOK: I let the Commander choose my next BO7 grind. It picked {weapon}.",
+        f"RULE: No rerolls unless the objective is impossible.",
+        f"OBJECTIVE: {mode} - {weapon} - {camo}.",
+        f"PROOF: The target is {challenge}.",
+        f"MID-SESSION: I am not picking the easy option. The Commander already locked the route.",
+        f"PROGRESS: If this lands, the tracker moves and the debrief decides whether the route worked.",
+        f"ENDING: The AI chose the grind. I followed the plan. Now the debrief judges the session.",
+    ])
+
+    render_recording_markup(
+        f"""
+        <div class="recording-card director-card">
+            <div class="recording-eyebrow">RECORDING DIRECTOR</div>
+            <div class="recording-title">SHOT LIST LOCKED</div>
+            <div class="recording-subtitle">{loadout_html(mode)} · {loadout_html(task_type)}</div>
+
+            <div class="recording-section">
+                <span>Video Hook</span>
+                <p>I let the Commander choose my next BO7 grind. It picked <strong>{loadout_html(weapon)}</strong>.</p>
+            </div>
+
+            <div class="shot-list">
+                <div class="shot-item">
+                    <span>Clip 1</span>
+                    <p>Show the Commander decision card. Hold long enough for the objective to be readable.</p>
+                </div>
+                <div class="shot-item">
+                    <span>Clip 2</span>
+                    <p>Show the Loadout Commander card. Capture the weapon/build proof before gameplay.</p>
+                </div>
+                <div class="shot-item">
+                    <span>Clip 3</span>
+                    <p>Cut to gameplay with the assigned weapon. Do not explain too much, just prove the route.</p>
+                </div>
+                <div class="shot-item">
+                    <span>Clip 4</span>
+                    <p>Capture the unlock, progress bar, camo pop, or post-match proof screen.</p>
+                </div>
+                <div class="shot-item">
+                    <span>Clip 5</span>
+                    <p>Return to the Progress Banked pop after logging the objective.</p>
+                </div>
+                <div class="shot-item">
+                    <span>Clip 6</span>
+                    <p>End on the Commander debrief. This is the proof that the AI-controlled session moved the tracker.</p>
+                </div>
+            </div>
+
+            <div class="recording-section">
+                <span>Optional Stack Callout</span>
+                <p>{loadout_html(optional_stack_text)}</p>
+            </div>
+
+            <div class="recording-rule">CAPTURE THE DECISION, THE LOADOUT, THE PROOF, THE DEBRIEF.</div>
+        </div>
+        """
+    )
+
+    st.text_area(
+        "Copyable recording lines",
+        value=copy_bank,
+        height=190,
+        key=f"bo7_recording_copy_bank_{stop.get('task_id', 'active')}",
+        help="Paste into notes, OBS scene notes, or your edit checklist.",
+    )
+
+def render_recording_debrief_card(plan: dict):
+    if not plan:
+        return
+
+    debrief = build_session_debrief(
+        plan=plan,
+        stop_results=st.session_state.get("bo7_stop_results", {}),
+        account_levels_gained=float(st.session_state.get("bo7_account_levels_gained", 0.0) or 0.0),
+        actual_minutes_played=int(st.session_state.get("bo7_actual_minutes_played", 0) or 0),
+    )
+
+    counts = debrief.get("counts", {})
+    done_count = int(counts.get("done", 0) or 0)
+    partial_count = int(counts.get("partial", 0) or 0)
+    skipped_count = int(counts.get("skipped", 0) or 0)
+    pending_count = int(counts.get("pending", 0) or 0)
+
+    total_stops = done_count + partial_count + skipped_count + pending_count
+    resolved_count = done_count + partial_count + skipped_count
+    useful_count = done_count + partial_count
+
+    completion_rate = 0
+    if total_stops > 0:
+        completion_rate = int(round((useful_count / total_stops) * 100))
+
+    account_levels = float(debrief.get("account_levels_gained", 0.0) or 0.0)
+    actual_minutes = int(debrief.get("actual_minutes_played", 0) or 0)
+    available_minutes = int(debrief.get("available_minutes", 0) or 0)
+
+    completed_items = debrief.get("completed_items", []) or []
+    skipped_items = debrief.get("skipped_items", []) or []
+
+    completed_text = " · ".join(completed_items[:3]) if completed_items else "No full objective clears logged yet."
+    skipped_text = " · ".join(skipped_items[:2]) if skipped_items else "No major blockers logged."
+
+    if done_count >= 3:
+        headline = "ROUTE WORKED"
+        verdict_line = "The Commander picked a productive route. Keep this logic."
+        ending_line = "The AI route moved the tracker. No reroll needed."
+    elif done_count >= 1 or partial_count >= 2:
+        headline = "PROGRESS BANKED"
+        verdict_line = "The session moved forward. Not perfect, but the tracker is better than when it started."
+        ending_line = "The Commander made the call. Progress still landed."
+    elif partial_count >= 1:
+        headline = "PARTIAL ROUTE"
+        verdict_line = "The route was not clean, but some progress was still banked."
+        ending_line = "Not a clean win, but the Commander still forced progress."
+    else:
+        headline = "ROUTE FAILED"
+        verdict_line = "The objective did not land. Next session needs a cleaner route or lower friction target."
+        ending_line = "The AI picked it. The session exposed the blocker."
+
+    if skipped_count:
+        blocker_line = f"{skipped_count} blocker logged. Use that as the next routing correction."
+    else:
+        blocker_line = "No blocker strong enough to break the no-reroll rule."
+
+    time_line = f"{actual_minutes} min played" if actual_minutes else f"{available_minutes} min planned"
+
+    render_recording_markup(
+        f"""
+        <div class="recording-card debrief-card">
+            <div class="recording-eyebrow">SESSION DEBRIEF</div>
+            <div class="recording-title">{loadout_html(headline)}</div>
+            <div class="recording-subtitle">{loadout_html(debrief.get("primary_route", "Unknown route"))}</div>
+
+            <div class="debrief-verdict-box">
+                <span>Commander Verdict</span>
+                <p>{loadout_html(verdict_line)}</p>
+            </div>
+
+            <div class="recording-grid">
+                <div><span>Done</span><strong>{loadout_html(done_count)}</strong></div>
+                <div><span>Partial</span><strong>{loadout_html(partial_count)}</strong></div>
+                <div><span>Skipped</span><strong>{loadout_html(skipped_count)}</strong></div>
+            </div>
+
+            <div class="recording-grid">
+                <div><span>Useful Rate</span><strong>{loadout_html(completion_rate)}%</strong></div>
+                <div><span>Resolved</span><strong>{loadout_html(resolved_count)} / {loadout_html(total_stops)}</strong></div>
+                <div><span>Time</span><strong>{loadout_html(time_line)}</strong></div>
+            </div>
+
+            <div class="recording-section">
+                <span>Progress Banked</span>
+                <p>{loadout_html(completed_text)}</p>
+            </div>
+
+            <div class="recording-section">
+                <span>Blockers</span>
+                <p>{loadout_html(skipped_text)} {loadout_html(blocker_line)}</p>
+            </div>
+
+            <div class="recording-section">
+                <span>Account Progress</span>
+                <p>Account levels gained: +{loadout_html(f"{account_levels:g}")}</p>
+            </div>
+
+            <div class="debrief-line-card">
+                <div class="recording-section">
+                    <span>Recording Lines</span>
+                    <p>
+                        <strong>End line:</strong> {loadout_html(ending_line)}<br>
+                        <strong>Proof line:</strong> {loadout_html(done_count)} done, {loadout_html(partial_count)} partial, {loadout_html(skipped_count)} skipped.<br>
+                        <strong>Next-session tease:</strong> The Commander will reroute from this debrief.
+                    </p>
+                </div>
+            </div>
+
+            <div class="recording-rule">SESSION CLOSED. ROUTE MEMORY UPDATED.</div>
+        </div>
+        """
+    )
+
+def render_live_objective_hud(plan: dict):
+    """
+    Shows the currently active objective as a play-now HUD.
+
+    This is intentionally UI-only. It reads the same active stop and timer state
+    already used by the session plan, without changing route logic or logging.
+    """
+    if not plan:
+        return
+
+    stop = active_stop_for_timing(plan)
+
+    if not stop:
+        return
+
+    task_id = stop.get("task_id", "")
+    weapon = loadout_clean(stop.get("weapon")) or "Assigned Objective"
+    camo = loadout_clean(stop.get("camo")) or "Objective"
+    mode = loadout_clean(stop.get("mode") or plan.get("mode")) or "Unknown Mode"
+    task_type = loadout_clean(stop.get("task_type")) or "objective"
+    challenge = loadout_clean(stop.get("challenge_text")) or "Complete the assigned objective."
+    stop_number = loadout_clean(stop.get("stop_number")) or "1"
+    total_stops = len(plan.get("stops", []) or [])
+
+    elapsed = current_stop_elapsed_minutes()
+    remaining = current_time_remaining(plan)
+    logged = logged_stop_minutes()
+    available = plan_available_minutes(plan)
+    estimated = int(stop.get("estimated_minutes", 0) or 0)
+
+    resolved_count = len(resolved_stop_ids())
+    route_progress = 0
+    if total_stops:
+        route_progress = int(round((resolved_count / total_stops) * 100))
+
+    status = stop_status(task_id).upper()
+
+    if estimated and elapsed > estimated:
+        pressure = "Over estimate"
+    elif remaining <= 10:
+        pressure = "Final push"
+    elif elapsed <= 2:
+        pressure = "Just started"
+    else:
+        pressure = "On route"
+
+    optional_stacks = stop.get("companion_objectives", []) or []
+    if optional_stacks:
+        stack_text = "Stack if free: " + " · ".join(optional_stacks[:3])
+    else:
+        stack_text = "No optional stack required. Focus the assigned objective."
+
+    render_recording_markup(
+        f"""
+        <div class="live-hud-card">
+            <div class="live-hud-eyebrow">LIVE OBJECTIVE HUD</div>
+            <div class="live-hud-title">{loadout_html(weapon)}</div>
+            <div class="live-hud-subtitle">{loadout_html(camo)} · {loadout_html(mode)} · {loadout_html(task_type)}</div>
+
+            <div class="live-hud-command">
+                <span>Commander Order</span>
+                <p>{loadout_html(challenge)}</p>
+            </div>
+
+            <div class="live-hud-grid">
+                <div><span>Stop</span><strong>{loadout_html(stop_number)} / {loadout_html(total_stops)}</strong></div>
+                <div><span>Status</span><strong>{loadout_html(status)}</strong></div>
+                <div><span>Elapsed</span><strong>{loadout_html(elapsed)} min</strong></div>
+                <div><span>Time Left</span><strong>{loadout_html(remaining)} min</strong></div>
+            </div>
+
+            <div class="live-hud-grid">
+                <div><span>Route</span><strong>{loadout_html(route_progress)}%</strong></div>
+                <div><span>Logged</span><strong>{loadout_html(logged)} / {loadout_html(available)} min</strong></div>
+                <div><span>Estimate</span><strong>{loadout_html(estimated or "?")} min</strong></div>
+                <div><span>Pressure</span><strong>{loadout_html(pressure)}</strong></div>
+            </div>
+
+            <div class="live-hud-command">
+                <span>Stacking Note</span>
+                <p>{loadout_html(stack_text)}</p>
+            </div>
+
+            <div class="recording-rule">PLAY THIS OBJECTIVE NOW. LOG PROGRESS BEFORE MOVING ON.</div>
+        </div>
+        """
+    )
 
 def quick_update_path(filename):
     return CLEAN_DATA_DIR / filename
@@ -584,7 +1758,7 @@ CAMO_CHAIN_FILES = {
 
 def write_camo_completion_from_stop(stop) -> bool:
     """
-    Writes a completed session-plan camo stop back into the source camo CSV.
+    Writes a completed session-plan camo objective back into the source camo CSV.
 
     Supports task IDs shaped like:
     Camo:{mode}:{chain}:{weapon}:{camo_name}
@@ -637,7 +1811,7 @@ def write_camo_completion_from_stop(stop) -> bool:
 
 def write_reticle_completion_from_stop(stop) -> bool:
     """
-    Writes a completed session-plan reticle stop back into reticles.csv.
+    Writes a completed session-plan reticle objective back into reticles.csv.
 
     Supports task IDs shaped like:
     Reticle:{mode}:{reticle}:{stage_percent}
@@ -790,7 +1964,7 @@ def camo_reached_options_from_stop(stop) -> list[str]:
 
 def write_camo_reached_from_stop(stop, reached_camo: str) -> bool:
     """
-    Marks all camo columns up to reached_camo as TRUE for the stop weapon.
+    Marks all camo columns up to reached_camo as TRUE for the objective weapon.
 
     This handles real sessions where the Commander asked for Military 5-9,
     but you kept going and reached Golden Dragon, Doomsteel, etc.
@@ -847,6 +2021,64 @@ def write_camo_reached_from_stop(stop, reached_camo: str) -> bool:
 
     return True
 
+def weapon_level_snapshot_for_stop(stop: dict) -> dict:
+    weapon = str(stop.get("weapon", "")).strip()
+
+    if not weapon:
+        return {
+            "found": False,
+            "message": "No weapon found for this objective.",
+            "current_level": 0.0,
+            "max_level": 0.0,
+        }
+
+    dataframe = load_quick_update_csv("weapon_prestige.csv")
+
+    if dataframe.empty or "weapon" not in dataframe.columns:
+        return {
+            "found": False,
+            "message": "weapon_prestige.csv unavailable.",
+            "current_level": 0.0,
+            "max_level": 0.0,
+        }
+
+    if "current_level" not in dataframe.columns:
+        dataframe["current_level"] = "0"
+
+    row_mask = dataframe["weapon"].fillna("").str.strip().eq(weapon)
+
+    if not row_mask.any():
+        return {
+            "found": False,
+            "message": f"{weapon} not found in weapon_prestige.csv.",
+            "current_level": 0.0,
+            "max_level": 0.0,
+        }
+
+    row = dataframe.loc[row_mask].iloc[0]
+
+    try:
+        current_level = float(str(row.get("current_level", "0")).strip() or 0)
+    except ValueError:
+        current_level = 0.0
+
+    try:
+        max_level = float(str(row.get("max_level", "0")).strip() or 0)
+    except ValueError:
+        max_level = 0.0
+
+    if max_level > 0:
+        message = f"Current weapon level before this objective: {current_level:g}/{max_level:g}"
+    else:
+        message = f"Current weapon level before this objective: {current_level:g}"
+
+    return {
+        "found": True,
+        "message": message,
+        "current_level": current_level,
+        "max_level": max_level,
+    }
+
 
 def write_weapon_level_progress_from_stop(
     stop,
@@ -868,7 +2100,7 @@ def write_weapon_level_progress_from_stop(
     weapon = str(stop.get("weapon", "")).strip()
 
     if not weapon:
-        return {"updated": False, "message": "No weapon found on stop."}
+        return {"updated": False, "message": "No weapon found on objective."}
 
     dataframe = load_quick_update_csv("weapon_prestige.csv")
 
@@ -968,6 +2200,102 @@ def queue_weapon_level_celebration(stop: dict, level_result: dict):
         "minor",
     )
 
+
+def render_objective_progress_pulse(
+    stop: dict,
+    task_id: str,
+    weapon_level_key: str,
+    weapon_reset_key: str,
+    account_level_key: str,
+    camo_reached_key: str,
+    reticle_reached_key: str,
+):
+    """Compact in-objective progress capture so updates happen as they are earned."""
+    st.markdown("#### ⚡ Progress Pulse")
+    st.caption(
+        "Bank progress here before pressing Objective Done or Partial Progress. "
+        "This keeps the debrief as a check, not a memory test."
+    )
+
+    pulse_cols = st.columns(3)
+
+    with pulse_cols[0]:
+        st.markdown("**Weapon XP**")
+        level_snapshot = weapon_level_snapshot_for_stop(stop)
+
+        if level_snapshot.get("found"):
+            st.info(level_snapshot["message"])
+            input_label = (
+                f"Levels gained from "
+                f"{level_snapshot.get('current_level', 0):g}"
+            )
+        else:
+            st.warning(level_snapshot["message"])
+            input_label = "Weapon levels gained"
+
+        st.number_input(
+            input_label,
+            min_value=0.0,
+            max_value=250.0,
+            value=0.0,
+            step=0.5,
+            key=weapon_level_key,
+        )
+
+        st.checkbox(
+            "Prestiged/reset after this objective",
+            key=weapon_reset_key,
+        )
+
+    with pulse_cols[1]:
+        st.markdown("**Account XP**")
+        current_account_level = float(
+            st.session_state.get("bo7_account_params", {}).get("account_level", 1.0)
+            or 1.0
+        )
+        st.metric("Current account level", f"{current_account_level:g}")
+        st.number_input(
+            "Account levels gained",
+            min_value=0.0,
+            max_value=100.0,
+            value=0.0,
+            step=0.5,
+            key=account_level_key,
+            help="Logged immediately when this objective is marked Done or Partial.",
+        )
+        session_account_levels = float(
+            st.session_state.get("bo7_account_levels_gained", 0.0)
+            or 0.0
+        )
+        if session_account_levels:
+            st.caption(f"Already banked this session: +{session_account_levels:g}")
+
+    with pulse_cols[2]:
+        st.markdown("**Completion Sync**")
+
+        if stop.get("task_type") == "camo":
+            st.selectbox(
+                "Highest camo reached",
+                camo_reached_options_from_stop(stop),
+                key=camo_reached_key,
+            )
+            st.caption("Marks every camo up to the selected camo as complete.")
+        elif stop.get("task_type") == "reticle":
+            st.selectbox(
+                "Highest reticle stage reached",
+                ["No extra update", "20", "40", "60", "80", "100"],
+                key=reticle_reached_key,
+            )
+            st.caption("Marks every stage up to the selected stage as complete.")
+        else:
+            st.info("Use Session Catch-Up above for accidental badges, cards, reticles, or scorestreak progress.")
+
+    st.caption(
+        "Then press Objective Done or Partial Progress. The Commander will log the objective, "
+        "update CSV progress where possible, and refresh the route."
+    )
+
+
 def reload_commander_from_csv():
     st.session_state.bo7_completion_state = load_completion_state()
     st.session_state.bo7_tasks = apply_completion_state(
@@ -977,7 +2305,14 @@ def reload_commander_from_csv():
     st.session_state.bo7_progress = load_hub_progress()
     st.session_state.bo7_latest_mission = None
 
-def queue_celebration(title: str, message: str, tier: str = "minor"):
+def queue_celebration(
+    title: str,
+    message: str,
+    tier: str = "minor",
+    label: str = "Progress Banked",
+    stat: str = "Logged",
+    footer: str = "Commander route updated.",
+):
     if "bo7_celebrations" not in st.session_state:
         st.session_state.bo7_celebrations = []
 
@@ -985,6 +2320,9 @@ def queue_celebration(title: str, message: str, tier: str = "minor"):
         "title": title,
         "message": message,
         "tier": tier,
+        "label": label,
+        "stat": stat,
+        "footer": footer,
         "time": datetime.now().isoformat(timespec="seconds"),
     })
 
@@ -996,19 +2334,28 @@ def queue_stop_celebration(stop: dict, csv_updated: bool):
     camo = stop.get("camo", "")
     challenge = stop.get("challenge_text", "")
 
+    sync_status = "CSV Updated" if csv_updated else "Logged Only"
+    footer = "Source tracker changed." if csv_updated else "Session memory updated. Manual source sync may still be needed."
+
     if task_type == "camo":
         queue_celebration(
             "🎨 CAMO CLEARED",
-            f"{weapon} - {camo} completed in {mode}. Source CSV updated." if csv_updated else f"{weapon} - {camo} logged.",
+            f"{weapon} - {camo} completed in {mode}.",
             "minor",
+            label="Progress Banked",
+            stat=sync_status,
+            footer=footer,
         )
         return
 
     if task_type == "reticle":
         queue_celebration(
             "🎯 RETICLE STAGE CLEARED",
-            f"{weapon} - {camo} completed in {mode}. Reticle mastery moved forward." if csv_updated else f"{weapon} - {camo} logged.",
+            f"{weapon} - {camo} completed in {mode}. Reticle mastery moved forward.",
             "minor",
+            label="Progress Banked",
+            stat=sync_status,
+            footer=footer,
         )
         return
 
@@ -1017,6 +2364,9 @@ def queue_stop_celebration(stop: dict, csv_updated: bool):
             "⚙️ WEAPON PRESTIGE PROGRESS",
             f"{weapon} - {camo}. Weapon XP grind moved forward.",
             "minor",
+            label="Weapon Route Advanced",
+            stat=sync_status,
+            footer=footer,
         )
         return
 
@@ -1025,6 +2375,9 @@ def queue_stop_celebration(stop: dict, csv_updated: bool):
             "🏅 WEAPON BADGE PROGRESS",
             f"{weapon} - {camo}. Badge route advanced.",
             "minor",
+            label="Badge Progress",
+            stat=sync_status,
+            footer=footer,
         )
         return
 
@@ -1033,6 +2386,9 @@ def queue_stop_celebration(stop: dict, csv_updated: bool):
             "🧰 SUPPORT BADGE PROGRESS",
             f"{weapon} - {camo}. Support grind advanced.",
             "minor",
+            label="Support Progress",
+            stat=sync_status,
+            footer=footer,
         )
         return
 
@@ -1041,6 +2397,9 @@ def queue_stop_celebration(stop: dict, csv_updated: bool):
             "💀 DARK OPS HIT",
             f"{weapon}: {challenge}",
             "major",
+            label="Major Unlock",
+            stat="Route Spiked",
+            footer="Clip this. This is a video moment.",
         )
         return
 
@@ -1049,6 +2408,9 @@ def queue_stop_celebration(stop: dict, csv_updated: bool):
             "🃏 CALLING CARD PROGRESS",
             f"{weapon} - {camo}. Calling-card route advanced.",
             "minor",
+            label="Collection Progress",
+            stat=sync_status,
+            footer=footer,
         )
         return
 
@@ -1057,6 +2419,9 @@ def queue_stop_celebration(stop: dict, csv_updated: bool):
             "🏷 TITLE PROGRESS",
             f"{weapon}: {challenge}",
             "minor",
+            label="Title Progress",
+            stat=sync_status,
+            footer=footer,
         )
         return
 
@@ -1064,8 +2429,10 @@ def queue_stop_celebration(stop: dict, csv_updated: bool):
         "✅ OBJECTIVE LOGGED",
         f"{weapon} - {camo}",
         "minor",
+        label="Progress Banked",
+        stat=sync_status,
+        footer=footer,
     )
-
 
 def render_queued_celebrations():
     celebrations = st.session_state.get("bo7_celebrations", [])
@@ -1077,13 +2444,31 @@ def render_queued_celebrations():
         title = celebration.get("title", "✅ Progress")
         message = celebration.get("message", "")
         tier = celebration.get("tier", "minor")
+        label = celebration.get("label", "Progress Banked")
+        stat = celebration.get("stat", "Logged")
+        footer = celebration.get("footer", "Commander route updated.")
+        recorded_time = celebration.get("time", "")
 
-        if tier == "major":
-            st.toast(f"{title} - {message}", icon="🔥")
-            st.success(f"### {title}\n{message}")
-        else:
-            st.toast(f"{title} - {message}", icon="✅")
-            st.info(f"**{title}**  \n{message}")
+        tier_class = "major" if tier == "major" else "minor"
+        icon = "🔥" if tier == "major" else "✅"
+
+        st.toast(f"{title} - {message}", icon=icon)
+
+        render_recording_markup(
+            f"""
+            <div class="progress-pop-card progress-pop-{loadout_html(tier_class)}">
+                <div class="progress-pop-eyebrow">{loadout_html(label)}</div>
+                <div class="progress-pop-title">{loadout_html(title)}</div>
+                <div class="progress-pop-message">{loadout_html(message)}</div>
+                <div class="progress-pop-grid">
+                    <div><span>Status</span><strong>{loadout_html(stat)}</strong></div>
+                    <div><span>Logged</span><strong>{loadout_html(recorded_time[-8:] if recorded_time else "Now")}</strong></div>
+                    <div><span>Rule</span><strong>No reroll</strong></div>
+                </div>
+                <div class="recording-rule">{loadout_html(footer)}</div>
+            </div>
+            """
+        )
 
     st.session_state.bo7_celebrations = []
 
@@ -1465,6 +2850,92 @@ def normalise_calling_card_completion(dataframe, filename):
 
     return updated_dataframe
 
+
+QUICK_UPDATE_FILES = {
+    # Camos
+    "Apocalypse / Warzone camos": "apocalypse_status.csv",
+    "Singularity / Multiplayer camos": "singularity_status.csv",
+    "Infestation / Zombies camos": "infestation_status.csv",
+    "Genesis / Co-Op camos": "genesis_status.csv",
+    # Prestige & Badges
+    "Weapon prestige": "weapon_prestige.csv",
+    "Mastery badges — weapons": "mastery_badges_weapons.csv",
+    "Mastery badges — equipment MP": "mastery_badges_equipment_mp.csv",
+    "Mastery badges — equipment Zombies": "mastery_badges_equipment_zombies.csv",
+    # Reticles
+    "Reticles": "reticles.csv",
+    # Misc Challenges
+    "Misc challenges — MP": "misc_challenges_mp.csv",
+    "Misc challenges — Zombies": "misc_challenges_zombies.csv",
+    # Calling Cards
+    "Calling cards — Co-Op / Endgame": "calling_cards_sp.csv",
+    "Calling cards — Multiplayer": "calling_cards_mp.csv",
+    "Calling cards — Zombies": "calling_cards_zm.csv",
+    "Calling cards — Warzone": "calling_cards_wz.csv",
+    # Rewards / Unlocks / Collectibles
+    "Zombies rewards": "rewards_zombies.csv",
+    "Endgame operations": "rewards_endgame_operations.csv",
+    "Endgame unlocks": "rewards_endgame_unlocks.csv",
+    "Intel": "intel.csv",
+    # Titles / Cosmetics / Upgrade systems
+    "Titles": "titles.csv",
+    "Zombies augments": "augments_zombies.csv",
+    "Multiplayer overclocks": "overclocks_mp.csv",
+}
+
+QUICK_UPDATE_METADATA_COLUMNS = {
+    "counts_for_100_percent",
+    "display_as_extra",
+    "stage_20_required",
+    "stage_40_required",
+    "stage_60_required",
+    "stage_80_required",
+    "stage_100_required",
+    "bronze_required",
+    "silver_required",
+    "gold_required",
+    "diamond_required",
+    "requirement",
+    "criteria",
+    "max_level",
+    "current_level",
+    "unlock_criteria",
+    "source",
+    "item_type",
+    "operator",
+}
+ 
+QUICK_UPDATE_ID_COLUMNS = {
+    "apocalypse_status.csv": ["mode", "chain", "weapon_class", "weapon"],
+    "singularity_status.csv": ["mode", "chain", "weapon_class", "weapon"],
+    "infestation_status.csv": ["mode", "chain", "weapon_class", "weapon"],
+    "genesis_status.csv": ["mode", "chain", "weapon_class", "weapon"],
+    "weapon_prestige.csv": ["weapon_class", "weapon", "max_level", "current_level"],
+    "mastery_badges_weapons.csv": ["weapon_class", "weapon"],
+    "mastery_badges_equipment_mp.csv": ["mode", "category", "item"],
+    "mastery_badges_equipment_zombies.csv": ["mode", "category", "item"],
+    "reticles.csv": ["mode", "classification", "reticle"],
+    "misc_challenges_mp.csv": ["mode", "category", "sub_category", "challenge"],
+    "misc_challenges_zombies.csv": ["mode", "category", "sub_category", "challenge"],
+    "calling_cards_sp.csv": ["mode", "category", "sub_category", "challenge", "requirement",
+                              "tier1_target", "tier2_target", "tier3_target", "tier4_target", "tier5_target"],
+    "calling_cards_mp.csv": ["mode", "category", "sub_category", "challenge", "requirement",
+                              "tier1_target", "tier2_target", "tier3_target", "tier4_target", "tier5_target"],
+    "calling_cards_zm.csv": ["mode", "category", "sub_category", "challenge", "requirement",
+                              "tier1_target", "tier2_target", "tier3_target", "tier4_target", "tier5_target"],
+    "calling_cards_wz.csv": ["mode", "category", "sub_category", "challenge", "requirement",
+                              "tier1_target", "tier2_target", "tier3_target", "tier4_target", "tier5_target"],
+    "titles.csv": ["mode", "title", "criteria"],
+    "rewards_zombies.csv": ["map", "category", "item"],
+    "rewards_endgame_operations.csv": ["operation", "step"],
+    "rewards_endgame_unlocks.csv": ["category", "operator", "item_type", "item", "unlock_criteria", "source"],
+    "intel.csv": ["mode", "map", "category", "item"],
+    "augments_zombies.csv": ["mode", "category", "item"],
+    "overclocks_mp.csv": ["mode", "category", "item"],
+}
+
+
+
 def bool_to_csv_value(value):
     return "TRUE" if bool(value) else "FALSE"
 
@@ -1583,7 +3054,7 @@ def render_quick_completion_grid():
 
 def render_weapon_level_quick_update():
     st.caption(
-        "One-time setup for current weapon levels. After this, session stop logging can keep these updated."
+        "One-time setup for current weapon levels. After this, Commander objective logging can keep these updated."
     )
 
     filename = "weapon_prestige.csv"
@@ -1647,6 +3118,22 @@ def render_weapon_level_quick_update():
             filtered_dataframe["weapon_class"] == selected_class
         ]
 
+    editable_status_columns = [
+        column for column in [
+            "p1_complete",
+            "p2_complete",
+            "wpm_complete",
+            "lvl_100_complete",
+            "lvl_150_complete",
+            "lvl_200_complete",
+            "lvl_250_complete",
+        ]
+        if column in display_columns
+    ]
+
+    for column in editable_status_columns:
+        filtered_dataframe[column] = filtered_dataframe[column].apply(is_true_cell)
+
     edited_dataframe = st.data_editor(
         filtered_dataframe[display_columns],
         use_container_width=True,
@@ -1654,7 +3141,7 @@ def render_weapon_level_quick_update():
         hide_index=False,
         disabled=[
             column for column in display_columns
-            if column not in {"current_level"}
+            if column not in {"current_level", *editable_status_columns}
         ],
         column_config={
             "current_level": st.column_config.NumberColumn(
@@ -1667,6 +3154,10 @@ def render_weapon_level_quick_update():
                 "Max Level",
                 disabled=True,
             ),
+            **{
+                column: st.column_config.CheckboxColumn(column)
+                for column in editable_status_columns
+            },
         },
         key="weapon_level_quick_grid",
     )
@@ -1679,6 +3170,11 @@ def render_weapon_level_quick_update():
 
         for row_index, edited_row in edited_dataframe.iterrows():
             updated_dataframe.loc[row_index, "current_level"] = f"{float(edited_row['current_level']):g}"
+
+            for column in editable_status_columns:
+                updated_dataframe.loc[row_index, column] = bool_to_csv_value(
+                    edited_row.get(column, False)
+                )
 
         save_quick_update_csv(filename, updated_dataframe)
 
@@ -2209,7 +3705,11 @@ def save_cockpit_dataframe(filename: str, updated_dataframe: pd.DataFrame, succe
     )
 
 
-def render_cockpit_editor(filename: str, title: str | None = None):
+def render_cockpit_editor(
+    filename: str,
+    title: str | None = None,
+    key_prefix: str = "cockpit",
+):
     dataframe = load_quick_update_csv(filename)
 
     if dataframe.empty:
@@ -2253,7 +3753,7 @@ def render_cockpit_editor(filename: str, title: str | None = None):
                 selected = st.selectbox(
                     column.replace("_", " ").title(),
                     options,
-                    key=f"cockpit_filter_{filename}_{column}",
+                    key=f"{key_prefix}_filter_{filename}_{column}",
                 )
 
             if selected != "All":
@@ -2314,10 +3814,14 @@ def render_cockpit_editor(filename: str, title: str | None = None):
             hide_index=False,
             disabled=disabled_columns,
             column_config=column_config,
-            key=f"cockpit_editor_{filename}",
+            key=f"{key_prefix}_editor_{filename}",
         )
 
-    if st.button(f"SAVE {label.upper()}", use_container_width=True, key=f"cockpit_save_{filename}"):
+    if st.button(
+        f"SAVE {label.upper()}",
+        use_container_width=True,
+        key=f"{key_prefix}_save_{filename}",
+    ):
         updated_dataframe = dataframe.copy()
 
         for row_index, edited_row in edited_dataframe.iterrows():
@@ -2336,6 +3840,34 @@ def render_cockpit_editor(filename: str, title: str | None = None):
         st.success(f"{label} saved.")
         st.rerun()
 
+SESSION_CATCHUP_TRACKERS = [
+    ("MP Equipment Badges", "mastery_badges_equipment_mp.csv"),
+    ("Weapon Mastery Badges", "mastery_badges_weapons.csv"),
+    ("Weapon Prestige", "weapon_prestige.csv"),
+    ("Multiplayer Camos", "singularity_status.csv"),
+    ("Reticles", "reticles.csv"),
+    ("MP Calling Cards", "calling_cards_mp.csv"),
+    ("Overclocks", "overclocks_mp.csv"),
+]
+
+
+def render_session_catchup_panel():
+    with st.expander("➕ Unexpected completion during session", expanded=False):
+        st.markdown("### Session Catch-Up")
+        st.caption(
+            "Use this when you accidentally complete extra progress during a Commander session. "
+            "Tick as many rows or milestones as needed, then save. Smart fill still applies."
+        )
+
+        tabs = st.tabs([label for label, _ in SESSION_CATCHUP_TRACKERS])
+
+        for index, (label, filename) in enumerate(SESSION_CATCHUP_TRACKERS):
+            with tabs[index]:
+                render_cockpit_editor(
+                    filename,
+                    title=f"Unexpected Completion · {label}",
+                    key_prefix=f"session_catchup_{filename.replace('.', '_')}",
+                )
 
 def render_tracker_cockpit(summary: dict):
     cockpit_tabs = st.tabs([
@@ -2371,7 +3903,7 @@ def render_tracker_cockpit(summary: dict):
             st.metric("Camo Chains", "4")
 
         with summary_cols[2]:
-            st.metric("Editable Trackers", "13")
+            st.metric("Editable Trackers", str(len(COCKPIT_CONFIGS)))
 
         with summary_cols[3]:
             st.metric("Smart Fill", "ON")
@@ -2629,6 +4161,436 @@ st.markdown(
         color: #d6f7df;
         font-family: monospace;
     }
+
+    .recording-card {
+        border: 1px solid rgba(255,75,75,0.42);
+        border-left: 6px solid #ff4b4b;
+        background: linear-gradient(135deg, rgba(255,75,75,0.12), rgba(255,255,255,0.04));
+        padding: 1rem 1.25rem;
+        margin: 1rem 0;
+        box-shadow: 0 0 26px rgba(0,0,0,0.28);
+    }
+
+    .decision-card {
+        border-left-width: 10px;
+        background:
+            radial-gradient(circle at top right, rgba(255,75,75,0.24), rgba(255,75,75,0.02) 34%, transparent 58%),
+            linear-gradient(135deg, rgba(255,75,75,0.16), rgba(255,255,255,0.045));
+        padding: 1.15rem 1.35rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .decision-strip {
+        display: inline-block;
+        color: #0b0b0b;
+        background: #ff4b4b;
+        padding: 0.28rem 0.55rem;
+        font-family: monospace;
+        font-size: 0.74rem;
+        font-weight: 950;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        margin-bottom: 0.65rem;
+    }
+
+    .decision-command {
+        margin: 0.85rem 0;
+        padding: 0.85rem 0.95rem;
+        background: rgba(0,0,0,0.30);
+        border: 1px solid rgba(255,75,75,0.28);
+    }
+
+    .decision-command span {
+        display: block;
+        color: #ff9b9b;
+        font-size: 0.72rem;
+        font-family: monospace;
+        font-weight: 900;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        margin-bottom: 0.35rem;
+    }
+
+    .decision-command p {
+        margin: 0;
+        color: #ffffff;
+        font-size: 1.08rem;
+        font-weight: 850;
+        line-height: 1.35;
+    }
+
+    .recording-lines {
+        background: rgba(255,255,255,0.045);
+        border: 1px solid rgba(255,255,255,0.09);
+        padding: 0.75rem 0.85rem;
+    }
+
+    .recording-section strong {
+        color: #ffffff;
+        font-weight: 950;
+    }
+
+    .recording-eyebrow {
+        color: #ff4b4b;
+        font-size: 0.78rem;
+        font-weight: 900;
+        letter-spacing: 0.26em;
+        text-transform: uppercase;
+        margin-bottom: 0.35rem;
+        font-family: monospace;
+    }
+
+    .recording-title {
+        color: #ffffff;
+        font-size: 2.35rem;
+        font-weight: 950;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        line-height: 1.05;
+    }
+
+    .recording-subtitle {
+        color: #dddddd;
+        font-size: 1.1rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin: 0.25rem 0 0.85rem 0;
+    }
+
+    .recording-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.75rem;
+        margin: 0.75rem 0;
+    }
+
+    .recording-grid div {
+        background: rgba(0,0,0,0.22);
+        border: 1px solid rgba(255,255,255,0.08);
+        padding: 0.65rem;
+    }
+
+    .recording-grid span,
+    .recording-section span {
+        display: block;
+        color: #999999;
+        font-size: 0.72rem;
+        font-family: monospace;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 0.25rem;
+    }
+
+    .recording-grid strong {
+        color: #ffffff;
+        font-size: 1rem;
+        font-weight: 900;
+    }
+
+    .recording-section {
+        margin-top: 0.75rem;
+    }
+
+    .recording-section p {
+        margin: 0;
+        color: #eeeeee;
+        font-size: 0.96rem;
+        line-height: 1.35;
+    }
+
+    .recording-rule {
+        margin-top: 0.9rem;
+        padding: 0.6rem 0.75rem;
+        color: #ffffff;
+        background: rgba(255,75,75,0.18);
+        border: 1px solid rgba(255,75,75,0.32);
+        font-family: monospace;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .progress-pop-card {
+        border: 1px solid rgba(48,209,88,0.42);
+        border-left: 8px solid #30d158;
+        background:
+            radial-gradient(circle at top right, rgba(48,209,88,0.22), rgba(48,209,88,0.04) 38%, transparent 62%),
+            linear-gradient(135deg, rgba(48,209,88,0.13), rgba(255,255,255,0.04));
+        padding: 1rem 1.2rem;
+        margin: 0.9rem 0;
+        box-shadow: 0 0 26px rgba(0,0,0,0.30);
+    }
+
+    .progress-pop-major {
+        border-color: rgba(255,75,75,0.55);
+        border-left-color: #ff4b4b;
+        background:
+            radial-gradient(circle at top right, rgba(255,75,75,0.28), rgba(255,75,75,0.05) 38%, transparent 62%),
+            linear-gradient(135deg, rgba(255,75,75,0.16), rgba(255,255,255,0.045));
+    }
+
+    .progress-pop-eyebrow {
+        color: #30d158;
+        font-size: 0.76rem;
+        font-family: monospace;
+        font-weight: 950;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        margin-bottom: 0.35rem;
+    }
+
+    .progress-pop-major .progress-pop-eyebrow {
+        color: #ff4b4b;
+    }
+
+    .progress-pop-title {
+        color: #ffffff;
+        font-size: 1.85rem;
+        font-weight: 950;
+        text-transform: uppercase;
+        letter-spacing: 0.045em;
+        line-height: 1.05;
+        margin-bottom: 0.35rem;
+    }
+
+    .progress-pop-message {
+        color: #eeeeee;
+        font-size: 1rem;
+        line-height: 1.35;
+        margin-bottom: 0.7rem;
+    }
+
+    .progress-pop-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.65rem;
+    }
+
+    .progress-pop-grid div {
+        background: rgba(0,0,0,0.25);
+        border: 1px solid rgba(255,255,255,0.08);
+        padding: 0.55rem 0.65rem;
+    }
+
+    .progress-pop-grid span {
+        display: block;
+        color: #999999;
+        font-size: 0.68rem;
+        font-family: monospace;
+        font-weight: 850;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 0.25rem;
+    }
+
+    .progress-pop-grid strong {
+        color: #ffffff;
+        font-size: 0.96rem;
+        font-weight: 900;
+    }
+
+    .debrief-card {
+        border-left-width: 10px;
+        background:
+            radial-gradient(circle at top right, rgba(90,200,250,0.20), rgba(90,200,250,0.04) 36%, transparent 62%),
+            linear-gradient(135deg, rgba(90,200,250,0.12), rgba(255,255,255,0.04));
+    }
+
+    .debrief-verdict-box {
+        padding: 0.95rem 1rem;
+        background: rgba(0,0,0,0.30);
+        border: 1px solid rgba(90,200,250,0.26);
+        margin: 0.85rem 0;
+    }
+
+    .debrief-verdict-box span {
+        display: block;
+        color: #5ac8fa;
+        font-size: 0.72rem;
+        font-family: monospace;
+        font-weight: 950;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        margin-bottom: 0.35rem;
+    }
+
+    .debrief-verdict-box p {
+        color: #ffffff;
+        font-size: 1.12rem;
+        font-weight: 850;
+        line-height: 1.35;
+        margin: 0;
+    }
+
+    .debrief-line-card {
+        background: rgba(255,255,255,0.045);
+        border: 1px solid rgba(255,255,255,0.09);
+        padding: 0.75rem 0.85rem;
+        margin-top: 0.75rem;
+    }
+
+    .debrief-line-card p {
+        margin: 0;
+    }
+
+    .live-hud-card {
+        border: 1px solid rgba(255,255,255,0.12);
+        border-left: 10px solid #ff4b4b;
+        background:
+            radial-gradient(circle at top right, rgba(255,75,75,0.22), rgba(255,75,75,0.035) 36%, transparent 62%),
+            linear-gradient(135deg, rgba(255,255,255,0.07), rgba(255,255,255,0.025));
+        padding: 1rem 1.2rem;
+        margin: 0.85rem 0 1rem 0;
+        box-shadow: 0 0 26px rgba(0,0,0,0.28);
+    }
+
+    .live-hud-eyebrow {
+        color: #ff4b4b;
+        font-size: 0.74rem;
+        font-family: monospace;
+        font-weight: 950;
+        letter-spacing: 0.20em;
+        text-transform: uppercase;
+        margin-bottom: 0.35rem;
+    }
+
+    .live-hud-title {
+        color: #ffffff;
+        font-size: 2rem;
+        font-weight: 950;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        line-height: 1.05;
+        margin-bottom: 0.25rem;
+    }
+
+    .live-hud-subtitle {
+        color: #cfcfcf;
+        font-size: 1rem;
+        font-weight: 750;
+        margin-bottom: 0.8rem;
+    }
+
+    .live-hud-command {
+        background: rgba(0,0,0,0.30);
+        border: 1px solid rgba(255,75,75,0.24);
+        padding: 0.75rem 0.85rem;
+        margin: 0.75rem 0;
+    }
+
+    .live-hud-command span {
+        display: block;
+        color: #ff9b9b;
+        font-size: 0.68rem;
+        font-family: monospace;
+        font-weight: 950;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin-bottom: 0.25rem;
+    }
+
+    .live-hud-command p {
+        margin: 0;
+        color: #eeeeee;
+        font-size: 0.98rem;
+        line-height: 1.35;
+    }
+
+    .live-hud-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.65rem;
+        margin-top: 0.75rem;
+    }
+
+    .live-hud-grid div {
+        background: rgba(0,0,0,0.25);
+        border: 1px solid rgba(255,255,255,0.08);
+        padding: 0.55rem 0.65rem;
+    }
+
+    .live-hud-grid span {
+        display: block;
+        color: #999999;
+        font-size: 0.66rem;
+        font-family: monospace;
+        font-weight: 850;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 0.2rem;
+    }
+
+    .live-hud-grid strong {
+        color: #ffffff;
+        font-size: 0.98rem;
+        font-weight: 900;
+    }
+
+    .director-card {
+        border-left-width: 10px;
+        background:
+            radial-gradient(circle at top right, rgba(255,204,0,0.20), rgba(255,204,0,0.035) 36%, transparent 62%),
+            linear-gradient(135deg, rgba(255,204,0,0.10), rgba(255,255,255,0.04));
+    }
+
+    .director-card .recording-eyebrow {
+        color: #ffcc00;
+    }
+
+    .shot-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.65rem;
+        margin-top: 0.75rem;
+    }
+
+    .shot-item {
+        background: rgba(0,0,0,0.28);
+        border: 1px solid rgba(255,255,255,0.09);
+        padding: 0.7rem 0.8rem;
+    }
+
+    .shot-item span {
+        display: block;
+        color: #ffcc00;
+        font-size: 0.7rem;
+        font-family: monospace;
+        font-weight: 950;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin-bottom: 0.25rem;
+    }
+
+    .shot-item p {
+        margin: 0;
+        color: #eeeeee;
+        font-size: 0.92rem;
+        line-height: 1.3;
+    }
+
+    .loadout-card {
+        border-left-color: #00c2ff;
+        border-color: rgba(0,194,255,0.42);
+        background: linear-gradient(135deg, rgba(0,194,255,0.12), rgba(255,255,255,0.04));
+    }
+
+    .loadout-card .recording-eyebrow {
+        color: #00c2ff;
+    }
+
+    .debrief-card {
+        border-left-color: #30d158;
+        border-color: rgba(48,209,88,0.42);
+        background: linear-gradient(135deg, rgba(48,209,88,0.11), rgba(255,255,255,0.04));
+    }
+
+    .debrief-card .recording-eyebrow {
+        color: #30d158;
+    }
+
     @media (max-width: 900px) {
         .commander-title { font-size: 2.2rem; }
         .order-weapon { font-size: 2rem; }
@@ -2667,9 +4629,15 @@ tab_mission, tab_account, tab_quick_update, tab_tracker, tab_chat, tab_log, tab_
 
 
 with tab_mission:
- 
+
     plan = st.session_state.bo7_session_plan
- 
+    recording_mode = st.checkbox(
+        "Recording Mode",
+        value=bool(st.session_state.get("bo7_recording_mode", False)),
+        help="OBS-friendly presentation cards. Does not change planner logic.",
+        key="bo7_recording_mode",
+    )
+
     # ── STATE 2: ACTIVE PLAN ──
     st.caption(
         f"Current account level: "
@@ -2679,9 +4647,40 @@ with tab_mission:
     render_queued_celebrations()
 
     if plan and plan.get("stops"):
+        plan = attach_loadouts_to_plan(plan, st.session_state.bo7_tasks)
+        plan = attach_series_context_to_plan(
+            plan,
+            summarise_tasks(st.session_state.bo7_tasks),
+            st.session_state.bo7_completion_state,
+        )
+        st.session_state.bo7_session_plan = plan
+
         st.markdown(f"<div class='order-mode'>☣ {plan['mode']} — SESSION PLAN ACTIVE</div>", unsafe_allow_html=True)
 
+        render_series_context_panel(plan)
+
+        obs_cols = st.columns([1, 1, 3])
+        with obs_cols[0]:
+            if st.button("OPEN OBS RECORD VIEW", use_container_width=True, key="bo7_open_obs_record_view"):
+                try:
+                    st.switch_page("pages/06_Commander_Record.py")
+                except Exception:
+                    st.info("Open BO7: OBS Record View from the sidebar.")
+        with obs_cols[1]:
+            if st.button("BACK TO LAUNCH", use_container_width=True, key="bo7_back_to_launch"):
+                try:
+                    st.switch_page("pages/05_Commander_Launch.py")
+                except Exception:
+                    st.info("Open BO7: Commander Launch from the sidebar.")
+
         guide_bits = []
+        if st.session_state.get("bo7_recovery_suggestions"):
+            with st.expander("Recovery options", expanded=True):
+                st.caption("The last objective was blocked or skipped. Here are the best nearby alternatives to keep momentum.")
+                for suggestion in st.session_state.bo7_recovery_suggestions:
+                    weapon = suggestion.get("weapon", suggestion.get("category", "Task"))
+                    camo = suggestion.get("camo", suggestion.get("challenge_text", ""))
+                    st.write(f"• {weapon} — {camo}")
         if plan.get("commander_mode"):
             guide_bits.append(f"Mode: {plan.get('commander_mode')}")
         if plan.get("focus_targets"):
@@ -2697,6 +4696,21 @@ with tab_mission:
 
         if guide_bits:
             st.caption("Commander guidance · " + " · ".join(guide_bits))
+
+        if recording_mode:
+            render_recording_order_card(plan)
+            render_recording_loadout_card(plan)
+            render_recording_director_card(plan)
+            render_recording_debrief_card(plan)
+            st.divider()
+
+        plan_brief = generate_plan_brief(
+            plan,
+            st.session_state.bo7_tasks,
+            st.session_state.bo7_session_log,
+        )
+        if plan_brief:
+            st.info(plan_brief)
 
         diagnostics = plan.get("diagnostics", {})
         confidence = diagnostics.get("confidence", "Unknown")
@@ -2770,7 +4784,7 @@ with tab_mission:
 
             with summary_cols[2]:
                 high_value_count = str(unlock_value).split(" ")[0] if str(unlock_value) else "0"
-                st.metric("High-Value Stops", high_value_count)
+                st.metric("High-Value Objectives", high_value_count)
                 st.caption(unlock_value)
 
             st.caption(f"Stacking: {stacking}")
@@ -2783,7 +4797,7 @@ with tab_mission:
 
             if actual_cluster_counts:
                 cluster_text = " · ".join(
-                    f"{label} ({count} stop{'s' if count != 1 else ''})"
+                    f"{label} ({count} objective{'s' if count != 1 else ''})"
                     for label, count in actual_cluster_counts.items()
                 )
                 st.markdown(
@@ -2792,6 +4806,30 @@ with tab_mission:
                 )
 
             st.divider()
+
+        remaining_minutes = int(
+            st.session_state.get(
+                "plan_remaining_minutes",
+                st.session_state.get("bo7_form_minutes", plan.get("available_minutes", 60)),
+            )
+        )
+
+        ensure_active_stop_timer(plan)
+
+        render_live_objective_hud(plan)
+
+        time_cols = st.columns(4)
+        with time_cols[0]:
+            st.metric("Session Timebox", f"{plan_available_minutes(plan)} min")
+        with time_cols[1]:
+            st.metric("Logged Time", f"{logged_stop_minutes()} min")
+        with time_cols[2]:
+            st.metric("Current Objective", f"{current_stop_elapsed_minutes()} min")
+        with time_cols[3]:
+            st.metric("Time Left", f"{current_time_remaining(plan)} min")
+        
+        render_session_catchup_panel()
+        st.divider()
 
         for stop in plan["stops"]:
             stop_number = stop["stop_number"]
@@ -2825,31 +4863,39 @@ with tab_mission:
                 )
                 st.markdown(f"<div class='order-challenge'>{challenge}</div>", unsafe_allow_html=True)
                 if estimated_minutes:
-                    st.caption(f"Estimated time: {estimated_minutes} minutes")
+                    st.caption(f"Estimated objective time: {estimated_minutes} minutes")
+
+                stop_explanation = build_stop_explanation(stop)
+                if stop_explanation:
+                    with st.expander("Why this objective?", expanded=False):
+                        for line in stop_explanation:
+                            st.write(f"• {line}")
+
                 stacking_hint = stop.get("stacking_hint", "")
                 if stacking_hint:
                     st.info(stacking_hint)
                 companion_objectives = stop.get("companion_objectives", [])
-
                 if companion_objectives:
-                    with st.expander("Stack while doing this", expanded=True):
-                        for companion in companion_objectives:
-                            st.write(f"✅ {companion}")
-
-                companion_objectives = stop.get("companion_objectives", [])
-                if companion_objectives:
-                    with st.expander("Stack while doing this", expanded=True):
+                    with st.expander("Bonus progress to stack", expanded=True):
                         for companion in companion_objectives:
                             st.write(f"✅ {companion}")
 
                 if resolved:
                     result = st.session_state.bo7_stop_results.get(task_id, {})
+                    elapsed_text = ""
+                    if result.get("elapsed_minutes") is not None:
+                        elapsed_text = (
+                            f" · Took {result.get('elapsed_minutes', 0)} min"
+                            f" · {result.get('remaining_minutes_after', 0)} min left"
+                        )
+
                     st.caption(
-                        f"Logged as {status_label}. "
-                        f"{result.get('result', '')} {result.get('blame', '')}".strip()
+                        f"Objective logged as {status_label}. "
+                        f"{result.get('result', '')} {result.get('blame', '')}"
+                        f"{elapsed_text}".strip()
                     )
 
-                    if st.button("↩️ Undo stop result", key=f"undo_{task_id}", use_container_width=True):
+                    if st.button("↩️ Undo objective result", key=f"undo_{task_id}", use_container_width=True):
                         st.session_state.bo7_stop_results.pop(task_id, None)
                         st.session_state.bo7_completed_stop_ids = [
                             existing_id
@@ -2861,60 +4907,26 @@ with tab_mission:
                     st.divider()
                     continue
 
-                col1, col2, col3 = st.columns(3)
                 weapon_level_key = f"weapon_levels_gained_{task_id}"
                 weapon_reset_key = f"weapon_prestige_reset_{task_id}"
-
-                with st.expander("Weapon level progress", expanded=False):
-                    st.number_input(
-                        "Weapon levels gained on this stop",
-                        min_value=0.0,
-                        max_value=250.0,
-                        value=0.0,
-                        step=0.5,
-                        key=weapon_level_key,
-                    )
-
-                    st.checkbox(
-                        "I prestiged/reset this weapon after this stop",
-                        key=weapon_reset_key,
-                    )
-
-                    st.caption(
-                        "Use this for actual weapon level progress. If you hit the level cap and prestige in-game, tick the reset box before pressing Done or Partial."
-                    )
-
+                account_level_key = f"account_levels_gained_{task_id}"
                 camo_reached_key = f"camo_reached_{task_id}"
                 reticle_reached_key = f"reticle_reached_{task_id}"
 
-                if stop.get("task_type") == "camo":
-                    with st.expander("Camo progress reached", expanded=False):
-                        st.selectbox(
-                            "Highest camo reached this stop",
-                            camo_reached_options_from_stop(stop),
-                            key=camo_reached_key,
-                        )
+                render_objective_progress_pulse(
+                    stop=stop,
+                    task_id=task_id,
+                    weapon_level_key=weapon_level_key,
+                    weapon_reset_key=weapon_reset_key,
+                    account_level_key=account_level_key,
+                    camo_reached_key=camo_reached_key,
+                    reticle_reached_key=reticle_reached_key,
+                )
 
-                        st.caption(
-                            "Use this if you went further than the assigned camo. "
-                            "Selecting Golden Dragon marks every camo up to Golden Dragon complete for this weapon."
-                        )
-
-                if stop.get("task_type") == "reticle":
-                    with st.expander("Reticle progress reached", expanded=False):
-                        st.selectbox(
-                            "Highest reticle stage reached this stop",
-                            ["No extra update", "20", "40", "60", "80", "100"],
-                            key=reticle_reached_key,
-                        )
-
-                        st.caption(
-                            "Use this if you went further than the assigned reticle stage. "
-                            "Selecting 100 marks every stage up to 100 complete for this mode only."
-                        )
+                col1, col2, col3 = st.columns(3)
 
                 with col1:
-                    if st.button("✅ Done", key=f"done_{task_id}", use_container_width=True):
+                    if st.button("✅ Objective Done", key=f"done_{task_id}", use_container_width=True):
                         milestone_before = capture_milestone_snapshot()
 
                         csv_updated = (
@@ -2958,11 +4970,22 @@ with tab_mission:
                             csv_updated = True
                             queue_weapon_level_celebration(stop, level_result)
 
+                        account_level_result = log_objective_account_level_gain(
+                            stop=stop,
+                            plan=plan,
+                            levels_gained=st.session_state.get(account_level_key, 0.0),
+                        )
+
+                        if account_level_result.get("updated"):
+                            st.session_state.bo7_session_log = load_persisted_session_log()
+
                         if csv_updated:
                             milestone_after = capture_milestone_snapshot()
                             queue_milestone_celebrations(milestone_before, milestone_after)
 
+                        timing = close_active_stop_timer(stop, plan)
                         log_plan_stop(stop, "Camo completed", "Successful operation")
+                        st.session_state.bo7_recovery_suggestions = []
 
                         record_stop_result(
                             stop=stop,
@@ -2970,6 +4993,7 @@ with tab_mission:
                             result="Camo completed",
                             blame="Successful operation",
                             notes="CSV updated" if csv_updated else "Logged only",
+                            timing=timing
                         )
 
                         queue_stop_celebration(stop, csv_updated)
@@ -2980,9 +5004,9 @@ with tab_mission:
                         st.rerun()
 
                 with col2:
-                    if st.button("⚠️ Partial", key=f"partial_{task_id}", use_container_width=True):
+                    if st.button("⚠️ Partial Progress", key=f"partial_{task_id}", use_container_width=True):
                         milestone_before = capture_milestone_snapshot()
-
+                        timing = close_active_stop_timer(stop, plan)
                         log_plan_stop(stop, "Partial progress", "Human avoidance")
 
                         csv_updated = False
@@ -3023,27 +5047,101 @@ with tab_mission:
                             csv_updated = True
                             queue_weapon_level_celebration(stop, level_result)
 
+                        account_level_result = log_objective_account_level_gain(
+                            stop=stop,
+                            plan=plan,
+                            levels_gained=st.session_state.get(account_level_key, 0.0),
+                        )
+
+                        if account_level_result.get("updated"):
+                            st.session_state.bo7_session_log = load_persisted_session_log()
+
                         if csv_updated:
                             milestone_after = capture_milestone_snapshot()
                             queue_milestone_celebrations(milestone_before, milestone_after)
                             reload_commander_from_csv()
+
+                        st.session_state.bo7_recovery_suggestions = build_recovery_suggestions(
+                            tasks=st.session_state.bo7_tasks,
+                            current_stop=stop,
+                            preferred_mode=plan.get("preferred_mode", plan.get("mode", st.session_state.bo7_form_preferred_mode)),
+                            avoided_mode=plan.get("avoided_mode", st.session_state.bo7_form_avoided_mode),
+                            session_goal=st.session_state.bo7_form_session_goal,
+                            motivation=st.session_state.bo7_form_motivation,
+                            commander_mode=plan.get("commander_mode", st.session_state.bo7_form_commander_mode),
+                            focus_targets=plan.get("focus_targets", st.session_state.bo7_form_focus_targets),
+                            anchor_weapon=plan.get("anchor_weapon", st.session_state.bo7_form_anchor_weapon),
+                            anchor_class=plan.get("anchor_class", st.session_state.bo7_form_anchor_class),
+                            anchor_collection=plan.get("anchor_collection", st.session_state.bo7_form_anchor_collection),
+                            minimum_closeness=plan.get("minimum_closeness", st.session_state.bo7_form_minimum_closeness),
+                        )
+
+                        st.session_state.bo7_session_plan = build_recovery_plan(
+                            tasks=st.session_state.bo7_tasks,
+                            current_stop=stop,
+                            preferred_mode=plan.get("preferred_mode", plan.get("mode", st.session_state.bo7_form_preferred_mode)),
+                            avoided_mode=plan.get("avoided_mode", st.session_state.bo7_form_avoided_mode),
+                            session_goal=st.session_state.bo7_form_session_goal,
+                            motivation=st.session_state.bo7_form_motivation,
+                            remaining_minutes=remaining_minutes,
+                            commander_mode=plan.get("commander_mode", st.session_state.bo7_form_commander_mode),
+                            focus_targets=plan.get("focus_targets", st.session_state.bo7_form_focus_targets),
+                            anchor_weapon=plan.get("anchor_weapon", st.session_state.bo7_form_anchor_weapon),
+                            anchor_class=plan.get("anchor_class", st.session_state.bo7_form_anchor_class),
+                            anchor_collection=plan.get("anchor_collection", st.session_state.bo7_form_anchor_collection),
+                            minimum_closeness=plan.get("minimum_closeness", st.session_state.bo7_form_minimum_closeness),
+                            completed_task_ids=resolved_stop_ids(),
+                        )
 
                         record_stop_result(
                             stop=stop,
                             status="partial",
                             result="Partial progress",
                             blame="Human avoidance",
+                            timing=timing
                         )
                         st.rerun()
 
                 with col3:
-                    if st.button("⏭️ Skip", key=f"skip_{task_id}", use_container_width=True):
+                    if st.button("⏭️ Skip Objective", key=f"skip_{task_id}", use_container_width=True):
+                        timing = close_active_stop_timer(stop, plan)
                         log_plan_stop(stop, "Skipped", "Human choice")
+                        st.session_state.bo7_recovery_suggestions = build_recovery_suggestions(
+                            tasks=st.session_state.bo7_tasks,
+                            current_stop=stop,
+                            preferred_mode=plan.get("preferred_mode", plan.get("mode", st.session_state.bo7_form_preferred_mode)),
+                            avoided_mode=plan.get("avoided_mode", st.session_state.bo7_form_avoided_mode),
+                            session_goal=st.session_state.bo7_form_session_goal,
+                            motivation=st.session_state.bo7_form_motivation,
+                            commander_mode=plan.get("commander_mode", st.session_state.bo7_form_commander_mode),
+                            focus_targets=plan.get("focus_targets", st.session_state.bo7_form_focus_targets),
+                            anchor_weapon=plan.get("anchor_weapon", st.session_state.bo7_form_anchor_weapon),
+                            anchor_class=plan.get("anchor_class", st.session_state.bo7_form_anchor_class),
+                            anchor_collection=plan.get("anchor_collection", st.session_state.bo7_form_anchor_collection),
+                            minimum_closeness=plan.get("minimum_closeness", st.session_state.bo7_form_minimum_closeness),
+                        )
+                        st.session_state.bo7_session_plan = build_recovery_plan(
+                            tasks=st.session_state.bo7_tasks,
+                            current_stop=stop,
+                            preferred_mode=plan.get("preferred_mode", plan.get("mode", st.session_state.bo7_form_preferred_mode)),
+                            avoided_mode=plan.get("avoided_mode", st.session_state.bo7_form_avoided_mode),
+                            session_goal=st.session_state.bo7_form_session_goal,
+                            motivation=st.session_state.bo7_form_motivation,
+                            remaining_minutes=remaining_minutes,
+                            commander_mode=plan.get("commander_mode", st.session_state.bo7_form_commander_mode),
+                            focus_targets=plan.get("focus_targets", st.session_state.bo7_form_focus_targets),
+                            anchor_weapon=plan.get("anchor_weapon", st.session_state.bo7_form_anchor_weapon),
+                            anchor_class=plan.get("anchor_class", st.session_state.bo7_form_anchor_class),
+                            anchor_collection=plan.get("anchor_collection", st.session_state.bo7_form_anchor_collection),
+                            minimum_closeness=plan.get("minimum_closeness", st.session_state.bo7_form_minimum_closeness),
+                            completed_task_ids=resolved_stop_ids(),
+                        )
                         record_stop_result(
                             stop=stop,
                             status="skipped",
                             result="Skipped",
                             blame="Human choice",
+                            timing=timing
                         )
                         st.rerun()
 
@@ -3078,46 +5176,66 @@ with tab_mission:
                     anchor_class=plan.get("anchor_class", st.session_state.bo7_form_anchor_class),
                     anchor_collection=plan.get("anchor_collection", st.session_state.bo7_form_anchor_collection),
                     minimum_closeness=plan.get("minimum_closeness", st.session_state.bo7_form_minimum_closeness),
+                    avoided_mode=plan.get("avoided_mode", st.session_state.bo7_form_avoided_mode),
                 )
  
-                st.session_state.bo7_session_plan = new_plan
+                st.session_state.bo7_session_plan = attach_loadouts_to_plan(new_plan, st.session_state.bo7_tasks)
                 st.rerun()
  
         with col_b:
-            st.markdown("### End Session Log")
+            st.markdown("### Session Debrief")
+            st.caption(
+                "Progress Pulse already banked account levels during objectives. "
+                "Only add extra levels here if you forgot to log them."
+            )
 
-            st.session_state.bo7_account_levels_gained = st.number_input(
-                "Account levels gained this session",
+            st.metric(
+                "Account levels banked",
+                f"+{float(st.session_state.get('bo7_account_levels_gained', 0.0) or 0.0):g}",
+            )
+
+            st.session_state.bo7_account_levels_debrief_adjustment = st.number_input(
+                "Extra account levels missed",
                 min_value=0.0,
                 max_value=100.0,
-                value=float(st.session_state.bo7_account_levels_gained),
+                value=float(st.session_state.bo7_account_levels_debrief_adjustment),
                 step=0.5,
-                key="account_levels_gained_input",
+                key="account_levels_debrief_adjustment_input",
             )
+            auto_actual_minutes = logged_stop_minutes()
 
             st.session_state.bo7_actual_minutes_played = st.number_input(
                 "Actual minutes played",
                 min_value=0,
                 max_value=480,
-                value=int(st.session_state.bo7_actual_minutes_played or plan.get("estimated_minutes", 0) or plan.get("available_minutes", 0)),
+                value=int(
+                    auto_actual_minutes
+                    or st.session_state.bo7_actual_minutes_played
+                    or plan.get("estimated_minutes", 0)
+                    or plan.get("available_minutes", 0)
+                ),
                 step=5,
                 key="actual_minutes_played_input",
+                help="Auto-filled from objective timers. Edit only if the timer is wrong.",
             )
 
-            if st.button("END SESSION", use_container_width=True):
-                levels_gained = float(st.session_state.bo7_account_levels_gained)
+            if st.button("FINISH DEBRIEF", use_container_width=True):
+                already_banked_levels = float(st.session_state.bo7_account_levels_gained or 0.0)
+                extra_levels = float(st.session_state.bo7_account_levels_debrief_adjustment or 0.0)
+                total_levels = already_banked_levels + extra_levels
                 actual_minutes_played = int(st.session_state.bo7_actual_minutes_played or 0)
+
+                if extra_levels > 0:
+                    log_account_level_gain(
+                        levels_gained=extra_levels,
+                        plan=st.session_state.bo7_session_plan,
+                        actual_minutes_played=actual_minutes_played,
+                    )
 
                 st.session_state.bo7_last_debrief = build_session_debrief(
                     plan=st.session_state.bo7_session_plan,
                     stop_results=st.session_state.bo7_stop_results,
-                    account_levels_gained=levels_gained,
-                    actual_minutes_played=actual_minutes_played,
-                )
-
-                log_account_level_gain(
-                    levels_gained=levels_gained,
-                    plan=st.session_state.bo7_session_plan,
+                    account_levels_gained=total_levels,
                     actual_minutes_played=actual_minutes_played,
                 )
 
@@ -3126,6 +5244,7 @@ with tab_mission:
                 st.session_state.bo7_completed_stop_ids = []
                 st.session_state.bo7_stop_results = {}
                 st.session_state.bo7_account_levels_gained = 0.0
+                st.session_state.bo7_account_levels_debrief_adjustment = 0.0
                 st.rerun()
  
     # ── STATE 1: NO ACTIVE PLAN ──
@@ -3297,9 +5416,10 @@ with tab_mission:
                 anchor_class=anchor_class,
                 anchor_collection=anchor_collection,
                 minimum_closeness=minimum_closeness,
+                avoided_mode=avoided_mode,
             )
 
-            st.session_state.bo7_session_plan = new_plan
+            st.session_state.bo7_session_plan = attach_loadouts_to_plan(new_plan, st.session_state.bo7_tasks)
             st.rerun()
 
         if st.button("GENERATE NO-THINKING PLAN", use_container_width=True):
@@ -3330,9 +5450,10 @@ with tab_mission:
                 anchor_class="",
                 anchor_collection="Any stackable progress",
                 minimum_closeness=minimum_closeness,
+                avoided_mode="Global Cleanup",
             )
 
-            st.session_state.bo7_session_plan = new_plan
+            st.session_state.bo7_session_plan = attach_loadouts_to_plan(new_plan, st.session_state.bo7_tasks)
             st.rerun()
 
 # -- Account -- 
@@ -3364,7 +5485,7 @@ with tab_account:
     st.divider()
 
     st.info(
-        "XP token bank tracking has been retired. Weapon level progress now lives in Quick Update → Weapon Levels and on each session stop."
+        "XP token bank tracking has been retired. Weapon level progress now lives in Quick Update → Weapon Levels and on each Commander objective."
     )
 
 # ─── QUICK UPDATE ─────────────────────────────────────────────────────────────

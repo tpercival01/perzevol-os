@@ -1,86 +1,86 @@
 mode,category,sub_category,challenge,requirement,tier1_complete,tier2_complete,tier3_complete,tier4_complete,tier5_complete,completed,tier1_target,tier2_target,tier3_target,tier4_target,tier5_target,counts_for_100_percent,display_as_extra
-Co-Op / Endgame,Career,Field Readiness,Initial Exposure,Complete Mission: Exposure,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,1,,,,,TRUE,FALSE
-Co-Op / Endgame,Career,Field Readiness,Hostile Takeover,Eliminate 100 Human enemies,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,100,,,,,TRUE,FALSE
-Co-Op / Endgame,Career,Field Readiness,Kill Switch,Eliminate 50 Guild Tech enemies,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,50,,,,,TRUE,FALSE
-Co-Op / Endgame,Career,Field Readiness,Field Promotion,Receive your first Power Upgrade,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,1,,,,,TRUE,FALSE
-Co-Op / Endgame,Career,Field Readiness,Glide or Die,"Glide a total of 1,000m with the Wingsuit in Avalon",TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,1000,,,,,TRUE,FALSE
-Co-Op / Endgame,Career,Field Readiness,Cache in Hand,Find and open 20 Supply Caches,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,20,,,,,TRUE,FALSE
-Co-Op / Endgame,Career,Jack of All Trades,Reeled In,Kill an enemy while or shortly after using the Grappling Hook Ability 10 times,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,10,,,,,TRUE,FALSE
-Co-Op / Endgame,Career,Jack of All Trades,Peekaboo,Get a Kill with a Melee Weapon while cloaked by the Active Camo Ability 10 times,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,10,,,,,TRUE,FALSE
-Co-Op / Endgame,Career,Jack of All Trades,Death from Above,Get 25 Kills with the War Machine Ability while airborne,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,25,,,,,TRUE,FALSE
-Co-Op / Endgame,Career,Jack of All Trades,Over Here Buddy,Get a Kill shortly after using the Flicker Ability 10 times,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,10,,,,,TRUE,FALSE
-Co-Op / Endgame,Career,Jack of All Trades,Bubble Wrapped,Use the Ballistic Shell Ability and then get at least 5 Kills without leaving it 3 times,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,3,,,,,TRUE,FALSE
-Co-Op / Endgame,Career,Jack of All Trades,Nowhere to Hide,Kill an enemy revealed by the Vision Pulse Ability by shooting them through a penetrable surface 10 times,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,10,,,,,TRUE,FALSE
+Co-Op / Endgame,Career,Field Readiness,Initial Exposure,Complete Mission: Exposure,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1,,,,,TRUE,FALSE
+Co-Op / Endgame,Career,Field Readiness,Hostile Takeover,Eliminate 100 Human enemies,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,100,,,,,TRUE,FALSE
+Co-Op / Endgame,Career,Field Readiness,Kill Switch,Eliminate 50 Guild Tech enemies,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,50,,,,,TRUE,FALSE
+Co-Op / Endgame,Career,Field Readiness,Field Promotion,Receive your first Power Upgrade,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1,,,,,TRUE,FALSE
+Co-Op / Endgame,Career,Field Readiness,Glide or Die,"Glide a total of 1,000m with the Wingsuit in Avalon",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1000,,,,,TRUE,FALSE
+Co-Op / Endgame,Career,Field Readiness,Cache in Hand,Find and open 20 Supply Caches,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,20,,,,,TRUE,FALSE
+Co-Op / Endgame,Career,Jack of All Trades,Reeled In,Kill an enemy while or shortly after using the Grappling Hook Ability 10 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,10,,,,,TRUE,FALSE
+Co-Op / Endgame,Career,Jack of All Trades,Peekaboo,Get a Kill with a Melee Weapon while cloaked by the Active Camo Ability 10 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,10,,,,,TRUE,FALSE
+Co-Op / Endgame,Career,Jack of All Trades,Death from Above,Get 25 Kills with the War Machine Ability while airborne,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,25,,,,,TRUE,FALSE
+Co-Op / Endgame,Career,Jack of All Trades,Over Here Buddy,Get a Kill shortly after using the Flicker Ability 10 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,10,,,,,TRUE,FALSE
+Co-Op / Endgame,Career,Jack of All Trades,Bubble Wrapped,Use the Ballistic Shell Ability and then get at least 5 Kills without leaving it 3 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,3,,,,,TRUE,FALSE
+Co-Op / Endgame,Career,Jack of All Trades,Nowhere to Hide,Kill an enemy revealed by the Vision Pulse Ability by shooting them through a penetrable surface 10 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,10,,,,,TRUE,FALSE
 Co-Op / Endgame,Career,Mission Report,Advanced Soldier,"Get 1,000 Critical Kills",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,50,100,250,500,1000,TRUE,FALSE
-Co-Op / Endgame,Career,Mission Report,Titan of War,Eliminate a Titan,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,1,,,,,TRUE,FALSE
-Co-Op / Endgame,Career,Mission Report,Leap for Your Life,Complete the Ascend section in Mission: Fracture without getting hit by a vehicle,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,1,,,,,TRUE,FALSE
-Co-Op / Endgame,Career,Mission Report,Off the Radar,Perform 10 Finishing Moves,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,10,,,,,TRUE,FALSE
-Co-Op / Endgame,Career,Mission Report,Inmate at Large,Sneak through the Prison without being detected in Mission: Suppression,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,1,,,,,TRUE,FALSE
-Co-Op / Endgame,Career,Mission Report,Mission Accomplished,Complete every Mission in the Co-Op Campaign,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,11,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame,C-Link Operative,Maxed Out,In Endgame: reach Operator Combat Rating 60 and then Escape successfully,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,1.0,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame,C-Link Operative,Conductive Force,In Endgame with the Shocking Reload Skill equipped: Kill 25 enemies shocked with electrical damage,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,25.0,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame,C-Link Operative,Up Close & Personal,In Endgame with the Tackle Skill equipped: get 100 Point Blank Kills,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,100.0,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame,C-Link Operative,Dive Bomber,In Endgame with the Slide Explosions Skill equipped: get a Kill shortly after using your Wingsuit 10 times,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,10.0,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame,C-Link Operative,Demolitions Specialist,In Endgame with the Pinata Skill equipped: get 5 rapid Equipment Kills 5 times,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,5.0,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame,C-Link Operative,Cratered,In Endgame with the Fall Explosions Skill equipped: get 25 Kills with Fall Damage explosions,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,25.0,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame,Endgame Ops,Cool if I Use This?,In Endgame: clear 15 Command Centers,TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,5.0,10.0,15.0,,,TRUE,FALSE
-Co-Op / Endgame,Endgame,Endgame Ops,Clean Up Crew,In Endgame: clear 15 Toxin Fields,TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,5.0,10.0,15.0,,,TRUE,FALSE
-Co-Op / Endgame,Endgame,Endgame Ops,Recovery Op,In Endgame: complete the Data Collection Activity 3 times,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,3.0,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame,Endgame Ops,Wind Rider,In Endgame: complete the Toxin Chase Activity 3 times,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,3.0,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame,Endgame Ops,Staying Active,In Endgame: complete 15 Activities in a single match,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,1.0,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame,Endgame Ops,What's in the Box,In Endgame: complete the Surprise Shipment Activity 5 times,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,5.0,,,,,TRUE,FALSE
+Co-Op / Endgame,Career,Mission Report,Titan of War,Eliminate a Titan,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1,,,,,TRUE,FALSE
+Co-Op / Endgame,Career,Mission Report,Leap for Your Life,Complete the Ascend section in Mission: Fracture without getting hit by a vehicle,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1,,,,,TRUE,FALSE
+Co-Op / Endgame,Career,Mission Report,Off the Radar,Perform 10 Finishing Moves,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,10,,,,,TRUE,FALSE
+Co-Op / Endgame,Career,Mission Report,Inmate at Large,Sneak through the Prison without being detected in Mission: Suppression,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1,,,,,TRUE,FALSE
+Co-Op / Endgame,Career,Mission Report,Mission Accomplished,Complete every Mission in the Co-Op Campaign,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,11,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame,C-Link Operative,Maxed Out,In Endgame: reach Operator Combat Rating 60 and then Escape successfully,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame,C-Link Operative,Conductive Force,In Endgame with the Shocking Reload Skill equipped: Kill 25 enemies shocked with electrical damage,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,25.0,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame,C-Link Operative,Up Close & Personal,In Endgame with the Tackle Skill equipped: get 100 Point Blank Kills,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,100.0,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame,C-Link Operative,Dive Bomber,In Endgame with the Slide Explosions Skill equipped: get a Kill shortly after using your Wingsuit 10 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,10.0,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame,C-Link Operative,Demolitions Specialist,In Endgame with the Pinata Skill equipped: get 5 rapid Equipment Kills 5 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5.0,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame,C-Link Operative,Cratered,In Endgame with the Fall Explosions Skill equipped: get 25 Kills with Fall Damage explosions,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,25.0,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame,Endgame Ops,Cool if I Use This?,In Endgame: clear 15 Command Centers,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5.0,10.0,15.0,,,TRUE,FALSE
+Co-Op / Endgame,Endgame,Endgame Ops,Clean Up Crew,In Endgame: clear 15 Toxin Fields,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5.0,10.0,15.0,,,TRUE,FALSE
+Co-Op / Endgame,Endgame,Endgame Ops,Recovery Op,In Endgame: complete the Data Collection Activity 3 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,3.0,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame,Endgame Ops,Wind Rider,In Endgame: complete the Toxin Chase Activity 3 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,3.0,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame,Endgame Ops,Staying Active,In Endgame: complete 15 Activities in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame,Endgame Ops,What's in the Box,In Endgame: complete the Surprise Shipment Activity 5 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5.0,,,,,TRUE,FALSE
 Co-Op / Endgame,Endgame,Embrace the Nightmare,Zone IV Eradicator,"In Endgame: get 1,000 Eliminations in Zone IV",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,100.0,250.0,500.0,750.0,1000.0,TRUE,FALSE
-Co-Op / Endgame,Endgame,Embrace the Nightmare,No Walk in the Park,In Endgame: complete 15 Assignments in Zone IV,TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,5.0,10.0,15.0,,,TRUE,FALSE
-Co-Op / Endgame,Endgame,Embrace the Nightmare,Rare Drop,In Endgame: Eliminate 20 Zone IV Special or Elite enemies with Exotic Weapons,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,20.0,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame,Embrace the Nightmare,Force of One,In Endgame: clear a Command Center in Zone IV solo without the help of any other players,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,1.0,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame,Embrace the Nightmare,Finders Keepers,In Endgame: open 50 Caches in Zone IV,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,50.0,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame,Embrace the Nightmare,Perfect Run,In Endgame using a Combat Rating 60+ Operator: complete 3 Zone IV Assignments and Escape without being downed,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,1.0,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation Poison Pill,Meltdown,Eliminate 500 Nightmare Zone enemies,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation Poison Pill,Patched,Complete 2 Glitches,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation Poison Pill,In the Cut,Get 100 Kills in a single match with the Aether Blade Ability,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation Poison Pill,Barbecue,Kill a Nightmare Zone Elite Enemy with the Molotov Equipment,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation Poison Pill,Buddy System,Get 50 Kills with the Drone summoned by the Wirehand Skill,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation Poison Pill,Best in Slot,Upgrade 5 weapons to Exotic with Exotic Fabricators,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation Broken Mirror,Thermonuclear,Rapidly Kill 5 enemies with the Thermal Spike Ability 10 times,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation Broken Mirror,Underdog,Kill 100 Nightmare Zone enemies while under Combat Rating 30,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation Broken Mirror,Overencumbered,Upgrade the Rarity of 5 Weapons using Jailbreak Machines or Exotic Fabricators in a single match,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation Broken Mirror,Hot Streak,In Endgame: successfully Escape 10 times in a row without getting Eliminated,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation Broken Mirror,Rough Road,Kill 150 Zone IV or higher enemies with the Blood Burner Ability,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation Broken Mirror,Juiced,"In Endgame: earn 25,000 Power in a single match",TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation Wall Breaker,Hot Streak,Kill 100 Zone III or higher enemies with no more than 10 seconds between each Kill,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation Wall Breaker,The Classics,"Get 1,000 Kills while above 50 Combat Rating with Mason, 50/50, Harper, or Samuels",FALSE,TRUE,FALSE,FALSE,FALSE,FALSE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation Wall Breaker,Silent Blade,Perform 10 Finishing Moves in a single match,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation Wall Breaker,LFG,Kill 500 Nightmare Zone enemies while solo,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation Wall Breaker,Jump Shot,Kill an enemy with the Death Machine while airborne 25 times,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation Wall Breaker,Pistoleer,With an Akimbo Attachment equipped: Eliminate 300 Zone IV or higher enemies with Pistols,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Dark Ops,Dark Ops,Absolute Loss,Beat Menendez using only machetes in Mission: Exposure,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Dark Ops,Dark Ops,Green Thumb,Beat the Nightmare in Mission: Distortion without taking any damage,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Dark Ops,Dark Ops,Undaunted,Survive the horde of Fears in Mission: Suppression,TRUE,,,,,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Dark Ops,Dark Ops,Monkeying Around,In Endgame: Find and complete a dive course and a parkour course,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Dark Ops,Dark Ops,Exotic Arsenal,Get an Elimination with 6 different Exotic Weapons,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Dark Ops,Dark Ops,Dream Team,In Endgame: successfully Escape from Zone IV 25 times,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Dark Ops,Dark Ops,Overpowered,"In Endgame: earn 1,000,000 total Power",TRUE,,,,,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Dark Ops,Dark Ops,Pest Control,Defeat the Endgame Final Boss,TRUE,,,,,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Dark Ops,Dark Ops,Predator Becomes Prey,In Endgame: trigger and defeat the Hunted Activity,TRUE,,,,,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Dark Ops,Dark Ops,Giant Felling,In Endgame: Exfil via the Colossus of Avalon,TRUE,,,,,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Dark Ops,Dark Ops,Mountain Climber,In Endgame: ride the Toxic Tyrant,TRUE,,,,,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Dark Ops,Dark Ops,Titan Hunter,In Endgame: complete 3 unique World Events,TRUE,,,,,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Dark Ops,Dark Ops,Off-Meta,Complete Root Crasher without anyone using the Crash Cart or Ballistic Shield Abilities,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Dark Ops,Dark Ops,Stationary Stalwart,In Root Crasher: capture the initial set of zones without being downed or leaving the zones,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Dark Ops,Dark Ops,Run it Back,Unlock 3 Operator Skins from Root Crasher,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Dark Ops,Dark Ops,Go Fetch,In the Link Forger Glitch: destroy a D.A.W.G.'s shield using thrown back Equipment that was deployed by the D.A.W.G.,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Dark Ops,Dark Ops,Single-Threaded,Compelte the Link Forger Glitch solo,TRUE,,,,,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Dark Ops,Dark Ops,Elusive,Eliminate the Link Forger Glitch Boss without getting stunned,TRUE,,,,,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Dark Ops,Dark Ops,Fever Dream,Compelte the Virus Injection Glitch solo,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Dark Ops,Dark Ops,Inviolate,Complete the Virus Injection Glitch without being downed,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Dark Ops,Dark Ops,Hypochondriac,Unlock all 3 Operator Skins from the Virus Injection Glitch,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Dark Ops,Dark Ops,Bastion,Complete the Command Killer Glitch solo,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Dark Ops,Dark Ops,Exterminator,Complete the Command Killer Glitch without any beehives surviving for more than 20 seconds,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Dark Ops,Dark Ops,Hoarder,Unlock all 3 Operator Skins from the Command Killer Glitch,FALSE,,,,,FALSE,,,,,,TRUE,FALSE
-Co-Op / Endgame,100 Percenter,Mode Completion,Co-Op Campaign 100 Percenter,Unlock the Co-Op Campaign 100 Percenter calling card.,TRUE,,,,,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation King Killer,New Kicks,Eliminate 250 Nightmare Zone enemies with Seasonal Weapons,FALSE,,,,,FALSE,250,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation King Killer,Pub Stomper,Critically Kill 100 Zone I enemies while above 60 Combat Rating,FALSE,,,,,FALSE,100,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation King Killer,No Survivors,Kill 10 Special or Elite enemies with an Exotic Melee Weapon,FALSE,,,,,FALSE,10,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation King Killer,Support Team,Kill 75 enemies with Abilities in a single match,FALSE,,,,,FALSE,75,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation King Killer,Surprise Buckshot,Kill an enemy with a Shotgun shortly after landing from a Wingsuit 10 times,FALSE,,,,,FALSE,10,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation King Killer,Own Medicine,Charm 50 enemies with the Psych Grenade Ability in a single match,FALSE,,,,,FALSE,50,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame,Embrace the Nightmare,No Walk in the Park,In Endgame: complete 15 Assignments in Zone IV,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5.0,10.0,15.0,,,TRUE,FALSE
+Co-Op / Endgame,Endgame,Embrace the Nightmare,Rare Drop,In Endgame: Eliminate 20 Zone IV Special or Elite enemies with Exotic Weapons,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,20.0,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame,Embrace the Nightmare,Force of One,In Endgame: clear a Command Center in Zone IV solo without the help of any other players,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame,Embrace the Nightmare,Finders Keepers,In Endgame: open 50 Caches in Zone IV,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,50.0,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame,Embrace the Nightmare,Perfect Run,In Endgame using a Combat Rating 60+ Operator: complete 3 Zone IV Assignments and Escape without being downed,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,1.0,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation Poison Pill,Meltdown,Eliminate 500 Nightmare Zone enemies,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation Poison Pill,Patched,Complete 2 Glitches,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation Poison Pill,In the Cut,Get 100 Kills in a single match with the Aether Blade Ability,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation Poison Pill,Barbecue,Kill a Nightmare Zone Elite Enemy with the Molotov Equipment,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation Poison Pill,Buddy System,Get 50 Kills with the Drone summoned by the Wirehand Skill,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation Poison Pill,Best in Slot,Upgrade 5 weapons to Exotic with Exotic Fabricators,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation Broken Mirror,Thermonuclear,Rapidly Kill 5 enemies with the Thermal Spike Ability 10 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation Broken Mirror,Underdog,Kill 100 Nightmare Zone enemies while under Combat Rating 30,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation Broken Mirror,Overencumbered,Upgrade the Rarity of 5 Weapons using Jailbreak Machines or Exotic Fabricators in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation Broken Mirror,Hot Streak,In Endgame: successfully Escape 10 times in a row without getting Eliminated,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation Broken Mirror,Rough Road,Kill 150 Zone IV or higher enemies with the Blood Burner Ability,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation Broken Mirror,Juiced,"In Endgame: earn 25,000 Power in a single match",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation Wall Breaker,Hot Streak,Kill 100 Zone III or higher enemies with no more than 10 seconds between each Kill,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation Wall Breaker,The Classics,"Get 1,000 Kills while above 50 Combat Rating with Mason, 50/50, Harper, or Samuels",TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation Wall Breaker,Silent Blade,Perform 10 Finishing Moves in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation Wall Breaker,LFG,Kill 500 Nightmare Zone enemies while solo,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation Wall Breaker,Jump Shot,Kill an enemy with the Death Machine while airborne 25 times,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation Wall Breaker,Pistoleer,With an Akimbo Attachment equipped: Eliminate 300 Zone IV or higher enemies with Pistols,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Dark Ops,Dark Ops,Absolute Loss,Beat Menendez using only machetes in Mission: Exposure,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Dark Ops,Dark Ops,Green Thumb,Beat the Nightmare in Mission: Distortion without taking any damage,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Dark Ops,Dark Ops,Undaunted,Survive the horde of Fears in Mission: Suppression,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Dark Ops,Dark Ops,Monkeying Around,In Endgame: Find and complete a dive course and a parkour course,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Dark Ops,Dark Ops,Exotic Arsenal,Get an Elimination with 6 different Exotic Weapons,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Dark Ops,Dark Ops,Dream Team,In Endgame: successfully Escape from Zone IV 25 times,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Dark Ops,Dark Ops,Overpowered,"In Endgame: earn 1,000,000 total Power",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Dark Ops,Dark Ops,Pest Control,Defeat the Endgame Final Boss,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Dark Ops,Dark Ops,Predator Becomes Prey,In Endgame: trigger and defeat the Hunted Activity,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Dark Ops,Dark Ops,Giant Felling,In Endgame: Exfil via the Colossus of Avalon,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Dark Ops,Dark Ops,Mountain Climber,In Endgame: ride the Toxic Tyrant,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Dark Ops,Dark Ops,Titan Hunter,In Endgame: complete 3 unique World Events,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Dark Ops,Dark Ops,Off-Meta,Complete Root Crasher without anyone using the Crash Cart or Ballistic Shield Abilities,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Dark Ops,Dark Ops,Stationary Stalwart,In Root Crasher: capture the initial set of zones without being downed or leaving the zones,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Dark Ops,Dark Ops,Run it Back,Unlock 3 Operator Skins from Root Crasher,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Dark Ops,Dark Ops,Go Fetch,In the Link Forger Glitch: destroy a D.A.W.G.'s shield using thrown back Equipment that was deployed by the D.A.W.G.,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Dark Ops,Dark Ops,Single-Threaded,Compelte the Link Forger Glitch solo,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Dark Ops,Dark Ops,Elusive,Eliminate the Link Forger Glitch Boss without getting stunned,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Dark Ops,Dark Ops,Fever Dream,Compelte the Virus Injection Glitch solo,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Dark Ops,Dark Ops,Inviolate,Complete the Virus Injection Glitch without being downed,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Dark Ops,Dark Ops,Hypochondriac,Unlock all 3 Operator Skins from the Virus Injection Glitch,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Dark Ops,Dark Ops,Bastion,Complete the Command Killer Glitch solo,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Dark Ops,Dark Ops,Exterminator,Complete the Command Killer Glitch without any beehives surviving for more than 20 seconds,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Dark Ops,Dark Ops,Hoarder,Unlock all 3 Operator Skins from the Command Killer Glitch,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Co-Op / Endgame,100 Percenter,Mode Completion,Co-Op Campaign 100 Percenter,Unlock the Co-Op Campaign 100 Percenter calling card.,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation King Killer,New Kicks,Eliminate 250 Nightmare Zone enemies with Seasonal Weapons,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,250,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation King Killer,Pub Stomper,Critically Kill 100 Zone I enemies while above 60 Combat Rating,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,100,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation King Killer,No Survivors,Kill 10 Special or Elite enemies with an Exotic Melee Weapon,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,10,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation King Killer,Support Team,Kill 75 enemies with Abilities in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,75,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation King Killer,Surprise Buckshot,Kill an enemy with a Shotgun shortly after landing from a Wingsuit 10 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,10,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation King Killer,Own Medicine,Charm 50 enemies with the Psych Grenade Ability in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,50,,,,,TRUE,FALSE
