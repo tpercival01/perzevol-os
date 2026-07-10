@@ -10,11 +10,21 @@ TTK_DATA_DIR = Path("data/bo7_ttk")
 GUNS_PATH = TTK_DATA_DIR / "guns.csv"
 ATTACHMENTS_PATH = TTK_DATA_DIR / "attachments.csv"
 
+DEFAULT_STATS_PROFILE = "Multiplayer"
+LEGACY_STATS_PROFILE = "Multiplayer"
+SUPPORTED_STATS_PROFILES = [
+    "Warzone",
+    "Multiplayer",
+    "Zombies",
+    "Co-Op / Endgame",
+]
+
 
 REQUIRED_GUN_COLUMNS = [
     "gun_id",
     "gun_name",
     "weapon_class",
+    "stats_profile",
     "damage_close",
     "range_close_m",
     "damage_mid",
@@ -33,6 +43,7 @@ REQUIRED_ATTACHMENT_COLUMNS = [
     "attachment_id",
     "attachment_name",
     "slot",
+    "stats_profile",
     "compatible_weapon_classes",
     "compatible_guns",
     "damage_pct",
@@ -203,6 +214,57 @@ def normalise_numeric_columns(dataframe: pd.DataFrame, columns: set[str]) -> pd.
     return updated
 
 
+def normalise_stats_profile(value, fallback: str = LEGACY_STATS_PROFILE) -> str:
+    text = str(value or "").strip()
+
+    if not text:
+        return fallback
+
+    aliases = {
+        "wz": "Warzone",
+        "warzone": "Warzone",
+        "mp": "Multiplayer",
+        "multiplayer": "Multiplayer",
+        "zombies": "Zombies",
+        "zm": "Zombies",
+        "coop": "Co-Op / Endgame",
+        "co-op": "Co-Op / Endgame",
+        "co-op / endgame": "Co-Op / Endgame",
+        "endgame": "Co-Op / Endgame",
+    }
+
+    return aliases.get(text.lower(), text)
+
+
+def ensure_profile_column(dataframe: pd.DataFrame, fallback: str = LEGACY_STATS_PROFILE) -> pd.DataFrame:
+    updated = dataframe.copy()
+
+    if "stats_profile" not in updated.columns:
+        updated["stats_profile"] = fallback
+
+    updated["stats_profile"] = updated["stats_profile"].apply(
+        lambda value: normalise_stats_profile(value, fallback)
+    )
+
+    return updated
+
+
+def filter_ttk_data_by_profile(
+    guns: pd.DataFrame,
+    attachments: pd.DataFrame,
+    stats_profile: str,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    profile = normalise_stats_profile(stats_profile, DEFAULT_STATS_PROFILE)
+
+    filtered_guns = ensure_profile_column(guns, LEGACY_STATS_PROFILE)
+    filtered_attachments = ensure_profile_column(attachments, LEGACY_STATS_PROFILE)
+
+    filtered_guns = filtered_guns[filtered_guns["stats_profile"] == profile].reset_index(drop=True)
+    filtered_attachments = filtered_attachments[filtered_attachments["stats_profile"] == profile].reset_index(drop=True)
+
+    return filtered_guns, filtered_attachments
+
+
 def ensure_attachment_columns(attachments: pd.DataFrame) -> pd.DataFrame:
     updated = attachments.copy()
 
@@ -229,6 +291,7 @@ def load_guns():
     create_empty_templates()
 
     guns = pd.read_csv(GUNS_PATH)
+    guns = ensure_profile_column(guns, LEGACY_STATS_PROFILE)
 
     missing_columns = [
         column for column in REQUIRED_GUN_COLUMNS
@@ -245,6 +308,7 @@ def load_attachments():
     create_empty_templates()
 
     attachments = pd.read_csv(ATTACHMENTS_PATH)
+    attachments = ensure_profile_column(attachments, LEGACY_STATS_PROFILE)
 
     missing_columns = [
         column for column in REQUIRED_ATTACHMENT_COLUMNS
@@ -278,14 +342,22 @@ def calculate_raw_ttk_ms(damage, fire_rate_rpm, enemy_health=300):
 
     return round(ttk_ms, 2)
 
-def damage_column_for_fight_type(fight_type):
+def is_headshot_build_goal(build_goal: str = "") -> bool:
+    text = normalise_match_value(build_goal)
+    return "headshot" in text or "military camo" in text
+
+
+def damage_column_for_fight_type(fight_type, build_goal: str = ""):
+    use_head_damage = is_headshot_build_goal(build_goal)
+    prefix = "head_damage_" if use_head_damage else "damage_"
+
     if fight_type == "Close range":
-        return "damage_close"
+        return f"{prefix}close"
 
     if fight_type == "Long range":
-        return "damage_long"
+        return f"{prefix}long"
 
-    return "damage_mid"
+    return f"{prefix}mid"
 
 
 def effective_range_for_fight_type(stats, fight_type):
@@ -322,7 +394,22 @@ def build_base_weapon_rankings(guns, enemy_health=300, fight_type="Close range")
         axis=1,
     )
 
-    rankings = rankings.sort_values("raw_ttk_ms", ascending=True)
+    shotgun_metrics = rankings.apply(
+        lambda row: shotgun_truth_metrics(row.to_dict(), enemy_health=enemy_health, fight_type=fight_type)
+        if is_shotgun_weapon_class(row.get("weapon_class", ""))
+        else default_shotgun_truth_metrics(),
+        axis=1,
+    )
+
+    for column in SHOTGUN_TRUTH_COLUMNS:
+        rankings[column] = shotgun_metrics.apply(lambda data: data.get(column, ""))
+
+    rankings["practical_ttk_ms"] = rankings.apply(
+        lambda row: calculate_practical_ttk_ms(row.to_dict()),
+        axis=1,
+    )
+
+    rankings = rankings.sort_values("practical_ttk_ms", ascending=True)
 
     return rankings
 
@@ -396,6 +483,12 @@ def matches_compatible_value(actual, allowed_values, *, weapon_class=False):
 
 
 def attachment_is_compatible(gun, attachment):
+    gun_profile = normalise_stats_profile(gun.get("stats_profile", LEGACY_STATS_PROFILE), LEGACY_STATS_PROFILE)
+    attachment_profile = normalise_stats_profile(attachment.get("stats_profile", LEGACY_STATS_PROFILE), LEGACY_STATS_PROFILE)
+
+    if gun_profile != attachment_profile:
+        return False
+
     weapon_class = str(gun["weapon_class"]).strip()
     gun_name = str(gun["gun_name"]).strip()
 
@@ -458,11 +551,28 @@ def attachment_is_blocked_for_oracle(attachment) -> bool:
     return attachment_has_unmodelled_name_hint(attachment)
 
 
+def attachment_is_neutral_oracle_filler(attachment) -> bool:
+    """
+    Allows a verified zero-stat optic to fill the extra Gunfighter slot.
+
+    Normal zero-effect rows are still excluded. This exception is needed because
+    Multiplayer Gunfighter can produce a valid 8-attachment class where the
+    optic is a real attachment but has no measurable TTK/stat delta.
+    """
+    slot = normalise_match_value(attachment.get("slot", ""))
+    status = normalise_match_value(attachment.get("verification_status", ""))
+
+    return slot == "optic" and status in {"neutral", "verified_neutral", "verified"}
+
+
 def attachment_is_modelled_for_oracle(attachment) -> bool:
     if attachment_is_blocked_for_oracle(attachment):
         return False
 
-    return attachment_modelled_effect_count(attachment) > 0
+    if attachment_modelled_effect_count(attachment) > 0:
+        return True
+
+    return attachment_is_neutral_oracle_filler(attachment)
 
 
 def prepare_oracle_attachment_pool(compatible_attachments: pd.DataFrame) -> pd.DataFrame:
@@ -487,9 +597,9 @@ def prepare_oracle_attachment_pool(compatible_attachments: pd.DataFrame) -> pd.D
         attachment_is_blocked_for_oracle,
         axis=1,
     )
-    updated["_modelled_for_oracle"] = (
-        (updated["_modelled_effect_count"] > 0)
-        & ~updated["_blocked_for_oracle"]
+    updated["_modelled_for_oracle"] = updated.apply(
+        attachment_is_modelled_for_oracle,
+        axis=1,
     )
     updated["_effect_summary"] = updated.apply(
         attachment_modelled_effect_summary,
@@ -539,8 +649,16 @@ def apply_attachment_to_stats(stats, attachment):
     damage_pct = numeric_cell(attachment.get("damage_pct", 0), 0.0)
     range_pct = numeric_cell(attachment.get("range_pct", 0), 0.0)
 
-    for stat in ["damage_close", "damage_mid", "damage_long"]:
-        updated[stat] = updated[stat] * (1 + damage_pct / 100)
+    for stat in [
+        "damage_close",
+        "damage_mid",
+        "damage_long",
+        "head_damage_close",
+        "head_damage_mid",
+        "head_damage_long",
+    ]:
+        if stat in updated:
+            updated[stat] = updated[stat] * (1 + damage_pct / 100)
 
     for stat in ["range_close_m", "range_mid_m"]:
         updated[stat] = updated[stat] * (1 + range_pct / 100)
@@ -584,32 +702,186 @@ def apply_attachment_to_stats(stats, attachment):
 
     return updated
 
+def is_shotgun_weapon_class(value) -> bool:
+    return normalise_weapon_class_key(value) == "shotgun"
+
+
+def _clamp(value: float, low: float = 0.0, high: float = 1.0) -> float:
+    return max(low, min(high, float(value)))
+
+
+def default_shotgun_truth_metrics() -> dict:
+    return {
+        "is_shotgun": False,
+        "shotgun_one_shot_potential": "",
+        "shotgun_two_shot_consistency": "",
+        "shotgun_range_coverage": "",
+        "shotgun_handling_index": "",
+        "shotgun_mag_safety": "",
+        "shotgun_truth_score": "",
+        "shotgun_truth_note": "",
+    }
+
+
+def shotgun_truth_metrics(stats: dict, enemy_health: int = 300, fight_type: str = "Close range") -> dict:
+    """
+    Shotguns need a separate trust model.
+
+    Without pellet-count and spread data, v1 uses conservative proxies:
+    damage bracket, effective range coverage, handling, and mag safety.
+    Field Test Log still decides whether the build is actually trusted.
+    """
+    damage = max(0.0, float(stats.get("damage", 0.0) or 0.0))
+    range_m = max(0.0, float(stats.get("range_m", 0.0) or 0.0))
+    ads_ms = max(0.0, float(stats.get("ads_ms", 0.0) or 0.0))
+    sprint_to_fire_ms = max(0.0, float(stats.get("sprint_to_fire_ms", 0.0) or 0.0))
+    mag_size = max(0.0, float(stats.get("mag_size", 0.0) or 0.0))
+    health = max(1, int(enemy_health or 300))
+
+    shots_to_kill = max(1, ceil(health / max(damage, 1.0)))
+    target_range = SHOTGUN_RANGE_TARGETS_M.get(str(fight_type or "").strip(), 12.0)
+
+    one_shot_potential = damage >= health
+    two_shot_consistency = shots_to_kill <= 2
+
+    # Range coverage above 1.0 is useful but capped so it cannot mask bad handling.
+    range_coverage = _clamp(range_m / max(target_range, 1.0), 0.0, 1.25)
+
+    # Shotguns are usually won or lost on sprint-to-fire more than ADS.
+    handling_pressure = (ads_ms * 0.35) + (sprint_to_fire_ms * 0.65)
+    handling_index = _clamp(1.20 - (handling_pressure / 520.0), 0.0, 1.0)
+
+    # A two-shot shotgun with only one or two follow-up attempts is fragile.
+    required_shells = max(1, shots_to_kill * 3)
+    mag_safety = _clamp(mag_size / required_shells, 0.0, 1.25)
+
+    lethality_score = 1.0 if one_shot_potential else _clamp((damage / health) * 1.15, 0.0, 0.95)
+    consistency_score = 1.0 if two_shot_consistency else _clamp(1.0 - ((shots_to_kill - 2) * 0.22), 0.0, 0.80)
+
+    truth_score = (
+        lethality_score * 0.30
+        + consistency_score * 0.24
+        + _clamp(range_coverage, 0.0, 1.0) * 0.20
+        + handling_index * 0.16
+        + _clamp(mag_safety, 0.0, 1.0) * 0.10
+    )
+
+    if not two_shot_consistency:
+        note = "DATA-LIMITED: requires more than two shots on the current health profile. Treat as fragile until field tested."
+    elif not one_shot_potential:
+        note = "DATA-LIMITED: no one-shot guarantee from current damage data. Field test pellet reliability before trusting."
+    elif range_coverage < 0.75:
+        note = "DATA-LIMITED: one-shot maths exists, but range coverage is weak for this fight profile."
+    else:
+        note = "SHOTGUN TRUTH V1: score uses damage bracket, range coverage, handling, and mag safety. Pellet spread still needs field testing."
+
+    return {
+        "is_shotgun": True,
+        "shotgun_one_shot_potential": "YES" if one_shot_potential else "NO",
+        "shotgun_two_shot_consistency": "YES" if two_shot_consistency else "NO",
+        "shotgun_range_coverage": round(range_coverage, 3),
+        "shotgun_handling_index": round(handling_index, 3),
+        "shotgun_mag_safety": round(mag_safety, 3),
+        "shotgun_truth_score": round(_clamp(truth_score, 0.0, 1.0), 3),
+        "shotgun_truth_note": note,
+    }
+
+
+def calculate_shotgun_practical_ttk_ms(stats: dict) -> float:
+    raw_ttk = float(stats.get("raw_ttk_ms", 0.0) or 0.0)
+    ads_ms = float(stats.get("ads_ms", 0.0) or 0.0)
+    sprint_to_fire_ms = float(stats.get("sprint_to_fire_ms", 0.0) or 0.0)
+    shots_to_kill = float(stats.get("shots_to_kill", 1.0) or 1.0)
+    truth_score = float(stats.get("shotgun_truth_score", 0.0) or 0.0)
+    range_coverage = float(stats.get("shotgun_range_coverage", 0.0) or 0.0)
+
+    extra_shot_penalty = max(0.0, shots_to_kill - 2.0) * 120.0
+    range_penalty = max(0.0, 1.0 - min(range_coverage, 1.0)) * 160.0
+    reliability_penalty = max(0.0, 1.0 - truth_score) * 220.0
+
+    return round(
+        raw_ttk
+        + ads_ms * 0.08
+        + sprint_to_fire_ms * 0.18
+        + extra_shot_penalty
+        + range_penalty
+        + reliability_penalty,
+        2,
+    )
+
+
+def add_shotgun_truth_to_results(results: pd.DataFrame, weights: dict) -> tuple[pd.DataFrame, dict]:
+    if results.empty or "is_shotgun" not in results.columns:
+        return results, weights
+
+    scored = results.copy()
+    shotgun_mask = scored["is_shotgun"].astype(str).str.lower().isin({"true", "1", "yes"})
+
+    if not shotgun_mask.any():
+        return scored, weights
+
+    for column in SHOTGUN_TRUTH_COLUMNS:
+        if column not in scored.columns:
+            scored[column] = ""
+
+    # Dedicated shotgun optimisation should actively reward consistency.
+    # Mixed-class optimisation already feels the shotgun penalty through practical_ttk_ms.
+    if shotgun_mask.all():
+        updated_weights = dict(weights)
+        updated_weights["shotgun_truth_score"] = updated_weights.get("shotgun_truth_score", 0.0) + 0.18
+        updated_weights["practical_ttk_ms"] = updated_weights.get("practical_ttk_ms", 0.0) + 0.07
+
+        total = sum(updated_weights.values())
+        if total > 0:
+            updated_weights = {
+                metric: weight / total
+                for metric, weight in updated_weights.items()
+            }
+
+        return scored, updated_weights
+
+    return scored, weights
+
+
 def build_loadout_preview(
     gun,
     selected_attachments,
     enemy_health=300,
     fight_type="Close range",
+    build_goal: str = "",
 ):
+    damage_close = float(gun["damage_close"])
+    damage_mid = float(gun["damage_mid"])
+    damage_long = float(gun["damage_long"])
+
     final_stats = {
-        "damage_close": float(gun["damage_close"]),
+        "damage_close": damage_close,
         "range_close_m": float(gun["range_close_m"]),
-        "damage_mid": float(gun["damage_mid"]),
+        "damage_mid": damage_mid,
         "range_mid_m": float(gun["range_mid_m"]),
-        "damage_long": float(gun["damage_long"]),
+        "damage_long": damage_long,
+        "head_damage_close": numeric_cell(gun.get("head_damage_close", damage_close), damage_close),
+        "head_damage_mid": numeric_cell(gun.get("head_damage_mid", damage_mid), damage_mid),
+        "head_damage_long": numeric_cell(gun.get("head_damage_long", damage_long), damage_long),
         "fire_rate_rpm": float(gun["fire_rate_rpm"]),
         "ads_ms": float(gun["ads_ms"]),
         "sprint_to_fire_ms": float(gun["sprint_to_fire_ms"]),
         "recoil": float(gun["recoil"]),
         "bullet_velocity": float(gun["bullet_velocity"]),
         "mag_size": float(gun["mag_size"]),
+        "weapon_class": str(gun.get("weapon_class", "")),
     }
 
     for _, attachment in selected_attachments.iterrows():
         final_stats = apply_attachment_to_stats(final_stats, attachment)
 
-    damage_column = damage_column_for_fight_type(fight_type)
+    damage_column = damage_column_for_fight_type(fight_type, build_goal)
+
+    if damage_column not in final_stats:
+        damage_column = damage_column_for_fight_type(fight_type)
 
     final_stats["damage"] = final_stats[damage_column]
+    final_stats["damage_model"] = "headshot" if is_headshot_build_goal(build_goal) else "body"
     final_stats["range_m"] = effective_range_for_fight_type(final_stats, fight_type)
 
     final_stats["shots_to_kill"] = ceil(enemy_health / final_stats["damage"])
@@ -619,6 +891,17 @@ def build_loadout_preview(
         fire_rate_rpm=final_stats["fire_rate_rpm"],
         enemy_health=enemy_health,
     )
+
+    if is_shotgun_weapon_class(final_stats.get("weapon_class", "")):
+        final_stats.update(
+            shotgun_truth_metrics(
+                final_stats,
+                enemy_health=enemy_health,
+                fight_type=fight_type,
+            )
+        )
+    else:
+        final_stats.update(default_shotgun_truth_metrics())
 
     return final_stats
 
@@ -636,6 +919,8 @@ FIGHT_TYPES = [
 ]
 
 BUILD_GOALS = [
+    "Military Camo Headshots",
+    "Special Camo TTK",
     "Fastest TTK",
     "Balanced meta build",
     "Low recoil beam",
@@ -656,7 +941,28 @@ HIGHER_IS_BETTER = {
     "range_m",
     "mag_size",
     "damage_per_mag",
+    "shotgun_truth_score",
+    "shotgun_range_coverage",
+    "shotgun_mag_safety",
 }
+
+SHOTGUN_RANGE_TARGETS_M = {
+    "Close range": 7.0,
+    "Mid range": 14.0,
+    "Long range": 24.0,
+    "Mixed fights": 12.0,
+}
+
+SHOTGUN_TRUTH_COLUMNS = [
+    "is_shotgun",
+    "shotgun_one_shot_potential",
+    "shotgun_two_shot_consistency",
+    "shotgun_range_coverage",
+    "shotgun_handling_index",
+    "shotgun_mag_safety",
+    "shotgun_truth_score",
+    "shotgun_truth_note",
+]
 
 LOADOUT_PAIRINGS = [
     "AR + SMG",
@@ -726,8 +1032,15 @@ def combo_has_duplicate_slots(combo):
 def calculate_practical_ttk_ms(stats):
     """
     Raw TTK is perfect aim maths.
-    Practical TTK punishes slow handling and recoil.
+
+    Normal guns punish handling and recoil.
+    Shotguns use a separate truth model because pellet reliability, one-shot
+    potential, and two-shot consistency matter more than recoil beams.
     """
+    is_shotgun = str(stats.get("is_shotgun", "")).strip().lower() in {"true", "1", "yes"}
+
+    if is_shotgun:
+        return calculate_shotgun_practical_ttk_ms(stats)
 
     return round(
         float(stats["raw_ttk_ms"])
@@ -739,7 +1052,27 @@ def calculate_practical_ttk_ms(stats):
 
 
 def build_scenario_weights(map_type, fight_type, build_goal):
-    if build_goal == "Fastest TTK":
+    if build_goal == "Military Camo Headshots":
+        weights = {
+            "recoil": 0.42,
+            "ads_ms": 0.16,
+            "sprint_to_fire_ms": 0.10,
+            "bullet_velocity": 0.12,
+            "range_m": 0.10,
+            "practical_ttk_ms": 0.07,
+            "damage_per_mag": 0.03,
+        }
+
+    elif build_goal == "Special Camo TTK":
+        weights = {
+            "raw_ttk_ms": 0.55,
+            "practical_ttk_ms": 0.25,
+            "ads_ms": 0.08,
+            "sprint_to_fire_ms": 0.06,
+            "damage_per_mag": 0.06,
+        }
+
+    elif build_goal == "Fastest TTK":
         weights = {
             "raw_ttk_ms": 0.70,
             "practical_ttk_ms": 0.20,
@@ -995,6 +1328,141 @@ def generate_legal_attachment_combos(compatible_attachments, attachment_count):
         for combo in product(*grouped_options):
             yield combo
 
+def estimate_legal_attachment_combo_count(slot_counts: dict[str, int], attachment_count: int) -> int:
+    """
+    Count legal one-attachment-per-slot combinations without generating them.
+
+    This powers the TTK page's workload warning so 8-attachment scans are visible
+    before a deep brute-force pass starts.
+    """
+    slot_names = sorted(
+        slot
+        for slot, count in slot_counts.items()
+        if str(slot).strip() and int(count or 0) > 0
+    )
+
+    if len(slot_names) < attachment_count:
+        return 0
+
+    total = 0
+
+    for selected_slots in combinations(slot_names, attachment_count):
+        product_count = 1
+
+        for slot in selected_slots:
+            product_count *= int(slot_counts.get(slot, 0) or 0)
+
+        total += product_count
+
+    return int(total)
+
+
+def estimate_optimizer_combo_count(
+    guns: pd.DataFrame,
+    attachments: pd.DataFrame,
+    map_type: str,
+    fight_type: str,
+    build_goal: str,
+    enemy_health: int = 300,
+    weapon_class: str = "Any",
+    attachment_count: int = 5,
+    optimiser_mode: str = "Fast",
+    candidate_limit_per_slot: int = 3,
+) -> pd.DataFrame:
+    """
+    Estimate the build search space using the same slot rules and pool pruning
+    as the optimiser. It does not score builds and does not generate combos.
+    """
+    if guns.empty or attachments.empty:
+        return pd.DataFrame()
+
+    filtered_guns = guns.copy()
+
+    if weapon_class != "Any":
+        filtered_guns = filtered_guns[
+            filtered_guns["weapon_class"] == weapon_class
+        ]
+
+    rows = []
+    use_fast_mode = normalise_match_value(optimiser_mode) != "deep"
+
+    for _, gun in filtered_guns.iterrows():
+        compatible_attachments = get_compatible_attachments(
+            gun=gun,
+            attachments=attachments,
+        )
+
+        full_compatible_count = len(compatible_attachments)
+        compatible_attachments = prepare_oracle_attachment_pool(compatible_attachments)
+        modelled_compatible_count = len(compatible_attachments)
+        ignored_count = max(0, full_compatible_count - modelled_compatible_count)
+
+        if compatible_attachments.empty:
+            rows.append(
+                {
+                    "gun_name": gun.get("gun_name", ""),
+                    "weapon_class": gun.get("weapon_class", ""),
+                    "attachment_count": attachment_count,
+                    "optimiser_mode": "Fast" if use_fast_mode else "Deep",
+                    "full_compatible_rows": full_compatible_count,
+                    "modelled_rows": modelled_compatible_count,
+                    "ignored_rows": ignored_count,
+                    "usable_slots": 0,
+                    "pool_rows_after_pruning": 0,
+                    "estimated_combinations": 0,
+                    "slot_pool_summary": "",
+                    "buildable": False,
+                }
+            )
+            continue
+
+        compatible_attachments = prune_dominated_attachments(compatible_attachments)
+
+        if use_fast_mode:
+            compatible_attachments = reduce_attachment_pool_for_fast_mode(
+                compatible_attachments=compatible_attachments,
+                map_type=map_type,
+                fight_type=fight_type,
+                build_goal=build_goal,
+                candidate_limit_per_slot=candidate_limit_per_slot,
+                hard_limit_per_slot=3,
+            )
+        else:
+            compatible_attachments = prune_dominated_attachments(compatible_attachments)
+
+        slot_counts = {
+            str(slot).strip(): int(len(group))
+            for slot, group in compatible_attachments.groupby("slot")
+            if str(slot).strip()
+        }
+
+        combo_count = estimate_legal_attachment_combo_count(
+            slot_counts=slot_counts,
+            attachment_count=attachment_count,
+        )
+
+        rows.append(
+            {
+                "gun_name": gun.get("gun_name", ""),
+                "weapon_class": gun.get("weapon_class", ""),
+                "attachment_count": attachment_count,
+                "optimiser_mode": "Fast" if use_fast_mode else "Deep",
+                "full_compatible_rows": full_compatible_count,
+                "modelled_rows": modelled_compatible_count,
+                "ignored_rows": ignored_count,
+                "usable_slots": len(slot_counts),
+                "pool_rows_after_pruning": int(sum(slot_counts.values())),
+                "estimated_combinations": int(combo_count),
+                "slot_pool_summary": " | ".join(
+                    f"{slot}:{count}"
+                    for slot, count in sorted(slot_counts.items())
+                ),
+                "buildable": combo_count > 0,
+            }
+        )
+
+    return pd.DataFrame(rows)
+
 def best_index_by_numeric(group: pd.DataFrame, column: str, prefer_high: bool = True):
     if column not in group.columns:
         return None
@@ -1038,6 +1506,17 @@ def attachment_fast_candidate_score(attachment, map_type, fight_type, build_goal
     range_weight = 0.8
     bullet_velocity_weight = 0.8
     mag_weight = 0.7
+
+    if "headshot" in build_goal_text or "military camo" in build_goal_text:
+        recoil_weight += 1.8
+        ads_weight += 0.3
+        sprint_to_fire_weight += 0.2
+        range_weight += 0.5
+        bullet_velocity_weight += 0.4
+
+    if "special camo" in build_goal_text or "ttk" in build_goal_text:
+        ads_weight += 0.3
+        sprint_to_fire_weight += 0.3
 
     if "aggressive" in build_goal_text or "close" in fight_type_text:
         ads_weight += 0.7
@@ -1258,6 +1737,7 @@ def optimise_loadouts_for_scenario(
                 selected_attachments=selected_attachments,
                 enemy_health=enemy_health,
                 fight_type=fight_type,
+                build_goal=build_goal,
             )
 
             preview["damage_per_mag"] = (
@@ -1288,6 +1768,8 @@ def optimise_loadouts_for_scenario(
                         f"Only modelled attachments were allowed. Ignored {unmodelled_attachments_ignored} "
                         "zero-effect or unmodelled conversion row(s)."
                     ),
+                    "optimiser_mode": "Fast" if use_fast_mode else "Deep",
+                    "slot_candidate_limit": int(candidate_limit_per_slot) if use_fast_mode else "",
                     **preview,
                 }
             )
@@ -1302,6 +1784,8 @@ def optimise_loadouts_for_scenario(
         fight_type=fight_type,
         build_goal=build_goal,
     )
+
+    results, weights = add_shotgun_truth_to_results(results, weights)
 
     results = add_oracle_scores(results, weights)
 
@@ -1413,9 +1897,10 @@ def parse_codmunity_attachment_html(
         }
 
         attachment_row.update({
-            "attachment_id": slugify(f"{compatible_guns or compatible_weapon_classes}_{attachment_name}"),
+            "attachment_id": slugify(f"{normalise_stats_profile(stats_profile, DEFAULT_STATS_PROFILE)}_{compatible_guns or compatible_weapon_classes}_{attachment_name}"),
             "attachment_name": attachment_name,
             "slot": slot,
+            "stats_profile": normalise_stats_profile(stats_profile, DEFAULT_STATS_PROFILE),
             "compatible_weapon_classes": compatible_weapon_classes,
             "compatible_guns": compatible_guns,
             "source": source,
@@ -1649,6 +2134,8 @@ def optimise_single_weapon_build(
     enemy_health: int = 300,
     attachment_count: int = 5,
     top_n: int = 10,
+    optimiser_mode: str = "Fast",
+    candidate_limit_per_slot: int = 3,
 ) -> pd.DataFrame:
     """
     Brute-force the best build for one exact Commander-assigned weapon.
@@ -1681,6 +2168,8 @@ def optimise_single_weapon_build(
         weapon_class="Any",
         attachment_count=attachment_count,
         top_n=top_n,
+        optimiser_mode=optimiser_mode,
+        candidate_limit_per_slot=candidate_limit_per_slot,
     )
 
 
@@ -1891,6 +2380,112 @@ def perk_package_score_bonus(perk_package):
     return score_bonus
 
 
+def loadout_role_label(role, weapon_class, fight_type, build_goal):
+    weapon_class = str(weapon_class or "").strip()
+    fight_type = str(fight_type or "").strip()
+    build_goal = str(build_goal or "").strip()
+
+    if role == "primary":
+        if fight_type == "Long range" or build_goal == "Low recoil beam":
+            return "RANGE ANCHOR"
+        if weapon_class in {"Sniper Rifle", "Marksman Rifle"}:
+            return "PICK TOOL"
+        if fight_type == "Mid range":
+            return "MID-RANGE ANCHOR"
+        return "PRIMARY COVERAGE"
+
+    if fight_type == "Close range" or build_goal == "Aggressive mobility":
+        return "CLOSE RESCUE"
+
+    return "SECONDARY COVERAGE"
+
+
+def _role_float(value, fallback=0.0):
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return fallback
+
+
+def loadout_role_balance_score(primary_score, secondary_score):
+    primary_score = _role_float(primary_score, 0.0)
+    secondary_score = _role_float(secondary_score, 0.0)
+
+    if primary_score <= 0 or secondary_score <= 0:
+        return 0.0
+
+    return round(min(primary_score, secondary_score) / max(primary_score, secondary_score), 4)
+
+
+def loadout_role_verdict(
+    *,
+    primary_weapon,
+    primary_class,
+    primary_role_label,
+    primary_score,
+    secondary_weapon,
+    secondary_class,
+    secondary_role_label,
+    secondary_score,
+    role_balance_score,
+    primary_is_shotgun=False,
+    primary_shotgun_truth_score=0.0,
+    secondary_is_shotgun=False,
+    secondary_shotgun_truth_score=0.0,
+):
+    primary_score = _role_float(primary_score, 0.0)
+    secondary_score = _role_float(secondary_score, 0.0)
+    role_balance_score = _role_float(role_balance_score, 0.0)
+    primary_shotgun_truth_score = _role_float(primary_shotgun_truth_score, 0.0)
+    secondary_shotgun_truth_score = _role_float(secondary_shotgun_truth_score, 0.0)
+
+    primary_name = str(primary_weapon or "Primary").strip()
+    secondary_name = str(secondary_weapon or "Secondary").strip()
+    primary_label = str(primary_role_label or "PRIMARY").strip()
+    secondary_label = str(secondary_role_label or "SECONDARY").strip()
+
+    if role_balance_score >= 0.90:
+        verdict = (
+            f"Balanced two-weapon lab result: {primary_name} covers {primary_label}, "
+            f"{secondary_name} covers {secondary_label}."
+        )
+    elif primary_score + 0.08 < secondary_score:
+        verdict = (
+            f"{secondary_name} is carrying the loadout. Field test whether "
+            f"{primary_name} is strong enough as the {primary_label}."
+        )
+    elif secondary_score + 0.08 < primary_score:
+        verdict = (
+            f"{primary_name} is the stronger half. Field test whether "
+            f"{secondary_name} is reliable enough as the {secondary_label}."
+        )
+    else:
+        verdict = (
+            f"Usable role split: {primary_name} handles {primary_label}, "
+            f"{secondary_name} handles {secondary_label}."
+        )
+
+    shotgun_notes = []
+
+    if str(primary_is_shotgun).strip().lower() in {"true", "1", "yes"}:
+        if primary_shotgun_truth_score >= 0.70:
+            shotgun_notes.append(f"{primary_name} passes the conservative shotgun truth gate.")
+        else:
+            shotgun_notes.append(f"{primary_name} needs shotgun field proof before trust.")
+
+    if str(secondary_is_shotgun).strip().lower() in {"true", "1", "yes"}:
+        if secondary_shotgun_truth_score >= 0.70:
+            shotgun_notes.append(f"{secondary_name} passes the conservative shotgun truth gate.")
+        else:
+            shotgun_notes.append(f"{secondary_name} needs shotgun field proof before trust.")
+
+    if shotgun_notes:
+        verdict += " " + " ".join(shotgun_notes)
+
+    return verdict
+
+
+
 def optimise_full_loadouts_for_scenario(
     guns,
     attachments,
@@ -1903,6 +2498,8 @@ def optimise_full_loadouts_for_scenario(
     attachment_count=5,
     top_n=10,
     candidate_pool=15,
+    optimiser_mode: str = "Fast",
+    candidate_limit_per_slot: int = 3,
 ):
     primary_class, secondary_class = weapon_classes_for_pairing(loadout_pairing)
 
@@ -1955,6 +2552,8 @@ def optimise_full_loadouts_for_scenario(
         weapon_class="Any",
         attachment_count=attachment_count,
         top_n=candidate_pool,
+        optimiser_mode=optimiser_mode,
+        candidate_limit_per_slot=candidate_limit_per_slot,
     )
 
     secondary_results = optimise_loadouts_for_scenario(
@@ -1967,6 +2566,8 @@ def optimise_full_loadouts_for_scenario(
         weapon_class="Any",
         attachment_count=attachment_count,
         top_n=candidate_pool,
+        optimiser_mode=optimiser_mode,
+        candidate_limit_per_slot=candidate_limit_per_slot,
     )
 
     if primary_results.empty or secondary_results.empty:
@@ -1986,15 +2587,51 @@ def optimise_full_loadouts_for_scenario(
             if primary["gun_name"] == secondary["gun_name"]:
                 continue
 
+            primary_role_score = float(primary["oracle_score"])
+            secondary_role_score = float(secondary["oracle_score"])
+            role_balance = loadout_role_balance_score(
+                primary_role_score,
+                secondary_role_score,
+            )
+            primary_role_label = loadout_role_label(
+                "primary",
+                primary.get("weapon_class", ""),
+                role_scenarios["primary_fight_type"],
+                role_scenarios["primary_build_goal"],
+            )
+            secondary_role_label = loadout_role_label(
+                "secondary",
+                secondary.get("weapon_class", ""),
+                role_scenarios["secondary_fight_type"],
+                role_scenarios["secondary_build_goal"],
+            )
+
             full_loadout_score = (
-                float(primary["oracle_score"]) * primary_weight
-                + float(secondary["oracle_score"]) * secondary_weight
+                primary_role_score * primary_weight
+                + secondary_role_score * secondary_weight
                 + perk_bonus
+            )
+            role_verdict = loadout_role_verdict(
+                primary_weapon=primary["gun_name"],
+                primary_class=primary["weapon_class"],
+                primary_role_label=primary_role_label,
+                primary_score=primary_role_score,
+                secondary_weapon=secondary["gun_name"],
+                secondary_class=secondary["weapon_class"],
+                secondary_role_label=secondary_role_label,
+                secondary_score=secondary_role_score,
+                role_balance_score=role_balance,
+                primary_is_shotgun=primary.get("is_shotgun", ""),
+                primary_shotgun_truth_score=primary.get("shotgun_truth_score", 0.0),
+                secondary_is_shotgun=secondary.get("is_shotgun", ""),
+                secondary_shotgun_truth_score=secondary.get("shotgun_truth_score", 0.0),
             )
 
             rows.append(
                 {
                     "full_loadout_score": full_loadout_score,
+                    "role_balance_score": role_balance,
+                    "loadout_role_verdict": role_verdict,
                     "map_type": map_type,
                     "fight_type": fight_type,
                     "build_goal": build_goal,
@@ -2007,28 +2644,50 @@ def optimise_full_loadouts_for_scenario(
 
                     "primary_weapon": primary["gun_name"],
                     "primary_class": primary["weapon_class"],
+                    "primary_role_label": primary_role_label,
                     "primary_attachments": primary["attachments"],
                     "primary_oracle_score": primary["oracle_score"],
+                    "primary_role_score": primary_role_score,
                     "primary_raw_ttk_ms": primary["raw_ttk_ms"],
                     "primary_practical_ttk_ms": primary["practical_ttk_ms"],
                     "primary_recoil": primary["recoil"],
                     "primary_ads_ms": primary["ads_ms"],
                     "primary_bullet_velocity": primary["bullet_velocity"],
                     "primary_range_m": primary["range_m"],
+                    "primary_is_shotgun": primary.get("is_shotgun", ""),
+                    "primary_shotgun_truth_score": primary.get("shotgun_truth_score", ""),
+                    "primary_shotgun_one_shot_potential": primary.get("shotgun_one_shot_potential", ""),
+                    "primary_shotgun_two_shot_consistency": primary.get("shotgun_two_shot_consistency", ""),
+                    "primary_shotgun_range_coverage": primary.get("shotgun_range_coverage", ""),
+                    "primary_shotgun_handling_index": primary.get("shotgun_handling_index", ""),
+                    "primary_shotgun_mag_safety": primary.get("shotgun_mag_safety", ""),
+                    "primary_shotgun_truth_note": primary.get("shotgun_truth_note", ""),
 
                     "secondary_weapon": secondary["gun_name"],
                     "secondary_class": secondary["weapon_class"],
+                    "secondary_role_label": secondary_role_label,
                     "secondary_attachments": secondary["attachments"],
                     "secondary_oracle_score": secondary["oracle_score"],
+                    "secondary_role_score": secondary_role_score,
                     "secondary_raw_ttk_ms": secondary["raw_ttk_ms"],
                     "secondary_practical_ttk_ms": secondary["practical_ttk_ms"],
                     "secondary_recoil": secondary["recoil"],
                     "secondary_ads_ms": secondary["ads_ms"],
                     "secondary_bullet_velocity": secondary["bullet_velocity"],
                     "secondary_range_m": secondary["range_m"],
+                    "secondary_is_shotgun": secondary.get("is_shotgun", ""),
+                    "secondary_shotgun_truth_score": secondary.get("shotgun_truth_score", ""),
+                    "secondary_shotgun_one_shot_potential": secondary.get("shotgun_one_shot_potential", ""),
+                    "secondary_shotgun_two_shot_consistency": secondary.get("shotgun_two_shot_consistency", ""),
+                    "secondary_shotgun_range_coverage": secondary.get("shotgun_range_coverage", ""),
+                    "secondary_shotgun_handling_index": secondary.get("shotgun_handling_index", ""),
+                    "secondary_shotgun_mag_safety": secondary.get("shotgun_mag_safety", ""),
+                    "secondary_shotgun_truth_note": secondary.get("shotgun_truth_note", ""),
 
                     "primary_weight": primary_weight,
                     "secondary_weight": secondary_weight,
+                    "optimiser_mode": "Deep" if normalise_match_value(optimiser_mode) == "deep" else "Fast",
+                    "slot_candidate_limit": int(candidate_limit_per_slot) if normalise_match_value(optimiser_mode) != "deep" else "",
                 }
             )
 

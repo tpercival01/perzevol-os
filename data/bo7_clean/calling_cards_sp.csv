@@ -44,15 +44,15 @@ Co-Op / Endgame,Endgame Operations,Operation Poison Pill,Best in Slot,Upgrade 5 
 Co-Op / Endgame,Endgame Operations,Operation Broken Mirror,Thermonuclear,Rapidly Kill 5 enemies with the Thermal Spike Ability 10 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
 Co-Op / Endgame,Endgame Operations,Operation Broken Mirror,Underdog,Kill 100 Nightmare Zone enemies while under Combat Rating 30,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
 Co-Op / Endgame,Endgame Operations,Operation Broken Mirror,Overencumbered,Upgrade the Rarity of 5 Weapons using Jailbreak Machines or Exotic Fabricators in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation Broken Mirror,Hot Streak,In Endgame: successfully Escape 10 times in a row without getting Eliminated,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation Broken Mirror,Hot Streak,In Endgame: successfully Escape 10 times in a row without getting Eliminated,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
 Co-Op / Endgame,Endgame Operations,Operation Broken Mirror,Rough Road,Kill 150 Zone IV or higher enemies with the Blood Burner Ability,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
 Co-Op / Endgame,Endgame Operations,Operation Broken Mirror,Juiced,"In Endgame: earn 25,000 Power in a single match",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
 Co-Op / Endgame,Endgame Operations,Operation Wall Breaker,Hot Streak,Kill 100 Zone III or higher enemies with no more than 10 seconds between each Kill,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation Wall Breaker,The Classics,"Get 1,000 Kills while above 50 Combat Rating with Mason, 50/50, Harper, or Samuels",TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation Wall Breaker,Silent Blade,Perform 10 Finishing Moves in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation Wall Breaker,The Classics,"Get 1,000 Kills while above 50 Combat Rating with Mason, 50/50, Harper, or Samuels",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation Wall Breaker,Silent Blade,Perform 10 Finishing Moves in a single match,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
 Co-Op / Endgame,Endgame Operations,Operation Wall Breaker,LFG,Kill 500 Nightmare Zone enemies while solo,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation Wall Breaker,Jump Shot,Kill an enemy with the Death Machine while airborne 25 times,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
-Co-Op / Endgame,Endgame Operations,Operation Wall Breaker,Pistoleer,With an Akimbo Attachment equipped: Eliminate 300 Zone IV or higher enemies with Pistols,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation Wall Breaker,Jump Shot,Kill an enemy with the Death Machine while airborne 25 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
+Co-Op / Endgame,Endgame Operations,Operation Wall Breaker,Pistoleer,With an Akimbo Attachment equipped: Eliminate 300 Zone IV or higher enemies with Pistols,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE
 Co-Op / Endgame,Dark Ops,Dark Ops,Absolute Loss,Beat Menendez using only machetes in Mission: Exposure,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
 Co-Op / Endgame,Dark Ops,Dark Ops,Green Thumb,Beat the Nightmare in Mission: Distortion without taking any damage,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,,,,,,TRUE,FALSE
 Co-Op / Endgame,Dark Ops,Dark Ops,Undaunted,Survive the horde of Fears in Mission: Suppression,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,,,,TRUE,FALSE

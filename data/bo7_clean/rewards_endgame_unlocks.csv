@@ -27,8 +27,8 @@ Operator Skins,Razor,Skin,Shatter Shock,FALSE,Defeat the Command Killer Glitch B
 Operator Skins,Vermaak,Skin,No Fear,FALSE,Defeat the Endgame Final Boss and then Escape with Vermaak,Endgame Final Boss
 Operator Skins,Vermaak,Skin,Firewall,FALSE,Defeat the Root Crasher Glitch Boss with Vermaak,Root Crasher
 Operator Skins,Vermaak,Skin,Aftershock,FALSE,Defeat the Virus Injection Glitch Boss with Vermaak,Virus Injection
-Operator Skins,Kagan,Skin,No Fear,FALSE,Defeat the Endgame Final Boss and then Escape with Kagan,Endgame Final Boss
-Operator Skins,Kagan,Skin,Rive,FALSE,Complete a Guild Strike in Endgame with Kagan,Guild Strike
+Operator Skins,Kagan,Skin,No Fear,TRUE,Defeat the Endgame Final Boss and then Escape with Kagan,Endgame Final Boss
+Operator Skins,Kagan,Skin,Rive,TRUE,Complete a Guild Strike in Endgame with Kagan,Guild Strike
 Operator Skins,Kagan,Skin,Data Freeze,FALSE,Defeat the Prime Target Glitch Boss with Kagan,Prime Target
 Operator Skins,Karma,Skin,Firewall,FALSE,Defeat the Root Crasher Glitch Boss with Karma,Root Crasher
 Glitch Fractures,,Weapon,Carbon 57 - Data Corruption,FALSE,In Endgame: defeat the Root Crasher Glitch Boss,Root Crasher

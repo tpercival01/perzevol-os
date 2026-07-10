@@ -59,7 +59,7 @@ Multiplayer,Prestige,Big Plays Prestige 4,Gear Horde,Get a Kill with 5 Weapons y
 Multiplayer,Prestige,Big Plays Prestige 4,Keep it 100,Get 100 Eliminations with a Weapon equipped with Shattered Gold Camo,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,100.0,,,TRUE,FALSE
 Multiplayer,Prestige,Big Plays Prestige 4,Jackpot,Get 5 Kills with a single Scorestreak acquired from a Care Package,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,,,TRUE,FALSE
 Multiplayer,Prestige,Big Plays Prestige 4,Bling,Get 250 Eliminations with a Weapon equipped with Arclight Camo,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,250.0,,,TRUE,FALSE
-Multiplayer,Prestige,Trade Tools Prestige 5,Can't Hide,Shoot through a wall to Kill an enemy revealed by your Pinpoint Grenade 3 times,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,,,1.0,2.0,3.0,TRUE,FALSE
+Multiplayer,Prestige,Trade Tools Prestige 5,Can't Hide,Shoot through a wall to Kill an enemy revealed by your Pinpoint Grenade 3 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,1.0,2.0,3.0,TRUE,FALSE
 Multiplayer,Prestige,Trade Tools Prestige 5,Strange Trip,Kill 15 enemies who are halucinating from your Psych Grenade Tactical or Cradle Trap Field Upgrade,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,10.0,15.0,TRUE,FALSE
 Multiplayer,Prestige,Trade Tools Prestige 5,Fun Police,"Destroy 25 Scorestreaks, Equipment, or Field Upgrades with the Hunter Bot Tactical",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,10.0,25.0,TRUE,FALSE
 Multiplayer,Prestige,Trade Tools Prestige 5,Luck or Skill?,Kill an enemy from at least 40 meters away with a thrown Lethal 15 times,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,,,5.0,10.0,15.0,TRUE,FALSE
