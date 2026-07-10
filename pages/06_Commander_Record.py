@@ -6,6 +6,7 @@ from typing import Any
 
 import streamlit as st
 
+from modules.ui.perzevol_theme import inject_perzevol_theme
 from modules.warzone.loadout_architect import recording_lines_for_plan
 from modules.warzone.series_director import attach_series_context_to_plan
 
@@ -62,15 +63,15 @@ def load_latest_launch_plan() -> dict | None:
 def current_plan() -> tuple[dict | None, str]:
     active = st.session_state.get("bo7_session_plan")
     if isinstance(active, dict) and active.get("stops"):
-        return attach_series_context_to_plan(active), "Mission Control active plan"
+        return attach_series_context_to_plan(active), "MISSION CONTROL ACTIVE PLAN"
 
     quick = st.session_state.get("bo7_quick_launch_plan")
     if isinstance(quick, dict) and quick.get("stops"):
-        return attach_series_context_to_plan(quick), "Commander Launch plan"
+        return attach_series_context_to_plan(quick), "COMMANDER LAUNCH PLAN"
 
     latest = load_latest_launch_plan()
     if latest:
-        return attach_series_context_to_plan(latest), "Recovered latest launch plan"
+        return attach_series_context_to_plan(latest), "RECOVERED LATEST LAUNCH PLAN"
 
     return None, ""
 
@@ -124,256 +125,43 @@ def loadout_for_stop(stop: dict) -> dict:
 
 
 def render_css(clean_mode: bool):
-    sidebar_css = ""
-    if clean_mode:
-        sidebar_css = """
-        [data-testid="stSidebar"] {display: none;}
-        [data-testid="collapsedControl"] {display: none;}
-        header {visibility: hidden;}
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        """
+    inject_perzevol_theme(clean_mode=clean_mode, screen="obs_record")
 
     render_html(
-        f"""
+        """
         <style>
-        {sidebar_css}
+        .obs-two-col {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
 
-        .stApp {{
-            background:
-                radial-gradient(circle at top left, rgba(255,75,75,0.18), transparent 30%),
-                radial-gradient(circle at bottom right, rgba(0,194,255,0.12), transparent 28%),
-                linear-gradient(135deg, #050608 0%, #090b10 48%, #030405 100%);
-        }}
-
-        .block-container {{
-            max-width: 96vw;
-            padding-top: 1.1rem;
-            padding-bottom: 1.2rem;
-            padding-left: 1.3rem;
-            padding-right: 1.3rem;
-        }}
-
-        .record-shell {{
-            border: 1px solid rgba(255,255,255,0.10);
-            background: rgba(0,0,0,0.20);
-            padding: 0.95rem 1.05rem;
-            margin-bottom: 0.85rem;
-        }}
-
-        .record-title {{
-            color: #ffffff;
-            font-size: 3rem;
-            font-weight: 950;
+        .obs-morale-card .obs-headline {
+            font-size: clamp(1.6rem, 3.4vw, 3.2rem);
             line-height: 0.95;
+        }
+
+        .obs-morale-card .obs-subhead {
+            margin-top: 0.75rem;
             letter-spacing: 0.08em;
-            text-transform: uppercase;
-        }}
+        }
 
-        .record-subtitle {{
-            color: #ff4b4b;
-            font-family: monospace;
-            font-size: 0.95rem;
-            letter-spacing: 0.22em;
-            text-transform: uppercase;
-            margin-top: 0.45rem;
-        }}
-
-        .hero-card {{
-            border: 1px solid rgba(255,75,75,0.42);
-            border-left: 12px solid #ff4b4b;
-            background:
-                radial-gradient(circle at top right, rgba(255,75,75,0.28), rgba(255,75,75,0.05) 38%, transparent 64%),
-                linear-gradient(135deg, rgba(255,75,75,0.15), rgba(255,255,255,0.035));
-            padding: 1.15rem 1.35rem;
-            margin: 0.85rem 0;
-            box-shadow: 0 0 30px rgba(0,0,0,0.35);
-        }}
-
-        .blue-card {{
-            border-color: rgba(0,194,255,0.38);
-            border-left-color: #00c2ff;
-            background:
-                radial-gradient(circle at top right, rgba(0,194,255,0.20), rgba(0,194,255,0.04) 38%, transparent 64%),
-                linear-gradient(135deg, rgba(0,194,255,0.11), rgba(255,255,255,0.035));
-        }}
-
-        .green-card {{
-            border-color: rgba(48,209,88,0.38);
-            border-left-color: #30d158;
-            background:
-                radial-gradient(circle at top right, rgba(48,209,88,0.20), rgba(48,209,88,0.04) 38%, transparent 64%),
-                linear-gradient(135deg, rgba(48,209,88,0.11), rgba(255,255,255,0.035));
-        }}
-
-        .gold-card {{
-            border-color: rgba(255,204,0,0.38);
-            border-left-color: #ffcc00;
-            background:
-                radial-gradient(circle at top right, rgba(255,204,0,0.20), rgba(255,204,0,0.04) 38%, transparent 64%),
-                linear-gradient(135deg, rgba(255,204,0,0.10), rgba(255,255,255,0.035));
-        }}
-
-        .eyebrow {{
-            color: #ff4b4b;
-            font-family: monospace;
-            font-size: 0.76rem;
-            font-weight: 950;
-            letter-spacing: 0.22em;
-            text-transform: uppercase;
-            margin-bottom: 0.35rem;
-        }}
-
-        .blue-card .eyebrow {{ color: #00c2ff; }}
-        .green-card .eyebrow {{ color: #30d158; }}
-        .gold-card .eyebrow {{ color: #ffcc00; }}
-
-        .card-title {{
-            color: #ffffff;
-            font-size: 2.35rem;
-            font-weight: 950;
-            line-height: 1.02;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-        }}
-
-        .card-subtitle {{
-            color: #d8d8d8;
-            font-size: 1rem;
-            font-weight: 780;
-            margin-top: 0.35rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }}
-
-        .stat-grid {{
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 0.65rem;
-            margin-top: 0.85rem;
-        }}
-
-        .stat-grid div {{
-            background: rgba(0,0,0,0.28);
-            border: 1px solid rgba(255,255,255,0.08);
-            padding: 0.58rem 0.68rem;
-        }}
-
-        .stat-grid span {{
-            display: block;
-            color: #999999;
-            font-family: monospace;
-            font-size: 0.66rem;
-            font-weight: 850;
-            letter-spacing: 0.11em;
-            text-transform: uppercase;
-            margin-bottom: 0.22rem;
-        }}
-
-        .stat-grid strong {{
-            color: #ffffff;
+        .obs-status-card .obs-mini-body,
+        .obs-loadout-card .obs-mini-body {
             font-size: 0.98rem;
-            font-weight: 900;
-        }}
+            line-height: 1.45;
+        }
 
-        .detail {{
-            margin-top: 0.85rem;
-            padding: 0.8rem 0.9rem;
-            background: rgba(0,0,0,0.24);
-            border: 1px solid rgba(255,255,255,0.08);
-        }}
+        .director-notes-wrap {
+            margin-top: 0.75rem;
+        }
 
-        .detail span {{
-            display: block;
-            color: #999999;
-            font-family: monospace;
-            font-size: 0.68rem;
-            font-weight: 900;
-            letter-spacing: 0.13em;
-            text-transform: uppercase;
-            margin-bottom: 0.3rem;
-        }}
-
-        .detail p {{
-            color: #eeeeee;
-            font-size: 1rem;
-            line-height: 1.35;
-            margin: 0;
-        }}
-
-        .rule {{
-            margin-top: 0.85rem;
-            padding: 0.62rem 0.78rem;
-            color: #ffffff;
-            background: rgba(255,75,75,0.18);
-            border: 1px solid rgba(255,75,75,0.32);
-            font-family: monospace;
-            font-weight: 950;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-        }}
-
-        .shot-grid {{
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 0.65rem;
-            margin-top: 0.8rem;
-        }}
-
-        .shot {{
-            background: rgba(0,0,0,0.26);
-            border: 1px solid rgba(255,255,255,0.08);
-            padding: 0.7rem 0.78rem;
-        }}
-
-        .shot span {{
-            display: block;
-            color: #ffcc00;
-            font-family: monospace;
-            font-size: 0.67rem;
-            font-weight: 950;
-            letter-spacing: 0.13em;
-            text-transform: uppercase;
-            margin-bottom: 0.25rem;
-        }}
-
-        .shot p {{
-            color: #eeeeee;
-            font-size: 0.92rem;
-            line-height: 1.3;
-            margin: 0;
-        }}
-
-        .morale-banner {{
-            border: 1px solid rgba(255,75,75,0.44);
-            background: rgba(255,75,75,0.12);
-            padding: 0.8rem 0.9rem;
-            margin: 0.8rem 0;
-        }}
-
-        .morale-banner strong {{
-            display: block;
-            color: #ffffff;
-            font-size: 1.6rem;
-            font-weight: 950;
-            letter-spacing: 0.07em;
-            line-height: 1.03;
-            text-transform: uppercase;
-        }}
-
-        .morale-banner span {{
-            display: block;
-            color: #eeeeee;
-            margin-top: 0.35rem;
-            line-height: 1.3;
-        }}
-
-        @media (max-width: 900px) {{
-            .record-title {{ font-size: 2rem; }}
-            .card-title {{ font-size: 1.65rem; }}
-            .stat-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
-            .shot-grid {{ grid-template-columns: 1fr; }}
-        }}
+        @media (max-width: 900px) {
+            .obs-two-col {
+                grid-template-columns: 1fr;
+            }
+        }
         </style>
         """
     )
@@ -406,9 +194,9 @@ def render_header(plan: dict, source_label: str):
             </div>
             <div class="detail">
                 <span>Series Stakes</span>
-                <p>{esc(context.get("stakes", "The Commander chose the session. The player follows the plan."))}</p>
+                <p>{esc(context.get("stakes", "AI CHOSE THE GRIND. NO REROLLS UNLESS IMPOSSIBLE."))}</p>
             </div>
-            <div class="rule">The Commander chose the session. The player follows the plan.</div>
+            <div class="rule">AI CHOSE THE GRIND. NO REROLLS UNLESS IMPOSSIBLE.</div>
         </div>
         """
     )
@@ -430,7 +218,7 @@ def render_series_story(plan: dict):
     render_html(
         f"""
         <div class="hero-card gold-card">
-            <div class="eyebrow">Series Brain</div>
+            <div class="eyebrow">Series Director</div>
             <div class="morale-banner">
                 <strong>{esc(morale.get("headline") or context.get("morale_headline") or "JUST ONE MORE CHALLENGE.")}</strong>
                 <span>{esc(morale.get("line") or context.get("morale_line") or "Bank one visible piece of progress, then reassess.")}</span>
@@ -477,7 +265,7 @@ def render_current_objective(plan: dict, stop: dict):
                 <span>Why This Weapon</span>
                 <p>{esc(loadout.get("primary_reason") or loadout.get("natural_goal") or "Use the assigned objective weapon.")}</p>
             </div>
-            <div class="rule">Complete this, bank progress, then move to the next stop.</div>
+            <div class="rule">BANK THE UGLY PROGRESS. PROOF OVER PERFECTION.</div>
         </div>
         """
     )
@@ -488,7 +276,7 @@ def render_loadout(stop: dict):
     render_html(
         f"""
         <div class="hero-card green-card">
-            <div class="eyebrow">Loadout Commander</div>
+            <div class="eyebrow">Assigned Class</div>
             <div class="card-title">{esc(loadout.get("primary", "Use assigned weapon"))}</div>
             <div class="card-subtitle">{esc(loadout.get("template_name", "Template loadout"))}</div>
             <div class="detail">
@@ -497,7 +285,7 @@ def render_loadout(stop: dict):
             </div>
             <div class="detail">
                 <span>Attachment Source</span>
-                <p>{esc(loadout.get("primary_attachment_source") or loadout.get("ttk_oracle_note") or "Unknown")}</p>
+                <p>{esc(loadout.get("primary_attachment_source") or "Commander/manual build")}</p>
             </div>
             <div class="detail">
                 <span>Natural Goal</span>
@@ -535,10 +323,10 @@ def render_shot_list(plan: dict, stop: dict):
                 <div class="shot"><span>Clip 2</span><p>Show the loadout card, then cut to the exact class in-game.</p></div>
                 <div class="shot"><span>Clip 3</span><p>Gameplay with the assigned weapon or objective. No rerolls.</p></div>
                 <div class="shot"><span>Clip 4</span><p>Capture unlock, progress bar, camo pop, card tier, or match proof.</p></div>
-                <div class="shot"><span>Clip 5</span><p>Go to Mission Control, bank levels/progress, then show the next route.</p></div>
+                <div class="shot"><span>Clip 5</span><p>Bank the stop from this OBS view, then move to the next assigned objective.</p></div>
                 <div class="shot"><span>Clip 6</span><p>End on the debrief. The AI route either worked, partially worked, or failed.</p></div>
             </div>
-            <div class="rule">Video story: AI chose my grind. I followed it. The tracker moved.</div>
+            <div class="rule">AI CHOSE THE GRIND. I FOLLOWED THE ROUTE. THE TRACKER MOVED.</div>
         </div>
         """
     )
@@ -588,12 +376,253 @@ def render_debrief(plan: dict):
     )
 
 
+
+def plan_stops(plan: dict) -> list[dict]:
+    stops = plan.get("stops", []) if isinstance(plan, dict) else []
+    return stops if isinstance(stops, list) else []
+
+
+def active_stop_index(plan: dict) -> int:
+    stops = plan_stops(plan)
+
+    for index, stop in enumerate(stops):
+        if stop_status(stop) not in RESOLVED_STATUSES:
+            return index
+
+    return max(0, len(stops) - 1)
+
+
+def ensure_record_stop_index(plan: dict):
+    stops = plan_stops(plan)
+    plan_id = clean(plan.get("plan_id") or plan.get("quick_button_label") or plan.get("quick_preset_label") or len(stops))
+
+    if st.session_state.get("bo7_obs_plan_id") != plan_id:
+        st.session_state.bo7_obs_plan_id = plan_id
+        st.session_state.bo7_obs_stop_index = active_stop_index(plan)
+
+    if "bo7_obs_stop_index" not in st.session_state:
+        st.session_state.bo7_obs_stop_index = active_stop_index(plan)
+
+    if stops:
+        st.session_state.bo7_obs_stop_index = max(
+            0,
+            min(int(st.session_state.bo7_obs_stop_index), len(stops) - 1),
+        )
+    else:
+        st.session_state.bo7_obs_stop_index = 0
+
+
+def selected_record_stop(plan: dict) -> dict:
+    stops = plan_stops(plan)
+    if not stops:
+        return {}
+
+    ensure_record_stop_index(plan)
+    return stops[int(st.session_state.get("bo7_obs_stop_index", 0))]
+
+
+def move_record_stop(plan: dict, delta: int):
+    stops = plan_stops(plan)
+    if not stops:
+        return
+
+    ensure_record_stop_index(plan)
+    current = int(st.session_state.get("bo7_obs_stop_index", 0))
+    st.session_state.bo7_obs_stop_index = max(0, min(current + delta, len(stops) - 1))
+
+
+def mark_record_stop(stop: dict, status: str):
+    task_id = clean(stop.get("task_id"))
+    if not task_id:
+        return
+
+    results = stop_results()
+    results[task_id] = {
+        "status": status,
+        "result": "OBS quick mark",
+        "blame": "Successful operation" if status == "done" else "",
+        "notes": "Marked from OBS Record View.",
+        "stop_number": stop.get("stop_number", ""),
+        "weapon": stop.get("weapon", ""),
+        "camo": stop.get("camo", ""),
+        "mode": stop.get("mode", ""),
+        "recorded_at": datetime.now().isoformat(timespec="seconds"),
+    }
+    st.session_state.bo7_stop_results = results
+
+
+def undo_record_stop(stop: dict):
+    task_id = clean(stop.get("task_id"))
+    if not task_id:
+        return
+
+    results = stop_results()
+    if task_id in results:
+        del results[task_id]
+    st.session_state.bo7_stop_results = results
+
+
+def render_obs_command_bar(plan: dict, stop: dict):
+    stops = plan_stops(plan)
+    ensure_record_stop_index(plan)
+    index = int(st.session_state.get("bo7_obs_stop_index", 0))
+    total = len(stops)
+    cols = st.columns(6, gap="small")
+
+    with cols[0]:
+        if st.button("← PREV", use_container_width=True, disabled=index <= 0):
+            move_record_stop(plan, -1)
+            st.rerun()
+
+    with cols[1]:
+        if st.button("NEXT →", use_container_width=True, disabled=index >= total - 1):
+            move_record_stop(plan, 1)
+            st.rerun()
+
+    with cols[2]:
+        if st.button("DONE", use_container_width=True):
+            mark_record_stop(stop, "done")
+            st.rerun()
+
+    with cols[3]:
+        if st.button("PARTIAL", use_container_width=True):
+            mark_record_stop(stop, "partial")
+            st.rerun()
+
+    with cols[4]:
+        if st.button("SKIP", use_container_width=True):
+            mark_record_stop(stop, "skipped")
+            st.rerun()
+
+    with cols[5]:
+        if st.button("UNDO", use_container_width=True):
+            undo_record_stop(stop)
+            st.rerun()
+
+
+def line_clamp_text(value: Any, fallback: str = "") -> str:
+    text = clean(value) or fallback
+    return esc(text)
+
+
+def render_obs_viewport_frame(plan: dict, stop: dict, source_label: str):
+    context = plan.get("series_context", {}) or {}
+    loadout = loadout_for_stop(stop)
+    morale = context.get("morale", {}) or {}
+    counts = count_statuses(plan)
+
+    if counts["done"] >= 3:
+        verdict = "ROUTE WORKED"
+        verdict_note = "The Commander found a productive route. Keep this logic."
+    elif counts["done"] >= 1 or counts["partial"] >= 1:
+        verdict = "PROGRESS BANKED"
+        verdict_note = "The tracker moved. Not perfect, but worth it."
+    elif counts["skipped"] >= 1:
+        verdict = "REROUTE REQUIRED"
+        verdict_note = "A blocker was exposed. Debrief it honestly."
+    else:
+        verdict = "SESSION LIVE"
+        verdict_note = "No proof banked yet. Play the assigned objective."
+
+    stops = plan.get("stops", []) or []
+    stop_number = clean(stop.get("stop_number")) or str(st.session_state.get("bo7_obs_stop_index", 0) + 1)
+    morale_headline = (
+        morale.get("headline")
+        or context.get("morale_headline")
+        or "THE GAME WANTS YOU TO QUIT. DO NOT GIVE IT THAT WIN."
+    )
+    morale_line = f"AI chose {clean(plan.get('mode')) or 'the route'} • No reroll unless impossible"
+
+    render_html(
+        f"""
+        <div class="obs-frame">
+            <div class="obs-topline">
+                <div>
+                    <div class="obs-title">OBS RECORD VIEW</div>
+                    <div class="obs-subtitle">AI chose the grind · {esc(source_label)} · {esc(datetime.now().strftime("%H:%M"))}</div>
+                </div>
+                <div class="obs-stat-grid">
+                    <div class="obs-stat"><span class="obs-label">Mode</span><div class="obs-value">{esc(plan.get("mode", "Unknown"))}</div></div>
+                    <div class="obs-stat"><span class="obs-label">Timebox</span><div class="obs-value">{esc(plan.get("available_minutes", "?"))} min</div></div>
+                    <div class="obs-stat"><span class="obs-label">Stop</span><div class="obs-value">{esc(stop_number)} / {esc(len(stops))}</div></div>
+                    <div class="obs-stat"><span class="obs-label">Status</span><div class="obs-value">{esc(stop_status(stop).upper())}</div></div>
+                </div>
+            </div>
+
+            <div class="obs-two-col">
+                <div class="obs-primary">
+                    <div class="obs-kicker">Current Objective · Commander Decision Locked</div>
+                    <div class="obs-headline">{esc(stop.get("weapon", "Objective"))}</div>
+                    <div class="obs-subhead">{esc(stop.get("camo", "Assigned Target"))}</div>
+                    <div class="obs-textbox">
+                        <span class="obs-label">Objective</span>
+                        <p>{line_clamp_text(stop.get("challenge_text"), "Complete the assigned objective.")}</p>
+                    </div>
+                    <div class="obs-rule">NO REROLLS UNLESS IMPOSSIBLE · BANK THE UGLY PROGRESS</div>
+                </div>
+
+                <div class="obs-director obs-morale-card">
+                    <div class="obs-kicker">Commander Line</div>
+                    <div class="obs-headline">{line_clamp_text(morale_headline, "THE GAME WANTS YOU TO QUIT. DO NOT GIVE IT THAT WIN.")}</div>
+                    <div class="obs-subhead">{esc(morale_line)}</div>
+                    <div class="obs-rule">PROOF OVER PERFECTION</div>
+                </div>
+            </div>
+
+            <div class="obs-two-col">
+                <div class="obs-mini-card green obs-loadout-card">
+                    <div class="obs-kicker">Assigned Class</div>
+                    <div class="obs-mini-title">{line_clamp_text(loadout.get("primary"), "Use assigned weapon")}</div>
+                    <div class="obs-mini-body">
+                        <span class="obs-label">Build Rule</span>
+                        {line_clamp_text(loadout.get("primary_attachments"), "Use your verified in-game build. TTK Oracle is detached.")}
+                    </div>
+                </div>
+
+                <div class="obs-mini-card red obs-status-card">
+                    <div class="obs-kicker">Session Status / Debrief</div>
+                    <div class="obs-mini-title">{esc(verdict)}</div>
+                    <div class="obs-mini-body">
+                        <span class="obs-label">Tracker State</span>
+                        Done {esc(counts["done"])} · Partial {esc(counts["partial"])} · Skipped {esc(counts["skipped"])}<br>
+                        {esc(verdict_note)}
+                    </div>
+                </div>
+            </div>
+        </div>
+        """
+    )
+
+
+def render_director_notes(plan: dict, stop: dict):
+    context = plan.get("series_context", {}) or {}
+    proof_points = context.get("proof_points", []) or []
+
+    if not proof_points:
+        proof_points = [
+            "Show the Commander decision before gameplay.",
+            "Capture progress proof after the objective moves.",
+            "End on the debrief or Finish Line page.",
+        ]
+
+    with st.expander("Director Notes", expanded=False):
+        st.markdown("**Proof checklist**")
+        for index, point in enumerate(proof_points[:6], start=1):
+            st.write(f"{index}. {point}")
+
+        st.text_area(
+            "Copyable recording lines",
+            value=recording_lines_for_plan(plan),
+            height=170,
+            key=f"bo7_director_notes_{stop.get('task_id', 'active')}",
+        )
+
+
 def main():
-    control_cols = st.columns([1, 1, 3])
-    with control_cols[0]:
+    with st.sidebar:
         clean_mode = st.toggle("OBS clean mode", value=True)
-    with control_cols[1]:
-        if st.button("Refresh view", use_container_width=True):
+        show_director_notes = st.toggle("Show director notes", value=False)
+        if st.button("Refresh", use_container_width=True):
             st.rerun()
 
     render_css(clean_mode)
@@ -603,33 +632,30 @@ def main():
     if not plan:
         render_html(
             """
-            <div class="record-shell">
-                <div class="record-title">No Plan Loaded</div>
-                <div class="record-subtitle">Generate a route in Commander Launch, or send a plan to Mission Control.</div>
+            <div class="obs-frame">
+                <div class="obs-primary">
+                    <div class="obs-kicker">No Plan Loaded</div>
+                    <div class="obs-headline">Generate A Route First</div>
+                    <div class="obs-textbox"><p>Open Commander Launch, generate a route, then return to OBS Record View.</p></div>
+                    <div class="obs-rule">AI CHOSE THE GRIND AFTER A PLAN EXISTS</div>
+                </div>
             </div>
             """
         )
-        st.info("Open BO7: Commander Launch, generate a route, then return to OBS Record View.")
         return
 
-    stop = active_stop(plan)
+    ensure_record_stop_index(plan)
+    stop = selected_record_stop(plan)
 
     if not stop:
         st.warning("The active plan has no stops.")
         return
 
-    render_header(plan, source_label)
+    render_obs_command_bar(plan, stop)
+    render_obs_viewport_frame(plan, stop, source_label)
 
-    col_left, col_right = st.columns([1.08, 0.92], gap="large")
-
-    with col_left:
-        render_current_objective(plan, stop)
-        render_loadout(stop)
-
-    with col_right:
-        render_series_story(plan)
-        render_shot_list(plan, stop)
-        render_debrief(plan)
+    if show_director_notes:
+        render_director_notes(plan, stop)
 
 
 if __name__ == "__main__":

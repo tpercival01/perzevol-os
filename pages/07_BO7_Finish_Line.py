@@ -7,6 +7,8 @@ from typing import Any
 
 import streamlit as st
 
+from modules.ui.perzevol_theme import inject_perzevol_theme
+
 from modules.warzone.killchain_engine import (
     compute_full_tracker_summary,
     load_tracker_tasks,
@@ -24,6 +26,9 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed",
 )
+
+inject_perzevol_theme(screen="finish_line")
+
 
 CLEAN_FOLDER = Path("data/bo7_clean")
 
@@ -103,18 +108,24 @@ def completion_buckets(summary: dict[str, Any]) -> list[dict[str, Any]]:
         if not isinstance(data, dict):
             continue
 
-        done = int(data.get("mastery_done", 0) or 0)
-        total = int(data.get("mastery_total", 0) or 0)
+        true_final_done = int(data.get("mastery_done", 0) or 0)
+        true_final_total = int(data.get("mastery_total", 0) or 0)
+        done = int(data.get("mastery_unlock_done", min(true_final_done, 30)) or 0)
+        total = int(data.get("mastery_unlock_total", 30) or 30)
         base_done = int(data.get("base_done", 0) or 0)
         base_total = int(data.get("base_total", 0) or 0)
 
         buckets.append(
             bucket(
-                label=f"{label} final camos",
+                label=f"{label} 30 top camos",
                 done=done,
                 total=total,
                 group="Camos",
-                note=f"Final per-weapon camos. Base chain: {base_done}/{base_total}.",
+                note=(
+                    "DONE target is 30, not every weapon. "
+                    f"All-weapons reference: {true_final_done}/{true_final_total}. "
+                    f"Base chain: {base_done}/{base_total}."
+                ),
             )
         )
 
@@ -368,6 +379,25 @@ def render_css():
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
 
+        /*
+        Finish Line is a dashboard, not a locked OBS frame.
+        The shared finish_line theme used viewport locking, which clipped
+        checklist cards once the tracker gained enough buckets.
+        */
+        html, body, .stApp {
+            min-height: 100dvh !important;
+            height: auto !important;
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+        }
+
+        .block-container {
+            min-height: 100dvh !important;
+            height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
+        }
+
         .stApp {
             background:
                 radial-gradient(circle at top left, rgba(255,75,75,0.20), transparent 30%),
@@ -476,15 +506,17 @@ def render_css():
 
         .check-grid {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 0.65rem;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 0.55rem;
+            max-height: none !important;
+            overflow: visible !important;
         }
 
         .check-card {
             border: 1px solid rgba(255,255,255,0.10);
             background: rgba(255,255,255,0.035);
-            padding: 0.8rem 0.85rem;
-            min-height: 150px;
+            padding: 0.68rem 0.72rem;
+            min-height: 118px;
         }
 
         .check-card.done {
@@ -543,9 +575,13 @@ def render_css():
 
         .check-note {
             color: #bababa;
-            font-size: 0.82rem;
-            margin-top: 0.35rem;
-            min-height: 2.4rem;
+            font-size: 0.76rem;
+            margin-top: 0.3rem;
+            min-height: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .mini-bar {
@@ -565,8 +601,8 @@ def render_css():
             background:
                 radial-gradient(circle at top right, rgba(255,214,10,0.18), transparent 45%),
                 rgba(0,0,0,0.22);
-            padding: 0.8rem 0.9rem;
-            margin-bottom: 0.55rem;
+            padding: 0.62rem 0.72rem;
+            margin-bottom: 0.42rem;
         }
 
         .priority-title {

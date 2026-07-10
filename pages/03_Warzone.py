@@ -8,12 +8,17 @@ from datetime import datetime
 
 import streamlit as st
 
+from modules.ui.perzevol_theme import inject_perzevol_theme
+
 st.set_page_config(
     page_title="Perzevol OS - BO7 Completion Commander",
     page_icon="☣",
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+inject_perzevol_theme(screen="mission_control")
+
 
 from modules.warzone.killchain_engine import (
     BLAME_OPTIONS,
@@ -45,16 +50,10 @@ from modules.warzone.killchain_engine import (
     safe_int,
 )
 
-try:
-    from modules.warzone.ttk_oracle_engine import (
-        load_ttk_data,
-        optimise_single_weapon_build,
-    )
-    TTK_ORACLE_AVAILABLE = True
-except Exception:
-    load_ttk_data = None
-    optimise_single_weapon_build = None
-    TTK_ORACLE_AVAILABLE = False
+# TTK Oracle is deliberately detached from Mission Control for recording stability.
+TTK_ORACLE_AVAILABLE = False
+load_ttk_data = None
+optimise_single_weapon_build = None
 
 from modules.warzone.loadout_architect import (
     attach_loadouts_to_plan,
@@ -5321,7 +5320,7 @@ with tab_mission:
                 item for item in st.session_state.bo7_form_focus_targets
                 if item in FOCUS_TARGETS
             ],
-            help="Strong bias, not a hard lock. Use this for Launchers + Scorestreaks style sessions.",
+            help="Strong bias. Collection focus can lock the route when a specific collection is selected.",
             key="multiselect_focus_targets",
         )
 

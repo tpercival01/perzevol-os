@@ -480,6 +480,61 @@ def camo_completion_percent(row: dict[str, Any]) -> float:
     return (completed / len(columns)) * 100
 
 
+PROJECT_FINAL_CAMO_TARGET = 30
+
+
+def final_mastery_camo_name(row: dict[str, Any]) -> str:
+    _base, _special, mastery = split_camos(row)
+
+    if len(mastery) >= 4:
+        return clean(mastery[3])
+
+    return ""
+
+
+def project_completed_final_camos(rows: list[dict[str, Any]]) -> set[str]:
+    """
+    Returns final camo columns where the project target is already done.
+
+    BO7 may allow every applicable weapon to earn the named final camo, but
+    Perzevol's project target is the 30-gun unlock gate. Once a chain has
+    30 final camos, extra per-weapon final-camo grinding in that chain should
+    stop being routed.
+    """
+    final_camos: set[str] = set()
+
+    for row in rows:
+        final_camo = final_mastery_camo_name(row)
+
+        if final_camo:
+            final_camos.add(final_camo)
+
+    completed: set[str] = set()
+
+    for final_camo in final_camos:
+        count = sum(
+            1
+            for row in rows
+            if is_applicable(row.get(final_camo, ""))
+            and is_true(row.get(final_camo, ""))
+        )
+
+        if count >= PROJECT_FINAL_CAMO_TARGET:
+            completed.add(final_camo)
+
+    return completed
+
+
+def should_skip_project_capped_camo_row(
+    *,
+    row: dict[str, Any],
+    project_completed_final_camos: set[str],
+) -> bool:
+    final_camo = final_mastery_camo_name(row)
+
+    return bool(final_camo and final_camo in project_completed_final_camos)
+
+
 def military_counts(rules: dict[str, dict[str, str]]) -> list[int]:
     raw = get_rule(rules, "military_counts", "default", "5|10|20|30|40|50|60|80|100")
     return [safe_int(item) for item in raw.split("|") if clean(item)]
@@ -698,6 +753,7 @@ def camo_unlock_status(
 def build_camo_tasks_from_status_file(path: Path) -> list[dict[str, Any]]:
     rows = load_csv_rows(path)
     rules = load_rules(rules_path_for_status(path))
+    project_complete_final_camos = project_completed_final_camos(rows)
     tasks: list[dict[str, Any]] = []
 
     for row in rows:
@@ -707,6 +763,12 @@ def build_camo_tasks_from_status_file(path: Path) -> list[dict[str, Any]]:
         weapon = clean(row.get("weapon", ""))
 
         if not mode or not chain or not weapon:
+            continue
+
+        if should_skip_project_capped_camo_row(
+            row=row,
+            project_completed_final_camos=project_complete_final_camos,
+        ):
             continue
 
         for camo_name in camo_columns(row):
@@ -2050,32 +2112,96 @@ def is_non_camo_completion_task(task: dict[str, Any]) -> bool:
     ])
 
 
-def collection_matches_task(task: dict[str, Any], anchor_collection: str) -> bool:
-    task_type = task.get("task_type", "")
-    text = task_search_text(task)
+def normalise_collection_label(value: Any) -> str:
+    return str(value or "").strip().lower()
 
-    if not anchor_collection or anchor_collection == "Any stackable progress":
+
+def has_camo_collection_intent(
+    anchor_collection: str | None = None,
+    focus_targets: list[str] | None = None,
+) -> bool:
+    anchor = normalise_collection_label(anchor_collection)
+    focuses = {
+        normalise_collection_label(focus)
+        for focus in (focus_targets or [])
+    }
+
+    return anchor == "camos" or "camos" in focuses
+
+
+def should_hard_filter_collection(
+    anchor_collection: str | None,
+    commander_mode: str | None,
+    focus_targets: list[str] | None = None,
+) -> bool:
+    collection = normalise_collection_label(anchor_collection)
+
+    if not collection or collection == "any stackable progress":
+        return False
+
+    # Completion stack is deliberately broad, so collection focus remains a
+    # stack preference there rather than a route lock.
+    if str(commander_mode or "").strip() == "Completion stack":
+        return False
+
+    return True
+
+
+def collection_matches_task(task: dict[str, Any], anchor_collection: str | None) -> bool:
+    task_type = normalise_collection_label(task.get("task_type"))
+    text = task_search_text(task)
+    collection = normalise_collection_label(anchor_collection)
+
+    if not collection or collection == "any stackable progress":
         return True
 
-    if anchor_collection == "Camos":
+    if collection == "camos":
         return task_type == "camo"
 
-    if anchor_collection == "Weapon Mastery Badges":
+    if collection == "weapon mastery badges":
         return task_type == "mastery_badge_weapon"
 
-    if anchor_collection == "Equipment Mastery Badges":
+    if collection == "equipment mastery badges":
         return task_type == "mastery_badge_equipment"
 
-    if anchor_collection == "Reticles":
+    if collection == "reticles":
         return task_type == "reticle"
 
-    if anchor_collection == "Calling Cards":
+    if collection == "calling cards":
         return task_type in {"calling_card", "dark_ops"}
 
-    if anchor_collection == "Weapon Prestige":
+    if collection == "weapon prestige":
         return task_type == "weapon_prestige"
 
-    return False
+    if collection == "operations / missions":
+        return task_type in {"endgame_operation", "misc_challenge"} or any(
+            term in text
+            for term in {"operation", "mission", "act iv", "main quest", "king killer"}
+        )
+
+    if collection == "rewards / unlocks":
+        return task_type in {
+            "reward",
+            "zombies_reward",
+            "endgame_unlock",
+            "title",
+            "colour",
+            "augment",
+        } or any(term in text for term in {"reward", "unlock"})
+
+    if collection == "map challenges":
+        return task_type == "misc_challenge" or any(
+            term in text
+            for term in {"map", "kowakujō", "kowakujo"}
+        )
+
+    if collection == "intel":
+        return task_type == "intel" or "intel" in text
+
+    if collection == "non-camo completion":
+        return is_non_camo_completion_task(task)
+
+    return True
 
 
 def focus_target_bonus(task: dict[str, Any], focus_targets: list[str] | None) -> float:
@@ -2242,6 +2368,23 @@ def task_meets_closeness(task: dict[str, Any], minimum_closeness: int) -> bool:
     return any(term in text for term in one_step_terms)
 
 
+def has_explicit_route_guidance(
+    anchor_weapon: str = "",
+    anchor_class: str = "",
+    anchor_collection: str = "",
+) -> bool:
+    collection = clean(anchor_collection)
+
+    return bool(
+        clean(anchor_weapon)
+        or clean(anchor_class)
+        or (
+            collection
+            and collection != "Any stackable progress"
+        )
+    )
+
+
 def guided_anchor_filter(
     mode_tasks: list[dict[str, Any]],
     *,
@@ -2260,7 +2403,12 @@ def guided_anchor_filter(
     3. Selected collection in the chosen mode.
     4. No route, with an explanation, rather than drifting to unrelated work.
     """
-    if commander_mode not in {"Start from my itch", "Class cleanup"}:
+    if not has_explicit_route_guidance(anchor_weapon, anchor_class, anchor_collection):
+        return mode_tasks, []
+
+    # Completion stack is deliberately broad unless the user has picked a real
+    # weapon/class anchor. Collection-only stack routes should stay flexible.
+    if commander_mode == "Completion stack" and not (clean(anchor_weapon) or clean(anchor_class)):
         return mode_tasks, []
 
     anchor_weapon = clean(anchor_weapon)
@@ -3601,11 +3749,28 @@ def score_candidate_plan(plan: dict[str, Any]) -> float:
     route_summary = plan.get("route_summary", {})
     task_mix = route_summary.get("task_mix", {}) if isinstance(route_summary, dict) else {}
 
+    camo_collection_intent = has_camo_collection_intent(
+        anchor_collection=plan.get("anchor_collection", ""),
+        focus_targets=plan.get("focus_targets", []),
+    )
+
     score = float(diagnostics.get("confidence_score", 0) or 0)
     score += len(stops) * 8
     score += sum(len(stop.get("companion_objectives", [])) for stop in stops) * 5
-    score += sum(1 for stop in stops if is_non_camo_completion_task(stop)) * 35
-    score -= sum(1 for stop in stops if stop.get("task_type") == "camo") * 8
+
+    non_camo_completion_count = sum(1 for stop in stops if is_non_camo_completion_task(stop))
+    camo_count = sum(
+        1
+        for stop in stops
+        if normalise_collection_label(stop.get("task_type")) == "camo"
+    )
+
+    if camo_collection_intent:
+        score -= non_camo_completion_count * 40
+        score += camo_count * 25
+    else:
+        score += non_camo_completion_count * 35
+        score -= camo_count * 8
 
     estimated = int(plan.get("estimated_minutes", 0) or 0)
     available = int(plan.get("available_minutes", 0) or 0)
@@ -3772,19 +3937,39 @@ def build_session_plan(
     original_mode_task_count = len(mode_tasks)
     guided_notes: list[str] = []
 
-    if commander_mode in {"Start from my itch", "Class cleanup", "Completion stack"}:
+    if (
+        commander_mode in {"Start from my itch", "Class cleanup", "Completion stack"}
+        or has_explicit_route_guidance(anchor_weapon, anchor_class, anchor_collection)
+    ):
         mode_tasks, guided_notes = guided_anchor_filter(
             mode_tasks,
-            commander_mode=(
-                "Start from my itch"
-                if commander_mode == "Completion stack" and (anchor_weapon or anchor_class)
-                else commander_mode
-            ),
-            preferred_mode=preferred_mode,
+            commander_mode=commander_mode,
+            preferred_mode=effective_mode,
             anchor_weapon=anchor_weapon,
             anchor_class=anchor_class,
             anchor_collection=anchor_collection,
         )
+
+    collection_route_locked = False
+
+    if should_hard_filter_collection(anchor_collection, commander_mode, focus_targets):
+        collection_tasks = [
+            task for task in mode_tasks
+            if collection_matches_task(task, anchor_collection)
+        ]
+
+        if collection_tasks:
+            mode_tasks = collection_tasks
+            collection_route_locked = True
+            guided_notes.append(
+                f"Collection focus locked route to {anchor_collection}: kept {len(mode_tasks)} matching task(s)."
+            )
+        else:
+            guided_notes.append(
+                f"Collection focus {anchor_collection} found no matching active tasks in {effective_mode}; falling back to normal route."
+            )
+
+    companion_source_tasks = mode_tasks if collection_route_locked else available
 
     if commander_mode == "Closest finishes":
         close_tasks = [
@@ -3868,7 +4053,7 @@ def build_session_plan(
 
             companion_objectives = build_companion_objectives(
                 stop=task,
-                available_tasks=available,
+                available_tasks=companion_source_tasks,
             )
 
             stops.append(
@@ -3887,7 +4072,10 @@ def build_session_plan(
                     "weapon_class": task.get("weapon_class", ""),
                     "recommended_mode": task.get("recommended_mode", ""),
                     "estimated_minutes": estimated_minutes,
-                    "stacking_hint": build_stacking_hint(task, available) or build_weapon_prestige_hint(task, available),
+                    "stacking_hint": (
+                        build_stacking_hint(task, companion_source_tasks)
+                        or build_weapon_prestige_hint(task, companion_source_tasks)
+                    ),
                     "companion_objectives": companion_objectives,
                 }
             )
@@ -4412,7 +4600,7 @@ BASE_CAMO_END_OFFSET = 4  # last 4 columns are: Golden_X, Gate1, Gate2, Final
 def compute_camo_dashboard(clean_folder: Path) -> dict[str, Any]:
     result = {}
 
-    mastery_unlock_required = 30
+    mastery_unlock_required = PROJECT_FINAL_CAMO_TARGET
 
     for filename, final_col in FINAL_CAMO_COLUMN.items():
         df = _load(clean_folder, filename)

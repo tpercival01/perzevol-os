@@ -5,6 +5,8 @@ from typing import Any
 
 import streamlit as st
 
+from modules.ui.perzevol_theme import inject_perzevol_theme
+
 from modules.warzone.killchain_engine import (
     load_tracker_tasks,
     summarise_tasks,
@@ -28,6 +30,9 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+inject_perzevol_theme(screen="commander_launch")
+
 
 STATE_DIR = Path("data/bo7_state")
 COMPLETION_STATE_PATH = STATE_DIR / "completion_state.json"

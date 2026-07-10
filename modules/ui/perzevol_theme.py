@@ -393,17 +393,19 @@ def inject_perzevol_theme(*, clean_mode: bool = False, screen: str = "standard")
     if screen == "finish_line":
         screen_css = """
         html, body, .stApp {
-            height: 100dvh;
             min-height: 100dvh;
-            overflow: hidden !important;
+            height: auto;
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
         }
 
         .block-container {
             width: 100vw;
             max-width: 100vw;
-            height: 100dvh;
-            max-height: 100dvh;
-            overflow: hidden !important;
+            min-height: 100dvh;
+            height: auto;
+            max-height: none;
+            overflow: visible !important;
             padding:
                 clamp(0.45rem, 0.9vmin, 1rem)
                 clamp(0.55rem, 1.05vmin, 1.2rem)
@@ -476,8 +478,8 @@ def inject_perzevol_theme(*, clean_mode: bool = False, screen: str = "standard")
         .check-grid {
             grid-template-columns: repeat(auto-fit, minmax(clamp(11rem, 13.8vw, 15rem), 1fr));
             gap: clamp(0.28rem, 0.56vmin, 0.56rem);
-            max-height: 32dvh;
-            overflow: hidden;
+            max-height: none;
+            overflow: visible;
         }
 
         .check-card {
@@ -517,8 +519,8 @@ def inject_perzevol_theme(*, clean_mode: bool = False, screen: str = "standard")
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(clamp(12rem, 17vw, 20rem), 1fr));
             gap: clamp(0.28rem, 0.56vmin, 0.56rem);
-            max-height: 12dvh;
-            overflow: hidden;
+            max-height: none;
+            overflow: visible;
         }
 
         .priority-card {
