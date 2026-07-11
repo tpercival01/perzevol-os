@@ -1,0 +1,12 @@
+﻿filename,row_count,purpose,completeness
+perks.csv,22,Canonical BO7 Multiplayer perk catalogue with structured tags.,complete_for_captured_category
+specialties.csv,6,Core and Hybrid Combat Specialty definitions.,complete_for_captured_category
+specialty_rules.csv,7,Rules that derive a specialty from the three standard perk slots.,complete_for_captured_category
+wildcards.csv,9,Canonical wildcard catalogue.,complete_for_captured_category
+wildcard_effects.csv,16,Normalized structural effects produced by each wildcard.,complete_for_captured_category
+equipment.csv,20,Combined Tactical and Lethal equipment catalogue.,complete_for_captured_category
+field_upgrades.csv,12,Canonical field-upgrade catalogue.,complete_for_captured_category
+overclocks.csv,21,Only the named active overclocks visible in the supplied captures.,partial_active_options_only
+loadout_slots.csv,11,Base Multiplayer loadout slot model.,complete_for_captured_category
+loadout_rules.csv,14,Verified loadout limits and wildcard interaction rules.,complete_for_captured_category
+loadout_templates.csv,0,Empty schema for derived objective and game-mode templates.,schema_only

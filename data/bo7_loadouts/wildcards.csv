@@ -1,0 +1,10 @@
+﻿wildcard_id,wildcard_name,raw_description,recommendation_tags,source,source_date,verification_status,notes
+overkill,Overkill,Equip any non-melee weapon in Primary and Secondary slots.,weapon_pairing;two_primary_weapons,in_game_screenshot,2026-07-11,verified,
+prepper,Prepper,Equip two different Field Upgrades.,field_upgrade_challenges;utility;support,in_game_screenshot,2026-07-11,verified,
+high_roller,High Roller,Equip a fourth Scorestreak.,scorestreak_challenges;scorestreak_builds,in_game_screenshot,2026-07-11,verified,
+flyswatter,Flyswatter,Replace the melee in your Dedicated Melee Slot with a Launcher.,launcher_challenges;anti_scorestreak,in_game_screenshot,2026-07-11,verified,
+tac_expert,Tac Expert,Spawn with an extra tactical.,tactical_challenges;objective_play,in_game_screenshot,2026-07-11,verified,
+gunfighter,Gunfighter,Get 3 extra attachment points for your Primary weapon.,weapon_builds;camo_challenges;attachment_requirements,in_game_screenshot,2026-07-11,verified,Primary weapon attachment limit becomes 8 instead of 5.
+perk_greed,Perk Greed,Equip an extra Perk.,perk_utility;general_loadouts,in_game_screenshot,2026-07-11,verified,The extra perk does not count towards Combat Specialty.
+danger_close,Danger Close,Spawn with an extra lethal.,lethal_challenges;explosive_challenges;objective_play,in_game_screenshot,2026-07-11,verified,
+specialist,Specialist,"Replace your Scorestreaks with 3 Perks. You earn them at 200, 400 and 600 Score. Earn all remaining eligible perks at 1200 Score.",perk_builds;score_progression;long_life,in_game_screenshot,2026-07-11,verified,Perks equipped by using Wildcards do not count towards Combat Specialty.

@@ -17,8 +17,20 @@ from modules.warzone.ttk_oracle_engine import (
     LOADOUT_PAIRINGS,
     MAP_TYPES,
     PERK_PACKAGES,
+    PERK_SELECTION_OPTIONS,
+    WILDCARD_SELECTION_OPTIONS,
+    effective_wildcard_id,
+    loadout_legality_warnings,
+    loadout_pairing_requires_overkill,
+    wildcard_id_from_selection,
+    wildcard_name_from_id,
     build_base_weapon_rankings,
     build_loadout_preview,
+    TACTICAL_GOAL_OPTIONS,
+    TACTICAL_MAP_SIZE_OPTIONS,
+    TACTICAL_PLAYLIST_STYLE_OPTIONS,
+    OPTIC_PREFERENCE_OPTIONS,
+    build_tactical_advice,
     build_ttk_data_warnings,
     describe_weapon_build_data,
     estimate_optimizer_combo_count,
@@ -27,6 +39,7 @@ from modules.warzone.ttk_oracle_engine import (
     load_ttk_data,
     optimise_full_loadouts_for_scenario,
     optimise_single_weapon_build,
+    optimise_two_weapon_loadouts_for_scenario,
     parse_codmunity_attachment_html,
     build_attachment_verification_rows,
 )
@@ -85,6 +98,64 @@ def safe_float(value, fallback: float = 0.0) -> float:
         return fallback
 
 
+def format_optional_ms(value) -> str:
+    number = safe_float(value, 0.0)
+    if number <= 0:
+        return "not modelled"
+    return f"{number:.0f} ms"
+
+
+def format_optional_number(value, decimals: int = 1) -> str:
+    number = safe_float(value, 0.0)
+    if number <= 0:
+        return "not modelled"
+    return f"{number:.{decimals}f}"
+
+
+def selected_wildcard_effective_id(selection: str, *, loadout_pairing: str, attachment_count: int, build_goal: str, fight_type: str, challenge_requirements: str = "", tactical_context: dict | None = None) -> str:
+    tactical_context = tactical_context or {}
+    return effective_wildcard_id(
+        selection,
+        loadout_pairing=loadout_pairing,
+        attachment_count=attachment_count,
+        build_goal=build_goal,
+        fight_type=fight_type,
+        challenge_requirements=challenge_requirements,
+        tactical_goal=tactical_context.get("tactical_goal", "Auto from build goal / challenge"),
+        playlist_style=tactical_context.get("playlist_style", "Auto"),
+    )
+
+
+def render_wildcard_legality_notes(*, loadout_pairing: str, wildcard_selection: str, attachment_count: int, build_goal: str, fight_type: str, challenge_requirements: str = "", tactical_context: dict | None = None) -> str:
+    wildcard_id = selected_wildcard_effective_id(
+        wildcard_selection,
+        loadout_pairing=loadout_pairing,
+        attachment_count=attachment_count,
+        build_goal=build_goal,
+        fight_type=fight_type,
+        challenge_requirements=challenge_requirements,
+        tactical_context=tactical_context,
+    )
+    wildcard_name = wildcard_name_from_id(wildcard_id)
+    st.caption(f"Effective wildcard: {wildcard_name}")
+
+    notes = loadout_legality_warnings(
+        loadout_pairing=loadout_pairing,
+        wildcard_id=wildcard_id,
+        attachment_count=attachment_count,
+    )
+    for note in notes:
+        st.error(note)
+
+    if loadout_pairing_requires_overkill(loadout_pairing):
+        st.warning("BO7 Multiplayer legality: this two-primary pairing is only valid with Overkill.")
+    elif int(attachment_count or 0) >= 8:
+        st.warning("BO7 Multiplayer legality: 8 attachments require Gunfighter and only apply to the primary weapon.")
+
+    return wildcard_id
+
+
+
 def pct_delta(base_value, observed_value) -> float:
     base_number = safe_float(base_value, 0.0)
     observed_number = safe_float(observed_value, 0.0)
@@ -116,6 +187,7 @@ def build_delta_bench_metric_template(gun: pd.Series) -> pd.DataFrame:
     base_fire_rate = safe_float(gun.get("fire_rate_rpm", 0), 0.0)
     base_velocity = safe_float(gun.get("bullet_velocity", 0), 0.0)
     base_damage = safe_float(gun.get("damage_close", 0), 0.0)
+    base_head_damage = safe_float(gun.get("head_damage_close", 0), 0.0)
     base_range = safe_float(gun.get("range_mid_m", gun.get("range_close_m", 0)), 0.0)
     base_mag = safe_float(gun.get("mag_size", 0), 0.0)
     base_ads = safe_float(gun.get("ads_ms", 0), 0.0)
@@ -126,6 +198,10 @@ def build_delta_bench_metric_template(gun: pd.Series) -> pd.DataFrame:
         ("Fire rate rpm", "fire_rate_pct", "pct", base_fire_rate, base_fire_rate),
         ("Bullet velocity", "bullet_velocity_pct", "pct", base_velocity, base_velocity),
         ("Close damage", "damage_pct", "pct", base_damage, base_damage),
+        ("Close head damage", "head_damage_pct", "pct", base_head_damage, base_head_damage),
+        ("Close head damage only", "head_damage_close_pct", "pct", base_head_damage, base_head_damage),
+        ("Mid head damage only", "head_damage_mid_pct", "pct", 0.0, 0.0),
+        ("Long head damage only", "head_damage_long_pct", "pct", 0.0, 0.0),
         ("Effective range metres", "range_pct", "pct", base_range, base_range),
         ("Magazine size", "mag_size_add", "add", base_mag, base_mag),
         ("ADS ms", "ads_pct", "pct", base_ads, base_ads),
@@ -140,6 +216,16 @@ def build_delta_bench_metric_template(gun: pd.Series) -> pd.DataFrame:
         ("First shot recoil scale", "first_shot_recoil_pct", "pct", 0.0, 0.0),
         ("Kick reset speed ms", "kick_reset_speed_pct", "pct", 0.0, 0.0),
         ("Flinch resistance", "flinch_resistance_pct", "pct", 0.0, 0.0),
+        ("Aiming idle sway", "aiming_idle_sway_pct", "pct", 0.0, 0.0),
+        ("Visual recoil", "visual_recoil_pct", "pct", 0.0, 0.0),
+        ("Slide to fire", "slide_to_fire_pct", "pct", 0.0, 0.0),
+        ("Dive to fire", "dive_to_fire_pct", "pct", 0.0, 0.0),
+        ("Hipfire spread", "hipfire_spread_pct", "pct", 0.0, 0.0),
+        ("Jump hipfire spread", "jump_hipfire_spread_pct", "pct", 0.0, 0.0),
+        ("Slide hipfire spread", "slide_hipfire_spread_pct", "pct", 0.0, 0.0),
+        ("Dive hipfire spread", "dive_hipfire_spread_pct", "pct", 0.0, 0.0),
+        ("Extra magazines", "mags_add", "add", 0.0, 0.0),
+        ("Optic zoom", "optic_zoom", "add", 0.0, 0.0),
         ("Movement speed", "movement_pct", "pct", 0.0, 0.0),
         ("Sprint speed", "sprint_pct", "pct", 0.0, 0.0),
         ("Crouch movement speed", "crouch_movement_pct", "pct", 0.0, 0.0),
@@ -153,7 +239,11 @@ def build_delta_bench_metric_template(gun: pd.Series) -> pd.DataFrame:
 
 
 def calculate_delta_bench_values(metric_rows: pd.DataFrame) -> tuple[dict, str]:
-    values = {column: 0.0 for column in ATTACHMENT_IMPORT_DATA_COLUMNS if column.endswith("_pct") or column.endswith("_add")}
+    values = {
+        column: 0.0
+        for column in ATTACHMENT_IMPORT_DATA_COLUMNS
+        if column.endswith("_pct") or column.endswith("_add") or column == "optic_zoom"
+    }
     raw_lines = ["Delta Bench in-game comparison."]
 
     for _, metric in metric_rows.iterrows():
@@ -177,7 +267,12 @@ def calculate_delta_bench_values(metric_rows: pd.DataFrame) -> tuple[dict, str]:
         values[target_column] = delta
 
         if delta != 0:
-            suffix = " shells" if target_column == "mag_size_add" else "%"
+            if target_column == "mag_size_add":
+                suffix = " shells"
+            elif target_column == "optic_zoom":
+                suffix = "x"
+            else:
+                suffix = "%"
             raw_lines.append(
                 f"{metric.get('metric', target_column)}: base {base_value} -> observed {observed_value} = {delta:g}{suffix}"
             )
@@ -266,6 +361,10 @@ PROFILED_GUN_COLUMNS = [
     "recoil",
     "bullet_velocity",
     "mag_size",
+    "head_damage_close",
+    "head_damage_mid",
+    "head_damage_long",
+    "head_multiplier",
 ]
 
 FIELD_TEST_VERDICTS = [
@@ -322,6 +421,31 @@ ATTACHMENT_IMPORT_DATA_COLUMNS = [
     "first_shot_recoil_pct",
     "kick_reset_speed_pct",
     "flinch_resistance_pct",
+    "aiming_idle_sway_pct",
+    "visual_recoil_pct",
+    "range_profile",
+    "mags_add",
+    "dive_hipfire_spread_pct",
+    "slide_hipfire_spread_pct",
+    "jump_hipfire_spread_pct",
+    "hipfire_spread_pct",
+    "dive_to_fire_pct",
+    "slide_to_fire_pct",
+    "optic_zoom",
+    "optic_type",
+    "attachment_type",
+    "head_damage_pct",
+    "head_damage_close_pct",
+    "head_damage_mid_pct",
+    "head_damage_long_pct",
+    "head_damage_close_add",
+    "head_damage_mid_add",
+    "head_damage_long_add",
+    "head_damage_close",
+    "head_damage_mid",
+    "head_damage_long",
+    "head_multiplier",
+    "head_multiplier_pct",
     "raw_stat_text",
     "source",
     "source_date",
@@ -447,6 +571,400 @@ def optimiser_depth_summary(depth_profile: str, slot_candidate_limit: int) -> st
     )
 
 
+CHALLENGE_REQUIREMENT_OPTIONS = [
+    "Any suppressor",
+    "Underbarrel launcher",
+    "4.0x+ optic",
+    "Any optic / reticle",
+    "Specific attachment name contains",
+    "5+ attachments",
+    "8 attachments",
+]
+
+CHALLENGE_ROLE_SCOPES = [
+    "Primary weapon",
+    "Secondary weapon",
+    "Both weapons",
+]
+
+
+def challenge_rules_from_selection(requirement: str, custom_text: str = "") -> list[dict]:
+    requirement = str(requirement or "").strip()
+    custom_text = str(custom_text or "").strip()
+
+    if requirement == "Any suppressor":
+        return [
+            {
+                "label": "Challenge lock: any suppressor",
+                "slot": "muzzle",
+                "name_contains_any": ["suppressor", "supressor"],
+            }
+        ]
+
+    if requirement == "Underbarrel launcher":
+        return [
+            {
+                "label": "Challenge lock: underbarrel launcher",
+                "slot": "underbarrel",
+                "attachment_type": "underbarrel_launcher",
+            }
+        ]
+
+    if requirement == "4.0x+ optic":
+        return [
+            {
+                "label": "Challenge lock: 4.0x+ optic",
+                "slot": "optic",
+                "min_optic_zoom": 4.0,
+            }
+        ]
+
+    if requirement == "Any optic / reticle":
+        return [
+            {
+                "label": "Challenge lock: any optic / reticle",
+                "slot": "optic",
+            }
+        ]
+
+    if requirement == "Specific attachment name contains" and custom_text:
+        return [
+            {
+                "label": f"Challenge lock: {custom_text}",
+                "name_contains_any": [custom_text],
+            }
+        ]
+
+    return []
+
+
+def challenge_required_attachment_count(requirement: str) -> int:
+    requirement = str(requirement or "").strip()
+
+    if requirement == "8 attachments":
+        return 8
+
+    if requirement == "5+ attachments":
+        return 5
+
+    return 0
+
+
+def challenge_requires_eight_attachments(requirement: str) -> bool:
+    return challenge_required_attachment_count(requirement) == 8
+
+
+def render_challenge_lock_controls(prefix: str, *, allow_role_scope: bool = False) -> tuple[list[dict], bool, str, str]:
+    active = st.checkbox(
+        "Challenge requirement active",
+        value=False,
+        key=f"{prefix}_challenge_active",
+        help=(
+            "Use this when a camo/challenge requires a hard condition like a suppressor, "
+            "underbarrel launcher, 4.0x+ optic, 5+ attachments, or 8 attachments. "
+            "The Oracle will lock the requirement first, then optimise the remaining slots."
+        ),
+    )
+
+    if not active:
+        return [], False, "", "Both weapons"
+
+    cols = st.columns(3 if allow_role_scope else 2)
+
+    with cols[0]:
+        requirement = st.selectbox(
+            "Challenge lock",
+            CHALLENGE_REQUIREMENT_OPTIONS,
+            index=0,
+            key=f"{prefix}_challenge_requirement",
+        )
+
+    custom_text = ""
+
+    with cols[1]:
+        if requirement == "Specific attachment name contains":
+            custom_text = st.text_input(
+                "Attachment text",
+                value="",
+                key=f"{prefix}_challenge_custom_text",
+                placeholder='Example: 4.0x, Suppressor, Long Barrel, Launcher',
+            )
+        else:
+            st.caption("Hard lock enabled. The optimiser will build around this requirement.")
+
+    role_scope = "Both weapons"
+
+    if allow_role_scope:
+        with cols[2]:
+            role_scope = st.selectbox(
+                "Apply to",
+                CHALLENGE_ROLE_SCOPES,
+                index=0,
+                key=f"{prefix}_challenge_role_scope",
+            )
+
+    rules = challenge_rules_from_selection(requirement, custom_text)
+    required_attachment_count = challenge_required_attachment_count(requirement)
+
+    if required_attachment_count:
+        summary = f"Challenge lock: {required_attachment_count}+ attachments"
+        if required_attachment_count == 8:
+            summary = "Challenge lock: 8 attachments"
+    elif rules:
+        summary = " | ".join(rule.get("label", "Challenge lock") for rule in rules)
+    else:
+        summary = "Challenge lock active, but no usable requirement has been entered."
+
+    st.info(
+        f"{summary}. The Oracle treats this as a hard constraint, not a soft preference."
+    )
+
+    return rules, required_attachment_count, summary, role_scope
+
+
+def split_challenge_rules_by_scope(rules: list[dict], role_scope: str) -> tuple[list[dict], list[dict]]:
+    role_scope = str(role_scope or "").strip()
+
+    if not rules:
+        return [], []
+
+    if role_scope == "Primary weapon":
+        return rules, []
+
+    if role_scope == "Secondary weapon":
+        return [], rules
+
+    return rules, rules
+
+
+def challenge_attachment_count_override(
+    current_count: int,
+    required_attachment_count,
+    summary: str,
+) -> int:
+    try:
+        required_count = int(required_attachment_count or 0)
+    except (TypeError, ValueError):
+        required_count = 0
+
+    if required_count <= 0:
+        return current_count
+
+    if current_count < required_count:
+        st.warning(
+            f"{summary}: attachment budget overridden to {required_count} for this run."
+        )
+
+    return max(current_count, required_count)
+
+
+
+def render_tactical_context_controls() -> dict:
+    st.subheader("TACTICAL CONTEXT")
+    st.caption(
+        "This does not change the brute-force maths yet. It tells the Oracle how the build will be used, "
+        "then adds game-mode advice, optic warnings, and challenge-specific field notes."
+    )
+
+    cols = st.columns(4)
+
+    with cols[0]:
+        tactical_goal = st.selectbox(
+            "Challenge / grind intent",
+            TACTICAL_GOAL_OPTIONS,
+            index=0,
+            key="ttk_tactical_goal",
+        )
+
+    with cols[1]:
+        map_size = st.selectbox(
+            "Map size",
+            TACTICAL_MAP_SIZE_OPTIONS,
+            index=0,
+            key="ttk_tactical_map_size",
+        )
+
+    with cols[2]:
+        playlist_style = st.selectbox(
+            "Playlist style",
+            TACTICAL_PLAYLIST_STYLE_OPTIONS,
+            index=0,
+            key="ttk_tactical_playlist_style",
+        )
+
+    with cols[3]:
+        optic_preference = st.selectbox(
+            "Optic preference",
+            OPTIC_PREFERENCE_OPTIONS,
+            index=0,
+            key="ttk_tactical_optic_preference",
+            help="This is currently advisory. Use it to flag thermal or high-zoom choices before Groq gets added.",
+        )
+
+    return {
+        "tactical_goal": tactical_goal,
+        "map_size": map_size,
+        "playlist_style": playlist_style,
+        "optic_preference": optic_preference,
+    }
+
+
+def render_tactical_advice_panel(advice: dict):
+    if not advice:
+        return
+
+    st.markdown("### Tactical Advisor")
+
+    summary = str(advice.get("summary", "") or "").strip()
+    if summary:
+        st.info(summary)
+
+    optic_note = str(advice.get("optic_note", "") or "").strip()
+    if optic_note:
+        st.caption(optic_note)
+
+    cols = st.columns(3)
+
+    with cols[0]:
+        st.markdown("**Recommended modes**")
+        for item in advice.get("recommended_modes", []) or []:
+            st.write(f"- {item}")
+
+    with cols[1]:
+        st.markdown("**Avoid / use carefully**")
+        for item in advice.get("avoid_modes", []) or []:
+            st.write(f"- {item}")
+
+    with cols[2]:
+        st.markdown("**Field priorities**")
+        for item in advice.get("priorities", []) or []:
+            st.write(f"- {item}")
+
+    warnings = advice.get("warnings", []) or []
+    if warnings:
+        with st.expander("Tactical warnings", expanded=True):
+            for item in warnings:
+                st.warning(item)
+
+
+def _split_double_pipe_notes(value) -> list[str]:
+    text = str(value or "").strip()
+    if not text:
+        return []
+    return [item.strip() for item in text.split(" || ") if item.strip()]
+
+
+def render_perk_loadout_advice_panel(row):
+    if row is None:
+        return
+
+    summary = str(row.get("perk_recommendation_summary", "") or "").strip()
+    reasons = _split_double_pipe_notes(row.get("perk_reasons", ""))
+    equipment = _split_double_pipe_notes(row.get("equipment_priorities", ""))
+    playstyle = _split_double_pipe_notes(row.get("playstyle_notes", ""))
+    warnings = _split_double_pipe_notes(row.get("perk_warnings", ""))
+    evidence_json = str(row.get("perk_lab_evidence_json", "") or "").strip()
+    wildcard_name = str(row.get("wildcard_name", "") or "").strip()
+    recommended_tactical = str(row.get("recommended_tactical", "") or "").strip()
+    recommended_lethal = str(row.get("recommended_lethal", "") or "").strip()
+    recommended_field_upgrade = str(row.get("recommended_field_upgrade", "") or "").strip()
+
+    if not any([summary, reasons, equipment, playstyle, warnings, evidence_json, wildcard_name]):
+        return
+
+    st.markdown("### Loadout / Perk Advisor")
+
+    if summary:
+        st.info(summary)
+
+    picks = st.columns(4)
+    picks[0].metric("Wildcard", wildcard_name or "None")
+    picks[1].metric("Tactical", recommended_tactical or "Field choice")
+    picks[2].metric("Lethal", recommended_lethal or "Field choice")
+    picks[3].metric("Field Upgrade", recommended_field_upgrade or "Field choice")
+
+    cols = st.columns(3)
+
+    with cols[0]:
+        st.markdown("**Why this package**")
+        for item in reasons:
+            st.write(f"- {item}")
+
+    with cols[1]:
+        st.markdown("**Equipment priorities**")
+        if equipment:
+            for item in equipment:
+                st.write(f"- {item}")
+        else:
+            st.caption("No specific equipment pressure detected from the current tactical context.")
+
+    with cols[2]:
+        st.markdown("**How to play it**")
+        if playstyle:
+            for item in playstyle:
+                st.write(f"- {item}")
+        else:
+            st.caption("Use the build normally and field test lobby flow.")
+
+    if warnings:
+        with st.expander("Loadout warnings", expanded=True):
+            for item in warnings:
+                st.warning(item)
+
+    if evidence_json:
+        with st.expander("Perk/loadout evidence packet", expanded=False):
+            st.code(evidence_json, language="json")
+
+
+
+def render_secondary_slot_advice_panel(row):
+    if row is None:
+        return
+
+    recommendation = str(row.get("secondary_slot_recommendation", "") or "").strip()
+    role = str(row.get("secondary_field_role", "") or "").strip()
+    summary = str(row.get("secondary_advisor_summary", "") or "").strip()
+    source = str(row.get("secondary_slot_source", "") or "").strip()
+    warnings = _split_double_pipe_notes(row.get("secondary_advisor_warnings", ""))
+    evidence_json = str(row.get("secondary_advisor_evidence_json", "") or "").strip()
+
+    if not any([recommendation, role, summary, warnings, evidence_json]):
+        return
+
+    st.markdown("### Secondary Slot Advisor")
+
+    if summary:
+        st.info(summary)
+
+    cols = st.columns(3)
+    cols[0].metric("Recommendation", recommendation or "n/a")
+    cols[1].metric("Role", role or "n/a")
+    cols[2].metric("Source", source.replace("_", " ").title() if source else "n/a")
+
+    if warnings:
+        with st.expander("Secondary slot warnings", expanded=True):
+            for item in warnings:
+                st.warning(item)
+
+    if evidence_json:
+        with st.expander("Secondary advisor evidence packet", expanded=False):
+            st.code(evidence_json, language="json")
+
+
+def tactical_advice_for_row(row, context: dict, prefix: str = "") -> dict:
+    return build_tactical_advice(
+        build_goal=context.get("build_goal", ""),
+        fight_type=context.get("fight_type", ""),
+        challenge_requirements=context.get("challenge_requirements", ""),
+        tactical_goal=context.get("tactical_goal", "Auto from build goal / challenge"),
+        map_size=context.get("map_size", "Auto"),
+        playlist_style=context.get("playlist_style", "Auto"),
+        optic_preference=context.get("optic_preference", "Any optic"),
+        row=row,
+        prefix=prefix,
+    )
+
+
 def render_optimizer_workload_estimate(
     *,
     guns_subset: pd.DataFrame,
@@ -458,6 +976,7 @@ def render_optimizer_workload_estimate(
     attachment_count: int,
     optimiser_mode: str,
     slot_candidate_limit: int,
+    forced_attachment_rules=None,
 ):
     workload = estimate_optimizer_combo_count(
         guns=guns_subset,
@@ -469,6 +988,7 @@ def render_optimizer_workload_estimate(
         attachment_count=attachment_count,
         optimiser_mode=optimiser_mode,
         candidate_limit_per_slot=slot_candidate_limit,
+        forced_attachment_rules=forced_attachment_rules,
     )
 
     if workload.empty:
@@ -494,7 +1014,7 @@ def render_optimizer_workload_estimate(
             + " This is a heavy deep pass. Use FAST PASS first unless you are validating a final Episode 2 build."
         )
     elif estimated_combinations > 50_000:
-        st.info(message + " This is a serious lab pass, but still isolated from Commander.")
+        st.info(message + " This is a serious lab pass, but still isolated from Completion Commander.")
     else:
         st.caption(message)
 
@@ -511,6 +1031,9 @@ def render_optimizer_workload_estimate(
                     "estimated_combinations",
                     "ignored_rows",
                     "slot_pool_summary",
+                    "challenge_requirements",
+                    "challenge_required_slots",
+                    "challenge_missing",
                     "buildable",
                 ]
             ],
@@ -940,6 +1463,10 @@ def render_gun_baseline_bench(all_guns: pd.DataFrame, active_stats_profile: str)
         recoil = st.number_input("Recoil", value=safe_float(seed.get("recoil", 0)), step=0.01, key="gun_baseline_recoil")
         bullet_velocity = st.number_input("Bullet velocity", value=safe_float(seed.get("bullet_velocity", 0)), step=0.01, key="gun_baseline_velocity")
         mag_size = st.number_input("Mag size", value=safe_float(seed.get("mag_size", 0)), step=1.0, key="gun_baseline_mag")
+        head_damage_close = st.number_input("Close head damage", value=safe_float(seed.get("head_damage_close", 0)), step=0.01, key="gun_baseline_head_close")
+        head_damage_mid = st.number_input("Mid head damage", value=safe_float(seed.get("head_damage_mid", 0)), step=0.01, key="gun_baseline_head_mid")
+        head_damage_long = st.number_input("Long head damage", value=safe_float(seed.get("head_damage_long", 0)), step=0.01, key="gun_baseline_head_long")
+        head_multiplier = st.number_input("Head multiplier", value=safe_float(seed.get("head_multiplier", 0)), step=0.01, key="gun_baseline_head_multiplier")
 
     gun_id = slugify_for_ttk(gun_name)
 
@@ -959,6 +1486,10 @@ def render_gun_baseline_bench(all_guns: pd.DataFrame, active_stats_profile: str)
         "recoil": recoil,
         "bullet_velocity": bullet_velocity,
         "mag_size": mag_size,
+        "head_damage_close": head_damage_close,
+        "head_damage_mid": head_damage_mid,
+        "head_damage_long": head_damage_long,
+        "head_multiplier": head_multiplier,
     }
 
     st.dataframe(pd.DataFrame([preview_row]), use_container_width=True, hide_index=True)
@@ -1923,7 +2454,7 @@ def build_saved_single_weapon_row(best: pd.Series, context: dict, save_name: str
     return {
         "saved_at": datetime.now().isoformat(timespec="seconds"),
         "save_name": save_name,
-        "source": "Commander Weapon Optimiser",
+        "source": "Single Gun Attachment Optimiser",
         "mode_profile": context.get("mode_profile", ""),
         "stats_profile": context.get("stats_profile", ""),
         "enemy_health": context.get("enemy_health", ""),
@@ -2036,7 +2567,7 @@ def render_keep_single_weapon_build(best: pd.Series, context: dict):
 
     notes = st.text_area(
         "Notes",
-        value="Commander-assigned weapon build. Keep if it felt good in-game.",
+        value="Single gun lab candidate. Keep if it felt good in-game.",
         height=80,
         key="keep_single_notes",
     )
@@ -2193,9 +2724,97 @@ def render_saved_ttk_loadouts():
         use_container_width=True,
     )
 
+def render_attachment_list(attachments, slots=""):
+    """Render optimiser attachment output safely.
+
+    The optimiser returns attachments as a pipe-separated string:
+    "Barrel A | Muzzle B | Grip C"
+
+    Slots are also pipe-separated:
+    "Barrel | Muzzle | Rear Grip"
+    """
+    def split_pipe_cell(value):
+        if value is None:
+            return []
+
+        if isinstance(value, (list, tuple)):
+            return [str(item).strip() for item in value if str(item).strip()]
+
+        text = str(value or "").strip()
+
+        if not text:
+            return []
+
+        if "|" in text:
+            return [part.strip() for part in text.split("|") if part.strip()]
+
+        return [text]
+
+    attachment_names = split_pipe_cell(attachments)
+    slot_names = split_pipe_cell(slots)
+
+    st.markdown("#### Attachments")
+
+    if not attachment_names:
+        st.caption("No attachments selected.")
+        return
+
+    for index, attachment_name in enumerate(attachment_names):
+        slot = slot_names[index] if index < len(slot_names) else "Attachment"
+        st.markdown(f"{index + 1}. **{slot}:** {attachment_name}")
+
+
+def _split_lab_notes(value) -> list[str]:
+    text = str(value or "").strip()
+
+    if not text:
+        return []
+
+    return [
+        item.strip()
+        for item in text.split(" || ")
+        if item.strip()
+    ]
+
+
+def render_build_reasoning_panel(row, prefix: str = ""):
+    summary = str(row.get(f"{prefix}build_reason_summary", "") or "").strip()
+    weights = str(row.get(f"{prefix}score_weight_summary", "") or "").strip()
+    optic_status = str(row.get(f"{prefix}optic_status", "") or "").strip()
+    selected_notes = _split_lab_notes(row.get(f"{prefix}selected_attachment_notes", ""))
+    rejected_notes = _split_lab_notes(row.get(f"{prefix}rejected_breakpoint_notes", ""))
+    evidence_json = str(row.get(f"{prefix}lab_evidence_json", "") or "").strip()
+
+    if not any([summary, weights, optic_status, selected_notes, rejected_notes, evidence_json]):
+        return
+
+    st.markdown("#### Why This Build?")
+
+    if summary:
+        st.info(summary)
+
+    if weights:
+        st.caption(f"Score weights: {weights}")
+
+    if optic_status:
+        st.caption(f"Optic status: {optic_status}")
+
+    if selected_notes:
+        with st.expander("Modelled attachment reasoning", expanded=True):
+            for note in selected_notes:
+                st.write(f"- {note}")
+
+    if rejected_notes:
+        with st.expander("Rejected headshot breakpoint trade-offs", expanded=True):
+            for note in rejected_notes:
+                st.warning(note)
+
+    if evidence_json:
+        with st.expander("Groq evidence packet", expanded=False):
+            st.code(evidence_json, language="json")
 
 def render_single_weapon_result(best: pd.Series, enemy_health: int, confidence: dict | None = None):
-    st.markdown("### Optimised Assigned Weapon")
+    st.markdown("### Optimum Build")
 
     depth_label = str(best.get("optimiser_mode", "") or "").strip()
     slot_limit = str(best.get("slot_candidate_limit", "") or "").strip()
@@ -2205,6 +2824,10 @@ def render_single_weapon_result(best: pd.Series, enemy_health: int, confidence: 
 
     if confidence:
         render_confidence_badge(confidence)
+
+    challenge_note = str(best.get("challenge_requirements", "") or "").strip()
+    if challenge_note:
+        st.warning(f"CHALLENGE LOCK ACTIVE: {challenge_note}")
 
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Weapon", best["gun_name"])
@@ -2223,14 +2846,17 @@ def render_single_weapon_result(best: pd.Series, enemy_health: int, confidence: 
     trust_note = str(best.get("attachment_trust_note", "") or "").strip()
     effect_note = str(best.get("attachment_effects", "") or "").strip()
 
-    st.info(
-        f"""
-        **Why this build won:** the Oracle kept the Commander-assigned weapon locked to **{best['gun_name']}** and brute-forced legal attachment combinations for this scenario.  
-        It ranked builds by raw TTK, practical TTK, recoil, handling, range, bullet velocity, and magazine value depending on the selected goal.  
-        Shotguns also receive a separate truth score for one-shot potential, two-shot consistency, range coverage, and mag safety.  
-        **Enemy health:** {enemy_health} HP.
-        """
-    )
+    render_build_reasoning_panel(best)
+
+    if not str(best.get("build_reason_summary", "") or "").strip():
+        st.info(
+            f"""
+            **Why this build won:** the Oracle locked onto **{best['gun_name']}** and brute-forced legal attachment combinations for this scenario.  
+            It ranked builds by raw TTK, practical TTK, recoil, handling, range, bullet velocity, and magazine value depending on the selected goal.  
+            Shotguns also receive a separate truth score for one-shot potential, two-shot consistency, range coverage, and mag safety.  
+            **Enemy health:** {enemy_health} HP.
+            """
+        )
 
     if trust_note:
         st.caption(f"Trust gate: {trust_note}")
@@ -2242,25 +2868,31 @@ def render_single_weapon_result(best: pd.Series, enemy_health: int, confidence: 
                 if clean_item:
                     st.write(f"- {clean_item}")
 
-    st.markdown("### Copyable Commander Build")
+    st.markdown("### Copyable Candidate Build")
     st.code(
         f"""
-WEAPON: {best['gun_name']}
-CLASS: {best['weapon_class']}
+        WEAPON: {best['gun_name']}
+        CLASS: {best['weapon_class']}
 
-ATTACHMENTS:
-{best['attachments']}
+        CHALLENGE LOCK:
+        {best.get('challenge_requirements', 'None') or 'None'}
 
-SLOTS:
-{best['slots']}
+        ATTACHMENTS:
+        {best['attachments']}
 
-RAW TTK: {best['raw_ttk_ms']:.0f} ms
-PRACTICAL TTK: {best['practical_ttk_ms']:.0f} ms
+        SLOTS:
+        {best['slots']}
+
+        RAW TTK: {best['raw_ttk_ms']:.0f} ms
+        PRACTICAL TTK: {best['practical_ttk_ms']:.0f} ms
         """.strip()
     )
 
     st.markdown("### Attachments")
-    render_attachment_list(best["attachments"])
+    render_attachment_list(
+        best.get("attachments", ""),
+        best.get("slots", ""),
+    )
 
 
 def render_full_loadout_result(full_loadout_results: pd.DataFrame, elapsed_seconds: float, enemy_health: int, confidence: dict | None = None):
@@ -2284,7 +2916,12 @@ def render_full_loadout_result(full_loadout_results: pd.DataFrame, elapsed_secon
         f"Secondary role: {best['secondary_fight_type']} / {best['secondary_build_goal']}"
     )
 
+    challenge_note = str(best.get("challenge_requirements", "") or "").strip()
+    if challenge_note:
+        st.warning(f"CHALLENGE LOCK ACTIVE: {challenge_note}")
+
     render_loadout_role_panel(best)
+    render_secondary_slot_advice_panel(best)
 
     col1, col2, col3 = st.columns(3)
     col1.metric("Loadout Score", f"{best['full_loadout_score']:.3f}")
@@ -2298,6 +2935,7 @@ def render_full_loadout_result(full_loadout_results: pd.DataFrame, elapsed_secon
         **Scenario:** {best['map_type']} / {best['fight_type']}  
         **Enemy health:** {enemy_health} HP  
         **Pairing:** {best['loadout_pairing']}  
+        **Wildcard:** {best.get('wildcard_name', 'None')}  
         **Primary importance:** {best['primary_weight'] * 100:.0f}%  
         **Secondary importance:** {best['secondary_weight'] * 100:.0f}%  
         **Role balance:** {float(best.get('role_balance_score', 0.0) or 0.0):.3f}  
@@ -2320,32 +2958,44 @@ def render_full_loadout_result(full_loadout_results: pd.DataFrame, elapsed_secon
         st.write(f"**Practical TTK:** {best['primary_practical_ttk_ms']:.0f} ms")
         st.write(f"**Recoil:** {best['primary_recoil']:.1f}")
         st.write(f"**ADS:** {best['primary_ads_ms']:.0f} ms")
+        primary_challenge = str(best.get("primary_challenge_requirements", "") or "").strip()
+        if primary_challenge:
+            st.warning(f"Challenge lock: {primary_challenge}")
         render_shotgun_truth_panel(best, prefix="primary_")
         st.markdown("**Attachments:**")
         render_attachment_list(best["primary_attachments"])
+        render_build_reasoning_panel(best, prefix="primary_")
 
     with col2:
         st.markdown("### Secondary Build")
         st.write(f"**Weapon:** {best['secondary_weapon']}")
         st.write(f"**Class:** {best['secondary_class']}")
-        st.write(f"**Raw TTK:** {best['secondary_raw_ttk_ms']:.0f} ms")
-        st.write(f"**Practical TTK:** {best['secondary_practical_ttk_ms']:.0f} ms")
-        st.write(f"**Recoil:** {best['secondary_recoil']:.1f}")
-        st.write(f"**ADS:** {best['secondary_ads_ms']:.0f} ms")
+        st.write(f"**Raw TTK:** {format_optional_ms(best.get('secondary_raw_ttk_ms', 0))}")
+        st.write(f"**Practical TTK:** {format_optional_ms(best.get('secondary_practical_ttk_ms', 0))}")
+        st.write(f"**Recoil:** {format_optional_number(best.get('secondary_recoil', 0), 1)}")
+        st.write(f"**ADS:** {format_optional_ms(best.get('secondary_ads_ms', 0))}")
+        secondary_challenge = str(best.get("secondary_challenge_requirements", "") or "").strip()
+        if secondary_challenge:
+            st.warning(f"Challenge lock: {secondary_challenge}")
         render_shotgun_truth_panel(best, prefix="secondary_")
         st.markdown("**Attachments:**")
         render_attachment_list(best["secondary_attachments"])
+        render_build_reasoning_panel(best, prefix="secondary_")
 
     st.divider()
 
     st.markdown("### Perks")
-    selected_perks = PERK_PACKAGES[best["perk_package"]]
+    selected_perks = PERK_PACKAGES.get(best["perk_package"], {})
 
     st.write(f"**Package:** {best['perk_package']}")
-    st.write(f"- Perk 1: {selected_perks['perk_1']}")
-    st.write(f"- Perk 2: {selected_perks['perk_2']}")
-    st.write(f"- Perk 3: {selected_perks['perk_3']}")
-    st.write(f"- Perk 4: {selected_perks['perk_4']}")
+    st.write(f"**Wildcard:** {best.get('wildcard_name', 'None')}")
+    st.write(f"**Role:** {best.get('perk_role', 'Loadout shell')}")
+    st.write(f"- Perk 1: {selected_perks.get('perk_1', '')}")
+    st.write(f"- Perk 2: {selected_perks.get('perk_2', '')}")
+    st.write(f"- Perk 3: {selected_perks.get('perk_3', '')}")
+    st.write(f"- Perk 4: {selected_perks.get('perk_4', '')}")
+
+    render_perk_loadout_advice_panel(best)
 
     st.markdown("### Copyable Loadout")
 
@@ -2357,15 +3007,30 @@ PRIMARY: {best['primary_weapon']}
 SECONDARY: {best['secondary_weapon']}
 {best['secondary_attachments']}
 
+WILDCARD:
+{best.get('wildcard_name', 'None')}
+
 PERKS:
-{selected_perks['perk_1']}
-{selected_perks['perk_2']}
-{selected_perks['perk_3']}
-{selected_perks['perk_4']}
+{selected_perks.get('perk_1', '')}
+{selected_perks.get('perk_2', '')}
+{selected_perks.get('perk_3', '')}
+{selected_perks.get('perk_4', '')}
+
+TACTICAL:
+{best.get('recommended_tactical', '')}
+
+LETHAL:
+{best.get('recommended_lethal', '')}
+
+FIELD UPGRADE:
+{best.get('recommended_field_upgrade', '')}
 
 SCENARIO:
 {best['map_type']} / {best['fight_type']}
 Enemy Health: {enemy_health}
+
+CHALLENGE LOCK:
+{best.get('challenge_requirements', 'None') or 'None'}
         """.strip()
     )
 
@@ -3250,7 +3915,7 @@ def render_in_game_delta_bench(guns: pd.DataFrame, attachments: pd.DataFrame, ac
         if source_attachment is not None:
             default_slot = str(source_attachment.get("slot", "") or "")
 
-        known_slots = ["", "Muzzle", "Barrel", "Magazine", "Rear Grip", "Stock", "Laser", "Fire Mods", "Optic", "Underbarrel"]
+        known_slots = ["", "muzzle", "barrel", "magazine", "rear_grip", "stock", "laser", "fire_mod", "optic", "underbarrel"]
         slot_index = known_slots.index(default_slot) if default_slot in known_slots else 0
 
         slot = st.selectbox(
@@ -3416,24 +4081,153 @@ def render_in_game_delta_bench(guns: pd.DataFrame, attachments: pd.DataFrame, ac
 
 
 
+
+
+def render_two_weapon_result(two_weapon_results: pd.DataFrame, elapsed_seconds: float, enemy_health: int, confidence: dict | None = None):
+    best = two_weapon_results.iloc[0]
+
+    st.success(f"Two-gun candidate found in {elapsed_seconds:.2f} seconds.")
+
+    depth_label = str(best.get("optimiser_mode", "") or "").strip()
+    slot_limit = str(best.get("slot_candidate_limit", "") or "").strip()
+    if depth_label:
+        slot_text = f" | slot shortlist: {slot_limit}" if slot_limit else ""
+        st.caption(f"Oracle depth: {depth_label}{slot_text}")
+
+    st.markdown("### Optimum Two-Gun Pairing")
+
+    if confidence:
+        render_confidence_badge(confidence)
+
+    st.caption(
+        f"Primary role: {best['primary_fight_type']} / {best['primary_build_goal']} | "
+        f"Secondary role: {best['secondary_fight_type']} / {best['secondary_build_goal']}"
+    )
+
+    challenge_note = str(best.get("challenge_requirements", "") or "").strip()
+    if challenge_note:
+        st.warning(f"CHALLENGE LOCK ACTIVE: {challenge_note}")
+
+    render_loadout_role_panel(best)
+    render_secondary_slot_advice_panel(best)
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Pair Score", f"{best['full_loadout_score']:.3f}")
+    col2.metric("Primary", best["primary_weapon"])
+    col3.metric("Secondary", best["secondary_weapon"])
+
+    st.info(
+        f"""
+        **Scenario:** {best['map_type']} / {best['fight_type']}  
+        **Enemy health:** {enemy_health} HP  
+        **Pairing:** {best['loadout_pairing']}  
+        **Wildcard:** {best.get('wildcard_name', 'None')}  
+        **Primary importance:** {best['primary_weight'] * 100:.0f}%  
+        **Secondary importance:** {best['secondary_weight'] * 100:.0f}%  
+        **Role balance:** {float(best.get('role_balance_score', 0.0) or 0.0):.3f}  
+
+        This mode ignores perks and tests whether the two weapons cover separate jobs before a full class is built.
+        """
+    )
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("### Primary Build")
+        st.write(f"**Weapon:** {best['primary_weapon']}")
+        st.write(f"**Class:** {best['primary_class']}")
+        st.write(f"**Raw TTK:** {best['primary_raw_ttk_ms']:.0f} ms")
+        st.write(f"**Practical TTK:** {best['primary_practical_ttk_ms']:.0f} ms")
+        st.write(f"**Recoil:** {best['primary_recoil']:.1f}")
+        st.write(f"**ADS:** {best['primary_ads_ms']:.0f} ms")
+        primary_challenge = str(best.get("primary_challenge_requirements", "") or "").strip()
+        if primary_challenge:
+            st.warning(f"Challenge lock: {primary_challenge}")
+        render_shotgun_truth_panel(best, prefix="primary_")
+        render_attachment_list(best["primary_attachments"])
+        render_build_reasoning_panel(best, prefix="primary_")
+
+    with col2:
+        st.markdown("### Secondary Build")
+        st.write(f"**Weapon:** {best['secondary_weapon']}")
+        st.write(f"**Class:** {best['secondary_class']}")
+        st.write(f"**Raw TTK:** {format_optional_ms(best.get('secondary_raw_ttk_ms', 0))}")
+        st.write(f"**Practical TTK:** {format_optional_ms(best.get('secondary_practical_ttk_ms', 0))}")
+        st.write(f"**Recoil:** {format_optional_number(best.get('secondary_recoil', 0), 1)}")
+        st.write(f"**ADS:** {format_optional_ms(best.get('secondary_ads_ms', 0))}")
+        secondary_challenge = str(best.get("secondary_challenge_requirements", "") or "").strip()
+        if secondary_challenge:
+            st.warning(f"Challenge lock: {secondary_challenge}")
+        render_shotgun_truth_panel(best, prefix="secondary_")
+        render_attachment_list(best["secondary_attachments"])
+        render_build_reasoning_panel(best, prefix="secondary_")
+
+    st.markdown("### Copyable Pairing")
+    st.code(
+        f"""
+PRIMARY: {best['primary_weapon']}
+{best['primary_attachments']}
+
+SECONDARY: {best['secondary_weapon']}
+{best['secondary_attachments']}
+
+SCENARIO:
+{best['map_type']} / {best['fight_type']}
+Enemy Health: {enemy_health}
+
+CHALLENGE LOCK:
+{best.get('challenge_requirements', 'None') or 'None'}
+        """.strip()
+    )
+
+
 try:
     all_guns, all_attachments, data_warnings = load_and_validate_ttk_data()
 except Exception as error:
     st.error(f"TTK data failed to load: {error}")
     st.stop()
 
+st.warning(
+    "UNVERIFIED DATA: TTK Oracle is a public experiment. The model can produce strong candidates, "
+    "but the CSVs are still being rebuilt and every winner needs field testing."
+)
+
 profile_index = (
     SUPPORTED_STATS_PROFILES.index(DEFAULT_STATS_PROFILE)
     if DEFAULT_STATS_PROFILE in SUPPORTED_STATS_PROFILES
     else 0
 )
-active_stats_profile = st.radio(
-    "Stats profile",
-    SUPPORTED_STATS_PROFILES,
-    index=profile_index,
-    horizontal=True,
-    help="The Oracle never mixes Multiplayer and Warzone stats. Existing legacy rows are marked Multiplayer until re-entered.",
-)
+
+control_cols = st.columns([1.5, 1, 1.4])
+
+with control_cols[0]:
+    active_stats_profile = st.radio(
+        "Stats profile",
+        SUPPORTED_STATS_PROFILES,
+        index=profile_index,
+        horizontal=True,
+        help="The Oracle never mixes Multiplayer and Warzone stats. Existing legacy rows are marked Multiplayer until re-entered.",
+    )
+
+with control_cols[1]:
+    enemy_health = st.slider(
+        "Enemy health",
+        min_value=100,
+        max_value=400,
+        value=300,
+        step=50,
+    )
+
+with control_cols[2]:
+    candidate_trust_filter = st.selectbox(
+        "Candidate trust filter",
+        CANDIDATE_TRUST_FILTERS,
+        index=0,
+        help=(
+            "Controls which generated builds are allowed to appear as the current optimum. "
+            "Use Show All Lab Candidates when you want to inspect rejected or suspect science."
+        ),
+    )
 
 guns, attachments = filter_ttk_data_by_profile(
     all_guns,
@@ -3442,13 +4236,6 @@ guns, attachments = filter_ttk_data_by_profile(
 )
 
 weapon_names = sorted(guns["gun_name"].dropna().astype(str).tolist())
-
-if data_warnings:
-    with st.expander(f"⚠️ {len(data_warnings)} data quality issue(s) detected", expanded=True):
-        for warning in data_warnings:
-            st.warning(warning)
-
-st.success("TTK Oracle engine connected.")
 
 metric_cols = st.columns(4)
 
@@ -3464,872 +4251,1219 @@ with metric_cols[2]:
 with metric_cols[3]:
     st.metric("All attachment rows", len(all_attachments))
 
-if guns.empty:
-    st.warning(
-        f"No {active_stats_profile} gun baseline rows are loaded yet. "
-        "Switch to Multiplayer to inspect legacy data, or add Warzone base gun rows before optimising."
+if data_warnings:
+    with st.expander(f"⚠️ {len(data_warnings)} data quality issue(s) detected", expanded=False):
+        for warning in data_warnings:
+            st.warning(warning)
+
+data_ready = bool(weapon_names) and not guns.empty and not attachments.empty
+
+if not data_ready:
+    st.info(
+        f"LOADOUT LAB is waiting for {active_stats_profile} gun and attachment rows. "
+        "Testing tools remain available below so the CSV rebuild can continue."
     )
 
-render_ttk_data_audit(guns, attachments, active_stats_profile)
+tactical_context = render_tactical_context_controls()
 
-st.divider()
+testing_tab, single_tab, two_gun_tab, full_loadout_tab = st.tabs(
+    [
+        "🧪 TESTING",
+        "🔫 SINGLE GUN",
+        "⚔️ TWO GUN",
+        "🎒 FULL LOADOUT",
+    ]
+)
 
-with st.expander("Data Entry Lab: Profiled Gun Baseline", expanded=False):
-    render_gun_baseline_bench(all_guns, active_stats_profile)
-
-with st.expander("Data Entry Lab: Codmunity HTML parser and verification", expanded=False):
+with testing_tab:
+    st.subheader("BRUTE FORCE PASS / TESTING CONTROL")
     st.caption(
-        "Paste a copied Codmunity attachment table for one weapon. The parser creates draft attachment rows, then generates one or two before/after stat checks to verify against in-game expanded stats before committing."
+        "All beta tools live here: data audit, import staging, saved candidates, comparison, and field test logs. "
+        "The playable lab is limited to the three optimiser tabs."
     )
 
-    if not weapon_names:
-        st.warning("Add gun data before using the parser.")
-        data_entry_weapon = ""
-        data_entry_html = ""
-        selected_data_gun = None
-    else:
-        data_entry_weapon = st.selectbox(
-            "Weapon for pasted attachment table",
-            weapon_names,
-            key="data_entry_weapon",
+    render_ttk_data_audit(guns, attachments, active_stats_profile)
+
+    with st.expander("Data Entry Lab: Profiled Gun Baseline", expanded=False):
+        render_gun_baseline_bench(all_guns, active_stats_profile)
+
+    with st.expander("Data Entry Lab: Codmunity HTML parser and verification", expanded=False):
+        st.caption(
+            "Paste a copied Codmunity attachment table for one weapon. The parser creates draft attachment rows, then generates one or two before/after stat checks to verify against in-game expanded stats before committing."
         )
 
-        selected_data_gun = guns[guns["gun_name"] == data_entry_weapon].iloc[0]
-        data_entry_html = st.text_area(
-            "Paste Codmunity attachment table HTML",
-            height=180,
-            key="codmunity_attachment_html",
-        )
-
-    sample_count = st.slider(
-        "Verification samples",
-        min_value=1,
-        max_value=4,
-        value=2,
-        key="verification_sample_count",
-    )
-
-    verification_seed = st.number_input(
-        "Verification sample seed",
-        min_value=1,
-        max_value=9999,
-        value=7,
-        step=1,
-        key="verification_seed",
-        help="Change this if you want different random attachments to spot-check.",
-    )
-
-    if selected_data_gun is not None and data_entry_html.strip():
-        parsed_attachment_rows = parse_codmunity_attachment_html(
-            data_entry_html,
-            compatible_weapon_classes="",
-            compatible_guns=data_entry_weapon,
-            source="codmunity.gg",
-            stats_profile=active_stats_profile,
-        )
-
-        if parsed_attachment_rows.empty:
-            st.warning("No attachment rows parsed. Check that you copied the attachment table HTML, not just visible text.")
+        if not weapon_names:
+            st.warning("Add gun data before using the parser.")
+            data_entry_weapon = ""
+            data_entry_html = ""
+            selected_data_gun = None
         else:
-            st.success(
-                f"Parsed {len(parsed_attachment_rows)} attachment row(s) for {data_entry_weapon}. Do not commit until the verification rows match in-game expanded stats."
+            data_entry_weapon = st.selectbox(
+                "Weapon for pasted attachment table",
+                weapon_names,
+                key="data_entry_weapon",
             )
 
-            verification_rows = build_attachment_verification_rows(
-                selected_data_gun,
-                parsed_attachment_rows,
-                sample_size=sample_count,
-                random_state=int(verification_seed),
+            selected_data_gun = guns[guns["gun_name"] == data_entry_weapon].iloc[0]
+            data_entry_html = st.text_area(
+                "Paste Codmunity attachment table HTML",
+                height=180,
+                key="codmunity_attachment_html",
             )
 
-            st.markdown("#### Verification rows")
-            st.dataframe(
-                verification_rows,
-                use_container_width=True,
-                hide_index=True,
+        sample_count = st.slider(
+            "Verification samples",
+            min_value=1,
+            max_value=4,
+            value=2,
+            key="verification_sample_count",
+        )
+
+        verification_seed = st.number_input(
+            "Verification sample seed",
+            min_value=1,
+            max_value=9999,
+            value=7,
+            step=1,
+            key="verification_seed",
+            help="Change this if you want different random attachments to spot-check.",
+        )
+
+        if selected_data_gun is not None and data_entry_html.strip():
+            parsed_attachment_rows = parse_codmunity_attachment_html(
+                data_entry_html,
+                compatible_weapon_classes="",
+                compatible_guns=data_entry_weapon,
+                source="codmunity.gg",
+                stats_profile=active_stats_profile,
             )
 
-            st.markdown("#### Import approval")
-            st.caption(
-                "Approve rows into a reviewed CSV, mark suspect rows, or block unmodelled parts before they ever reach the optimiser."
-            )
-
-            review_workbench = parsed_attachment_rows.copy()
-            review_workbench.insert(0, "approval_status", "NEEDS IN-GAME CHECK")
-            review_workbench.insert(1, "review_notes", "")
-
-            review_columns = [
-                column
-                for column in [
-                    "approval_status",
-                    "review_notes",
-                    "attachment_name",
-                    "slot",
-                    "stats_profile",
-                    "verification_status",
-                    "raw_stat_text",
-                    "verification_notes",
-                    "source",
-                    "source_date",
-                ]
-                if column in review_workbench.columns
-            ]
-
-            edited_review_rows = st.data_editor(
-                review_workbench[review_columns],
-                use_container_width=True,
-                hide_index=True,
-                num_rows="fixed",
-                key="ttk_import_approval_editor",
-                column_config={
-                    "approval_status": st.column_config.SelectboxColumn(
-                        "Approval status",
-                        options=IMPORT_APPROVAL_STATUSES,
-                        required=True,
-                    ),
-                    "review_notes": st.column_config.TextColumn(
-                        "Review notes",
-                        help="Manual check notes, in-game stat mismatch, or reason for exclusion.",
-                    ),
-                },
-            )
-
-            reviewed_attachment_rows = parsed_attachment_rows.copy()
-            reviewed_attachment_rows["approval_status"] = edited_review_rows["approval_status"].tolist()
-            reviewed_attachment_rows["review_notes"] = edited_review_rows["review_notes"].tolist()
-
-            reviewed_download_rows = apply_import_approval_decisions(
-                reviewed_attachment_rows,
-            )
-
-            status_counts = (
-                reviewed_attachment_rows["approval_status"]
-                .value_counts()
-                .reset_index()
-            )
-            status_counts.columns = ["Approval status", "Rows"]
-
-            st.dataframe(
-                status_counts,
-                use_container_width=True,
-                hide_index=True,
-            )
-
-            download_cols = [
-                column
-                for column in [
-                    "attachment_id",
-                    "attachment_name",
-                    "slot",
-                    "compatible_weapon_classes",
-                    "compatible_guns",
-                    "verification_status",
-                    "raw_stat_text",
-                    "verification_notes",
-                    "source",
-                    "source_date",
-                ]
-                if column in reviewed_download_rows.columns
-            ]
-
-            st.markdown("#### Reviewed attachment rows")
-            st.dataframe(
-                reviewed_download_rows[download_cols] if download_cols else reviewed_download_rows,
-                use_container_width=True,
-                hide_index=True,
-            )
-
-            commit_replace_existing = st.checkbox(
-                "Replace matching attachment IDs when committing approved rows",
-                value=False,
-                key="ttk_import_commit_replace_existing",
-                help=(
-                    "Off = append new attachment IDs only. "
-                    "On = replace existing rows with the same attachment_id after creating a backup."
-                ),
-            )
-
-            action_cols = st.columns(3)
-
-            with action_cols[0]:
-                st.download_button(
-                    "Download reviewed attachment rows",
-                    reviewed_download_rows.to_csv(index=False).encode("utf-8"),
-                    file_name=f"{data_entry_weapon.lower().replace(' ', '_')}_reviewed_attachments.csv",
-                    mime="text/csv",
-                    use_container_width=True,
+            if parsed_attachment_rows.empty:
+                st.warning("No attachment rows parsed. Check that you copied the attachment table HTML, not just visible text.")
+            else:
+                st.success(
+                    f"Parsed {len(parsed_attachment_rows)} attachment row(s) for {data_entry_weapon}. Do not commit until the verification rows match in-game expanded stats."
                 )
 
-            with action_cols[1]:
-                if st.button(
-                    "BANK IMPORT REVIEW",
+                verification_rows = build_attachment_verification_rows(
+                    selected_data_gun,
+                    parsed_attachment_rows,
+                    sample_size=sample_count,
+                    random_state=int(verification_seed),
+                )
+
+                st.markdown("#### Verification rows")
+                st.dataframe(
+                    verification_rows,
                     use_container_width=True,
-                    key="bank_import_review",
-                ):
-                    append_ttk_import_approval_log(
-                        reviewed_attachment_rows,
-                        data_entry_weapon,
-                    )
-                    st.success("Import review banked. Master attachment data was not rewritten.")
+                    hide_index=True,
+                )
 
-            with action_cols[2]:
-                if st.button(
-                    "COMMIT APPROVED TO ORACLE",
+                st.markdown("#### Import approval")
+                st.caption(
+                    "Approve rows into a reviewed CSV, mark suspect rows, or block unmodelled parts before they ever reach the optimiser."
+                )
+
+                review_workbench = parsed_attachment_rows.copy()
+                review_workbench.insert(0, "approval_status", "NEEDS IN-GAME CHECK")
+                review_workbench.insert(1, "review_notes", "")
+
+                review_columns = [
+                    column
+                    for column in [
+                        "approval_status",
+                        "review_notes",
+                        "attachment_name",
+                        "slot",
+                        "stats_profile",
+                        "verification_status",
+                        "raw_stat_text",
+                        "verification_notes",
+                        "source",
+                        "source_date",
+                    ]
+                    if column in review_workbench.columns
+                ]
+
+                edited_review_rows = st.data_editor(
+                    review_workbench[review_columns],
                     use_container_width=True,
-                    key="commit_approved_to_oracle",
-                ):
-                    append_ttk_import_approval_log(
-                        reviewed_attachment_rows,
-                        data_entry_weapon,
+                    hide_index=True,
+                    num_rows="fixed",
+                    key="ttk_import_approval_editor",
+                    column_config={
+                        "approval_status": st.column_config.SelectboxColumn(
+                            "Approval status",
+                            options=IMPORT_APPROVAL_STATUSES,
+                            required=True,
+                        ),
+                        "review_notes": st.column_config.TextColumn(
+                            "Review notes",
+                            help="Manual check notes, in-game stat mismatch, or reason for exclusion.",
+                        ),
+                    },
+                )
+
+                reviewed_attachment_rows = parsed_attachment_rows.copy()
+                reviewed_attachment_rows["approval_status"] = edited_review_rows["approval_status"].tolist()
+                reviewed_attachment_rows["review_notes"] = edited_review_rows["review_notes"].tolist()
+
+                reviewed_download_rows = apply_import_approval_decisions(
+                    reviewed_attachment_rows,
+                )
+
+                status_counts = (
+                    reviewed_attachment_rows["approval_status"]
+                    .value_counts()
+                    .reset_index()
+                )
+                status_counts.columns = ["Approval status", "Rows"]
+
+                st.dataframe(
+                    status_counts,
+                    use_container_width=True,
+                    hide_index=True,
+                )
+
+                download_cols = [
+                    column
+                    for column in [
+                        "attachment_id",
+                        "attachment_name",
+                        "slot",
+                        "compatible_weapon_classes",
+                        "compatible_guns",
+                        "verification_status",
+                        "raw_stat_text",
+                        "verification_notes",
+                        "source",
+                        "source_date",
+                    ]
+                    if column in reviewed_download_rows.columns
+                ]
+
+                st.markdown("#### Reviewed attachment rows")
+                st.dataframe(
+                    reviewed_download_rows[download_cols] if download_cols else reviewed_download_rows,
+                    use_container_width=True,
+                    hide_index=True,
+                )
+
+                commit_replace_existing = st.checkbox(
+                    "Replace matching attachment IDs when committing approved rows",
+                    value=False,
+                    key="ttk_import_commit_replace_existing",
+                    help=(
+                        "Off = append new attachment IDs only. "
+                        "On = replace existing rows with the same attachment_id after creating a backup."
+                    ),
+                )
+
+                action_cols = st.columns(3)
+
+                with action_cols[0]:
+                    st.download_button(
+                        "Download reviewed attachment rows",
+                        reviewed_download_rows.to_csv(index=False).encode("utf-8"),
+                        file_name=f"{data_entry_weapon.lower().replace(' ', '_')}_reviewed_attachments.csv",
+                        mime="text/csv",
+                        use_container_width=True,
                     )
-                    commit_result = commit_approved_attachment_rows(
-                        reviewed_attachment_rows,
-                        data_entry_weapon,
-                        replace_existing=commit_replace_existing,
-                    )
 
-                    if commit_result["rows_committed"]:
-                        try:
-                            load_and_validate_ttk_data.clear()
-                        except Exception:
-                            pass
+                with action_cols[1]:
+                    if st.button(
+                        "BANK IMPORT REVIEW",
+                        use_container_width=True,
+                        key="bank_import_review",
+                    ):
+                        append_ttk_import_approval_log(
+                            reviewed_attachment_rows,
+                            data_entry_weapon,
+                        )
+                        st.success("Import review banked. Master attachment data was not rewritten.")
 
-                        st.success(commit_result["message"])
+                with action_cols[2]:
+                    if st.button(
+                        "COMMIT APPROVED TO ORACLE",
+                        use_container_width=True,
+                        key="commit_approved_to_oracle",
+                    ):
+                        append_ttk_import_approval_log(
+                            reviewed_attachment_rows,
+                            data_entry_weapon,
+                        )
+                        commit_result = commit_approved_attachment_rows(
+                            reviewed_attachment_rows,
+                            data_entry_weapon,
+                            replace_existing=commit_replace_existing,
+                        )
 
-                        if commit_result.get("backup_path"):
-                            st.caption(f"Backup created: {commit_result['backup_path']}")
-                    else:
-                        st.warning(commit_result["message"])
+                        if commit_result["rows_committed"]:
+                            try:
+                                load_and_validate_ttk_data.clear()
+                            except Exception:
+                                pass
 
-with st.expander("Data Entry Lab: In-Game Delta Bench", expanded=False):
-    render_in_game_delta_bench(guns, attachments, active_stats_profile)
+                            st.success(commit_result["message"])
 
-with st.expander("Import Approval Log", expanded=False):
-    render_ttk_import_approval_log()
+                            if commit_result.get("backup_path"):
+                                st.caption(f"Backup created: {commit_result['backup_path']}")
+                        else:
+                            st.warning(commit_result["message"])
 
-with st.expander("Import Commit Log", expanded=False):
-    render_ttk_import_commit_log()
+    with st.expander("Data Entry Lab: In-Game Delta Bench", expanded=False):
+        render_in_game_delta_bench(guns, attachments, active_stats_profile)
 
-enemy_health = st.slider(
-    "Enemy health",
-    min_value=100,
-    max_value=400,
-    value=300,
-    step=50,
-)
+    with st.expander("Import Approval Log", expanded=False):
+        render_ttk_import_approval_log()
 
-candidate_trust_filter = st.selectbox(
-    "Candidate trust filter",
-    CANDIDATE_TRUST_FILTERS,
-    index=0,
-    help=(
-        "Controls which generated builds are allowed to appear as the current optimum. "
-        "Use Show All Lab Candidates when you want to inspect rejected or suspect science."
-    ),
-)
+    with st.expander("Import Commit Log", expanded=False):
+        render_ttk_import_commit_log()
 
-if guns.empty:
-    st.warning(f"{active_stats_profile} has no base gun rows yet. Enter one in Data Entry Lab: Profiled Gun Baseline.")
-    st.stop()
+    with st.expander("Build Compare", expanded=False):
+        render_build_compare(candidate_trust_filter)
 
-if attachments.empty:
-    st.warning(f"{active_stats_profile} has no attachment rows yet. Enter rows with Codmunity Import or In-Game Delta Bench.")
-    st.stop()
+    with st.expander("Saved TTK Loadouts", expanded=False):
+        render_saved_ttk_loadouts()
 
-st.divider()
+    with st.expander("Field Test Log", expanded=False):
+        render_ttk_field_test_log()
 
-st.subheader("Commander Weapon Optimiser")
-st.caption(
-    "Use this when Completion Commander assigns a weapon. The Oracle is locked to that weapon and cannot dodge the order."
-)
-
-commander_cols = st.columns(4)
-
-with commander_cols[0]:
-    assigned_weapon = st.selectbox(
-        "Assigned weapon",
-        weapon_names,
-        index=0,
-        key="commander_assigned_weapon",
-    )
-
-with commander_cols[1]:
-    commander_map_type = st.selectbox(
-        "Mode profile",
-        MAP_TYPES,
-        index=0,
-        key="commander_map_type",
-    )
-
-with commander_cols[2]:
-    commander_fight_type = st.selectbox(
-        "Fight type",
-        FIGHT_TYPES,
-        index=1 if "Mid range" in FIGHT_TYPES else 0,
-        key="commander_fight_type",
-    )
-
-with commander_cols[3]:
-    commander_build_goal = st.selectbox(
-        "Build goal",
-        BUILD_GOALS,
-        index=0,
-        key="commander_build_goal",
-    )
-
-commander_cols = st.columns(4)
-
-with commander_cols[0]:
-    commander_ruleset = st.selectbox(
-        "Attachment ruleset",
-        ATTACHMENT_RULESETS,
-        index=0,
-        key="commander_attachment_ruleset",
-    )
-
-with commander_cols[1]:
-    commander_attachment_budget = st.selectbox(
-        "Attachment budget",
-        ATTACHMENT_BUDGET_PROFILES,
-        index=0,
-        key="commander_attachment_budget",
-    )
-
-with commander_cols[2]:
-    commander_results = st.slider(
-        "Commander build results",
-        min_value=5,
-        max_value=25,
-        value=10,
-        step=5,
-        key="commander_results",
-    )
-
-with commander_cols[3]:
-    commander_perk_package = st.selectbox(
-        "Perk package to save",
-        list(PERK_PACKAGES.keys()),
-        index=list(PERK_PACKAGES.keys()).index("Balanced") if "Balanced" in PERK_PACKAGES else 0,
-        key="commander_perk_package",
-    )
-
-commander_attachment_count = attachment_count_for_profile(
-    commander_ruleset,
-    commander_attachment_budget,
-)
-st.caption(
-    attachment_budget_summary(
-        commander_ruleset,
-        commander_attachment_budget,
-    )
-)
-
-commander_depth_cols = st.columns(2)
-
-with commander_depth_cols[0]:
-    commander_depth_profile = st.selectbox(
-        "Optimiser depth",
-        OPTIMISER_DEPTH_PROFILES,
-        index=0,
-        key="commander_optimiser_depth",
-    )
-
-with commander_depth_cols[1]:
-    commander_slot_candidate_limit = st.slider(
-        "Fast-pass candidates per slot",
-        min_value=1,
-        max_value=5,
-        value=3,
-        step=1,
-        key="commander_slot_candidate_limit",
-    )
-
-commander_optimiser_mode = optimiser_mode_for_profile(commander_depth_profile)
-st.caption(
-    optimiser_depth_summary(
-        commander_depth_profile,
-        commander_slot_candidate_limit,
-    )
-)
-
-render_optimizer_workload_estimate(
-    guns_subset=guns[guns["gun_name"] == assigned_weapon],
-    attachments=attachments,
-    map_type=commander_map_type,
-    fight_type=commander_fight_type,
-    build_goal=commander_build_goal,
-    enemy_health=enemy_health,
-    attachment_count=commander_attachment_count,
-    optimiser_mode=commander_optimiser_mode,
-    slot_candidate_limit=commander_slot_candidate_limit,
-)
-
-weapon_data_status = describe_weapon_build_data(
-    guns=guns,
-    attachments=attachments,
-    weapon_name=assigned_weapon,
-    attachment_count=commander_attachment_count,
-)
-
-if weapon_data_status.get("buildable"):
-    st.caption(
-        f"{weapon_data_status['message']} Slots: {', '.join(weapon_data_status.get('slots', []))}"
-    )
-else:
-    st.warning(weapon_data_status["message"])
-
-if st.button("Optimise Assigned Weapon", type="primary", use_container_width=True):
-    start_time = time.perf_counter()
-
-    with st.spinner(f"Brute-forcing {assigned_weapon} {commander_attachment_count}-attachment builds..."):
-        assigned_weapon_results = optimise_single_weapon_build(
+    with st.expander("Base Weapon TTK Ranking", expanded=False):
+        base_rankings = build_base_weapon_rankings(
             guns=guns,
-            attachments=attachments,
-            weapon_name=assigned_weapon,
-            map_type=commander_map_type,
-            fight_type=commander_fight_type,
-            build_goal=commander_build_goal,
             enemy_health=enemy_health,
-            attachment_count=commander_attachment_count,
-            top_n=commander_results,
-            optimiser_mode=commander_optimiser_mode,
-            candidate_limit_per_slot=commander_slot_candidate_limit,
         )
 
-    elapsed_seconds = time.perf_counter() - start_time
-
-    if assigned_weapon_results.empty:
-        st.error(
-            "No valid assigned-weapon build found. This usually means the selected weapon does not have enough entered attachment slots yet."
-        )
-    else:
-        st.session_state.ttk_last_single_build = {
-            "elapsed_seconds": elapsed_seconds,
-            "result": assigned_weapon_results.iloc[0].to_dict(),
-            "top_results": assigned_weapon_results,
-            "mode_profile": f"{active_stats_profile} | {commander_map_type} | {commander_ruleset}",
-            "stats_profile": active_stats_profile,
-            "fight_type": commander_fight_type,
-            "build_goal": commander_build_goal,
-            "enemy_health": enemy_health,
-            "attachment_budget": commander_attachment_budget,
-            "attachment_count": commander_attachment_count,
-            "optimiser_depth": commander_depth_profile,
-            "slot_candidate_limit": commander_slot_candidate_limit,
-            "perk_package": commander_perk_package,
-        }
-
-last_single_build = st.session_state.get("ttk_last_single_build")
-
-if last_single_build:
-    assigned_weapon_results = last_single_build.get("top_results", pd.DataFrame())
-
-    if assigned_weapon_results.empty:
-        best_single = pd.Series(last_single_build["result"])
-        visible_single_results = pd.DataFrame()
-    else:
-        assigned_weapon_results = annotate_single_results_with_confidence(
-            assigned_weapon_results,
-            last_single_build,
-        )
-        visible_single_results = filter_candidate_results(
-            assigned_weapon_results,
-            candidate_trust_filter,
-        )
-        best_single = (
-            pd.Series(visible_single_results.iloc[0])
-            if not visible_single_results.empty
-            else pd.Series(dtype=object)
-        )
-
-    if visible_single_results.empty:
-        st.warning(
-            "No assigned-weapon candidate survives the current trust filter. "
-            "Switch to SHOW ALL LAB CANDIDATES to inspect the raw Oracle output."
-        )
-    else:
-        st.success(
-            f"{best_single.get('gun_name', 'Assigned weapon')} {last_single_build.get('attachment_count', '')}-attachment build found in "
-            f"{float(last_single_build.get('elapsed_seconds', 0.0)):.2f} seconds."
-        )
-        single_confidence = single_build_confidence(best_single, last_single_build)
-        render_single_weapon_result(
-            best_single,
-            int(last_single_build.get("enemy_health", enemy_health)),
-            single_confidence,
-        )
-        render_single_field_test_form(best_single, last_single_build)
-
-        selected_perks = selected_perk_rows(last_single_build.get("perk_package", ""))
-        if selected_perks.get("perk_package"):
-            st.markdown("### Saved Perk Package")
-            st.write(
-                f"**{selected_perks['perk_package']}**: "
-                f"{selected_perks['perk_1']} / {selected_perks['perk_2']} / "
-                f"{selected_perks['perk_3']} / {selected_perks['perk_4']}"
+        if base_rankings.empty:
+            st.warning("No gun data loaded yet.")
+        else:
+            base_ranking_columns = available_columns(
+                base_rankings,
+                [
+                    "gun_name",
+                    "weapon_class",
+                    "damage",
+                    "fire_rate_rpm",
+                    "shots_to_kill",
+                    "raw_ttk_ms",
+                    "practical_ttk_ms",
+                    "shotgun_truth_score",
+                    "shotgun_one_shot_potential",
+                    "shotgun_two_shot_consistency",
+                    "ads_ms",
+                    "sprint_to_fire_ms",
+                    "recoil",
+                    "bullet_velocity",
+                    "range_m",
+                    "mag_size",
+                ],
             )
 
-        render_keep_single_weapon_build(best_single, last_single_build)
+            st.dataframe(
+                base_rankings[base_ranking_columns],
+                use_container_width=True,
+                hide_index=True,
+            )
 
-    st.markdown("### Top Assigned-Weapon Builds")
+with single_tab:
+    st.subheader("SINGLE GUN ATTACHMENT OPTIMISER")
+    st.caption(
+        "Pick one weapon, then let the Oracle brute-force its legal attachment combinations. "
+        "Optimum build stays at the top; deeper testing stays in the Testing tab."
+    )
 
-    if not assigned_weapon_results.empty:
-        render_candidate_filter_summary(
-            assigned_weapon_results,
-            visible_single_results,
-            candidate_trust_filter,
+    if not data_ready:
+        st.warning(f"No buildable {active_stats_profile} weapon and attachment data is loaded yet.")
+    else:
+        single_cols = st.columns(4)
+
+        with single_cols[0]:
+            selected_single_weapon = st.selectbox(
+                "Weapon",
+                weapon_names,
+                index=0,
+                key="single_gun_weapon",
+            )
+
+        with single_cols[1]:
+            single_map_type = st.selectbox(
+                "Mode profile",
+                MAP_TYPES,
+                index=0,
+                key="single_gun_map_type",
+            )
+
+        with single_cols[2]:
+            single_fight_type = st.selectbox(
+                "Fight type",
+                FIGHT_TYPES,
+                index=1 if "Mid range" in FIGHT_TYPES else 0,
+                key="single_gun_fight_type",
+            )
+
+        with single_cols[3]:
+            single_build_goal = st.selectbox(
+                "Build goal",
+                BUILD_GOALS,
+                index=0,
+                key="single_gun_build_goal",
+            )
+
+        single_cols = st.columns(4)
+
+        with single_cols[0]:
+            single_ruleset = st.selectbox(
+                "Attachment ruleset",
+                ATTACHMENT_RULESETS,
+                index=0,
+                key="single_gun_attachment_ruleset",
+            )
+
+        with single_cols[1]:
+            single_attachment_budget = st.selectbox(
+                "Attachment budget",
+                ATTACHMENT_BUDGET_PROFILES,
+                index=0,
+                key="single_gun_attachment_budget",
+            )
+
+        with single_cols[2]:
+            single_results_count = st.slider(
+                "Candidate builds",
+                min_value=5,
+                max_value=25,
+                value=10,
+                step=5,
+                key="single_gun_results",
+            )
+
+        with single_cols[3]:
+            single_depth_profile = st.selectbox(
+                "Optimiser depth",
+                OPTIMISER_DEPTH_PROFILES,
+                index=0,
+                key="single_gun_optimiser_depth",
+            )
+
+        single_attachment_count = attachment_count_for_profile(
+            single_ruleset,
+            single_attachment_budget,
+        )
+        single_optimiser_mode = optimiser_mode_for_profile(single_depth_profile)
+
+        single_depth_cols = st.columns([1, 2])
+
+        with single_depth_cols[0]:
+            single_slot_candidate_limit = st.slider(
+                "Fast-pass candidates per slot",
+                min_value=1,
+                max_value=5,
+                value=3,
+                step=1,
+                key="single_gun_slot_candidate_limit",
+            )
+
+        with single_depth_cols[1]:
+            st.caption(attachment_budget_summary(single_ruleset, single_attachment_budget))
+            st.caption(optimiser_depth_summary(single_depth_profile, single_slot_candidate_limit))
+
+        single_challenge_rules, single_force_eight, single_challenge_summary, _ = render_challenge_lock_controls(
+            "single_gun",
+            allow_role_scope=False,
+        )
+        single_attachment_count = challenge_attachment_count_override(
+            single_attachment_count,
+            single_force_eight,
+            single_challenge_summary,
         )
 
-        single_result_columns = available_columns(
-            visible_single_results,
-            [
-                "confidence",
-                "optimiser_mode",
-                "slot_candidate_limit",
-                "field_verdict",
-                "field_feel_rating",
-                "field_tested_at",
-                "oracle_score",
-                "gun_name",
-                "weapon_class",
-                "raw_ttk_ms",
-                "practical_ttk_ms",
-                "shotgun_truth_score",
-                "shotgun_one_shot_potential",
-                "shotgun_two_shot_consistency",
-                "shotgun_range_coverage",
-                "ads_ms",
-                "sprint_to_fire_ms",
-                "recoil",
-                "bullet_velocity",
-                "range_m",
-                "damage_per_mag",
-                "slots",
-                "attachments",
-                "shotgun_truth_note",
-            ],
+        render_optimizer_workload_estimate(
+            guns_subset=guns[guns["gun_name"] == selected_single_weapon],
+            attachments=attachments,
+            map_type=single_map_type,
+            fight_type=single_fight_type,
+            build_goal=single_build_goal,
+            enemy_health=enemy_health,
+            attachment_count=single_attachment_count,
+            optimiser_mode=single_optimiser_mode,
+            slot_candidate_limit=single_slot_candidate_limit,
+            forced_attachment_rules=single_challenge_rules,
         )
 
-        st.dataframe(
-            visible_single_results[single_result_columns],
-            use_container_width=True,
-            hide_index=True,
-        )
-
-st.divider()
-
-st.subheader("Optimum Full Loadout")
-st.caption(
-    "Standalone Oracle mode. Choose the map, fight type, and build goal. The Oracle brute-forces valid two-weapon loadouts."
-)
-
-full_cols = st.columns(4)
-
-with full_cols[0]:
-    loadout_pairing = st.selectbox(
-        "Loadout pairing",
-        LOADOUT_PAIRINGS,
-        index=0,
-    )
-
-with full_cols[1]:
-    perk_package = st.selectbox(
-        "Perk package",
-        list(PERK_PACKAGES.keys()),
-        index=1,
-    )
-
-with full_cols[2]:
-    full_ruleset = st.selectbox(
-        "Attachment ruleset",
-        ATTACHMENT_RULESETS,
-        index=0,
-        key="full_attachment_ruleset",
-    )
-
-with full_cols[3]:
-    full_attachment_budget = st.selectbox(
-        "Attachment budget",
-        ATTACHMENT_BUDGET_PROFILES,
-        index=0,
-        key="full_attachment_budget",
-    )
-
-full_attachment_count = attachment_count_for_profile(
-    full_ruleset,
-    full_attachment_budget,
-)
-st.caption(
-    attachment_budget_summary(
-        full_ruleset,
-        full_attachment_budget,
-    )
-)
-
-full_cols = st.columns(3)
-
-with full_cols[0]:
-    map_type = st.selectbox(
-        "Map type",
-        MAP_TYPES,
-        index=0,
-    )
-
-with full_cols[1]:
-    fight_type = st.selectbox(
-        "Fight type",
-        FIGHT_TYPES,
-        index=0,
-    )
-
-with full_cols[2]:
-    build_goal = st.selectbox(
-        "Build goal",
-        BUILD_GOALS,
-        index=1,
-    )
-
-top_n = st.slider(
-    "Full loadout results",
-    min_value=5,
-    max_value=50,
-    value=20,
-    step=5,
-)
-
-full_depth_cols = st.columns(2)
-
-with full_depth_cols[0]:
-    full_depth_profile = st.selectbox(
-        "Full-loadout optimiser depth",
-        OPTIMISER_DEPTH_PROFILES,
-        index=0,
-        key="full_optimiser_depth",
-    )
-
-with full_depth_cols[1]:
-    full_slot_candidate_limit = st.slider(
-        "Full fast-pass candidates per slot",
-        min_value=1,
-        max_value=5,
-        value=3,
-        step=1,
-        key="full_slot_candidate_limit",
-    )
-
-full_optimiser_mode = optimiser_mode_for_profile(full_depth_profile)
-st.caption(
-    optimiser_depth_summary(
-        full_depth_profile,
-        full_slot_candidate_limit,
-    )
-)
-
-if full_optimiser_mode == "Deep" and full_attachment_count == 8:
-    st.warning(
-        "DEEP + 8 ATTACHMENTS can be heavy. Use it for final validation after FAST PASS finds a candidate."
-    )
-
-if st.button("Find Best Full Loadout", use_container_width=True):
-    start_time = time.perf_counter()
-
-    with st.spinner(f"Brute-forcing {full_attachment_count}-attachment full loadouts..."):
-        full_loadout_results = optimise_full_loadouts_for_scenario(
+        weapon_data_status = describe_weapon_build_data(
             guns=guns,
+            attachments=attachments,
+            weapon_name=selected_single_weapon,
+            attachment_count=single_attachment_count,
+        )
+
+        if weapon_data_status.get("buildable"):
+            st.caption(
+                f"{weapon_data_status['message']} Slots: {', '.join(weapon_data_status.get('slots', []))}"
+            )
+        else:
+            st.warning(weapon_data_status["message"])
+
+        if st.button("RUN SINGLE GUN OPTIMISER", type="primary", use_container_width=True):
+            start_time = time.perf_counter()
+
+            with st.spinner(f"Brute-forcing {selected_single_weapon} {single_attachment_count}-attachment builds..."):
+                single_weapon_results = optimise_single_weapon_build(
+                    guns=guns,
+                    attachments=attachments,
+                    weapon_name=selected_single_weapon,
+                    map_type=single_map_type,
+                    fight_type=single_fight_type,
+                    build_goal=single_build_goal,
+                    enemy_health=enemy_health,
+                    attachment_count=single_attachment_count,
+                    top_n=single_results_count,
+                    optimiser_mode=single_optimiser_mode,
+                    candidate_limit_per_slot=single_slot_candidate_limit,
+                    forced_attachment_rules=single_challenge_rules,
+                )
+
+            elapsed_seconds = time.perf_counter() - start_time
+
+            if single_weapon_results.empty:
+                st.error(
+                    "No valid single-gun build found. This usually means the selected weapon does not have enough entered attachment slots yet."
+                )
+            else:
+                st.session_state.ttk_last_single_build = {
+                    "elapsed_seconds": elapsed_seconds,
+                    "result": single_weapon_results.iloc[0].to_dict(),
+                    "top_results": single_weapon_results,
+                    "mode_profile": f"{active_stats_profile} | {single_map_type} | {single_ruleset}",
+                    "stats_profile": active_stats_profile,
+                    "fight_type": single_fight_type,
+                    "build_goal": single_build_goal,
+                    "enemy_health": enemy_health,
+                    "attachment_budget": single_attachment_budget,
+                    "attachment_count": single_attachment_count,
+                    "optimiser_depth": single_depth_profile,
+                    "slot_candidate_limit": single_slot_candidate_limit,
+                    "perk_package": "",
+                    "challenge_requirements": single_challenge_summary,
+                    **tactical_context,
+                }
+
+        last_single_build = st.session_state.get("ttk_last_single_build")
+
+        if last_single_build:
+            single_weapon_results = last_single_build.get("top_results", pd.DataFrame())
+
+            if single_weapon_results.empty:
+                visible_single_results = pd.DataFrame()
+                best_single = pd.Series(last_single_build.get("result", {}))
+            else:
+                single_weapon_results = annotate_single_results_with_confidence(
+                    single_weapon_results,
+                    last_single_build,
+                )
+                visible_single_results = filter_candidate_results(
+                    single_weapon_results,
+                    candidate_trust_filter,
+                )
+                best_single = (
+                    pd.Series(visible_single_results.iloc[0])
+                    if not visible_single_results.empty
+                    else pd.Series(dtype=object)
+                )
+
+            if visible_single_results.empty:
+                st.warning(
+                    "No single-gun candidate survives the current trust filter. "
+                    "Switch to SHOW ALL LAB CANDIDATES to inspect the raw Oracle output."
+                )
+            elif not best_single.empty:
+                st.markdown("## OPTIMUM BUILD")
+                st.caption("FIELD TEST REQUIRED: this is a modelled candidate, not a proven meta.")
+                single_confidence = single_build_confidence(best_single, last_single_build)
+                render_single_weapon_result(
+                    best_single,
+                    int(last_single_build.get("enemy_health", enemy_health)),
+                    single_confidence,
+                )
+                render_tactical_advice_panel(
+                    tactical_advice_for_row(best_single, last_single_build)
+                )
+
+                st.markdown("### Candidate Builds")
+                render_candidate_filter_summary(
+                    single_weapon_results,
+                    visible_single_results,
+                    candidate_trust_filter,
+                )
+
+                single_result_columns = available_columns(
+                    visible_single_results,
+                    [
+                        "confidence",
+                        "challenge_requirements",
+                        "optimiser_mode",
+                        "slot_candidate_limit",
+                        "field_verdict",
+                        "field_feel_rating",
+                        "field_tested_at",
+                        "oracle_score",
+                        "gun_name",
+                        "weapon_class",
+                        "raw_ttk_ms",
+                        "practical_ttk_ms",
+                        "shotgun_truth_score",
+                        "shotgun_one_shot_potential",
+                        "shotgun_two_shot_consistency",
+                        "shotgun_range_coverage",
+                        "ads_ms",
+                        "sprint_to_fire_ms",
+                        "recoil",
+                        "bullet_velocity",
+                        "range_m",
+                        "damage_per_mag",
+                        "slots",
+                        "attachments",
+                        "shotgun_truth_note",
+                    ],
+                )
+
+                st.dataframe(
+                    visible_single_results[single_result_columns],
+                    use_container_width=True,
+                    hide_index=True,
+                )
+
+with two_gun_tab:
+    st.subheader("TWO GUN OPTIMISER")
+    st.caption(
+        "Find the best two-primary weapon pairing before perks enter the conversation. "
+        "In BO7 Multiplayer this is only legal when the Overkill wildcard is active."
+    )
+
+    if not data_ready:
+        st.warning(f"No buildable {active_stats_profile} weapon and attachment data is loaded yet.")
+    else:
+        two_cols = st.columns(5)
+
+        with two_cols[0]:
+            overkill_pairing_options = [
+                pairing for pairing in LOADOUT_PAIRINGS
+                if loadout_pairing_requires_overkill(pairing)
+            ] or LOADOUT_PAIRINGS
+            two_loadout_pairing = st.selectbox(
+                "Loadout pairing",
+                overkill_pairing_options,
+                index=0,
+                key="two_gun_pairing",
+                help="Two-gun BO7 Multiplayer builds require Overkill because the secondary is another primary weapon.",
+            )
+
+        with two_cols[1]:
+            two_wildcard_selection = st.selectbox(
+                "Wildcard",
+                WILDCARD_SELECTION_OPTIONS,
+                index=WILDCARD_SELECTION_OPTIONS.index("Overkill") if "Overkill" in WILDCARD_SELECTION_OPTIONS else 0,
+                key="two_gun_wildcard",
+            )
+
+        with two_cols[2]:
+            two_map_type = st.selectbox(
+                "Map type",
+                MAP_TYPES,
+                index=0,
+                key="two_gun_map_type",
+            )
+
+        with two_cols[3]:
+            two_fight_type = st.selectbox(
+                "Fight type",
+                FIGHT_TYPES,
+                index=0,
+                key="two_gun_fight_type",
+            )
+
+        with two_cols[4]:
+            two_build_goal = st.selectbox(
+                "Build goal",
+                BUILD_GOALS,
+                index=0,
+                key="two_gun_build_goal",
+            )
+
+        two_cols = st.columns(4)
+
+        with two_cols[0]:
+            two_ruleset = st.selectbox(
+                "Attachment ruleset",
+                ATTACHMENT_RULESETS,
+                index=0,
+                key="two_gun_attachment_ruleset",
+            )
+
+        with two_cols[1]:
+            two_attachment_budget = st.selectbox(
+                "Attachment budget",
+                ATTACHMENT_BUDGET_PROFILES,
+                index=0,
+                key="two_gun_attachment_budget",
+            )
+
+        with two_cols[2]:
+            two_results_count = st.slider(
+                "Pairing candidates",
+                min_value=5,
+                max_value=25,
+                value=10,
+                step=5,
+                key="two_gun_results",
+            )
+
+        with two_cols[3]:
+            two_depth_profile = st.selectbox(
+                "Optimiser depth",
+                OPTIMISER_DEPTH_PROFILES,
+                index=0,
+                key="two_gun_optimiser_depth",
+            )
+
+        two_attachment_count = attachment_count_for_profile(
+            two_ruleset,
+            two_attachment_budget,
+        )
+        two_optimiser_mode = optimiser_mode_for_profile(two_depth_profile)
+
+        two_depth_cols = st.columns([1, 2])
+
+        with two_depth_cols[0]:
+            two_slot_candidate_limit = st.slider(
+                "Fast-pass candidates per slot",
+                min_value=1,
+                max_value=5,
+                value=3,
+                step=1,
+                key="two_gun_slot_candidate_limit",
+            )
+
+        with two_depth_cols[1]:
+            st.caption(attachment_budget_summary(two_ruleset, two_attachment_budget))
+            st.caption(optimiser_depth_summary(two_depth_profile, two_slot_candidate_limit))
+
+        two_challenge_rules, two_force_eight, two_challenge_summary, two_challenge_scope = render_challenge_lock_controls(
+            "two_gun",
+            allow_role_scope=True,
+        )
+        two_attachment_count = challenge_attachment_count_override(
+            two_attachment_count,
+            two_force_eight,
+            two_challenge_summary,
+        )
+        two_primary_challenge_rules, two_secondary_challenge_rules = split_challenge_rules_by_scope(
+            two_challenge_rules,
+            two_challenge_scope,
+        )
+
+        two_effective_wildcard_id = render_wildcard_legality_notes(
+            loadout_pairing=two_loadout_pairing,
+            wildcard_selection=two_wildcard_selection,
+            attachment_count=two_attachment_count,
+            build_goal=two_build_goal,
+            fight_type=two_fight_type,
+            challenge_requirements=two_challenge_summary,
+            tactical_context=tactical_context,
+        )
+
+        render_optimizer_workload_estimate(
+            guns_subset=guns,
+            attachments=attachments,
+            map_type=two_map_type,
+            fight_type=two_fight_type,
+            build_goal=two_build_goal,
+            enemy_health=enemy_health,
+            attachment_count=two_attachment_count,
+            optimiser_mode=two_optimiser_mode,
+            slot_candidate_limit=two_slot_candidate_limit,
+            forced_attachment_rules=two_challenge_rules if two_challenge_scope == "Both weapons" else None,
+        )
+
+        if st.button("RUN TWO GUN OPTIMISER", type="primary", use_container_width=True):
+            start_time = time.perf_counter()
+
+            with st.spinner(f"Brute-forcing {two_loadout_pairing} weapon pairings..."):
+                two_weapon_results = optimise_two_weapon_loadouts_for_scenario(
+                    guns=guns,
+                    attachments=attachments,
+                    map_type=two_map_type,
+                    fight_type=two_fight_type,
+                    build_goal=two_build_goal,
+                    loadout_pairing=two_loadout_pairing,
+                    enemy_health=enemy_health,
+                    attachment_count=two_attachment_count,
+                    top_n=two_results_count,
+                    candidate_pool=15,
+                    optimiser_mode=two_optimiser_mode,
+                    candidate_limit_per_slot=two_slot_candidate_limit,
+                    primary_forced_attachment_rules=two_primary_challenge_rules,
+                    secondary_forced_attachment_rules=two_secondary_challenge_rules,
+                    wildcard_id=two_effective_wildcard_id,
+                )
+
+            elapsed_seconds = time.perf_counter() - start_time
+
+            if two_weapon_results.empty:
+                st.error(
+                    "No valid two-gun pairing found. In BO7 Multiplayer this usually means Overkill is not active, the build is trying to use 8 attachments with Overkill, or one side lacks enough entered attachment slots."
+                )
+            else:
+                st.session_state.ttk_last_two_gun_loadout = {
+                    "elapsed_seconds": elapsed_seconds,
+                    "result": two_weapon_results.iloc[0].to_dict(),
+                    "top_results": two_weapon_results,
+                    "mode_profile": f"{active_stats_profile} | {two_map_type} | {two_ruleset}",
+                    "stats_profile": active_stats_profile,
+                    "fight_type": two_fight_type,
+                    "build_goal": two_build_goal,
+                    "enemy_health": enemy_health,
+                    "attachment_budget": two_attachment_budget,
+                    "attachment_count": two_attachment_count,
+                    "optimiser_depth": two_depth_profile,
+                    "slot_candidate_limit": two_slot_candidate_limit,
+                    "perk_package": "Weapons only",
+                    "wildcard_id": two_effective_wildcard_id,
+                    "wildcard_name": wildcard_name_from_id(two_effective_wildcard_id),
+                    "loadout_pairing": two_loadout_pairing,
+                    "challenge_requirements": two_challenge_summary,
+                    "challenge_scope": two_challenge_scope,
+                    **tactical_context,
+                }
+
+        last_two_gun_loadout = st.session_state.get("ttk_last_two_gun_loadout")
+
+        if last_two_gun_loadout:
+            two_weapon_results = last_two_gun_loadout.get("top_results", pd.DataFrame())
+
+            if not two_weapon_results.empty:
+                two_weapon_results = annotate_full_results_with_confidence(
+                    two_weapon_results,
+                    last_two_gun_loadout,
+                )
+                visible_two_weapon_results = filter_candidate_results(
+                    two_weapon_results,
+                    candidate_trust_filter,
+                )
+
+                if visible_two_weapon_results.empty:
+                    st.warning(
+                        "No two-gun candidate survives the current trust filter. "
+                        "Switch to SHOW ALL LAB CANDIDATES to inspect the raw Oracle output."
+                    )
+                else:
+                    best_two = pd.Series(visible_two_weapon_results.iloc[0])
+                    two_confidence = full_loadout_confidence(best_two, last_two_gun_loadout)
+                    st.markdown("## OPTIMUM PAIRING")
+                    st.caption("FIELD TEST REQUIRED: this is a modelled candidate, not a proven meta.")
+                    render_two_weapon_result(
+                        visible_two_weapon_results,
+                        float(last_two_gun_loadout.get("elapsed_seconds", 0.0)),
+                        int(last_two_gun_loadout.get("enemy_health", enemy_health)),
+                        two_confidence,
+                    )
+                    render_tactical_advice_panel(
+                        tactical_advice_for_row(best_two, last_two_gun_loadout, prefix="primary_")
+                    )
+
+                    st.markdown("### Candidate Pairings")
+                    render_candidate_filter_summary(
+                        two_weapon_results,
+                        visible_two_weapon_results,
+                        candidate_trust_filter,
+                    )
+
+                    two_result_columns = available_columns(
+                        visible_two_weapon_results,
+                        [
+                            "confidence",
+                            "challenge_requirements",
+                            "optimiser_mode",
+                            "slot_candidate_limit",
+                            "field_verdict",
+                            "field_feel_rating",
+                            "field_tested_at",
+                            "full_loadout_score",
+                            "role_balance_score",
+                            "loadout_role_verdict",
+                            "wildcard_name",
+                            "recommended_tactical",
+                            "recommended_lethal",
+                            "recommended_field_upgrade",
+                            "primary_weapon",
+                            "primary_class",
+                            "primary_role_label",
+                            "secondary_weapon",
+                            "secondary_class",
+                            "secondary_role_label",
+                            "primary_raw_ttk_ms",
+                            "secondary_raw_ttk_ms",
+                            "primary_practical_ttk_ms",
+                            "secondary_practical_ttk_ms",
+                            "primary_recoil",
+                            "secondary_recoil",
+                            "primary_attachments",
+                            "secondary_attachments",
+                        ],
+                    )
+
+                    st.dataframe(
+                        visible_two_weapon_results[two_result_columns],
+                        use_container_width=True,
+                        hide_index=True,
+                    )
+
+with full_loadout_tab:
+    st.subheader("FULL LOADOUT OPTIMISER")
+    st.caption(
+        "Build a legal BO7 Multiplayer class: primary weapon, standard secondary slot, wildcard, perks, equipment, and scenario. "
+        "Two primary weapons are only allowed when Overkill is selected."
+    )
+
+    if not data_ready:
+        st.warning(f"No buildable {active_stats_profile} weapon and attachment data is loaded yet.")
+    else:
+        full_cols = st.columns(5)
+
+        with full_cols[0]:
+            loadout_pairing = st.selectbox(
+                "Loadout pairing",
+                LOADOUT_PAIRINGS,
+                index=0,
+                key="full_loadout_pairing",
+            )
+
+        with full_cols[1]:
+            full_wildcard_selection = st.selectbox(
+                "Wildcard",
+                WILDCARD_SELECTION_OPTIONS,
+                index=0 if "Oracle recommends" in WILDCARD_SELECTION_OPTIONS else 0,
+                key="full_loadout_wildcard",
+                help="Overkill is required for two-primary pairings. Gunfighter is required for 8 primary attachments.",
+            )
+
+        with full_cols[2]:
+            perk_package = st.selectbox(
+                "Perk package",
+                PERK_SELECTION_OPTIONS,
+                index=0 if "Oracle recommends" in PERK_SELECTION_OPTIONS else 0,
+                key="full_loadout_perk_package",
+                help="Use Oracle recommends to let the tactical context choose the perk shell before the full loadout is scored.",
+            )
+
+        with full_cols[3]:
+            full_ruleset = st.selectbox(
+                "Attachment ruleset",
+                ATTACHMENT_RULESETS,
+                index=0,
+                key="full_loadout_attachment_ruleset",
+            )
+
+        with full_cols[4]:
+            full_attachment_budget = st.selectbox(
+                "Attachment budget",
+                ATTACHMENT_BUDGET_PROFILES,
+                index=0,
+                key="full_loadout_attachment_budget",
+            )
+
+        full_attachment_count = attachment_count_for_profile(
+            full_ruleset,
+            full_attachment_budget,
+        )
+
+        full_cols = st.columns(4)
+
+        with full_cols[0]:
+            map_type = st.selectbox(
+                "Map type",
+                MAP_TYPES,
+                index=0,
+                key="full_loadout_map_type",
+            )
+
+        with full_cols[1]:
+            fight_type = st.selectbox(
+                "Fight type",
+                FIGHT_TYPES,
+                index=0,
+                key="full_loadout_fight_type",
+            )
+
+        with full_cols[2]:
+            build_goal = st.selectbox(
+                "Build goal",
+                BUILD_GOALS,
+                index=0,
+                key="full_loadout_build_goal",
+            )
+
+        with full_cols[3]:
+            full_results_count = st.slider(
+                "Loadout candidates",
+                min_value=5,
+                max_value=25,
+                value=10,
+                step=5,
+                key="full_loadout_results",
+            )
+
+        full_depth_cols = st.columns(3)
+
+        with full_depth_cols[0]:
+            full_depth_profile = st.selectbox(
+                "Optimiser depth",
+                OPTIMISER_DEPTH_PROFILES,
+                index=0,
+                key="full_loadout_optimiser_depth",
+            )
+
+        with full_depth_cols[1]:
+            full_slot_candidate_limit = st.slider(
+                "Fast-pass candidates per slot",
+                min_value=1,
+                max_value=5,
+                value=3,
+                step=1,
+                key="full_loadout_slot_candidate_limit",
+            )
+
+        with full_depth_cols[2]:
+            st.caption(attachment_budget_summary(full_ruleset, full_attachment_budget))
+            st.caption(optimiser_depth_summary(full_depth_profile, full_slot_candidate_limit))
+
+        full_challenge_rules, full_force_eight, full_challenge_summary, full_challenge_scope = render_challenge_lock_controls(
+            "full_loadout",
+            allow_role_scope=True,
+        )
+        full_attachment_count = challenge_attachment_count_override(
+            full_attachment_count,
+            full_force_eight,
+            full_challenge_summary,
+        )
+        full_primary_challenge_rules, full_secondary_challenge_rules = split_challenge_rules_by_scope(
+            full_challenge_rules,
+            full_challenge_scope,
+        )
+
+        full_effective_wildcard_id = render_wildcard_legality_notes(
+            loadout_pairing=loadout_pairing,
+            wildcard_selection=full_wildcard_selection,
+            attachment_count=full_attachment_count,
+            build_goal=build_goal,
+            fight_type=fight_type,
+            challenge_requirements=full_challenge_summary,
+            tactical_context=tactical_context,
+        )
+
+        full_optimiser_mode = optimiser_mode_for_profile(full_depth_profile)
+
+        render_optimizer_workload_estimate(
+            guns_subset=guns,
             attachments=attachments,
             map_type=map_type,
             fight_type=fight_type,
             build_goal=build_goal,
-            loadout_pairing=loadout_pairing,
-            perk_package=perk_package,
             enemy_health=enemy_health,
             attachment_count=full_attachment_count,
-            top_n=top_n,
             optimiser_mode=full_optimiser_mode,
-            candidate_limit_per_slot=full_slot_candidate_limit,
+            slot_candidate_limit=full_slot_candidate_limit,
+            forced_attachment_rules=full_challenge_rules if full_challenge_scope == "Both weapons" else None,
         )
 
-    elapsed_seconds = time.perf_counter() - start_time
+        if st.button("RUN FULL LOADOUT OPTIMISER", type="primary", use_container_width=True):
+            start_time = time.perf_counter()
 
-    if full_loadout_results.empty:
-        st.warning("No valid full loadouts found. Check weapon classes, attachment slots, or compatibility.")
-    else:
-        st.session_state.ttk_last_full_loadout = {
-            "elapsed_seconds": elapsed_seconds,
-            "result": full_loadout_results.iloc[0].to_dict(),
-            "top_results": full_loadout_results,
-            "mode_profile": f"{active_stats_profile} | {map_type} | {full_ruleset}",
-            "stats_profile": active_stats_profile,
-            "fight_type": fight_type,
-            "build_goal": build_goal,
-            "enemy_health": enemy_health,
-            "attachment_budget": full_attachment_budget,
-            "attachment_count": full_attachment_count,
-            "optimiser_depth": full_depth_profile,
-            "slot_candidate_limit": full_slot_candidate_limit,
-            "perk_package": perk_package,
-            "loadout_pairing": loadout_pairing,
-        }
+            with st.spinner(f"Brute-forcing {loadout_pairing} full loadouts..."):
+                full_loadout_results = optimise_full_loadouts_for_scenario(
+                    guns=guns,
+                    attachments=attachments,
+                    map_type=map_type,
+                    fight_type=fight_type,
+                    build_goal=build_goal,
+                    loadout_pairing=loadout_pairing,
+                    perk_package=perk_package,
+                    enemy_health=enemy_health,
+                    attachment_count=full_attachment_count,
+                    top_n=full_results_count,
+                    candidate_pool=15,
+                    optimiser_mode=full_optimiser_mode,
+                    candidate_limit_per_slot=full_slot_candidate_limit,
+                    primary_forced_attachment_rules=full_primary_challenge_rules,
+                    secondary_forced_attachment_rules=full_secondary_challenge_rules,
+                    wildcard_id=full_effective_wildcard_id,
+                    tactical_goal=tactical_context.get("tactical_goal", "Auto from build goal / challenge"),
+                    tactical_map_size=tactical_context.get("map_size", "Auto"),
+                    playlist_style=tactical_context.get("playlist_style", "Auto"),
+                )
 
-last_full_loadout = st.session_state.get("ttk_last_full_loadout")
+            elapsed_seconds = time.perf_counter() - start_time
 
-if last_full_loadout:
-    full_loadout_results = last_full_loadout.get("top_results", pd.DataFrame())
+            if full_loadout_results.empty:
+                st.error(
+                    "No valid full loadout found. Check wildcard legality first: two-primary pairings require Overkill, while 8 primary attachments require Gunfighter. If using a standard secondary, its weapon stats may not be captured yet."
+                )
+            else:
+                st.session_state.ttk_last_full_loadout = {
+                    "elapsed_seconds": elapsed_seconds,
+                    "result": full_loadout_results.iloc[0].to_dict(),
+                    "top_results": full_loadout_results,
+                    "mode_profile": f"{active_stats_profile} | {map_type} | {full_ruleset}",
+                    "stats_profile": active_stats_profile,
+                    "fight_type": fight_type,
+                    "build_goal": build_goal,
+                    "enemy_health": enemy_health,
+                    "attachment_budget": full_attachment_budget,
+                    "attachment_count": full_attachment_count,
+                    "optimiser_depth": full_depth_profile,
+                    "slot_candidate_limit": full_slot_candidate_limit,
+                    "perk_package": perk_package,
+                    "wildcard_id": full_effective_wildcard_id,
+                    "wildcard_name": wildcard_name_from_id(full_effective_wildcard_id),
+                    "loadout_pairing": loadout_pairing,
+                    "challenge_requirements": full_challenge_summary,
+                    "challenge_scope": full_challenge_scope,
+                    **tactical_context,
+                }
 
-    if not full_loadout_results.empty:
-        full_loadout_results = annotate_full_results_with_confidence(
-            full_loadout_results,
-            last_full_loadout,
-        )
-        visible_full_loadout_results = filter_candidate_results(
-            full_loadout_results,
-            candidate_trust_filter,
-        )
+        last_full_loadout = st.session_state.get("ttk_last_full_loadout")
 
-        if visible_full_loadout_results.empty:
-            st.warning(
-                "No full-loadout candidate survives the current trust filter. "
-                "Switch to SHOW ALL LAB CANDIDATES to inspect the raw Oracle output."
-            )
-        else:
-            best_full = pd.Series(visible_full_loadout_results.iloc[0])
-            full_confidence = full_loadout_confidence(best_full, last_full_loadout)
-            render_full_loadout_result(
-                visible_full_loadout_results,
-                float(last_full_loadout.get("elapsed_seconds", 0.0)),
-                int(last_full_loadout.get("enemy_health", enemy_health)),
-                full_confidence,
-            )
+        if last_full_loadout:
+            full_loadout_results = last_full_loadout.get("top_results", pd.DataFrame())
 
-            render_keep_full_loadout(best_full, last_full_loadout)
-            render_full_field_test_form(best_full, last_full_loadout)
+            if not full_loadout_results.empty:
+                full_loadout_results = annotate_full_results_with_confidence(
+                    full_loadout_results,
+                    last_full_loadout,
+                )
+                visible_full_loadout_results = filter_candidate_results(
+                    full_loadout_results,
+                    candidate_trust_filter,
+                )
 
-        st.divider()
+                if visible_full_loadout_results.empty:
+                    st.warning(
+                        "No full-loadout candidate survives the current trust filter. "
+                        "Switch to SHOW ALL LAB CANDIDATES to inspect the raw Oracle output."
+                    )
+                else:
+                    best_full = pd.Series(visible_full_loadout_results.iloc[0])
+                    full_confidence = full_loadout_confidence(best_full, last_full_loadout)
+                    st.markdown("## OPTIMUM LOADOUT")
+                    st.caption("FIELD TEST REQUIRED: this is a modelled candidate, not a proven meta.")
+                    render_full_loadout_result(
+                        visible_full_loadout_results,
+                        float(last_full_loadout.get("elapsed_seconds", 0.0)),
+                        int(last_full_loadout.get("enemy_health", enemy_health)),
+                        full_confidence,
+                    )
+                    render_tactical_advice_panel(
+                        tactical_advice_for_row(best_full, last_full_loadout, prefix="primary_")
+                    )
 
-        st.markdown("### Top Full Loadouts")
-        render_candidate_filter_summary(
-            full_loadout_results,
-            visible_full_loadout_results,
-            candidate_trust_filter,
-        )
+                    with st.expander("Save this loadout", expanded=False):
+                        render_keep_full_loadout(best_full, last_full_loadout)
 
-        full_result_columns = available_columns(
-            visible_full_loadout_results,
-            [
-                "confidence",
-                "optimiser_mode",
-                "slot_candidate_limit",
-                "field_verdict",
-                "field_feel_rating",
-                "field_tested_at",
-                "full_loadout_score",
-                "role_balance_score",
-                "loadout_role_verdict",
-                "primary_weapon",
-                "primary_class",
-                "primary_role_label",
-                "primary_role_score",
-                "primary_fight_type",
-                "primary_build_goal",
-                "primary_shotgun_truth_score",
-                "primary_shotgun_one_shot_potential",
-                "primary_shotgun_two_shot_consistency",
-                "secondary_weapon",
-                "secondary_class",
-                "secondary_role_label",
-                "secondary_role_score",
-                "secondary_fight_type",
-                "secondary_build_goal",
-                "secondary_shotgun_truth_score",
-                "secondary_shotgun_one_shot_potential",
-                "secondary_shotgun_two_shot_consistency",
-                "perk_package",
-                "primary_raw_ttk_ms",
-                "secondary_raw_ttk_ms",
-                "primary_practical_ttk_ms",
-                "secondary_practical_ttk_ms",
-                "primary_recoil",
-                "secondary_recoil",
-                "primary_attachments",
-                "secondary_attachments",
-            ],
-        )
+                    st.markdown("### Candidate Loadouts")
+                    render_candidate_filter_summary(
+                        full_loadout_results,
+                        visible_full_loadout_results,
+                        candidate_trust_filter,
+                    )
 
-        st.dataframe(
-            visible_full_loadout_results[full_result_columns],
-            use_container_width=True,
-            hide_index=True,
-        )
+                    full_result_columns = available_columns(
+                        visible_full_loadout_results,
+                        [
+                            "confidence",
+                            "challenge_requirements",
+                            "optimiser_mode",
+                            "slot_candidate_limit",
+                            "field_verdict",
+                            "field_feel_rating",
+                            "field_tested_at",
+                            "full_loadout_score",
+                            "role_balance_score",
+                            "loadout_role_verdict",
+                            "wildcard_name",
+                            "recommended_tactical",
+                            "recommended_lethal",
+                            "recommended_field_upgrade",
+                            "primary_weapon",
+                            "primary_class",
+                            "primary_role_label",
+                            "secondary_weapon",
+                            "secondary_class",
+                            "secondary_role_label",
+                            "perk_package",
+                            "perk_role",
+                            "perk_fit_score",
+                            "perk_score_bonus",
+                            "primary_raw_ttk_ms",
+                            "secondary_raw_ttk_ms",
+                            "primary_practical_ttk_ms",
+                            "secondary_practical_ttk_ms",
+                            "primary_recoil",
+                            "secondary_recoil",
+                            "primary_attachments",
+                            "secondary_attachments",
+                        ],
+                    )
+
+                    st.dataframe(
+                        visible_full_loadout_results[full_result_columns],
+                        use_container_width=True,
+                        hide_index=True,
+                    )
 
 st.divider()
 
-render_build_compare(candidate_trust_filter)
-
-st.divider()
-
-render_saved_ttk_loadouts()
-
-st.divider()
-
-render_ttk_field_test_log()
-
-st.divider()
-
-st.subheader("Base Weapon TTK Ranking")
-
-base_rankings = build_base_weapon_rankings(
-    guns=guns,
-    enemy_health=enemy_health,
-)
-
-if base_rankings.empty:
-    st.warning("No gun data loaded yet.")
-else:
-    base_ranking_columns = available_columns(
-        base_rankings,
-        [
-            "gun_name",
-            "weapon_class",
-            "damage",
-            "fire_rate_rpm",
-            "shots_to_kill",
-            "raw_ttk_ms",
-            "practical_ttk_ms",
-            "shotgun_truth_score",
-            "shotgun_one_shot_potential",
-            "shotgun_two_shot_consistency",
-            "ads_ms",
-            "sprint_to_fire_ms",
-            "recoil",
-            "bullet_velocity",
-            "range_m",
-            "mag_size",
-        ],
-    )
-
-    st.dataframe(
-        base_rankings[base_ranking_columns],
-        use_container_width=True,
-        hide_index=True,
-    )
-
-st.divider()
-
-st.subheader("Manual Loadout Preview")
+st.subheader("MANUAL LOADOUT PREVIEW")
 st.caption(
-    "Manual preview stays below the optimiser. It is for checking a hand-built class, "
-    "not for overriding the current optimum."
+    "Manual preview stays below the optimiser. It is for checking a hand-built class, not for overriding the current optimum."
 )
 
-preview_cols = st.columns(3)
+if not data_ready:
+    st.warning(f"No {active_stats_profile} manual preview data is loaded yet.")
+else:
+    preview_cols = st.columns(4)
 
-with preview_cols[0]:
-    selected_gun_name = st.selectbox(
-        "Choose weapon",
-        weapon_names,
-    )
+    with preview_cols[0]:
+        selected_gun_name = st.selectbox(
+            "Choose weapon",
+            weapon_names,
+            key="manual_preview_weapon",
+        )
 
-with preview_cols[1]:
+    with preview_cols[1]:
+        preview_fight_type = st.selectbox(
+            "Preview fight type",
+            FIGHT_TYPES,
+            index=1 if "Mid range" in FIGHT_TYPES else 0,
+            key="manual_preview_fight_type",
+        )
+
+    with preview_cols[2]:
+        preview_build_goal = st.selectbox(
+            "Preview build goal",
+            BUILD_GOALS,
+            index=0,
+            key="manual_preview_build_goal",
+        )
+
+    with preview_cols[3]:
+        preview_attachment_budget = st.selectbox(
+            "Preview attachment budget",
+            ATTACHMENT_BUDGET_PROFILES,
+            index=0,
+            key="manual_preview_attachment_budget",
+        )
+
     preview_ruleset = st.selectbox(
         "Preview attachment ruleset",
         ATTACHMENT_RULESETS,
@@ -4337,81 +5471,70 @@ with preview_cols[1]:
         key="manual_preview_attachment_ruleset",
     )
 
-with preview_cols[2]:
-    preview_attachment_budget = st.selectbox(
-        "Preview attachment budget",
-        ATTACHMENT_BUDGET_PROFILES,
-        index=0,
-        key="manual_preview_attachment_budget",
-    )
-
-preview_attachment_count = attachment_count_for_profile(
-    preview_ruleset,
-    preview_attachment_budget,
-)
-
-st.caption(
-    attachment_budget_summary(
+    preview_attachment_count = attachment_count_for_profile(
         preview_ruleset,
         preview_attachment_budget,
     )
-)
 
-selected_gun = guns[guns["gun_name"] == selected_gun_name].iloc[0]
+    st.caption(attachment_budget_summary(preview_ruleset, preview_attachment_budget))
 
-compatible_attachments = get_compatible_attachments(
-    gun=selected_gun,
-    attachments=attachments,
-)
+    selected_gun = guns[guns["gun_name"] == selected_gun_name].iloc[0]
 
-selected_attachment_names = st.multiselect(
-    f"Choose attachments - max {preview_attachment_count}",
-    compatible_attachments["attachment_name"].tolist(),
-    max_selections=preview_attachment_count,
-)
+    compatible_attachments = get_compatible_attachments(
+        gun=selected_gun,
+        attachments=attachments,
+    )
 
-selected_attachments = compatible_attachments[
-    compatible_attachments["attachment_name"].isin(selected_attachment_names)
-]
+    selected_attachment_names = st.multiselect(
+        f"Choose attachments - max {preview_attachment_count}",
+        compatible_attachments["attachment_name"].tolist(),
+        max_selections=preview_attachment_count,
+        key="manual_preview_attachments",
+    )
 
-st.caption(
-    f"Manual preview using {len(selected_attachment_names)}/{preview_attachment_count} attachments."
-)
+    selected_attachments = compatible_attachments[
+        compatible_attachments["attachment_name"].isin(selected_attachment_names)
+    ]
 
-preview = build_loadout_preview(
-    gun=selected_gun,
-    selected_attachments=selected_attachments,
-    enemy_health=enemy_health,
-    fight_type=fight_type,
-)
+    st.caption(
+        f"Manual preview using {len(selected_attachment_names)}/{preview_attachment_count} attachments."
+    )
 
-preview_cols = st.columns(4)
-preview_cols[0].metric("Final TTK", f"{preview['raw_ttk_ms']:.0f} ms")
-preview_cols[1].metric("Shots to Kill", int(preview["shots_to_kill"]))
-preview_cols[2].metric("ADS", f"{preview['ads_ms']:.0f} ms")
-preview_cols[3].metric("Recoil", f"{preview['recoil']:.1f}")
+    preview = build_loadout_preview(
+        gun=selected_gun,
+        selected_attachments=selected_attachments,
+        enemy_health=enemy_health,
+        fight_type=preview_fight_type,
+        build_goal=preview_build_goal,
+    )
 
-render_shotgun_truth_panel(pd.Series(preview))
+    preview_cols = st.columns(4)
+    preview_cols[0].metric("RAW TTK", f"{preview['raw_ttk_ms']:.0f} ms")
+    preview_cols[1].metric("Shots to Kill", int(preview["shots_to_kill"]))
+    preview_cols[2].metric("ADS", f"{preview['ads_ms']:.0f} ms")
+    preview_cols[3].metric("Recoil", f"{preview['recoil']:.1f}")
 
-st.dataframe(
-    pd.DataFrame(
-        [
-            {"Stat": "Damage", "Value": round(preview["damage"], 2)},
-            {"Stat": "Fire Rate", "Value": round(preview["fire_rate_rpm"], 2)},
-            {"Stat": "ADS", "Value": round(preview["ads_ms"], 2)},
-            {"Stat": "Sprint to Fire", "Value": round(preview["sprint_to_fire_ms"], 2)},
-            {"Stat": "Recoil", "Value": round(preview["recoil"], 2)},
-            {"Stat": "Bullet Velocity", "Value": round(preview["bullet_velocity"], 2)},
-            {"Stat": "Range", "Value": round(preview["range_m"], 2)},
-            {"Stat": "Magazine Size", "Value": round(preview["mag_size"], 2)},
-            {"Stat": "Shotgun Truth Score", "Value": preview.get("shotgun_truth_score", "")},
-            {"Stat": "Shotgun One-Shot Potential", "Value": preview.get("shotgun_one_shot_potential", "")},
-            {"Stat": "Shotgun Two-Shot Consistency", "Value": preview.get("shotgun_two_shot_consistency", "")},
-        ]
-    ),
-    use_container_width=True,
-    hide_index=True,
-)
+    render_shotgun_truth_panel(pd.Series(preview))
+
+    st.dataframe(
+        pd.DataFrame(
+            [
+                {"Stat": "Damage", "Value": round(preview["damage"], 2)},
+                {"Stat": "Fire Rate", "Value": round(preview["fire_rate_rpm"], 2)},
+                {"Stat": "ADS", "Value": round(preview["ads_ms"], 2)},
+                {"Stat": "Sprint to Fire", "Value": round(preview["sprint_to_fire_ms"], 2)},
+                {"Stat": "Recoil", "Value": round(preview["recoil"], 2)},
+                {"Stat": "Bullet Velocity", "Value": round(preview["bullet_velocity"], 2)},
+                {"Stat": "Range", "Value": round(preview["range_m"], 2)},
+                {"Stat": "Magazine Size", "Value": round(preview["mag_size"], 2)},
+                {"Stat": "Shotgun Truth Score", "Value": preview.get("shotgun_truth_score", "")},
+                {"Stat": "Shotgun One-Shot Potential", "Value": preview.get("shotgun_one_shot_potential", "")},
+                {"Stat": "Shotgun Two-Shot Consistency", "Value": preview.get("shotgun_two_shot_consistency", "")},
+            ]
+        ),
+        use_container_width=True,
+        hide_index=True,
+    )
 
 st.divider()
 

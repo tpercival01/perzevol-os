@@ -1,0 +1,24 @@
+{
+  "source_date": "2026-07-11",
+  "counts": {
+    "perks.csv": 22,
+    "specialties.csv": 6,
+    "specialty_rules.csv": 7,
+    "wildcards.csv": 9,
+    "wildcard_effects.csv": 16,
+    "equipment.csv": 20,
+    "field_upgrades.csv": 12,
+    "overclocks.csv": 21,
+    "loadout_slots.csv": 11,
+    "loadout_rules.csv": 14,
+    "loadout_templates.csv": 0,
+    "manifest.csv": 11
+  },
+  "canonical_definition_count": 69,
+  "known_gaps": [
+    "Complete overclock option catalogue",
+    "Scorestreak definitions",
+    "Derived loadout template rows",
+    "Unlock requirements and levels"
+  ]
+}

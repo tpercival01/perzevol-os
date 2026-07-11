@@ -1,0 +1,15 @@
+﻿rule_id,rule_type,subject_id,condition_field,condition_operator,condition_value,effect_field,effect_value,source,source_date,verification_status,notes
+default_primary_attachment_limit,loadout_limit,primary_weapon,wildcard_id,not_equals,gunfighter,attachment_limit,5,in_game_screenshot,2026-07-11,verified,
+gunfighter_primary_attachment_limit,loadout_limit,primary_weapon,wildcard_id,equals,gunfighter,attachment_limit,8,in_game_screenshot,2026-07-11,verified,
+specialty_standard_slots_only,specialty_calculation,combat_specialty,perk_slot,in,1;2;3,counts_towards_specialty,true,in_game_screenshot,2026-07-11,verified,
+wildcard_perks_specialty_exclusion,specialty_calculation,wildcard_granted_perks,granted_by_wildcard,equals,true,counts_towards_specialty,false,in_game_screenshot,2026-07-11,verified,Applies to Perk Greed and Specialist.
+three_families_no_specialty,specialty_calculation,combat_specialty,distinct_standard_perk_families,equals,3,specialty_id,,in_game_screenshot,2026-07-11,verified,
+prepper_requires_different_upgrades,selection_constraint,prepper,field_upgrade_count,equals,2,field_upgrades_must_be_distinct,true,in_game_screenshot,2026-07-11,verified,
+default_tactical_count,loadout_limit,tactical,wildcard_id,not_equals,tac_expert,item_count,1,in_game_screenshot,2026-07-11,verified,
+tac_expert_tactical_count,loadout_limit,tactical,wildcard_id,equals,tac_expert,item_count,2,in_game_screenshot,2026-07-11,verified,
+default_lethal_count,loadout_limit,lethal,wildcard_id,not_equals,danger_close,item_count,1,in_game_screenshot,2026-07-11,verified,
+danger_close_lethal_count,loadout_limit,lethal,wildcard_id,equals,danger_close,item_count,2,in_game_screenshot,2026-07-11,verified,
+default_field_upgrade_count,loadout_limit,field_upgrade,wildcard_id,not_equals,prepper,slot_count,1,in_game_screenshot,2026-07-11,verified,
+prepper_field_upgrade_count,loadout_limit,field_upgrade,wildcard_id,equals,prepper,slot_count,2,in_game_screenshot,2026-07-11,verified,
+default_scorestreak_count,loadout_limit,scorestreak,wildcard_id,not_in,high_roller;specialist,slot_count,3,in_game_screenshot,2026-07-11,verified,
+high_roller_scorestreak_count,loadout_limit,scorestreak,wildcard_id,equals,high_roller,slot_count,4,in_game_screenshot,2026-07-11,verified,

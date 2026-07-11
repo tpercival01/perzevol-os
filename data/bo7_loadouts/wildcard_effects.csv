@@ -1,0 +1,17 @@
+﻿effect_id,wildcard_id,effect_type,target,operation,value,condition_text,counts_towards_combat_specialty,source,source_date,verification_status,notes
+overkill_primary_category,overkill,allowed_category,primary_weapon,set,any_non_melee_weapon,,,in_game_screenshot,2026-07-11,verified,
+overkill_secondary_category,overkill,allowed_category,secondary_weapon,set,any_non_melee_weapon,,,in_game_screenshot,2026-07-11,verified,
+prepper_field_upgrade_slots,prepper,slot_count,field_upgrade,set,2,,,in_game_screenshot,2026-07-11,verified,
+prepper_distinct_requirement,prepper,distinct_selection,field_upgrade,set,true,The two Field Upgrades must be different.,,in_game_screenshot,2026-07-11,verified,
+high_roller_scorestreak_slots,high_roller,slot_count,scorestreak,set,4,,,in_game_screenshot,2026-07-11,verified,
+flyswatter_melee_replacement,flyswatter,slot_replacement,dedicated_melee,set,launcher,,,in_game_screenshot,2026-07-11,verified,
+tac_expert_tactical_count,tac_expert,item_count,tactical,add,1,,,in_game_screenshot,2026-07-11,verified,
+gunfighter_primary_attachment_limit,gunfighter,attachment_limit,primary_weapon,set,8,Default attachment limit is 5.,,in_game_screenshot,2026-07-11,verified,Adds 3 attachment points.
+perk_greed_extra_perk,perk_greed,slot_count,perk,add,1,,false,in_game_screenshot,2026-07-11,verified,
+danger_close_lethal_count,danger_close,item_count,lethal,add,1,,,in_game_screenshot,2026-07-11,verified,
+specialist_remove_scorestreaks,specialist,slot_replacement,scorestreak,set,perk_reward_slots,,,in_game_screenshot,2026-07-11,verified,
+specialist_reward_slots,specialist,slot_count,perk_reward,set,3,,false,in_game_screenshot,2026-07-11,verified,
+specialist_reward_200,specialist,score_reward,perk_reward,unlock,1,Earned at 200 Score.,false,in_game_screenshot,2026-07-11,verified,
+specialist_reward_400,specialist,score_reward,perk_reward,unlock,1,Earned at 400 Score.,false,in_game_screenshot,2026-07-11,verified,
+specialist_reward_600,specialist,score_reward,perk_reward,unlock,1,Earned at 600 Score.,false,in_game_screenshot,2026-07-11,verified,
+specialist_reward_1200,specialist,score_reward,remaining_eligible_perks,unlock,all,Earned at 1200 Score.,false,in_game_screenshot,2026-07-11,verified,

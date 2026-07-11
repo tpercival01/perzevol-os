@@ -4,9 +4,9 @@ Multiplayer,Scorestreaks,RC-XD,25,50,100,18,FALSE,FALSE,FALSE,FALSE
 Multiplayer,Scorestreaks,UAV,25,50,100,18,TRUE,TRUE,TRUE,FALSE
 Multiplayer,Scorestreaks,Counter UAV,25,50,100,18,TRUE,TRUE,TRUE,FALSE
 Multiplayer,Scorestreaks,Lockshot,10,25,50,18,FALSE,FALSE,FALSE,FALSE
-Multiplayer,Scorestreaks,Skewer,10,25,50,18,TRUE,FALSE,FALSE,FALSE
+Multiplayer,Scorestreaks,Skewer,10,25,50,18,TRUE,TRUE,TRUE,FALSE
 Multiplayer,Scorestreaks,Care Package,10,25,50,18,TRUE,TRUE,TRUE,FALSE
-Multiplayer,Scorestreaks,Deadeye Drone,10,25,50,18,TRUE,FALSE,FALSE,FALSE
+Multiplayer,Scorestreaks,Deadeye Drone,10,25,50,18,TRUE,TRUE,TRUE,FALSE
 Multiplayer,Scorestreaks,Napalm Strike,10,25,50,18,TRUE,FALSE,FALSE,FALSE
 Multiplayer,Scorestreaks,LDBR,10,25,50,18,FALSE,FALSE,FALSE,FALSE
 Multiplayer,Scorestreaks,Sentry Turret,10,25,50,18,TRUE,FALSE,FALSE,FALSE

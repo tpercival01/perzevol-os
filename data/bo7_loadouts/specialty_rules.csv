@@ -1,0 +1,8 @@
+﻿rule_id,rule_type,family_a,family_b,required_distinct_families,required_family_count,order_sensitive,result_specialty_id,source,source_date,verification_status,notes
+core_enforcer,core,Enforcer,,1,3,false,enforcer,in_game_screenshot,2026-07-11,verified,All three standard perk slots are Enforcer.
+core_recon,core,Recon,,1,3,false,recon,in_game_screenshot,2026-07-11,verified,All three standard perk slots are Recon.
+core_strategist,core,Strategist,,1,3,false,strategist,in_game_screenshot,2026-07-11,verified,All three standard perk slots are Strategist.
+hybrid_scout,hybrid,Enforcer,Recon,2,,false,scout,in_game_screenshot,2026-07-11,verified,Any 2-to-1 distribution using only Enforcer and Recon.
+hybrid_tactician,hybrid,Enforcer,Strategist,2,,false,tactician,in_game_screenshot,2026-07-11,verified,Any 2-to-1 distribution using only Enforcer and Strategist.
+hybrid_operative,hybrid,Recon,Strategist,2,,false,operative,in_game_screenshot,2026-07-11,verified,Any 2-to-1 distribution using only Recon and Strategist.
+three_family_none,none,Enforcer;Recon;Strategist,,3,,false,,in_game_screenshot,2026-07-11,verified,One standard perk from each family grants no Combat Specialty.
