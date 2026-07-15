@@ -1,176 +1,82 @@
-from pathlib import Path
 from math import ceil
 import json
 import re
-from html import unescape
 import pandas as pd
 from itertools import combinations, product
 
+from modules.warzone.attachment_import import (
+    CODMUNITY_STAT_MAP,
+    apply_codmunity_stat_to_attachment_row,
+    normalise_codmunity_stat_label,
+    parse_codmunity_attachment_html,
+)
 
-TTK_DATA_DIR = Path("data/bo7_ttk")
-GUNS_PATH = TTK_DATA_DIR / "guns.csv"
-ATTACHMENTS_PATH = TTK_DATA_DIR / "attachments.csv"
+from modules.warzone.oracle_data import (
+    ATTACHMENTS_PATH,
+    ATTACHMENT_NUMERIC_COLUMNS,
+    DEFAULT_STATS_PROFILE,
+    EXTENDED_ATTACHMENT_COLUMNS,
+    GUNS_PATH,
+    LEGACY_STATS_PROFILE,
+    OPTIONAL_ATTACHMENT_COLUMNS,
+    REQUIRED_ATTACHMENT_COLUMNS,
+    REQUIRED_GUN_COLUMNS,
+    SUPPORTED_STATS_PROFILES,
+    TTK_DATA_DIR,
+    ensure_attachment_columns,
+    ensure_profile_column,
+    filter_ttk_data_by_profile,
+    load_attachments,
+    load_guns,
+    load_ttk_data,
+    normalise_list_cell,
+    normalise_match_key,
+    normalise_match_value,
+    normalise_numeric_columns,
+    normalise_schema_value,
+    normalise_slot_value,
+    normalise_stats_profile,
+    normalise_ttk_attachments_dataframe,
+    normalise_ttk_guns_dataframe,
+    normalise_weapon_class_key,
+    normalise_weapon_class_value,
+    numeric_cell,
+    slugify,
+    split_list_cell,
+    strip_html,
+)
 
-LOADOUT_DATA_DIR = Path("data/bo7_loadouts")
-PERKS_PATH = LOADOUT_DATA_DIR / "perks.csv"
-WILDCARDS_PATH = LOADOUT_DATA_DIR / "wildcards.csv"
-WILDCARD_EFFECTS_PATH = LOADOUT_DATA_DIR / "wildcard_effects.csv"
-EQUIPMENT_PATH = LOADOUT_DATA_DIR / "equipment.csv"
-FIELD_UPGRADES_PATH = LOADOUT_DATA_DIR / "field_upgrades.csv"
-SPECIALTIES_PATH = LOADOUT_DATA_DIR / "specialties.csv"
-SPECIALTY_RULES_PATH = LOADOUT_DATA_DIR / "specialty_rules.csv"
-LOADOUT_RULES_PATH = LOADOUT_DATA_DIR / "loadout_rules.csv"
-LOADOUT_SLOTS_PATH = LOADOUT_DATA_DIR / "loadout_slots.csv"
-LOADOUT_TEMPLATES_PATH = LOADOUT_DATA_DIR / "loadout_templates.csv"
+from modules.warzone.loadout_lab import (
+    PERK_PACKAGES,
+    PERK_SELECTION_OPTIONS,
+    WILDCARD_SELECTION_OPTIONS,
+    build_equipment_overclock_advice,
+    build_perk_loadout_advice,
+    build_scorestreak_package_advice,
+    effective_wildcard_id,
+    forced_attachment_rules_summary,
+    load_loadout_catalogue,
+    loadout_legality_warnings,
+    loadout_pairing_requires_overkill,
+    loadout_pairing_uses_standard_secondary,
+    perk_package_fit_score,
+    perk_package_score_bonus,
+    recommend_perk_package,
+    recommend_standard_secondary_slot,
+    standard_secondary_class_fit_score,
+    wildcard_id_from_selection,
+    wildcard_name_from_id,
+)
 
-DEFAULT_STATS_PROFILE = "multiplayer"
-LEGACY_STATS_PROFILE = "multiplayer"
-SUPPORTED_STATS_PROFILES = [
-    "warzone",
-    "multiplayer",
-    "zombies",
-    "co_op_endgame",
-]
-
-
-REQUIRED_GUN_COLUMNS = [
-    "gun_id",
-    "gun_name",
-    "weapon_class",
-    "stats_profile",
-    "damage_close",
-    "range_close_m",
-    "damage_mid",
-    "range_mid_m",
-    "damage_long",
-    "fire_rate_rpm",
-    "ads_ms",
-    "sprint_to_fire_ms",
-    "recoil",
-    "bullet_velocity",
-    "mag_size",
-]
+from modules.warzone.field_planner import (
+    OPTIC_PREFERENCE_OPTIONS,
+    TACTICAL_GOAL_OPTIONS,
+    TACTICAL_MAP_SIZE_OPTIONS,
+    TACTICAL_PLAYLIST_STYLE_OPTIONS,
+    build_tactical_advice,
+)
 
 
-REQUIRED_ATTACHMENT_COLUMNS = [
-    "attachment_id",
-    "attachment_name",
-    "slot",
-    "stats_profile",
-    "compatible_weapon_classes",
-    "compatible_guns",
-    "damage_pct",
-    "fire_rate_pct",
-    "ads_ms_add",
-    "sprint_to_fire_ms_add",
-    "recoil_pct",
-    "bullet_velocity_pct",
-    "range_pct",
-    "mag_size_add",
-]
-
-# Extended columns are optional for backwards compatibility with the current CSV.
-# They let the Oracle store Codmunity-style percentage modifiers without
-# manually converting each one into fixed millisecond deltas.
-OPTIONAL_ATTACHMENT_COLUMNS = [
-    "ads_pct",
-    "sprint_to_fire_pct",
-    "reload_pct",
-    "jump_ads_pct",
-    "jump_sprint_to_fire_pct",
-    "movement_pct",
-    "sprint_pct",
-    "crouch_movement_pct",
-    "ads_movement_pct",
-    "gun_kick_pct",
-    "horizontal_recoil_pct",
-    "vertical_recoil_pct",
-    "first_shot_recoil_pct",
-    "kick_reset_speed_pct",
-    "flinch_resistance_pct",
-    "aiming_idle_sway_pct",
-    "visual_recoil_pct",
-    "slide_to_fire_pct",
-    "dive_to_fire_pct",
-    "hipfire_spread_pct",
-    "jump_hipfire_spread_pct",
-    "slide_hipfire_spread_pct",
-    "dive_hipfire_spread_pct",
-    "mags_add",
-    "optic_zoom",
-    "optic_type",
-    "attachment_type",
-    "head_damage_pct",
-    "head_damage_close_pct",
-    "head_damage_mid_pct",
-    "head_damage_long_pct",
-    "head_damage_close_add",
-    "head_damage_mid_add",
-    "head_damage_long_add",
-    "head_damage_close",
-    "head_damage_mid",
-    "head_damage_long",
-    "head_multiplier",
-    "head_multiplier_pct",
-    "raw_stat_text",
-    "source",
-    "source_date",
-    "verification_status",
-    "verification_notes",
-]
-
-EXTENDED_ATTACHMENT_COLUMNS = REQUIRED_ATTACHMENT_COLUMNS + [
-    column for column in OPTIONAL_ATTACHMENT_COLUMNS
-    if column not in REQUIRED_ATTACHMENT_COLUMNS
-]
-
-ATTACHMENT_NUMERIC_COLUMNS = {
-    "damage_pct",
-    "fire_rate_pct",
-    "ads_ms_add",
-    "sprint_to_fire_ms_add",
-    "recoil_pct",
-    "bullet_velocity_pct",
-    "range_pct",
-    "mag_size_add",
-    "ads_pct",
-    "sprint_to_fire_pct",
-    "reload_pct",
-    "jump_ads_pct",
-    "jump_sprint_to_fire_pct",
-    "movement_pct",
-    "sprint_pct",
-    "crouch_movement_pct",
-    "ads_movement_pct",
-    "gun_kick_pct",
-    "horizontal_recoil_pct",
-    "vertical_recoil_pct",
-    "first_shot_recoil_pct",
-    "kick_reset_speed_pct",
-    "flinch_resistance_pct",
-    "aiming_idle_sway_pct",
-    "visual_recoil_pct",
-    "slide_to_fire_pct",
-    "dive_to_fire_pct",
-    "hipfire_spread_pct",
-    "jump_hipfire_spread_pct",
-    "slide_hipfire_spread_pct",
-    "dive_hipfire_spread_pct",
-    "mags_add",
-    "optic_zoom",
-    "head_damage_pct",
-    "head_damage_close_pct",
-    "head_damage_mid_pct",
-    "head_damage_long_pct",
-    "head_damage_close_add",
-    "head_damage_mid_add",
-    "head_damage_long_add",
-    "head_damage_close",
-    "head_damage_mid",
-    "head_damage_long",
-    "head_multiplier",
-    "head_multiplier_pct",
-}
 
 
 # Columns that are actually modelled by the optimiser.
@@ -286,433 +192,24 @@ def is_valid_loadout_pair(weapon_a_class: str, weapon_b_class: str) -> bool:
 
     return frozenset((weapon_a, weapon_b)) in VALID_LOADOUT_PAIRS
 
-def ensure_ttk_data_dir():
-    TTK_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def create_empty_templates():
-    ensure_ttk_data_dir()
 
-    if not GUNS_PATH.exists():
-        pd.DataFrame(columns=REQUIRED_GUN_COLUMNS).to_csv(GUNS_PATH, index=False)
 
-    if not ATTACHMENTS_PATH.exists():
-        pd.DataFrame(columns=EXTENDED_ATTACHMENT_COLUMNS).to_csv(
-            ATTACHMENTS_PATH,
-            index=False,
-        )
 
 
-def numeric_cell(value, fallback: float = 0.0) -> float:
-    if pd.isna(value):
-        return fallback
 
-    text = str(value).strip().replace("%", "").replace(",", "")
 
-    if text == "":
-        return fallback
 
-    try:
-        number = float(text)
-    except ValueError:
-        return fallback
 
-    if pd.isna(number) or number in {float("inf"), float("-inf")}:
-        return fallback
 
-    return number
 
 
-def normalise_numeric_columns(dataframe: pd.DataFrame, columns: set[str]) -> pd.DataFrame:
-    updated = dataframe.copy()
 
-    for column in columns:
-        if column in updated.columns:
-            updated[column] = updated[column].apply(lambda value: numeric_cell(value, 0.0))
 
-    return updated
 
 
-def normalise_schema_value(value: str) -> str:
-    text = unescape(str(value or "").strip()).lower()
-    text = text.replace("&", " and ")
-    text = re.sub(r"[^a-z0-9]+", "_", text)
-    return text.strip("_")
 
-
-def normalise_stats_profile(value, fallback: str = LEGACY_STATS_PROFILE) -> str:
-    text = normalise_schema_value(value)
-
-    if not text:
-        return fallback
-
-    aliases = {
-        "wz": "warzone",
-        "warzone": "warzone",
-        "mp": "multiplayer",
-        "multiplayer": "multiplayer",
-        "zombies": "zombies",
-        "zm": "zombies",
-        "coop": "co_op_endgame",
-        "co_op": "co_op_endgame",
-        "co_op_endgame": "co_op_endgame",
-        "co_op_and_endgame": "co_op_endgame",
-        "endgame": "co_op_endgame",
-    }
-
-    return aliases.get(text, text)
-
-
-def ensure_profile_column(dataframe: pd.DataFrame, fallback: str = LEGACY_STATS_PROFILE) -> pd.DataFrame:
-    updated = dataframe.copy()
-
-    if "stats_profile" not in updated.columns:
-        updated["stats_profile"] = fallback
-
-    updated["stats_profile"] = updated["stats_profile"].apply(
-        lambda value: normalise_stats_profile(value, fallback)
-    )
-
-    return updated
-
-
-SLOT_ALIASES = {
-    "fire_mod": "fire_mod",
-    "fire_mods": "fire_mod",
-    "firemods": "fire_mod",
-    "firemod": "fire_mod",
-    "rear_grip": "rear_grip",
-    "reargrip": "rear_grip",
-    "under_barrel": "underbarrel",
-    "underbarrel": "underbarrel",
-    "optic": "optic",
-    "optics": "optic",
-    "sight": "optic",
-    "scope": "optic",
-}
-
-
-def normalise_slot_value(value) -> str:
-    key = normalise_schema_value(value)
-    return SLOT_ALIASES.get(key, key)
-
-
-def normalise_list_cell(value, normaliser) -> str:
-    items = split_list_cell(value)
-    normalised_items = []
-
-    for item in items:
-        normalised = normaliser(item)
-        if normalised and normalised not in normalised_items:
-            normalised_items.append(normalised)
-
-    return ";".join(normalised_items)
-
-
-def normalise_weapon_class_value(value) -> str:
-    return normalise_weapon_class_key(value)
-
-
-def normalise_ttk_guns_dataframe(guns: pd.DataFrame) -> pd.DataFrame:
-    updated = ensure_profile_column(guns, LEGACY_STATS_PROFILE)
-
-    if "gun_id" in updated.columns:
-        updated["gun_id"] = updated["gun_id"].apply(slugify)
-
-    if "weapon_class" in updated.columns:
-        updated["weapon_class"] = updated["weapon_class"].apply(normalise_weapon_class_value)
-
-    if "verification_status" in updated.columns:
-        updated["verification_status"] = updated["verification_status"].apply(normalise_schema_value)
-
-    return updated
-
-
-def normalise_ttk_attachments_dataframe(attachments: pd.DataFrame) -> pd.DataFrame:
-    updated = ensure_profile_column(attachments, LEGACY_STATS_PROFILE)
-
-    if "attachment_id" in updated.columns:
-        updated["attachment_id"] = updated["attachment_id"].apply(slugify)
-
-    if "slot" in updated.columns:
-        updated["slot"] = updated["slot"].apply(normalise_slot_value)
-
-    if "compatible_weapon_classes" in updated.columns:
-        updated["compatible_weapon_classes"] = updated["compatible_weapon_classes"].apply(
-            lambda value: normalise_list_cell(value, normalise_weapon_class_value)
-        )
-
-    if "compatible_guns" in updated.columns:
-        updated["compatible_guns"] = updated["compatible_guns"].apply(
-            lambda value: normalise_list_cell(value, slugify)
-        )
-
-    if "verification_status" in updated.columns:
-        updated["verification_status"] = updated["verification_status"].apply(normalise_schema_value)
-
-    if "optic_type" in updated.columns:
-        updated["optic_type"] = updated["optic_type"].apply(normalise_schema_value)
-
-    if "attachment_type" in updated.columns:
-        updated["attachment_type"] = updated["attachment_type"].apply(normalise_schema_value)
-
-    return updated
-
-
-def filter_ttk_data_by_profile(
-    guns: pd.DataFrame,
-    attachments: pd.DataFrame,
-    stats_profile: str,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
-    profile = normalise_stats_profile(stats_profile, DEFAULT_STATS_PROFILE)
-
-    filtered_guns = normalise_ttk_guns_dataframe(guns)
-    filtered_attachments = normalise_ttk_attachments_dataframe(ensure_attachment_columns(attachments))
-
-    filtered_guns = filtered_guns[filtered_guns["stats_profile"] == profile].reset_index(drop=True)
-    filtered_attachments = filtered_attachments[filtered_attachments["stats_profile"] == profile].reset_index(drop=True)
-
-    return filtered_guns, filtered_attachments
-
-
-def ensure_attachment_columns(attachments: pd.DataFrame) -> pd.DataFrame:
-    updated = attachments.copy()
-
-    for column in EXTENDED_ATTACHMENT_COLUMNS:
-        if column not in updated.columns:
-            updated[column] = 0.0 if column in ATTACHMENT_NUMERIC_COLUMNS else ""
-
-    return normalise_numeric_columns(updated, ATTACHMENT_NUMERIC_COLUMNS)
-
-
-def slugify(value: str) -> str:
-    value = unescape(str(value or "").strip()).lower()
-    value = re.sub(r"[^a-z0-9]+", "_", value)
-    return value.strip("_")
-
-
-def strip_html(value: str) -> str:
-    value = re.sub(r"<[^>]+>", " ", str(value or ""))
-    value = unescape(value)
-    return re.sub(r"\s+", " ", value).strip()
-
-
-def load_guns():
-    create_empty_templates()
-
-    guns = pd.read_csv(GUNS_PATH)
-    guns = normalise_ttk_guns_dataframe(guns)
-
-    missing_columns = [
-        column for column in REQUIRED_GUN_COLUMNS
-        if column not in guns.columns
-    ]
-
-    if missing_columns:
-        raise ValueError(f"guns.csv is missing columns: {missing_columns}")
-
-    return guns
-
-
-def load_attachments():
-    create_empty_templates()
-
-    attachments = pd.read_csv(ATTACHMENTS_PATH)
-    attachments = normalise_ttk_attachments_dataframe(attachments)
-
-    missing_columns = [
-        column for column in REQUIRED_ATTACHMENT_COLUMNS
-        if column not in attachments.columns
-    ]
-
-    if missing_columns:
-        raise ValueError(f"attachments.csv is missing columns: {missing_columns}")
-
-    return normalise_ttk_attachments_dataframe(ensure_attachment_columns(attachments))
-
-
-def load_ttk_data():
-    guns = load_guns()
-    attachments = load_attachments()
-
-    return guns, attachments
-
-
-def load_csv_if_exists(path: Path, columns: list[str] | None = None) -> pd.DataFrame:
-    if not path.exists():
-        return pd.DataFrame(columns=columns or [])
-
-    try:
-        dataframe = pd.read_csv(path, dtype=str).fillna("")
-    except Exception:
-        return pd.DataFrame(columns=columns or [])
-
-    if columns:
-        for column in columns:
-            if column not in dataframe.columns:
-                dataframe[column] = ""
-
-    return dataframe
-
-
-def load_loadout_catalogue() -> dict:
-    return {
-        "perks": load_csv_if_exists(PERKS_PATH),
-        "wildcards": load_csv_if_exists(WILDCARDS_PATH),
-        "wildcard_effects": load_csv_if_exists(WILDCARD_EFFECTS_PATH),
-        "equipment": load_csv_if_exists(EQUIPMENT_PATH),
-        "field_upgrades": load_csv_if_exists(FIELD_UPGRADES_PATH),
-        "specialties": load_csv_if_exists(SPECIALTIES_PATH),
-        "specialty_rules": load_csv_if_exists(SPECIALTY_RULES_PATH),
-        "loadout_rules": load_csv_if_exists(LOADOUT_RULES_PATH),
-        "loadout_slots": load_csv_if_exists(LOADOUT_SLOTS_PATH),
-        "loadout_templates": load_csv_if_exists(LOADOUT_TEMPLATES_PATH),
-    }
-
-
-def wildcard_id_from_selection(value: str) -> str:
-    text = normalise_schema_value(value)
-
-    aliases = {
-        "": "oracle_recommends",
-        "oracle_recommends": "oracle_recommends",
-        "auto": "oracle_recommends",
-        "best": "oracle_recommends",
-        "none": "none",
-        "no_wildcard": "none",
-        "overkill": "overkill",
-        "gunfighter": "gunfighter",
-        "perk_greed": "perk_greed",
-        "tac_expert": "tac_expert",
-        "danger_close": "danger_close",
-        "prepper": "prepper",
-        "flyswatter": "flyswatter",
-        "high_roller": "high_roller",
-        "specialist": "specialist",
-    }
-
-    return aliases.get(text, text)
-
-
-def wildcard_name_from_id(wildcard_id: str) -> str:
-    wildcard_id = wildcard_id_from_selection(wildcard_id)
-
-    names = {
-        "oracle_recommends": "Oracle recommends",
-        "none": "None",
-        "overkill": "Overkill",
-        "gunfighter": "Gunfighter",
-        "perk_greed": "Perk Greed",
-        "tac_expert": "Tac Expert",
-        "danger_close": "Danger Close",
-        "prepper": "Prepper",
-        "flyswatter": "Flyswatter",
-        "high_roller": "High Roller",
-        "specialist": "Specialist",
-    }
-
-    return names.get(wildcard_id, wildcard_id.replace("_", " ").title())
-
-
-def loadout_pairing_requires_overkill(loadout_pairing: str) -> bool:
-    text = normalise_match_value(loadout_pairing)
-    return "overkill" in text
-
-
-def loadout_pairing_uses_standard_secondary(loadout_pairing: str) -> bool:
-    return "standard secondary" in normalise_match_value(loadout_pairing)
-
-
-def recommend_wildcard_id(
-    *,
-    loadout_pairing: str,
-    attachment_count: int,
-    build_goal: str,
-    fight_type: str,
-    challenge_requirements: str = "",
-    tactical_goal: str = "Auto from build goal / challenge",
-    playlist_style: str = "Auto",
-) -> str:
-    combined = normalise_match_value(
-        " ".join(
-            [
-                loadout_pairing,
-                build_goal,
-                fight_type,
-                challenge_requirements,
-                tactical_goal,
-                playlist_style,
-            ]
-        )
-    )
-
-    if loadout_pairing_requires_overkill(loadout_pairing):
-        return "overkill"
-
-    if int(attachment_count or 0) >= 8 or "8 attachment" in combined or "gunfighter" in combined:
-        return "gunfighter"
-
-    if "field upgrade" in combined:
-        return "prepper"
-
-    if "tactical" in combined or "detected" in combined or "affected" in combined:
-        return "tac_expert"
-
-    if "lethal" in combined or "explosive" in combined:
-        return "danger_close"
-
-    if "scorestreak" in combined:
-        return "high_roller"
-
-    return "perk_greed"
-
-
-def effective_wildcard_id(
-    selected_wildcard: str,
-    *,
-    loadout_pairing: str,
-    attachment_count: int,
-    build_goal: str,
-    fight_type: str,
-    challenge_requirements: str = "",
-    tactical_goal: str = "Auto from build goal / challenge",
-    playlist_style: str = "Auto",
-) -> str:
-    selected = wildcard_id_from_selection(selected_wildcard)
-
-    if selected == "oracle_recommends":
-        return recommend_wildcard_id(
-            loadout_pairing=loadout_pairing,
-            attachment_count=attachment_count,
-            build_goal=build_goal,
-            fight_type=fight_type,
-            challenge_requirements=challenge_requirements,
-            tactical_goal=tactical_goal,
-            playlist_style=playlist_style,
-        )
-
-    return selected
-
-
-def loadout_legality_warnings(
-    *,
-    loadout_pairing: str,
-    wildcard_id: str,
-    attachment_count: int,
-) -> list[str]:
-    warnings = []
-    wildcard_id = wildcard_id_from_selection(wildcard_id)
-
-    if loadout_pairing_requires_overkill(loadout_pairing) and wildcard_id != "overkill":
-        warnings.append("Two-primary pairings require the Overkill wildcard.")
-
-    if int(attachment_count or 0) >= 8 and wildcard_id != "gunfighter":
-        warnings.append("Eight primary attachments require the Gunfighter wildcard.")
-
-    if loadout_pairing_requires_overkill(loadout_pairing) and int(attachment_count or 0) >= 8:
-        warnings.append("Overkill and Gunfighter cannot both be active in one standard BO7 Multiplayer loadout.")
-
-    return warnings
 
 
 
@@ -738,177 +235,8 @@ def _context_blob(
     )
 
 
-def standard_secondary_class_fit_score(
-    weapon_class: str,
-    *,
-    build_goal: str = "",
-    fight_type: str = "",
-    challenge_requirements: str = "",
-    tactical_goal: str = "Auto from build goal / challenge",
-    map_size: str = "Auto",
-    playlist_style: str = "Auto",
-) -> float:
-    """
-    Score the legal secondary category before every secondary weapon has full TTK data.
-
-    The intent is not to pretend a launcher beats a pistol in a duel. It picks
-    the closest legal secondary role for the current mastery/challenge context.
-    """
-    weapon_class = normalise_weapon_class_value(weapon_class)
-    context = _context_blob(
-        build_goal=build_goal,
-        fight_type=fight_type,
-        challenge_requirements=challenge_requirements,
-        tactical_goal=tactical_goal,
-        map_size=map_size,
-        playlist_style=playlist_style,
-    )
-
-    scores = {
-        "pistol": 0.58,
-        "launcher": 0.62,
-        "special": 0.48,
-    }
-
-    scorestreak_terms = [
-        "scorestreak",
-        "aerial",
-        "vehicle",
-        "equipment",
-        "field upgrade",
-        "destroy",
-        "destruction",
-        "flyswatter",
-    ]
-    if any(term in context for term in scorestreak_terms):
-        scores["launcher"] += 0.30
-        scores["special"] += 0.06
-
-    if "launcher" in context or "direct hit" in context:
-        scores["launcher"] += 0.35
-
-    headshot_terms = ["headshot", "military camo", "small", "fast respawn", "close range"]
-    if any(term in context for term in headshot_terms):
-        scores["pistol"] += 0.18
-        scores["launcher"] += 0.06
-
-    objective_terms = ["objective", "domination", "hardpoint", "hill", "flag", "control"]
-    if any(term in context for term in objective_terms):
-        scores["launcher"] += 0.13
-        scores["pistol"] += 0.07
-        scores["special"] += 0.04
-
-    if "shortly after switching" in context or "switching weapons" in context:
-        scores["pistol"] += 0.35
-
-    if "hipfire" in context or "sprint" in context or "moving" in context:
-        scores["pistol"] += 0.10
-
-    if "special" in context or "utility" in context:
-        scores["special"] += 0.16
-
-    if "longshot" in context or "one shot" in context or "large" in context:
-        scores["launcher"] += 0.10
-        scores["pistol"] += 0.03
-
-    return round(max(0.0, scores.get(weapon_class, 0.35)), 4)
 
 
-def recommend_standard_secondary_slot(
-    *,
-    build_goal: str = "",
-    fight_type: str = "",
-    challenge_requirements: str = "",
-    tactical_goal: str = "Auto from build goal / challenge",
-    map_size: str = "Auto",
-    playlist_style: str = "Auto",
-    available_classes=None,
-) -> dict:
-    available_classes = {
-        normalise_weapon_class_value(item)
-        for item in (available_classes or STANDARD_SECONDARY_WEAPON_CLASSES)
-        if normalise_weapon_class_value(item) in STANDARD_SECONDARY_WEAPON_CLASSES
-    } or set(STANDARD_SECONDARY_WEAPON_CLASSES)
-
-    scores = {
-        weapon_class: standard_secondary_class_fit_score(
-            weapon_class,
-            build_goal=build_goal,
-            fight_type=fight_type,
-            challenge_requirements=challenge_requirements,
-            tactical_goal=tactical_goal,
-            map_size=map_size,
-            playlist_style=playlist_style,
-        )
-        for weapon_class in available_classes
-    }
-
-    chosen_class = max(scores, key=scores.get) if scores else "launcher"
-    context = _context_blob(
-        build_goal=build_goal,
-        fight_type=fight_type,
-        challenge_requirements=challenge_requirements,
-        tactical_goal=tactical_goal,
-        map_size=map_size,
-        playlist_style=playlist_style,
-    )
-
-    labels = {
-        "launcher": "Launcher support",
-        "pistol": "Emergency sidearm",
-        "special": "Special utility",
-    }
-
-    if chosen_class == "launcher":
-        reason = (
-            "Launcher is the closest legal secondary for this context because it adds scorestreak, equipment, "
-            "and objective-lane utility without spending Overkill."
-        )
-        role = "Scorestreak control / utility pressure"
-    elif chosen_class == "pistol":
-        reason = (
-            "Pistol is the closest legal secondary for this context because it protects the primary grind when "
-            "you are caught reloading, rotating, or forced into a quick swap fight."
-        )
-        role = "Emergency swap / finishing tool"
-    else:
-        reason = (
-            "Special weapon is the closest legal secondary for this context because the request is more about "
-            "utility or a specific mastery action than raw gunfight coverage."
-        )
-        role = "Challenge utility / specialist pressure"
-
-    warnings = []
-    if chosen_class == "launcher" and not any(term in context for term in ["scorestreak", "destroy", "objective", "launcher"]):
-        warnings.append("Launcher is a support pick, not a duel winner. Treat the primary as the kill engine.")
-
-    if chosen_class == "pistol":
-        warnings.append("Pistol recommendation is role-based until pistol attachment/base-stat coverage is complete.")
-
-    return {
-        "recommended_secondary_class": chosen_class,
-        "secondary_slot_recommendation": labels.get(chosen_class, chosen_class),
-        "secondary_field_role": role,
-        "secondary_advisor_summary": reason,
-        "secondary_class_scores": scores,
-        "secondary_advisor_warnings": " || ".join(warnings),
-        "secondary_advisor_evidence_json": json.dumps(
-            {
-                "advisor": "standard_secondary_slot",
-                "legal_classes": sorted(STANDARD_SECONDARY_WEAPON_CLASSES),
-                "available_classes": sorted(available_classes),
-                "selected_class": chosen_class,
-                "class_scores": scores,
-                "build_goal": build_goal,
-                "fight_type": fight_type,
-                "challenge_requirements": challenge_requirements,
-                "tactical_goal": tactical_goal,
-                "map_size": map_size,
-                "playlist_style": playlist_style,
-            },
-            indent=2,
-        ),
-    }
 
 
 def standard_secondary_placeholder_result(advice: dict | None = None) -> pd.DataFrame:
@@ -1245,60 +573,6 @@ def build_base_weapon_rankings(
 
     return rankings
 
-def split_list_cell(value):
-    if pd.isna(value) or str(value).strip() == "":
-        return []
-
-    return [
-        item.strip()
-        for item in str(value).split(";")
-        if item.strip()
-    ]
-
-
-def normalise_match_value(value):
-    return str(value or "").strip().lower()
-
-
-def normalise_match_key(value):
-    """
-    Compatibility matching should not fail because one source says SG12 and
-    another says SG-12. The display name stays untouched, this key is only for
-    matching CSV compatibility cells.
-    """
-    return re.sub(r"[^a-z0-9]+", "", normalise_match_value(value))
-
-
-WEAPON_CLASS_ALIASES = {
-    "ar": "assault_rifle",
-    "ars": "assault_rifle",
-    "assaultrifle": "assault_rifle",
-    "assaultrifles": "assault_rifle",
-    "smg": "smg",
-    "smgs": "smg",
-    "submachinegun": "smg",
-    "submachineguns": "smg",
-    "lmg": "lmg",
-    "lmgs": "lmg",
-    "shotgun": "shotgun",
-    "shotguns": "shotgun",
-    "sniperrifle": "sniper_rifle",
-    "sniperrifles": "sniper_rifle",
-    "marksmanrifle": "marksman_rifle",
-    "marksmanrifles": "marksman_rifle",
-    "pistol": "pistol",
-    "pistols": "pistol",
-    "launcher": "launcher",
-    "launchers": "launcher",
-    "special": "special",
-    "specials": "special",
-    "melee": "melee",
-}
-
-
-def normalise_weapon_class_key(value):
-    key = normalise_match_key(value)
-    return WEAPON_CLASS_ALIASES.get(key, key)
 
 
 def matches_compatible_value(actual, allowed_values, *, weapon_class=False):
@@ -2079,47 +1353,6 @@ PERK_PACKAGE_PROFILES = {
 }
 
 
-TACTICAL_GOAL_OPTIONS = [
-    "Auto from build goal / challenge",
-    "Military headshots",
-    "Objective kills",
-    "Hipfire kills",
-    "Longshots",
-    "Kills while moving",
-    "Sprint kills",
-    "Slide / dive / wall-jump kills",
-    "No-damage kills",
-    "Suppressor kills",
-    "4.0x+ optic kills",
-    "Underbarrel launcher kills",
-    "5+ attachments",
-    "8 attachments",
-]
-
-TACTICAL_MAP_SIZE_OPTIONS = [
-    "Auto",
-    "Small map",
-    "Medium map",
-    "Large map",
-]
-
-TACTICAL_PLAYLIST_STYLE_OPTIONS = [
-    "Auto",
-    "Fast respawn objective",
-    "Objective anchor",
-    "Long-range lanes",
-    "Passive survival",
-    "Weapon levelling",
-]
-
-OPTIC_PREFERENCE_OPTIONS = [
-    "Any optic",
-    "Non-thermal preferred",
-    "Reflex / holo preferred",
-    "Use my own optic",
-    "Force current Oracle optic",
-]
-
 def combo_has_duplicate_slots(combo):
     slots = [str(attachment["slot"]).strip() for attachment in combo]
     return len(slots) != len(set(slots))
@@ -2865,8 +2098,6 @@ def normalise_tactical_text(value: str) -> str:
     return normalise_schema_value(value).replace("_", " ")
 
 
-def _tactical_strings(*values) -> str:
-    return " ".join(str(value or "").strip().lower() for value in values if str(value or "").strip())
 
 
 def _append_unique(items: list[str], additions: list[str]):
@@ -2905,569 +2136,56 @@ def selected_optic_from_evidence(row=None, prefix: str = "") -> dict:
     return {}
 
 
-def _goal_flags(
-    *,
-    build_goal: str,
-    fight_type: str,
-    challenge_requirements: str,
-    tactical_goal: str,
-    playlist_style: str,
-) -> dict[str, bool]:
-    text = _tactical_strings(build_goal, fight_type, challenge_requirements, tactical_goal, playlist_style)
-
-    return {
-        "headshots": any(token in text for token in ["headshot", "headshots", "military headshots", "military camo"]),
-        "objective": "objective" in text,
-        "hipfire": "hipfire" in text or "hip fire" in text,
-        "longshots": "longshot" in text or "long shot" in text or "long-range lanes" in text,
-        "moving": "moving" in text or "movement" in text,
-        "sprint": "sprint" in text or "sprinting" in text,
-        "slide_dive": "slide" in text or "dive" in text or "wall-jump" in text or "wall jump" in text,
-        "no_damage": "no-damage" in text or "without taking damage" in text or "passive survival" in text,
-        "suppressor": "suppressor" in text or "supressor" in text,
-        "optic_4x": "4.0x" in text or "4x" in text or "optic kills" in text,
-        "underbarrel_launcher": "underbarrel launcher" in text or "launcher kills" in text,
-        "five_plus": "5+" in text or "5 attachments" in text,
-        "eight": "8 attachments" in text or "gunfighter" in text,
-    }
-
-
-def build_tactical_advice(
-    *,
-    build_goal: str,
-    fight_type: str,
-    challenge_requirements: str = "",
-    tactical_goal: str = "Auto from build goal / challenge",
-    map_size: str = "Auto",
-    playlist_style: str = "Auto",
-    optic_preference: str = "Any optic",
-    row=None,
-    prefix: str = "",
-) -> dict:
-    """Return deterministic tactical recommendations for the current Oracle result.
-
-    This is deliberately not Groq. It is a rules-based tactical packet that can
-    later be handed to a strict LLM summariser.
-    """
-    flags = _goal_flags(
-        build_goal=build_goal,
-        fight_type=fight_type,
-        challenge_requirements=challenge_requirements,
-        tactical_goal=tactical_goal,
-        playlist_style=playlist_style,
-    )
-
-    recommended_modes: list[str] = []
-    avoid_modes: list[str] = []
-    priorities: list[str] = []
-    warnings: list[str] = []
-
-    _append_unique(avoid_modes, ["Search & Destroy"])
-
-    if flags["headshots"]:
-        _append_unique(recommended_modes, ["Domination", "Hardpoint", "Control-style objective respawn"])
-        _append_unique(avoid_modes, ["Team Deathmatch if lobbies are slow or scattered"])
-        _append_unique(priorities, [
-            "Play predictable objective traffic instead of chasing random spawns.",
-            "Hold chest-to-head height lanes and let enemies enter the reticle.",
-            "Prioritise recoil control, visual clarity, and flinch resistance over pure raw TTK.",
-        ])
-
-    if flags["objective"]:
-        _append_unique(recommended_modes, ["Domination", "Hardpoint"])
-        _append_unique(priorities, [
-            "Build around repeated objective contact and survivability.",
-            "Use cover around flags or hills rather than wide roaming routes.",
-        ])
-
-    if flags["hipfire"] or flags["slide_dive"]:
-        _append_unique(recommended_modes, ["Small-map moshpit", "Hardpoint", "Domination"])
-        _append_unique(priorities, [
-            "Lean into close-range routes, fast respawns, and repeated entry fights.",
-            "Prefer mobility, sprint-to-fire, slide/dive handling, and hipfire spread improvements.",
-        ])
-
-    if flags["moving"] or flags["sprint"]:
-        _append_unique(recommended_modes, ["Hardpoint", "Domination", "Small-map respawn"])
-        _append_unique(priorities, [
-            "Stay mobile through predictable routes rather than anchoring one lane.",
-            "Value sprint-to-fire, ADS speed, and movement speed more than long-range comfort.",
-        ])
-
-    if flags["longshots"] or flags["optic_4x"]:
-        _append_unique(recommended_modes, ["Domination on medium/large maps", "Long-lane objective playlists"])
-        _append_unique(avoid_modes, ["Tiny chaos maps unless the challenge only needs optic-equipped eliminations"])
-        _append_unique(priorities, [
-            "Pick maps with repeatable long lanes and predictable objective crossings.",
-            "Do not judge the build only by close-range TTK if the challenge requires magnification or distance.",
-        ])
-
-    if flags["no_damage"]:
-        _append_unique(recommended_modes, ["Domination", "Hardpoint with anchor play", "Slower respawn playlists only if you can control angles"])
-        _append_unique(avoid_modes, ["Small-map chaos when you need clean first-shot fights"])
-        _append_unique(priorities, [
-            "Play pre-aimed angles and reset after each kill.",
-            "Survivability and information perks matter more than pure speed.",
-        ])
-
-    if flags["suppressor"]:
-        _append_unique(recommended_modes, ["Domination", "Hardpoint", "Kill Confirmed"])
-        _append_unique(priorities, [
-            "Use the suppressor as a challenge lock first; only trust the rest of the build after field testing recoil and velocity.",
-        ])
-
-    if flags["underbarrel_launcher"]:
-        _append_unique(recommended_modes, ["Hardpoint", "Domination", "Objective chokepoint playlists"])
-        _append_unique(avoid_modes, ["Team Deathmatch if enemies spread out"])
-        _append_unique(priorities, [
-            "Treat the gun as a launcher carrier platform, not a pure TTK build.",
-            "Play clustered objective traffic and pre-load launcher routes.",
-        ])
-        warnings.append("Underbarrel launcher kills are challenge-specific. Weapon TTK does not model blast reliability, ammo economy, or direct-hit consistency.")
-
-    if flags["five_plus"] or flags["eight"]:
-        _append_unique(recommended_modes, ["Fast respawn objective modes"])
-        _append_unique(priorities, [
-            "The attachment count is a hard compliance target. Field test whether the extra slot improves comfort or just satisfies the camo rule.",
-        ])
-
-    if not recommended_modes:
-        _append_unique(recommended_modes, ["Domination", "Hardpoint", "Fast respawn modes"])
-
-    if not priorities:
-        _append_unique(priorities, [
-            "Use the Oracle build as a candidate, then field test recoil comfort, sight picture, and lobby flow.",
-        ])
-
-    map_key = normalise_tactical_text(map_size)
-    if "small map" in map_key:
-        if flags["headshots"]:
-            warnings.append("Small maps create more headshot attempts, but optic clutter and thermal overlays can become a real comfort risk.")
-        if flags["optic_4x"]:
-            warnings.append("4.0x+ optics are challenge-compliant on small maps, but not automatically comfortable. Treat the optic as FIELD TEST REQUIRED.")
-    elif "large map" in map_key:
-        _append_unique(priorities, ["Large maps increase value for bullet velocity, range, recoil stability, and clean optics."])
-
-    playlist_key = normalise_tactical_text(playlist_style)
-    if "fast respawn" in playlist_key:
-        _append_unique(recommended_modes, ["Small-map objective respawn"])
-        _append_unique(priorities, ["Maximise attempts per minute. Do not waste time in low-engagement playlists."])
-    elif "objective anchor" in playlist_key:
-        _append_unique(recommended_modes, ["Domination", "Hardpoint"])
-        _append_unique(priorities, ["Anchor a repeatable lane near the objective rather than sprinting through the whole map."])
-    elif "long range" in playlist_key:
-        _append_unique(recommended_modes, ["Domination on medium/large maps"])
-        _append_unique(priorities, ["Avoid short sightline maps even if the build's raw TTK looks strong."])
-    elif "passive survival" in playlist_key:
-        _append_unique(priorities, ["Slow the pace, take first-shot advantage, and reset after each engagement."])
-
-    optic = selected_optic_from_evidence(row, prefix=prefix)
-    optic_note = ""
-
-    if optic:
-        optic_name = str(optic.get("name", "") or "").strip()
-        optic_type = normalise_schema_value(optic.get("optic_type", ""))
-        optic_zoom = numeric_cell(optic.get("optic_zoom", 0), 0.0)
-        verification_status = normalise_schema_value(optic.get("verification_status", ""))
-
-        optic_parts = [f"Selected optic: {optic_name}"]
-        if optic_type:
-            optic_parts.append(f"type={optic_type}")
-        if optic_zoom:
-            optic_parts.append(f"zoom={optic_zoom:g}x")
-        optic_note = " | ".join(optic_parts)
-
-        if optic_type == "thermal":
-            warnings.append("THERMAL SIGHT PICTURE UNMODELLED: the optic may score well on recoil/stability while still feeling poor for small-map headshot grinding.")
-
-        if verification_status in {"needs_review", "partial"}:
-            warnings.append(f"Optic data is {verification_status}. Trust the modelled numbers, but field test the sight picture.")
-
-        preference_key = normalise_tactical_text(optic_preference)
-        if "non thermal" in preference_key and optic_type == "thermal":
-            warnings.append("Optic preference conflict: the Oracle selected a thermal optic while non-thermal is preferred.")
-        if "reflex" in preference_key and optic_type not in {"reflex", "holo"}:
-            warnings.append("Optic preference conflict: this is not a reflex/holo optic. Keep the build shell and swap to your preferred reticle if needed.")
-        if "use my own optic" in preference_key:
-            warnings.append("You selected 'Use my own optic'. Treat the optic recommendation as replaceable and keep the non-optic build shell.")
-
-    elif "optic" in _tactical_strings(challenge_requirements, tactical_goal):
-        warnings.append("The tactical context expects an optic, but no optic was detected in the winning build evidence.")
-
-    summary_bits = []
-
-    if flags["headshots"]:
-        summary_bits.append("Headshot grind: favour predictable objective traffic, recoil stability, and clean sight picture.")
-    elif flags["objective"]:
-        summary_bits.append("Objective grind: optimise for repeated contact around flags or hills.")
-    elif flags["underbarrel_launcher"]:
-        summary_bits.append("Launcher grind: use the weapon as a challenge carrier and farm clustered objective traffic.")
-    else:
-        summary_bits.append("General grind: use fast respawn modes and field test the candidate before trusting it.")
-
-    if map_size and map_size != "Auto":
-        summary_bits.append(f"Map bias: {map_size}.")
-    if playlist_style and playlist_style != "Auto":
-        summary_bits.append(f"Playlist bias: {playlist_style}.")
-
-    return {
-        "summary": " ".join(summary_bits),
-        "recommended_modes": recommended_modes,
-        "avoid_modes": avoid_modes,
-        "priorities": priorities,
-        "warnings": warnings,
-        "optic_note": optic_note,
-        "tactical_goal": tactical_goal,
-        "map_size": map_size,
-        "playlist_style": playlist_style,
-        "optic_preference": optic_preference,
-    }
-
-
-def _perk_text_flags(
-    *,
-    build_goal: str,
-    fight_type: str,
-    challenge_requirements: str,
-    tactical_goal: str,
-    map_size: str,
-    playlist_style: str,
-) -> dict[str, bool]:
-    flags = _goal_flags(
-        build_goal=build_goal,
-        fight_type=fight_type,
-        challenge_requirements=challenge_requirements,
-        tactical_goal=tactical_goal,
-        playlist_style=playlist_style,
-    )
-
-    text = _tactical_strings(build_goal, fight_type, challenge_requirements, tactical_goal, map_size, playlist_style)
-    flags["small_map"] = "small map" in text
-    flags["large_map"] = "large map" in text
-    flags["fast_respawn"] = "fast respawn" in text
-    flags["anchor"] = "anchor" in text or "objective anchor" in text
-    flags["weapon_levelling"] = "weapon levelling" in text or "weapon leveling" in text
-    return flags
-
-
-def perk_package_fit_score(
-    perk_package: str,
-    *,
-    build_goal: str,
-    fight_type: str,
-    challenge_requirements: str = "",
-    tactical_goal: str = "Auto from build goal / challenge",
-    map_size: str = "Auto",
-    playlist_style: str = "Auto",
-) -> float:
-    """Small deterministic score add-on for the full-loadout optimiser.
-
-    Weapon TTK remains the main score. This only lets the Oracle choose between
-    known package shells when Thomas asks it to recommend perks.
-    """
-    package = str(perk_package or "").strip()
-    flags = _perk_text_flags(
-        build_goal=build_goal,
-        fight_type=fight_type,
-        challenge_requirements=challenge_requirements,
-        tactical_goal=tactical_goal,
-        map_size=map_size,
-        playlist_style=playlist_style,
-    )
-
-    score = 0.0
-
-    if package == "Aggressive":
-        if flags["hipfire"] or flags["moving"] or flags["sprint"] or flags["slide_dive"]:
-            score += 0.055
-        if flags["objective"] or flags["fast_respawn"]:
-            score += 0.030
-        if flags["headshots"]:
-            score += 0.015
-        if flags["no_damage"] or flags["longshots"] or flags["optic_4x"]:
-            score -= 0.010
-
-    elif package == "Balanced":
-        score += 0.015
-        if flags["headshots"] or flags["suppressor"]:
-            score += 0.035
-        if flags["objective"] or flags["weapon_levelling"]:
-            score += 0.025
-        if flags["five_plus"] or flags["eight"]:
-            score += 0.015
-
-    elif package == "Objective":
-        if flags["objective"] or flags["underbarrel_launcher"] or flags["anchor"]:
-            score += 0.060
-        if flags["fast_respawn"]:
-            score += 0.025
-        if flags["no_damage"]:
-            score += 0.015
-        if flags["longshots"] and not flags["objective"]:
-            score -= 0.010
-
-    elif package == "Stealth":
-        if flags["no_damage"]:
-            score += 0.060
-        if flags["headshots"]:
-            score += 0.040
-        if flags["suppressor"]:
-            score += 0.030
-        if flags["small_map"] and (flags["hipfire"] or flags["sprint"] or flags["slide_dive"]):
-            score -= 0.010
-
-    elif package == "Long-range":
-        if flags["longshots"] or flags["optic_4x"] or str(fight_type).strip() == "Long range":
-            score += 0.060
-        if flags["headshots"]:
-            score += 0.035
-        if flags["large_map"]:
-            score += 0.025
-        if flags["small_map"] and not flags["longshots"]:
-            score -= 0.015
-        if flags["sprint"] or flags["slide_dive"] or flags["hipfire"]:
-            score -= 0.020
-
-    return round(score, 4)
-
-
-def _perk_join(items: list[str]) -> str:
-    return " || ".join(item for item in items if str(item or "").strip())
-
-
-
-
-def forced_attachment_rules_summary(forced_attachment_rules) -> str:
-    if not forced_attachment_rules:
-        return ""
-
-    labels = []
-    for rule in forced_attachment_rules:
-        if not isinstance(rule, dict):
-            continue
-        label = str(rule.get("label", "") or "").strip()
-        if label and label not in labels:
-            labels.append(label)
-
-    return " | ".join(labels)
-
-
-
-def recommend_perk_package(
-    *,
-    build_goal: str,
-    fight_type: str,
-    challenge_requirements: str = "",
-    tactical_goal: str = "Auto from build goal / challenge",
-    map_size: str = "Auto",
-    playlist_style: str = "Auto",
-) -> str:
-    scores = {}
-
-    for package_name in PERK_PACKAGES:
-        scores[package_name] = (
-            perk_package_score_bonus(package_name)
-            + perk_package_fit_score(
-                package_name,
-                build_goal=build_goal,
-                fight_type=fight_type,
-                challenge_requirements=challenge_requirements,
-                tactical_goal=tactical_goal,
-                map_size=map_size,
-                playlist_style=playlist_style,
-            )
-        )
-
-    if not scores:
-        return "Balanced"
-
-    return max(scores, key=scores.get)
-
-
-
-def build_perk_loadout_advice(
-    *,
-    perk_package: str,
-    build_goal: str,
-    fight_type: str,
-    challenge_requirements: str = "",
-    tactical_goal: str = "Auto from build goal / challenge",
-    map_size: str = "Auto",
-    playlist_style: str = "Auto",
-    loadout_pairing: str = "",
-    wildcard_id: str = "none",
-    loadout_legality_notes: list[str] | None = None,
-) -> dict:
-    package_name = str(perk_package or "").strip()
-    package = PERK_PACKAGES.get(package_name, {})
-    profile = PERK_PACKAGE_PROFILES.get(package_name, {})
-    flags = _perk_text_flags(
-        build_goal=build_goal,
-        fight_type=fight_type,
-        challenge_requirements=challenge_requirements,
-        tactical_goal=tactical_goal,
-        map_size=map_size,
-        playlist_style=playlist_style,
-    )
-    wildcard_id = wildcard_id_from_selection(wildcard_id)
-    wildcard_name = wildcard_name_from_id(wildcard_id)
-    loadout_legality_notes = loadout_legality_notes or []
-
-    reasons = []
-    warnings = []
-    equipment_priorities = []
-    playstyle_notes = []
-
-    role = profile.get("role", "Loadout shell")
-    strengths = profile.get("strengths", [])
-    risks = profile.get("risks", [])
-
-    reasons.extend(strengths)
-
-    if flags["headshots"]:
-        reasons.append("Headshot grinding values stability, repeatable lanes, and staying alive long enough to chain attempts.")
-        equipment_priorities.extend([
-            "Use tactical/equipment choices that create first-shot advantage or slow enemies entering your lane.",
-            "Avoid equipment that forces you to sprint blindly into random gunfights.",
-        ])
-        playstyle_notes.append("Hold predictable chest-to-head-height traffic rather than chasing every red dot.")
-
-    if flags["objective"]:
-        reasons.append("Objective kills need repeatable contact around flags, hills, or chokepoints.")
-        equipment_priorities.append("Prioritise objective-entry or objective-hold tools over pure damage padding.")
-        playstyle_notes.append("Play around the objective edge, not the middle of the hill.")
-
-    if flags["underbarrel_launcher"]:
-        reasons.append("Underbarrel launcher challenges are about farming clustered traffic, not proving the gun's bullet TTK.")
-        equipment_priorities.append("Prioritise ammo sustain and objective chokepoint pressure if those options exist in your class setup.")
-        playstyle_notes.append("Treat the weapon as a launcher carrier. Pre-aim entry routes and reload/reset after the launcher attempt.")
-
-    if flags["longshots"] or flags["optic_4x"]:
-        reasons.append("Magnified optic or longshot requirements need lane control and visibility more than close-range speed.")
-        equipment_priorities.append("Prioritise information and lane-control tools over panic-entry tools.")
-        playstyle_notes.append("Back out of tiny-map chaos unless the challenge only checks optic-equipped eliminations.")
-
-    if flags["no_damage"]:
-        reasons.append("No-damage kills reward first-shot advantage, information, and survival over raw rushing.")
-        equipment_priorities.append("Prioritise tools that let you reset, isolate, or pre-aim fights.")
-        playstyle_notes.append("After each kill, reposition instead of ego-challenging the next angle.")
-
-    if flags["hipfire"] or flags["sprint"] or flags["moving"] or flags["slide_dive"]:
-        reasons.append("Movement challenges need attempts per minute and close-range repeatability.")
-        equipment_priorities.append("Prioritise entry tools and fast-reset routes.")
-        playstyle_notes.append("Route through predictable close-range paths instead of holding long lanes.")
-
-    if not reasons:
-        reasons.append("No specialised perk pressure detected. Use the package as a general grind shell and field test lobby flow.")
-
-    warnings.extend(risks)
-
-    if package_name == "Aggressive" and (flags["no_damage"] or flags["longshots"]):
-        warnings.append("Aggressive is attempt-rich but can fight the challenge if it makes you over-push.")
-    if package_name == "Long-range" and (flags["small_map"] or flags["hipfire"] or flags["slide_dive"]):
-        warnings.append("Long-range is stable, but may feel too passive for small-map movement challenges.")
-    if flags["underbarrel_launcher"]:
-        warnings.append("The Oracle cannot model blast radius, direct-hit consistency, or launcher ammo economy yet.")
-
-    warnings.extend(loadout_legality_notes)
-
-    recommended_tactical = "Pinpoint Grenade" if flags["headshots"] else "Stim Shot"
-    recommended_lethal = "Molotov" if flags["objective"] else "Frag"
-    recommended_field_upgrade = "Trophy System" if flags["objective"] else "Assault Pack"
-
-    if flags["underbarrel_launcher"]:
-        recommended_tactical = "Smoke"
-        recommended_lethal = "Cluster Grenade"
-        recommended_field_upgrade = "Assault Pack"
-    elif flags["no_damage"]:
-        recommended_tactical = "Smoke"
-        recommended_lethal = "C4"
-        recommended_field_upgrade = "Active Camo"
-    elif flags["longshots"] or flags["optic_4x"]:
-        recommended_tactical = "Pinpoint Grenade"
-        recommended_lethal = "Needle Drone"
-        recommended_field_upgrade = "Tactical Insertion"
-    elif flags["hipfire"] or flags["sprint"] or flags["moving"] or flags["slide_dive"]:
-        recommended_tactical = "Stim Shot"
-        recommended_lethal = "Semtex"
-        recommended_field_upgrade = "Mute Field"
-
-    if wildcard_id == "overkill":
-        playstyle_notes.append("Overkill is active, so the secondary slot may legally be another non-melee weapon.")
-    elif wildcard_id == "gunfighter":
-        playstyle_notes.append("Gunfighter is active, so the primary weapon can legally use 8 attachments.")
-    elif wildcard_id == "perk_greed":
-        playstyle_notes.append("Perk Greed is a general-purpose wildcard. Its extra perk does not count towards Combat Specialty.")
-    elif wildcard_id == "tac_expert":
-        playstyle_notes.append("Tac Expert supports tactical equipment challenge pressure with an extra tactical.")
-    elif wildcard_id == "prepper":
-        playstyle_notes.append("Prepper supports field-upgrade challenge pressure with two different Field Upgrades.")
-
-    bonus = package.get("bonus", {})
-    evidence = {
-        "perk_package": package_name,
-        "role": role,
-        "perks": {
-            "perk_1": package.get("perk_1", ""),
-            "perk_2": package.get("perk_2", ""),
-            "perk_3": package.get("perk_3", ""),
-            "perk_4": package.get("perk_4", ""),
-        },
-        "modelled_bonus": bonus,
-        "fit_score": perk_package_fit_score(
-            package_name,
-            build_goal=build_goal,
-            fight_type=fight_type,
-            challenge_requirements=challenge_requirements,
-            tactical_goal=tactical_goal,
-            map_size=map_size,
-            playlist_style=playlist_style,
-        ),
-        "build_goal": build_goal,
-        "fight_type": fight_type,
-        "challenge_requirements": challenge_requirements,
-        "tactical_goal": tactical_goal,
-        "map_size": map_size,
-        "playlist_style": playlist_style,
-        "loadout_pairing": loadout_pairing,
-        "wildcard_id": wildcard_id,
-        "wildcard_name": wildcard_name,
-        "recommended_tactical": recommended_tactical,
-        "recommended_lethal": recommended_lethal,
-        "recommended_field_upgrade": recommended_field_upgrade,
-        "loadout_legality_notes": loadout_legality_notes,
-        "reasons": reasons,
-        "warnings": warnings,
-        "equipment_priorities": equipment_priorities,
-        "playstyle_notes": playstyle_notes,
-    }
-
-    specialty = str(package.get("specialty", "") or "").strip()
-    specialty_text = f" Combat Specialty: {specialty}." if specialty else ""
-    summary = (
-        f"{package_name} selected as {role}. "
-        f"Wildcard: {wildcard_name}. "
-        f"Perks: {package.get('perk_1', '')}, {package.get('perk_2', '')}, "
-        f"{package.get('perk_3', '')}." + specialty_text
-    )
-
-    return {
-        "perk_recommendation_summary": summary,
-        "perk_role": role,
-        "perk_fit_score": evidence["fit_score"],
-        "perk_score_bonus": perk_package_score_bonus(package_name),
-        "perk_reasons": _perk_join(reasons),
-        "perk_warnings": _perk_join(warnings),
-        "equipment_priorities": _perk_join(equipment_priorities),
-        "playstyle_notes": _perk_join(playstyle_notes),
-        "wildcard_id": wildcard_id,
-        "wildcard_name": wildcard_name,
-        "recommended_tactical": recommended_tactical,
-        "recommended_lethal": recommended_lethal,
-        "recommended_field_upgrade": recommended_field_upgrade,
-        "loadout_legality_notes": _perk_join(loadout_legality_notes),
-        "perk_lab_evidence_json": json.dumps(evidence, indent=2),
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 DOMINATION_STATS = [
@@ -4601,169 +3319,12 @@ def optimise_loadouts_for_scenario(
         .reset_index(drop=True)
     )
 
-CODMUNITY_STAT_MAP = {
-    "ads speed": "ads_pct",
-    "sprint to fire": "sprint_to_fire_pct",
-    "sprint to fire speed": "sprint_to_fire_pct",
-    "reload speed": "reload_pct",
-    "jump ads": "jump_ads_pct",
-    "jump sprint to fire speed": "jump_sprint_to_fire_pct",
-    "slide to fire": "slide_to_fire_pct",
-    "slide to fire speed": "slide_to_fire_pct",
-    "dive to fire": "dive_to_fire_pct",
-    "dive to fire speed": "dive_to_fire_pct",
-    "bullet velocity": "bullet_velocity_pct",
-    "horizontal recoil": "horizontal_recoil_pct",
-    "vertical recoil": "vertical_recoil_pct",
-    "gun kick": "gun_kick_pct",
-    "first shot recoil scale": "first_shot_recoil_pct",
-    "kick reset speed": "kick_reset_speed_pct",
-    "magazine size": "mag_size_add",
-    "range": "range_pct",
-    "damage": "damage_pct",
-    "fire rate": "fire_rate_pct",
-    "rpm": "fire_rate_pct",
-    "movement": "movement_pct",
-    "sprint": "sprint_pct",
-    "crouch movement": "crouch_movement_pct",
-    "ads movement": "ads_movement_pct",
-    "flinch resistance": "flinch_resistance_pct",
-    "hipfire spread": "hipfire_spread_pct",
-    "jump hipfire spread": "jump_hipfire_spread_pct",
-    "slide hipfire spread": "slide_hipfire_spread_pct",
-    "dive hipfire spread": "dive_hipfire_spread_pct",
-    "mags": "mags_add",
-}
 
 
-def normalise_codmunity_stat_label(label: str) -> str:
-    label = strip_html(label).lower()
-    label = re.sub(r"\s+", " ", label)
-    return label.strip()
 
 
-def apply_codmunity_stat_to_attachment_row(row: dict, value: str, label: str):
-    clean_label = normalise_codmunity_stat_label(label)
-    column = CODMUNITY_STAT_MAP.get(clean_label)
-
-    if not column:
-        return
-
-    row[column] = numeric_cell(value, 0.0)
 
 
-def parse_codmunity_attachment_html(
-    html_text: str,
-    compatible_weapon_classes: str = "",
-    compatible_guns: str = "",
-    source: str = "codmunity.gg",
-    source_date: str = "",
-) -> pd.DataFrame:
-    """
-    Parses copied Codmunity attachment-table HTML into Oracle attachment rows.
-
-    This is designed for data entry, not blind trust. Parsed rows should be
-    spot-checked against one or two in-game expanded-stat screenshots before
-    they are appended to the master CSV.
-    """
-    rows = []
-    html_text = str(html_text or "")
-
-    for row_html in re.findall(r"<tr\b[^>]*>(.*?)</tr>", html_text, flags=re.I | re.S):
-        name_match = re.search(
-            r'class="[^"]*attachment-name[^"]*"[^>]*>(.*?)</span>',
-            row_html,
-            flags=re.I | re.S,
-        )
-        slot_match = re.search(
-            r'class="[^"]*slot[^"]*"[^>]*>(.*?)</span>',
-            row_html,
-            flags=re.I | re.S,
-        )
-
-        if not name_match or not slot_match:
-            continue
-
-        attachment_name = strip_html(name_match.group(1))
-        slot = strip_html(slot_match.group(1))
-
-        label_match = re.search(
-            r'class="[^"]*label[^"]*"[^>]*>(.*?)</span>',
-            row_html,
-            flags=re.I | re.S,
-        )
-        unlock_match = re.search(
-            r'class="[^"]*unlock[^"]*"[^>]*>(.*?)</span>',
-            row_html,
-            flags=re.I | re.S,
-        )
-
-        label = strip_html(label_match.group(1)) if label_match else ""
-        unlock = strip_html(unlock_match.group(1)) if unlock_match else ""
-
-        attachment_row = {
-            column: 0.0 if column in ATTACHMENT_NUMERIC_COLUMNS else ""
-            for column in EXTENDED_ATTACHMENT_COLUMNS
-        }
-
-        attachment_row.update({
-            "attachment_id": slugify(f"{normalise_stats_profile(stats_profile, DEFAULT_STATS_PROFILE)}_{compatible_guns or compatible_weapon_classes}_{attachment_name}"),
-            "attachment_name": attachment_name,
-            "slot": slot,
-            "stats_profile": normalise_stats_profile(stats_profile, DEFAULT_STATS_PROFILE),
-            "compatible_weapon_classes": compatible_weapon_classes,
-            "compatible_guns": compatible_guns,
-            "source": source,
-            "source_date": source_date,
-            "verification_status": "needs_verification",
-            "verification_notes": f"Label: {label}. Unlock: {unlock}.".strip(),
-        })
-
-        raw_stat_parts = []
-
-        stat_items = re.findall(
-            r'class="[^"]*attachment-stats-item[^"]*"[^>]*>(.*?)</div>',
-            row_html,
-            flags=re.I | re.S,
-        )
-
-        for stat_html in stat_items:
-            highlight_match = re.search(
-                r'class="[^"]*highlight[^"]*"[^>]*>(.*?)</span>',
-                stat_html,
-                flags=re.I | re.S,
-            )
-
-            if not highlight_match:
-                continue
-
-            value = strip_html(highlight_match.group(1))
-            label_html = re.sub(
-                r'<span[^>]*class="[^"]*highlight[^"]*"[^>]*>.*?</span>',
-                " ",
-                stat_html,
-                flags=re.I | re.S,
-            )
-            stat_label = strip_html(label_html)
-
-            if value and stat_label:
-                raw_stat_parts.append(f"{value} {stat_label}")
-                apply_codmunity_stat_to_attachment_row(
-                    attachment_row,
-                    value=value,
-                    label=stat_label,
-                )
-
-        attachment_row["raw_stat_text"] = " | ".join(raw_stat_parts)
-
-        rows.append(attachment_row)
-
-    if not rows:
-        return pd.DataFrame(columns=EXTENDED_ATTACHMENT_COLUMNS)
-
-    dataframe = pd.DataFrame(rows)
-
-    return ensure_attachment_columns(dataframe)[EXTENDED_ATTACHMENT_COLUMNS]
 
 
 def build_attachment_verification_rows(
@@ -5200,18 +3761,6 @@ def limit_guns_by_base_ttk(
     ].reset_index(drop=True)
 
 
-def perk_package_score_bonus(perk_package):
-    package = PERK_PACKAGES.get(perk_package, {})
-    bonus = package.get("bonus", {})
-
-    score_bonus = 0.0
-
-    score_bonus += max(0, -float(bonus.get("ads_ms", 0))) * 0.001
-    score_bonus += max(0, -float(bonus.get("sprint_to_fire_ms", 0))) * 0.001
-    score_bonus += max(0, -float(bonus.get("reload_ms", 0))) * 0.0002
-    score_bonus += max(0, -float(bonus.get("recoil", 0))) * 0.005
-
-    return score_bonus
 
 
 def loadout_role_label(role, weapon_class, fight_type, build_goal):
@@ -5594,6 +4143,19 @@ def optimise_full_loadouts_for_scenario(
                     "recommended_tactical": perk_advice.get("recommended_tactical", ""),
                     "recommended_lethal": perk_advice.get("recommended_lethal", ""),
                     "recommended_field_upgrade": perk_advice.get("recommended_field_upgrade", ""),
+                    "recommended_tactical_overclock": perk_advice.get("recommended_tactical_overclock", ""),
+                    "recommended_tactical_overclock_description": perk_advice.get("recommended_tactical_overclock_description", ""),
+                    "recommended_lethal_overclock": perk_advice.get("recommended_lethal_overclock", ""),
+                    "recommended_lethal_overclock_description": perk_advice.get("recommended_lethal_overclock_description", ""),
+                    "recommended_field_upgrade_overclock": perk_advice.get("recommended_field_upgrade_overclock", ""),
+                    "recommended_field_upgrade_overclock_description": perk_advice.get("recommended_field_upgrade_overclock_description", ""),
+                    "equipment_overclock_summary": perk_advice.get("equipment_overclock_summary", ""),
+                    "equipment_overclock_warnings": perk_advice.get("equipment_overclock_warnings", ""),
+                    "equipment_overclock_lab_evidence_json": perk_advice.get("equipment_overclock_lab_evidence_json", ""),
+                    "scorestreak_recommendation_summary": perk_advice.get("scorestreak_recommendation_summary", ""),
+                    "recommended_scorestreaks": perk_advice.get("recommended_scorestreaks", ""),
+                    "scorestreak_warnings": perk_advice.get("scorestreak_warnings", ""),
+                    "scorestreak_lab_evidence_json": perk_advice.get("scorestreak_lab_evidence_json", ""),
                     "loadout_legality_notes": perk_advice.get("loadout_legality_notes", ""),
                     "perk_lab_evidence_json": perk_advice.get("perk_lab_evidence_json", ""),
                     "primary_fight_type": role_scenarios["primary_fight_type"],

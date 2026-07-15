@@ -8,40 +8,63 @@ from modules.ui.perzevol_theme import inject_perzevol_theme
 import pandas as pd
 import time
 
-from modules.warzone.ttk_oracle_engine import (
-    BUILD_GOALS,
+from modules.warzone.oracle_data import (
+    ATTACHMENTS_PATH,
     DEFAULT_STATS_PROFILE,
     LEGACY_STATS_PROFILE,
     SUPPORTED_STATS_PROFILES,
+    filter_ttk_data_by_profile,
+    load_ttk_data,
+)
+from modules.warzone.attachment_import import (
+    parse_codmunity_attachment_html,
+)
+from modules.warzone.challenge_rules import (
+    CHALLENGE_REQUIREMENT_OPTIONS,
+    CHALLENGE_ROLE_SCOPES,
+    apply_attachment_count_requirement,
+    build_challenge_constraints,
+    split_challenge_rules_by_scope,
+)
+from modules.warzone.weapon_session import build_weapon_session
+from modules.warzone.weapon_lab import (
+    BUILD_GOALS,
     FIGHT_TYPES,
-    LOADOUT_PAIRINGS,
     MAP_TYPES,
+    build_base_weapon_rankings,
+    get_compatible_attachments,
+    describe_weapon_build_data,
+    build_ttk_data_warnings,
+    build_attachment_verification_rows,
+    build_loadout_preview,
+    estimate_optimizer_combo_count,
+    optimise_single_weapon_build,
+    optimise_two_weapon_loadouts_for_scenario,
+)
+from modules.warzone.loadout_lab import (
+    LOADOUT_PAIRINGS,
     PERK_PACKAGES,
     PERK_SELECTION_OPTIONS,
     WILDCARD_SELECTION_OPTIONS,
     effective_wildcard_id,
     loadout_legality_warnings,
     loadout_pairing_requires_overkill,
+    optimise_full_loadouts_for_scenario,
     wildcard_id_from_selection,
     wildcard_name_from_id,
-    build_base_weapon_rankings,
-    build_loadout_preview,
+)
+from modules.warzone.session_builder import prepare_session_from_mission
+from modules.warzone.session_console import (
+    MISSION_CHALLENGE_PRESETS,
+    build_manual_mission_profile,
+    render_session_brief,
+)
+from modules.warzone.field_planner import (
+    OPTIC_PREFERENCE_OPTIONS,
     TACTICAL_GOAL_OPTIONS,
     TACTICAL_MAP_SIZE_OPTIONS,
     TACTICAL_PLAYLIST_STYLE_OPTIONS,
-    OPTIC_PREFERENCE_OPTIONS,
     build_tactical_advice,
-    build_ttk_data_warnings,
-    describe_weapon_build_data,
-    estimate_optimizer_combo_count,
-    filter_ttk_data_by_profile,
-    get_compatible_attachments,
-    load_ttk_data,
-    optimise_full_loadouts_for_scenario,
-    optimise_single_weapon_build,
-    optimise_two_weapon_loadouts_for_scenario,
-    parse_codmunity_attachment_html,
-    build_attachment_verification_rows,
 )
 
 
@@ -155,6 +178,311 @@ def render_wildcard_legality_notes(*, loadout_pairing: str, wildcard_selection: 
     return wildcard_id
 
 
+
+
+def render_attachment_unlock_level_editor(
+    attachments: pd.DataFrame,
+    stats_profile: str,
+):
+    """Compact editor for manually entering attachment unlock levels by weapon."""
+    required_columns = [
+        "attachment_id",
+        "attachment_name",
+        "slot",
+        "stats_profile",
+        "unlock_weapon",
+        "unlock_level",
+        "unlock_method",
+    ]
+
+    working = attachments.copy()
+
+    for column in required_columns:
+        if column not in working.columns:
+            working[column] = ""
+
+    profile_rows = working[
+        working["stats_profile"].astype(str).str.strip().str.lower()
+        == str(stats_profile or "").strip().lower()
+    ].copy()
+
+    weapon_options = sorted(
+        value
+        for value in profile_rows["unlock_weapon"].astype(str).str.strip().unique()
+        if value
+    )
+
+    if not weapon_options:
+        st.warning(
+            "No unlock_weapon values are populated for this stats profile."
+        )
+        return
+
+    unlock_level_text = (
+        profile_rows["unlock_level"]
+        .astype(str)
+        .str.strip()
+        .str.lower()
+    )
+    unlock_level_numeric = pd.to_numeric(
+        profile_rows["unlock_level"],
+        errors="coerce",
+    )
+    blank_level_mask = (
+        unlock_level_numeric.isna()
+        | unlock_level_numeric.le(0)
+        | unlock_level_text.isin({"", "none", "nan", "null", "<na>"})
+    )
+
+    completed = int((~blank_level_mask).sum())
+    total = len(profile_rows)
+
+    summary_cols = st.columns(3)
+    summary_cols[0].metric("Profile attachments", total)
+    summary_cols[1].metric("Levels entered", completed)
+    summary_cols[2].metric("Still blank", total - completed)
+
+    selected_weapon = st.selectbox(
+        "Unlock weapon",
+        weapon_options,
+        key="attachment_unlock_editor_weapon",
+        format_func=lambda value: str(value).replace("_", " ").title(),
+    )
+
+    filter_cols = st.columns(3)
+
+    with filter_cols[0]:
+        show_mode = st.selectbox(
+            "Rows",
+            ["Missing levels only", "All attachments"],
+            key="attachment_unlock_editor_show_mode",
+        )
+
+    weapon_rows = profile_rows[
+        profile_rows["unlock_weapon"].astype(str).str.strip() == selected_weapon
+    ].copy()
+
+    slot_options = sorted(
+        value
+        for value in weapon_rows["slot"].astype(str).str.strip().unique()
+        if value
+    )
+
+    with filter_cols[1]:
+        selected_slots = st.multiselect(
+            "Slots",
+            slot_options,
+            default=slot_options,
+            key="attachment_unlock_editor_slots",
+            format_func=lambda value: str(value).replace("_", " ").title(),
+        )
+
+    with filter_cols[2]:
+        default_method = st.selectbox(
+            "Bulk unlock method",
+            [
+                "weapon_level",
+                "default",
+                "shared",
+                "armory",
+                "event",
+                "challenge",
+                "prestige",
+            ],
+            index=0,
+            key="attachment_unlock_editor_default_method",
+        )
+
+    if selected_slots:
+        weapon_rows = weapon_rows[
+            weapon_rows["slot"].astype(str).isin(selected_slots)
+        ]
+
+    if show_mode == "Missing levels only":
+        weapon_level_text = (
+            weapon_rows["unlock_level"]
+            .astype(str)
+            .str.strip()
+            .str.lower()
+        )
+        weapon_level_numeric = pd.to_numeric(
+            weapon_rows["unlock_level"],
+            errors="coerce",
+        )
+        missing_level_mask = (
+            weapon_level_numeric.isna()
+            | weapon_level_numeric.le(0)
+            | weapon_level_text.isin({"", "none", "nan", "null", "<na>"})
+        )
+        weapon_rows = weapon_rows[missing_level_mask]
+
+    weapon_rows = weapon_rows.sort_values(
+        ["slot", "attachment_name"],
+        kind="stable",
+    )
+
+    if weapon_rows.empty:
+        st.success("No matching attachment levels remain to be entered.")
+        return
+
+    editor_columns = [
+        "attachment_id",
+        "attachment_name",
+        "slot",
+        "unlock_level",
+        "unlock_method",
+    ]
+
+    editor_rows = weapon_rows[editor_columns].copy()
+    editor_rows["unlock_level"] = pd.to_numeric(
+        editor_rows["unlock_level"],
+        errors="coerce",
+    )
+    editor_rows["unlock_method"] = (
+        editor_rows["unlock_method"]
+        .astype(str)
+        .str.strip()
+        .replace(
+            {
+                "weapon level": "weapon_level",
+                "weapon-level": "weapon_level",
+            }
+        )
+    )
+    editor_rows.loc[
+        editor_rows["unlock_method"].eq(""),
+        "unlock_method",
+    ] = default_method
+
+    st.caption(
+        "Type levels directly into the table. Attachment name and slot are "
+        "locked to prevent accidental data corruption."
+    )
+
+    edited = st.data_editor(
+        editor_rows,
+        use_container_width=True,
+        hide_index=True,
+        num_rows="fixed",
+        key=f"attachment_unlock_level_editor_{selected_weapon}_{show_mode}",
+        disabled=["attachment_id", "attachment_name", "slot"],
+        column_config={
+            "attachment_id": st.column_config.TextColumn(
+                "Attachment ID",
+                width="small",
+            ),
+            "attachment_name": st.column_config.TextColumn(
+                "Attachment",
+                width="large",
+            ),
+            "slot": st.column_config.TextColumn(
+                "Slot",
+                width="small",
+            ),
+            "unlock_level": st.column_config.NumberColumn(
+                "Unlock level",
+                min_value=0,
+                max_value=999,
+                step=1,
+                format="%d",
+                required=False,
+            ),
+            "unlock_method": st.column_config.SelectboxColumn(
+                "Unlock method",
+                options=[
+                    "weapon_level",
+                    "default",
+                    "shared",
+                    "armory",
+                    "event",
+                    "challenge",
+                    "prestige",
+                ],
+                required=True,
+            ),
+        },
+    )
+
+    action_cols = st.columns(3)
+
+    with action_cols[0]:
+        fill_method = st.button(
+            "APPLY BULK METHOD",
+            use_container_width=True,
+            key="attachment_unlock_apply_bulk_method",
+        )
+
+    with action_cols[1]:
+        clear_levels = st.button(
+            "CLEAR VISIBLE LEVELS",
+            use_container_width=True,
+            key="attachment_unlock_clear_visible",
+        )
+
+    with action_cols[2]:
+        save_changes = st.button(
+            "SAVE LEVELS TO CSV",
+            type="primary",
+            use_container_width=True,
+            key="attachment_unlock_save",
+        )
+
+    if fill_method:
+        edited["unlock_method"] = default_method
+        st.session_state[
+            f"attachment_unlock_level_editor_{selected_weapon}_{show_mode}"
+        ] = edited
+        st.rerun()
+
+    if clear_levels:
+        edited["unlock_level"] = None
+        st.session_state[
+            f"attachment_unlock_level_editor_{selected_weapon}_{show_mode}"
+        ] = edited
+        st.rerun()
+
+    if save_changes:
+        latest = pd.read_csv(ATTACHMENTS_PATH, dtype=str).fillna("")
+
+        for column in ["unlock_weapon", "unlock_level", "unlock_method"]:
+            if column not in latest.columns:
+                latest[column] = ""
+
+        edited_by_id = edited.set_index("attachment_id")
+
+        for attachment_id, row in edited_by_id.iterrows():
+            match = latest["attachment_id"].astype(str) == str(attachment_id)
+
+            level_value = row.get("unlock_level")
+            if pd.isna(level_value) or str(level_value).strip() == "":
+                saved_level = ""
+            else:
+                saved_level = str(int(float(level_value)))
+
+            latest.loc[match, "unlock_level"] = saved_level
+            latest.loc[match, "unlock_method"] = str(
+                row.get("unlock_method", default_method) or default_method
+            ).strip()
+            latest.loc[match, "unlock_weapon"] = selected_weapon
+
+        backup_dir = ATTACHMENTS_PATH.parent / "backups"
+        backup_dir.mkdir(parents=True, exist_ok=True)
+        backup_path = backup_dir / (
+            f"attachments_before_unlock_edit_"
+            f"{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        )
+
+        current = pd.read_csv(ATTACHMENTS_PATH, dtype=str).fillna("")
+        current.to_csv(backup_path, index=False)
+        latest.to_csv(ATTACHMENTS_PATH, index=False)
+
+        st.cache_data.clear()
+        st.success(
+            f"Saved {len(edited)} visible row(s) for "
+            f"{selected_weapon.replace('_', ' ').title()}. "
+            f"Backup: {backup_path}"
+        )
+        st.rerun()
 
 def pct_delta(base_value, observed_value) -> float:
     base_number = safe_float(base_value, 0.0)
@@ -571,87 +899,13 @@ def optimiser_depth_summary(depth_profile: str, slot_candidate_limit: int) -> st
     )
 
 
-CHALLENGE_REQUIREMENT_OPTIONS = [
-    "Any suppressor",
-    "Underbarrel launcher",
-    "4.0x+ optic",
-    "Any optic / reticle",
-    "Specific attachment name contains",
-    "5+ attachments",
-    "8 attachments",
-]
-
-CHALLENGE_ROLE_SCOPES = [
-    "Primary weapon",
-    "Secondary weapon",
-    "Both weapons",
-]
 
 
-def challenge_rules_from_selection(requirement: str, custom_text: str = "") -> list[dict]:
-    requirement = str(requirement or "").strip()
-    custom_text = str(custom_text or "").strip()
-
-    if requirement == "Any suppressor":
-        return [
-            {
-                "label": "Challenge lock: any suppressor",
-                "slot": "muzzle",
-                "name_contains_any": ["suppressor", "supressor"],
-            }
-        ]
-
-    if requirement == "Underbarrel launcher":
-        return [
-            {
-                "label": "Challenge lock: underbarrel launcher",
-                "slot": "underbarrel",
-                "attachment_type": "underbarrel_launcher",
-            }
-        ]
-
-    if requirement == "4.0x+ optic":
-        return [
-            {
-                "label": "Challenge lock: 4.0x+ optic",
-                "slot": "optic",
-                "min_optic_zoom": 4.0,
-            }
-        ]
-
-    if requirement == "Any optic / reticle":
-        return [
-            {
-                "label": "Challenge lock: any optic / reticle",
-                "slot": "optic",
-            }
-        ]
-
-    if requirement == "Specific attachment name contains" and custom_text:
-        return [
-            {
-                "label": f"Challenge lock: {custom_text}",
-                "name_contains_any": [custom_text],
-            }
-        ]
-
-    return []
 
 
-def challenge_required_attachment_count(requirement: str) -> int:
-    requirement = str(requirement or "").strip()
-
-    if requirement == "8 attachments":
-        return 8
-
-    if requirement == "5+ attachments":
-        return 5
-
-    return 0
 
 
-def challenge_requires_eight_attachments(requirement: str) -> bool:
-    return challenge_required_attachment_count(requirement) == 8
+
 
 
 def render_challenge_lock_controls(prefix: str, *, allow_role_scope: bool = False) -> tuple[list[dict], bool, str, str]:
@@ -703,17 +957,14 @@ def render_challenge_lock_controls(prefix: str, *, allow_role_scope: bool = Fals
                 key=f"{prefix}_challenge_role_scope",
             )
 
-    rules = challenge_rules_from_selection(requirement, custom_text)
-    required_attachment_count = challenge_required_attachment_count(requirement)
-
-    if required_attachment_count:
-        summary = f"Challenge lock: {required_attachment_count}+ attachments"
-        if required_attachment_count == 8:
-            summary = "Challenge lock: 8 attachments"
-    elif rules:
-        summary = " | ".join(rule.get("label", "Challenge lock") for rule in rules)
-    else:
-        summary = "Challenge lock active, but no usable requirement has been entered."
+    constraints = build_challenge_constraints(
+        requirement=requirement,
+        custom_text=custom_text,
+        role_scope=role_scope,
+    )
+    rules = constraints.rules
+    required_attachment_count = constraints.required_attachment_count
+    summary = constraints.summary
 
     st.info(
         f"{summary}. The Oracle treats this as a hard constraint, not a soft preference."
@@ -722,19 +973,6 @@ def render_challenge_lock_controls(prefix: str, *, allow_role_scope: bool = Fals
     return rules, required_attachment_count, summary, role_scope
 
 
-def split_challenge_rules_by_scope(rules: list[dict], role_scope: str) -> tuple[list[dict], list[dict]]:
-    role_scope = str(role_scope or "").strip()
-
-    if not rules:
-        return [], []
-
-    if role_scope == "Primary weapon":
-        return rules, []
-
-    if role_scope == "Secondary weapon":
-        return [], rules
-
-    return rules, rules
 
 
 def challenge_attachment_count_override(
@@ -755,7 +993,7 @@ def challenge_attachment_count_override(
             f"{summary}: attachment budget overridden to {required_count} for this run."
         )
 
-    return max(current_count, required_count)
+    return apply_attachment_count_requirement(current_count, required_count)
 
 
 
@@ -868,8 +1106,35 @@ def render_perk_loadout_advice_panel(row):
     recommended_tactical = str(row.get("recommended_tactical", "") or "").strip()
     recommended_lethal = str(row.get("recommended_lethal", "") or "").strip()
     recommended_field_upgrade = str(row.get("recommended_field_upgrade", "") or "").strip()
+    recommended_tactical_overclock = str(row.get("recommended_tactical_overclock", "") or "").strip()
+    recommended_tactical_overclock_description = str(row.get("recommended_tactical_overclock_description", "") or "").strip()
+    recommended_lethal_overclock = str(row.get("recommended_lethal_overclock", "") or "").strip()
+    recommended_lethal_overclock_description = str(row.get("recommended_lethal_overclock_description", "") or "").strip()
+    recommended_field_upgrade_overclock = str(row.get("recommended_field_upgrade_overclock", "") or "").strip()
+    recommended_field_upgrade_overclock_description = str(row.get("recommended_field_upgrade_overclock_description", "") or "").strip()
+    equipment_overclock_summary = str(row.get("equipment_overclock_summary", "") or "").strip()
+    equipment_overclock_warnings = _split_double_pipe_notes(row.get("equipment_overclock_warnings", ""))
+    equipment_overclock_evidence_json = str(row.get("equipment_overclock_lab_evidence_json", "") or "").strip()
+    scorestreak_summary = str(row.get("scorestreak_recommendation_summary", "") or "").strip()
+    recommended_scorestreaks = _split_double_pipe_notes(row.get("recommended_scorestreaks", ""))
+    scorestreak_warnings = _split_double_pipe_notes(row.get("scorestreak_warnings", ""))
+    scorestreak_evidence_json = str(row.get("scorestreak_lab_evidence_json", "") or "").strip()
 
-    if not any([summary, reasons, equipment, playstyle, warnings, evidence_json, wildcard_name]):
+    if not any([
+        summary,
+        reasons,
+        equipment,
+        playstyle,
+        warnings,
+        evidence_json,
+        wildcard_name,
+        scorestreak_summary,
+        recommended_scorestreaks,
+        equipment_overclock_summary,
+        recommended_tactical_overclock,
+        recommended_lethal_overclock,
+        recommended_field_upgrade_overclock,
+    ]):
         return
 
     st.markdown("### Loadout / Perk Advisor")
@@ -879,9 +1144,36 @@ def render_perk_loadout_advice_panel(row):
 
     picks = st.columns(4)
     picks[0].metric("Wildcard", wildcard_name or "None")
+
     picks[1].metric("Tactical", recommended_tactical or "Field choice")
+    if recommended_tactical_overclock:
+        picks[1].caption(f"Overclock: {recommended_tactical_overclock}")
+    if recommended_tactical_overclock_description:
+        picks[1].caption(recommended_tactical_overclock_description)
+
     picks[2].metric("Lethal", recommended_lethal or "Field choice")
+    if recommended_lethal_overclock:
+        picks[2].caption(f"Overclock: {recommended_lethal_overclock}")
+    if recommended_lethal_overclock_description:
+        picks[2].caption(recommended_lethal_overclock_description)
+
     picks[3].metric("Field Upgrade", recommended_field_upgrade or "Field choice")
+    if recommended_field_upgrade_overclock:
+        picks[3].caption(f"Overclock: {recommended_field_upgrade_overclock}")
+    if recommended_field_upgrade_overclock_description:
+        picks[3].caption(recommended_field_upgrade_overclock_description)
+
+    if equipment_overclock_summary:
+        st.info(equipment_overclock_summary)
+
+    if scorestreak_summary or recommended_scorestreaks:
+        st.markdown("#### Scorestreak package")
+        if scorestreak_summary:
+            st.info(scorestreak_summary)
+        if recommended_scorestreaks:
+            streak_cols = st.columns(min(4, max(1, len(recommended_scorestreaks))))
+            for index, streak in enumerate(recommended_scorestreaks):
+                streak_cols[index % len(streak_cols)].metric(f"Streak {index + 1}", streak)
 
     cols = st.columns(3)
 
@@ -906,10 +1198,19 @@ def render_perk_loadout_advice_panel(row):
         else:
             st.caption("Use the build normally and field test lobby flow.")
 
-    if warnings:
+    combined_warnings = list(warnings) + list(equipment_overclock_warnings) + list(scorestreak_warnings)
+    if combined_warnings:
         with st.expander("Loadout warnings", expanded=True):
-            for item in warnings:
+            for item in combined_warnings:
                 st.warning(item)
+
+    if equipment_overclock_evidence_json:
+        with st.expander("Equipment overclock evidence packet", expanded=False):
+            st.code(equipment_overclock_evidence_json, language="json")
+
+    if scorestreak_evidence_json:
+        with st.expander("Scorestreak evidence packet", expanded=False):
+            st.code(scorestreak_evidence_json, language="json")
 
     if evidence_json:
         with st.expander("Perk/loadout evidence packet", expanded=False):
@@ -1107,6 +1408,13 @@ SAVED_LOADOUT_COLUMNS = [
     "perk_2",
     "perk_3",
     "perk_4",
+    "recommended_scorestreaks",
+    "recommended_tactical",
+    "recommended_lethal",
+    "recommended_field_upgrade",
+    "recommended_field_upgrade_overclock",
+    "recommended_lethal_overclock",
+    "recommended_tactical_overclock",
     "notes",
     "favourite",
     "used_in_video",
@@ -2483,6 +2791,10 @@ def build_saved_single_weapon_row(best: pd.Series, context: dict, save_name: str
         "secondary_sprint_to_fire_ms": "",
         "secondary_recoil": "",
         **perk_data,
+        "recommended_scorestreaks": "",
+        "recommended_tactical": "",
+        "recommended_lethal": "",
+        "recommended_field_upgrade": "",
         "notes": notes,
         "favourite": "TRUE" if favourite else "FALSE",
         "used_in_video": "TRUE" if used_in_video else "FALSE",
@@ -2526,6 +2838,13 @@ def build_saved_full_loadout_row(best: pd.Series, context: dict, save_name: str,
         "secondary_sprint_to_fire_ms": format_stat(best.get("secondary_sprint_to_fire_ms", "")),
         "secondary_recoil": format_stat(best.get("secondary_recoil", ""), 2),
         **perk_data,
+        "recommended_scorestreaks": best.get("recommended_scorestreaks", ""),
+        "recommended_tactical": best.get("recommended_tactical", ""),
+        "recommended_lethal": best.get("recommended_lethal", ""),
+        "recommended_field_upgrade": best.get("recommended_field_upgrade", ""),
+        "recommended_tactical_overclock": best.get("recommended_tactical_overclock", ""),
+        "recommended_lethal_overclock": best.get("recommended_lethal_overclock", ""),
+        "recommended_field_upgrade_overclock": best.get("recommended_field_upgrade_overclock", ""),
         "notes": notes,
         "favourite": "TRUE" if favourite else "FALSE",
         "used_in_video": "TRUE" if used_in_video else "FALSE",
@@ -2705,6 +3024,10 @@ def render_saved_ttk_loadouts():
         "perk_2",
         "perk_3",
         "perk_4",
+        "recommended_scorestreaks",
+        "recommended_tactical",
+        "recommended_lethal",
+        "recommended_field_upgrade",
         "favourite",
         "used_in_video",
         "notes",
@@ -3018,12 +3341,18 @@ PERKS:
 
 TACTICAL:
 {best.get('recommended_tactical', '')}
+Overclock: {best.get('recommended_tactical_overclock', '')}
 
 LETHAL:
 {best.get('recommended_lethal', '')}
+Overclock: {best.get('recommended_lethal_overclock', '')}
 
 FIELD UPGRADE:
 {best.get('recommended_field_upgrade', '')}
+Overclock: {best.get('recommended_field_upgrade_overclock', '')}
+
+SCORESTREAKS:
+{str(best.get('recommended_scorestreaks', '') or '').replace(' || ', ' | ')}
 
 SCENARIO:
 {best['map_type']} / {best['fight_type']}
@@ -4266,14 +4595,130 @@ if not data_ready:
 
 tactical_context = render_tactical_context_controls()
 
-testing_tab, single_tab, two_gun_tab, full_loadout_tab = st.tabs(
+operations_tab, testing_tab, single_tab, two_gun_tab, full_loadout_tab = st.tabs(
     [
+        "🛰️ OPERATIONS",
         "🧪 TESTING",
         "🔫 SINGLE GUN",
         "⚔️ TWO GUN",
         "🎒 FULL LOADOUT",
     ]
 )
+
+with operations_tab:
+    st.subheader("MISSION RECEIVED")
+    st.caption(
+        "Temporary manual Commander input. Pick the assigned weapon and current challenge, "
+        "then let Oracle prepare the exact weapon build and field plan."
+    )
+
+    if not data_ready:
+        st.warning(f"No buildable {active_stats_profile} weapon and attachment data is loaded yet.")
+    else:
+        operation_cols = st.columns(4)
+
+        with operation_cols[0]:
+            operation_weapon = st.selectbox(
+                "Commander weapon",
+                weapon_names,
+                index=0,
+                key="operations_weapon",
+            )
+
+        with operation_cols[1]:
+            operation_target = st.text_input(
+                "Target",
+                value="Arc Light",
+                key="operations_target",
+            )
+
+        with operation_cols[2]:
+            operation_preset = st.selectbox(
+                "Current challenge",
+                list(MISSION_CHALLENGE_PRESETS),
+                index=0,
+                key="operations_challenge_preset",
+            )
+
+        with operation_cols[3]:
+            operation_remaining = st.number_input(
+                "Remaining",
+                min_value=0,
+                max_value=999,
+                value=80,
+                step=1,
+                key="operations_remaining",
+            )
+
+        default_challenge = MISSION_CHALLENGE_PRESETS[operation_preset]
+        operation_challenge = st.text_input(
+            "Challenge wording",
+            value=default_challenge,
+            key=f"operations_challenge_text_{operation_preset}",
+            help="Commander will supply this automatically once the page integration is complete.",
+        )
+
+        settings_cols = st.columns(3)
+        with settings_cols[0]:
+            operation_health = st.number_input(
+                "Enemy health",
+                min_value=1,
+                max_value=500,
+                value=100,
+                step=1,
+                key="operations_enemy_health",
+            )
+
+        with settings_cols[1]:
+            operation_attachment_count = st.selectbox(
+                "Attachment budget",
+                [5, 8],
+                index=0,
+                key="operations_attachment_count",
+            )
+
+        with settings_cols[2]:
+            operation_candidate_limit = st.slider(
+                "Fast-pass candidates per slot",
+                min_value=1,
+                max_value=5,
+                value=3,
+                key="operations_candidate_limit",
+            )
+
+        if st.button(
+            "PREPARE SESSION",
+            type="primary",
+            use_container_width=True,
+            key="operations_prepare_session",
+        ):
+            mission = build_manual_mission_profile(
+                weapon_id=operation_weapon,
+                target=operation_target,
+                challenge_name=operation_challenge,
+                remaining=int(operation_remaining),
+                stats_profile=active_stats_profile,
+                enemy_health=int(operation_health),
+                attachment_count=int(operation_attachment_count),
+            )
+
+            try:
+                with st.spinner("Weapon Lab running. Field plan will follow."):
+                    st.session_state["oracle_session_brief"] = prepare_session_from_mission(
+                        mission,
+                        guns=all_guns,
+                        attachments=all_attachments,
+                        optimiser_mode="Fast",
+                        candidate_limit_per_slot=int(operation_candidate_limit),
+                        top_n=1,
+                    )
+            except ValueError as error:
+                st.session_state.pop("oracle_session_brief", None)
+                st.error(str(error))
+
+        current_brief = st.session_state.get("oracle_session_brief")
+        if current_brief is not None:
+            render_session_brief(current_brief)
 
 with testing_tab:
     st.subheader("BRUTE FORCE PASS / TESTING CONTROL")
@@ -4283,6 +4728,19 @@ with testing_tab:
     )
 
     render_ttk_data_audit(guns, attachments, active_stats_profile)
+
+    with st.expander(
+        "Data Entry Lab: Attachment Unlock Level Editor",
+        expanded=True,
+    ):
+        st.caption(
+            "Enter attachment unlock levels one weapon at a time. "
+            "Saving creates a timestamped backup before updating attachments.csv."
+        )
+        render_attachment_unlock_level_editor(
+            all_attachments,
+            active_stats_profile,
+        )
 
     with st.expander("Data Entry Lab: Profiled Gun Baseline", expanded=False):
         render_gun_baseline_bench(all_guns, active_stats_profile)
@@ -4610,6 +5068,39 @@ with single_tab:
                 key="single_gun_build_goal",
             )
 
+        unlock_cols = st.columns(3)
+
+        with unlock_cols[0]:
+            single_unlock_mode_label = st.selectbox(
+                "Attachment availability",
+                ["Current weapon level", "Assume max level", "Target weapon level"],
+                index=0,
+                key="single_unlock_mode",
+            )
+
+        single_unlock_mode = {
+            "Current weapon level": "current_level",
+            "Assume max level": "max_level",
+            "Target weapon level": "target_level",
+        }[single_unlock_mode_label]
+
+        with unlock_cols[1]:
+            single_target_level = None
+            if single_unlock_mode == "target_level":
+                single_target_level = st.number_input(
+                    "Target weapon level",
+                    min_value=1,
+                    max_value=999,
+                    value=20,
+                    step=1,
+                    key="single_target_weapon_level",
+                )
+            else:
+                st.caption("Using data/bo7_clean/weapon_prestige.csv")
+
+        with unlock_cols[2]:
+            st.caption("Blank unlock fields remain available until real unlock levels are entered.")
+
         single_cols = st.columns(4)
 
         with single_cols[0]:
@@ -4709,10 +5200,11 @@ with single_tab:
             start_time = time.perf_counter()
 
             with st.spinner(f"Brute-forcing {selected_single_weapon} {single_attachment_count}-attachment builds..."):
-                single_weapon_results = optimise_single_weapon_build(
+                single_weapon_session = build_weapon_session(
                     guns=guns,
                     attachments=attachments,
                     weapon_name=selected_single_weapon,
+                    stats_profile=active_stats_profile,
                     map_type=single_map_type,
                     fight_type=single_fight_type,
                     build_goal=single_build_goal,
@@ -4722,7 +5214,10 @@ with single_tab:
                     optimiser_mode=single_optimiser_mode,
                     candidate_limit_per_slot=single_slot_candidate_limit,
                     forced_attachment_rules=single_challenge_rules,
+                    attachment_unlock_mode=single_unlock_mode,
+                    target_weapon_level=single_target_level,
                 )
+                single_weapon_results = single_weapon_session.results
 
             elapsed_seconds = time.perf_counter() - start_time
 
@@ -4746,6 +5241,9 @@ with single_tab:
                     "slot_candidate_limit": single_slot_candidate_limit,
                     "perk_package": "",
                     "challenge_requirements": single_challenge_summary,
+                    "attachment_unlock_mode": single_unlock_mode,
+                    "target_weapon_level": single_target_level,
+                    "attachment_availability": single_weapon_session.availability.to_dict(),
                     **tactical_context,
                 }
 
@@ -4778,6 +5276,33 @@ with single_tab:
                     "Switch to SHOW ALL LAB CANDIDATES to inspect the raw Oracle output."
                 )
             elif not best_single.empty:
+                availability = last_single_build.get("attachment_availability", {}) or {}
+                if availability:
+                    current_level = availability.get("current_level")
+                    max_level = availability.get("max_level")
+                    effective_level = availability.get("effective_level")
+                    eligible_count = availability.get("eligible_count", 0)
+                    total_count = availability.get("total_count", 0)
+                    locked_count = availability.get("locked_count", 0)
+
+                    level_label = (
+                        f"Current level {current_level}"
+                        if current_level is not None
+                        else "Current level unknown"
+                    )
+                    if max_level:
+                        level_label += f" · unlock cap {max_level}"
+                    if effective_level is not None:
+                        level_label += f" · effective {effective_level}"
+
+                    st.info(
+                        f"ATTACHMENT AVAILABILITY · {level_label} · "
+                        f"{eligible_count}/{total_count} eligible · "
+                        f"{locked_count} locked"
+                    )
+                    for warning in availability.get("warnings", []) or []:
+                        st.warning(warning)
+
                 st.markdown("## OPTIMUM BUILD")
                 st.caption("FIELD TEST REQUIRED: this is a modelled candidate, not a proven meta.")
                 single_confidence = single_build_confidence(best_single, last_single_build)

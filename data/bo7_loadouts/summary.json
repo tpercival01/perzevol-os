@@ -8,16 +8,17 @@
     "wildcard_effects.csv": 16,
     "equipment.csv": 20,
     "field_upgrades.csv": 12,
-    "overclocks.csv": 21,
+    "overclocks.csv": 54,
     "loadout_slots.csv": 11,
     "loadout_rules.csv": 14,
     "loadout_templates.csv": 0,
-    "manifest.csv": 11
+    "scorestreaks.csv": 22,
+    "scorestreak_overclocks.csv": 44,
+    "manifest.csv": 13
   },
-  "canonical_definition_count": 69,
+  "canonical_definition_count": 91,
   "known_gaps": [
-    "Complete overclock option catalogue",
-    "Scorestreak definitions",
+    "Some Tactical, Lethal, and Field Upgrade overclock options remain secondary-source or not in-game verified.",
     "Derived loadout template rows",
     "Unlock requirements and levels"
   ]

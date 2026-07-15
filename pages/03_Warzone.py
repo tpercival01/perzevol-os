@@ -50,16 +50,21 @@ from modules.warzone.killchain_engine import (
     safe_int,
 )
 
-# TTK Oracle is deliberately detached from Mission Control for recording stability.
-TTK_ORACLE_AVAILABLE = False
-load_ttk_data = None
-optimise_single_weapon_build = None
-
-from modules.warzone.loadout_architect import (
-    attach_loadouts_to_plan,
-    build_loadout_for_stop as architect_build_loadout_for_stop,
-    load_loadout_templates as architect_load_loadout_templates,
+from modules.warzone.commander_oracle import (
+    oracle_cache_key,
+    stop_is_oracle_eligible,
+    stop_to_mission_profile,
+    strip_legacy_loadouts,
 )
+from modules.warzone.commander_progression import (
+    advance_plan_after_completed_stop,
+)
+from modules.warzone.commander_session import (
+    save_current_commander_session,
+)
+from modules.warzone.session_builder import prepare_session_from_mission
+from modules.warzone.session_console import render_session_brief
+
 from modules.warzone.series_director import attach_series_context_to_plan
 
 
@@ -681,24 +686,6 @@ def initialise_state():
         st.session_state.bo7_active_stop_started_at = ""
 
 CLEAN_DATA_DIR = Path("data/bo7_clean")
-
-LOADOUT_TEMPLATE_FILE = CLEAN_DATA_DIR / "loadout_templates.csv"
-
-PLAYABLE_WEAPON_CLASSES = {
-    "Assault Rifles",
-    "Submachine Guns",
-    "Shotguns",
-    "LMGs",
-    "Marksman Rifles",
-    "Sniper Rifles",
-    "Pistols",
-    "Launchers",
-    "Specials",
-    "Melee",
-    "Wonder Weapons",
-}
-
-
 def loadout_html(value) -> str:
     return html.escape(str(value or "").strip())
 
@@ -707,285 +694,6 @@ def loadout_clean(value) -> str:
     return str(value or "").strip()
 
 
-def strip_goal_suffix_for_ttk(weapon_text: str) -> str:
-    text = loadout_clean(weapon_text)
-    text = re.sub(r"\s*\([^)]*\)\s*$", "", text).strip()
-    text = re.sub(r"\s+if safe, otherwise.*$", "", text, flags=re.IGNORECASE).strip()
-    return text
-
-
-@st.cache_data(show_spinner=False)
-def load_commander_ttk_data():
-    """
-    Loads TTK Oracle data for the Commander card.
-
-    The Commander should keep working if the TTK module or CSVs are missing,
-    so this returns an error string instead of raising into the UI.
-    """
-    if not TTK_ORACLE_AVAILABLE or load_ttk_data is None:
-        return pd.DataFrame(), pd.DataFrame(), "TTK Oracle module is not available."
-
-    try:
-        guns, attachments = load_ttk_data()
-        return guns, attachments, ""
-    except Exception as error:
-        return pd.DataFrame(), pd.DataFrame(), str(error)
-
-
-def normalise_ttk_weapon_key(value) -> str:
-    return (
-        str(value or "")
-        .strip()
-        .lower()
-        .replace("’", "'")
-        .replace("“", '"')
-        .replace("”", '"')
-    )
-
-
-def commander_ttk_match_weapon_name(guns: pd.DataFrame, weapon_name: str) -> str:
-    if guns.empty or "gun_name" not in guns.columns:
-        return ""
-
-    raw_weapon = loadout_clean(weapon_name)
-
-    candidates = [
-        raw_weapon,
-        raw_weapon.split("(", 1)[0].strip(),
-    ]
-
-    gun_names = [
-        loadout_clean(name)
-        for name in guns["gun_name"].dropna().astype(str).tolist()
-        if loadout_clean(name)
-    ]
-
-    name_lookup = {
-        normalise_ttk_weapon_key(name): name
-        for name in gun_names
-    }
-
-    for candidate in candidates:
-        matched = name_lookup.get(normalise_ttk_weapon_key(candidate))
-        if matched:
-            return matched
-
-    return ""
-
-
-def commander_ttk_defaults(stop: dict, plan: dict) -> dict:
-    mode = loadout_clean(stop.get("mode") or (plan or {}).get("mode"))
-    weapon_class = loadout_clean(stop.get("weapon_class"))
-
-    if mode == "Warzone":
-        return {
-            "supported": True,
-            "mode": mode,
-            "enemy_health": 300,
-            "map_type": "Large map / Battle Royale",
-            "fight_type": "Long range" if weapon_class in {"Sniper Rifles", "Marksman Rifles"} else "Mixed fights",
-            "build_goal": "Balanced meta build",
-        }
-
-    if mode == "Multiplayer":
-        return {
-            "supported": True,
-            "mode": mode,
-            "enemy_health": 100,
-            "map_type": "Small map / Resurgence",
-            "fight_type": "Mid range" if weapon_class in {"Sniper Rifles", "Marksman Rifles"} else "Close range",
-            "build_goal": "Balanced meta build",
-        }
-
-    return {
-        "supported": False,
-        "mode": mode or "Unknown",
-        "reason": "TTK Oracle auto-builds are currently enabled for Multiplayer and Warzone only.",
-    }
-
-
-def build_ttk_oracle_recommendation(primary_weapon: str, stop: dict, plan: dict) -> dict:
-    weapon_name = strip_goal_suffix_for_ttk(primary_weapon)
-
-    if not weapon_name:
-        return {
-            "status": "fallback",
-            "reason": "No assigned weapon found for the active objective.",
-        }
-
-    defaults = commander_ttk_defaults(stop, plan)
-
-    if not defaults.get("supported"):
-        return {
-            "status": "fallback",
-            "reason": defaults.get("reason", "Mode is not supported by Commander auto-builds yet."),
-            "mode": defaults.get("mode", ""),
-        }
-
-    guns, attachments, load_error = load_commander_ttk_data()
-
-    if load_error:
-        return {
-            "status": "fallback",
-            "reason": f"TTK data failed to load: {load_error}",
-        }
-
-    matched_weapon = commander_ttk_match_weapon_name(guns, weapon_name)
-
-    if not matched_weapon:
-        return {
-            "status": "fallback",
-            "reason": f"No TTK data found for {weapon_name}.",
-        }
-
-    if optimise_single_weapon_build is None:
-        return {
-            "status": "fallback",
-            "reason": "TTK optimiser is unavailable.",
-        }
-
-    results = pd.DataFrame()
-    used_attachment_count = 5
-
-    try:
-        for attachment_count in (5, 4, 3):
-            candidate_results = optimise_single_weapon_build(
-                guns=guns,
-                attachments=attachments,
-                weapon_name=matched_weapon,
-                map_type=defaults["map_type"],
-                fight_type=defaults["fight_type"],
-                build_goal=defaults["build_goal"],
-                enemy_health=int(defaults["enemy_health"]),
-                attachment_count=attachment_count,
-                top_n=1,
-            )
-
-            if candidate_results is not None and not candidate_results.empty:
-                results = candidate_results
-                used_attachment_count = attachment_count
-                break
-    except Exception as error:
-        return {
-            "status": "fallback",
-            "weapon": matched_weapon,
-            "reason": f"TTK Oracle failed for {matched_weapon}: {error}",
-        }
-
-    if results.empty:
-        reason = f"TTK Oracle has data for {matched_weapon}, but not enough trusted/modelled attachment data for a build."
-        try:
-            from modules.warzone.ttk_oracle_engine import describe_weapon_build_data
-            status = describe_weapon_build_data(
-                guns=guns,
-                attachments=attachments,
-                weapon_name=matched_weapon,
-                attachment_count=5,
-            )
-            reason = status.get("message", reason)
-        except Exception:
-            pass
-
-        return {
-            "status": "fallback",
-            "weapon": matched_weapon,
-            "reason": reason,
-        }
-
-    best = results.iloc[0]
-
-    return {
-        "status": "ok",
-        "weapon": loadout_clean(best.get("gun_name", matched_weapon)),
-        "weapon_class": loadout_clean(best.get("weapon_class", stop.get("weapon_class", ""))),
-        "attachments": loadout_clean(best.get("attachments", "")),
-        "slots": loadout_clean(best.get("slots", "")),
-        "attachment_count": used_attachment_count,
-        "attachment_trust_note": loadout_clean(best.get("attachment_trust_note", "")),
-        "raw_ttk_ms": float(best.get("raw_ttk_ms", 0) or 0),
-        "practical_ttk_ms": float(best.get("practical_ttk_ms", 0) or 0),
-        "ads_ms": float(best.get("ads_ms", 0) or 0),
-        "sprint_to_fire_ms": float(best.get("sprint_to_fire_ms", 0) or 0),
-        "recoil": float(best.get("recoil", 0) or 0),
-        "oracle_score": float(best.get("oracle_score", 0) or 0),
-        "enemy_health": int(defaults["enemy_health"]),
-        "map_type": defaults["map_type"],
-        "fight_type": defaults["fight_type"],
-        "build_goal": defaults["build_goal"],
-        "mode": defaults["mode"],
-    }
-
-
-def best_unfinished_singularity_weapon(anchor_class: str = "") -> str:
-    """
-    Pick a real Multiplayer weapon to carry while the main objective is not
-    itself a weapon task. This keeps no-thinking plans playable and still
-    moves the 100% tracker instead of showing a vague placeholder.
-    """
-    path = CLEAN_DATA_DIR / "singularity_status.csv"
-
-    if not path.exists():
-        return ""
-
-    dataframe = pd.read_csv(path, dtype=str).fillna("")
-    required_columns = {"weapon_class", "weapon"}
-
-    if not required_columns.issubset(set(dataframe.columns)):
-        return ""
-
-    id_columns = {"mode", "chain", "weapon_class", "weapon"}
-    camo_columns = [column for column in dataframe.columns if column not in id_columns]
-
-    if not camo_columns:
-        return ""
-
-    final_column = "Singularity" if "Singularity" in dataframe.columns else camo_columns[-1]
-    anchor_class = loadout_clean(anchor_class)
-
-    candidates = []
-
-    for _, row in dataframe.iterrows():
-        weapon = loadout_clean(row.get("weapon"))
-        weapon_class = loadout_clean(row.get("weapon_class"))
-
-        if not weapon:
-            continue
-
-        if anchor_class and anchor_class != "Any" and weapon_class != anchor_class:
-            continue
-
-        final_value = loadout_clean(row.get(final_column)).upper()
-
-        if final_value in {"TRUE", "YES", "DONE", "COMPLETE", "COMPLETED", "✅"}:
-            continue
-
-        if final_value in {"N/A", "NA", "NONE", ""}:
-            continue
-
-        applicable = [
-            column for column in camo_columns
-            if loadout_clean(row.get(column)).upper() not in {"N/A", "NA", "NONE", ""}
-        ]
-
-        if not applicable:
-            continue
-
-        completed = sum(
-            1 for column in applicable
-            if loadout_clean(row.get(column)).upper() in {"TRUE", "YES", "DONE", "COMPLETE", "COMPLETED", "✅"}
-        )
-
-        progress = (completed / len(applicable)) * 100
-        candidates.append((progress, weapon_class, weapon))
-
-    if not candidates and anchor_class:
-        return best_unfinished_singularity_weapon("")
-
-    if not candidates:
-        return ""
-
-    progress, weapon_class, weapon = sorted(candidates, reverse=True)[0]
-    return f"{weapon} ({weapon_class}, {progress:.0f}% Singularity)"
 
 
 def render_recording_markup(markup: str):
@@ -1047,15 +755,6 @@ def render_series_context_panel(plan: dict):
         """
     )
 
-def load_loadout_templates() -> list[dict]:
-    if not LOADOUT_TEMPLATE_FILE.exists():
-        return []
-
-    with LOADOUT_TEMPLATE_FILE.open("r", encoding="utf-8", newline="") as file:
-        return [
-            row for row in csv.DictReader(file)
-            if loadout_clean(row.get("template_id"))
-        ]
 
 
 def current_recording_stop(plan: dict) -> dict:
@@ -1068,162 +767,145 @@ def current_recording_stop(plan: dict) -> dict:
     return stops[0] if stops else {}
 
 
-def stop_is_weapon_objective(stop: dict) -> bool:
-    task_type = loadout_clean(stop.get("task_type"))
-    weapon_class = loadout_clean(stop.get("weapon_class"))
-
-    if weapon_class in PLAYABLE_WEAPON_CLASSES:
-        return True
-
-    return task_type in {
-        "camo",
-        "mastery_badge_weapon",
-        "weapon_prestige",
-        "overclock",
-    }
 
 
-def companion_weapon_anchor(stop: dict, plan: dict) -> str:
-    weapon = loadout_clean(stop.get("weapon"))
+def _mapping_or_attr_value(source, key: str, default=""):
+    if source is None:
+        return default
 
-    if stop_is_weapon_objective(stop) and weapon:
-        return weapon
+    if isinstance(source, dict):
+        return source.get(key, default)
 
-    anchor_weapon = loadout_clean(plan.get("anchor_weapon") if plan else "")
-    if anchor_weapon:
-        return anchor_weapon
-
-    return ""
+    return getattr(source, key, default)
 
 
-def assigned_primary_for_loadout(template: dict, stop: dict, plan: dict) -> str:
-    primary_weapon = loadout_clean(template.get("primary_weapon"))
-    primary_role = loadout_clean(template.get("primary_role"))
-    route_type = loadout_clean(template.get("route_type"))
-    assigned_weapon = companion_weapon_anchor(stop, plan)
-    weapon_class = loadout_clean(stop.get("weapon_class"))
+def _normalise_brief_list(value) -> list[str]:
+    if value is None:
+        return []
 
-    if primary_role == "replace_with_assigned_weapon" and assigned_weapon:
-        return assigned_weapon
+    if isinstance(value, (list, tuple, set)):
+        return [
+            loadout_clean(item)
+            for item in value
+            if loadout_clean(item)
+        ]
 
-    if (
-        primary_role == "replace_with_assigned_weapon_if_sniper"
-        and assigned_weapon
-        and weapon_class == "Sniper Rifles"
-    ):
-        return assigned_weapon
+    text = loadout_clean(value)
+    if not text:
+        return []
 
-    if (
-        primary_role == "replace_with_assigned_genesis_weapon_if_safe"
-        and assigned_weapon
-        and loadout_clean(stop.get("mode")) == "Co-Op / Endgame"
-        and loadout_clean(stop.get("task_type")) == "camo"
-    ):
-        return f"{assigned_weapon} if the clear stays safe; otherwise {primary_weapon}"
+    if "," in text:
+        return [
+            item.strip()
+            for item in text.split(",")
+            if item.strip()
+        ]
 
-    if primary_role == "replace_with_best_unfinished_singularity_weapon":
-        anchor_class = loadout_clean(plan.get("anchor_class") if plan else "")
-        unfinished_weapon = best_unfinished_singularity_weapon(anchor_class)
-        return unfinished_weapon or primary_weapon
-
-    if route_type == "scorestreak" and not assigned_weapon:
-        return primary_weapon
-
-    return primary_weapon or assigned_weapon or "Use the assigned objective weapon"
+    return [text]
 
 
-def score_loadout_template(template: dict, stop: dict, plan: dict) -> int:
-    score = safe_int(template.get("priority", 0), 0)
-
-    mode = loadout_clean(stop.get("mode") or plan.get("mode"))
-    template_mode = loadout_clean(template.get("mode"))
-    task_type = loadout_clean(stop.get("task_type"))
-    weapon_class = loadout_clean(stop.get("weapon_class"))
-    route_type = loadout_clean(template.get("route_type"))
-    template_class = loadout_clean(template.get("weapon_class"))
-
-    if template_mode == mode:
-        score += 100
-
-    if template_mode and template_mode != mode:
-        score -= 100
-
-    if mode == "Co-Op / Endgame" and route_type == "operation":
-        score += 80
-
-    if task_type in {"endgame_operation", "endgame_unlock"} and route_type == "operation":
-        score += 120
-
-    if task_type == "mastery_badge_equipment" and "Scorestreak" in loadout_clean(stop.get("weapon_class")):
-        if route_type == "scorestreak":
-            score += 130
-
-    if route_type == "scorestreak" and "Scorestreak" in loadout_clean(stop.get("category")):
-        score += 100
-
-    if weapon_class and template_class == weapon_class:
-        score += 130
-
-    if weapon_class == "Sniper Rifles" and template.get("template_id") == "mp_sniper":
-        score += 180
-
-    if task_type in {"camo", "mastery_badge_weapon", "weapon_prestige"} and route_type == "weapon_progress":
-        score += 80
-
-    if template_class == "Any" and route_type in {"scorestreak", "operation"}:
-        score += 25
-
-    return score
+def _format_brief_number(value, pattern: str, fallback: str = "n/a") -> str:
+    try:
+        return format(float(value), pattern)
+    except (TypeError, ValueError):
+        return fallback
 
 
-def build_loadout_recommendation(plan: dict) -> dict:
-    templates = architect_load_loadout_templates()
+def build_loadout_recommendation(plan: dict, oracle_brief=None) -> dict:
+    """Build the recording loadout card from the active SessionBrief only.
+
+    This deliberately avoids legacy template fallbacks. Commander
+    owns the active stop, Oracle owns the weapon build, and Loadout Lab owns
+    class setup when a LoadoutBuild is present on the SessionBrief.
+    """
     stop = current_recording_stop(plan)
+
+    if oracle_brief is None:
+        oracle_brief = st.session_state.get("bo7_oracle_session_brief")
 
     if not stop:
         return {
-            "template": {},
+            "status": "missing_stop",
             "stop": stop,
             "reason": "No active objective found for the current plan.",
         }
 
-    precomputed = stop.get("loadout") or {}
-    loadout = precomputed or architect_build_loadout_for_stop(
-        stop=stop,
-        plan=plan,
-        tasks=st.session_state.get("bo7_tasks", []),
-        templates=templates,
+    if oracle_brief is None:
+        return {
+            "status": "oracle_pending",
+            "stop": stop,
+            "primary": loadout_clean(stop.get("weapon")) or "Assigned weapon",
+            "reason": "Oracle SessionBrief is not prepared yet. No legacy template fallback was used.",
+        }
+
+    weapon_build = _mapping_or_attr_value(oracle_brief, "weapon_build")
+    loadout_build = _mapping_or_attr_value(oracle_brief, "loadout")
+    field_plan = _mapping_or_attr_value(oracle_brief, "field_plan")
+    evidence = _mapping_or_attr_value(oracle_brief, "evidence", {}) or {}
+    warnings = list(_mapping_or_attr_value(oracle_brief, "warnings", []) or [])
+
+    mission_knowledge = {}
+    if isinstance(evidence, dict):
+        mission_knowledge = dict(evidence.get("mission_knowledge", {}) or {})
+        if not mission_knowledge:
+            mission_inputs = evidence.get("mission_inputs", {}) or {}
+            if isinstance(mission_inputs, dict):
+                mission_knowledge = dict(mission_inputs.get("mission_knowledge", {}) or {})
+
+    attachments = _normalise_brief_list(_mapping_or_attr_value(weapon_build, "attachments", []))
+    slots = _normalise_brief_list(_mapping_or_attr_value(weapon_build, "slots", []))
+
+    attachment_lines = []
+    for index, attachment in enumerate(attachments):
+        slot = slots[index] if index < len(slots) else "Attachment"
+        attachment_lines.append(f"{slot}: {attachment}")
+
+    preferred_modes = _normalise_brief_list(mission_knowledge.get("preferred_modes"))
+    playstyle = _normalise_brief_list(mission_knowledge.get("playstyle"))
+    field_priorities = _normalise_brief_list(_mapping_or_attr_value(field_plan, "priorities", []))
+
+    secondary = _mapping_or_attr_value(loadout_build, "secondary", "")
+    wildcard = _mapping_or_attr_value(loadout_build, "wildcard", "")
+    perks = _mapping_or_attr_value(loadout_build, "perks", "")
+    tactical = _mapping_or_attr_value(loadout_build, "tactical", "")
+    lethal = _mapping_or_attr_value(loadout_build, "lethal", "")
+    field_upgrade = _mapping_or_attr_value(loadout_build, "field_upgrade", "")
+    scorestreaks = _mapping_or_attr_value(loadout_build, "scorestreaks", "")
+
+    loadout_ready = any(
+        loadout_clean(value)
+        for value in [secondary, wildcard, perks, tactical, lethal, field_upgrade, scorestreaks]
     )
 
-    template = loadout.get("template", {}) or {}
-    primary = loadout.get("primary", "")
-
-    ttk_oracle = build_ttk_oracle_recommendation(primary, stop, plan)
-
     return {
-        "template": template,
+        "status": "session_brief",
+        "source": "session_brief",
         "stop": stop,
-        "primary": primary,
-        "primary_attachments": loadout.get("primary_attachments", ""),
-        "primary_attachment_source": loadout.get("primary_attachment_source", "") or loadout.get("ttk_oracle_note", ""),
-        "secondary": loadout.get("secondary", ""),
-        "secondary_attachments": loadout.get("secondary_attachments", ""),
-        "wildcard": loadout.get("wildcard", ""),
-        "perks": loadout.get("perks", ""),
-        "tactical": loadout.get("tactical", ""),
-        "lethal": loadout.get("lethal", ""),
-        "field_upgrade": loadout.get("field_upgrade", ""),
-        "scorestreaks": loadout.get("scorestreaks", ""),
-        "skill_tracks": loadout.get("skill_tracks", ""),
-        "template_name": loadout.get("template_name", ""),
-        "primary_reason": loadout.get("primary_reason", ""),
-        "natural_goal": loadout.get("natural_goal", ""),
-        "natural_goal_source": loadout.get("natural_goal_source", ""),
-        "score": loadout.get("score", 0),
-        "reason": loadout.get("reason", ""),
-        "ttk_oracle": ttk_oracle,
+        "primary": (
+            loadout_clean(_mapping_or_attr_value(weapon_build, "weapon_name", ""))
+            or loadout_clean(stop.get("weapon"))
+            or "Assigned weapon"
+        ),
+        "attachments": attachment_lines,
+        "raw_ttk_ms": _mapping_or_attr_value(weapon_build, "raw_ttk_ms", None),
+        "practical_ttk_ms": _mapping_or_attr_value(weapon_build, "practical_ttk_ms", None),
+        "oracle_score": _mapping_or_attr_value(weapon_build, "oracle_score", None),
+        "secondary": secondary,
+        "wildcard": wildcard,
+        "perks": perks,
+        "tactical": tactical,
+        "lethal": lethal,
+        "field_upgrade": field_upgrade,
+        "scorestreaks": scorestreaks,
+        "loadout_ready": loadout_ready,
+        "preferred_modes": preferred_modes,
+        "playstyle": playstyle,
+        "field_priorities": field_priorities,
+        "warnings": warnings,
+        "mission_label": mission_knowledge.get("label", ""),
+        "mission_confidence": mission_knowledge.get("confidence", ""),
+        "reason": "Active weapon build comes from the shared SessionBrief. Legacy template loadouts are disabled here.",
     }
-
 
 
 def render_recording_order_card(plan: dict):
@@ -1321,127 +1003,123 @@ def render_recording_order_card(plan: dict):
         """
     )
 
-def render_recording_loadout_card(plan: dict):
-    recommendation = build_loadout_recommendation(plan)
-    ttk_oracle = recommendation.get("ttk_oracle", {}) or {}
-    oracle_ready = ttk_oracle.get("status") == "ok"
+def render_recording_loadout_card(plan: dict, oracle_brief=None):
+    recommendation = build_loadout_recommendation(plan, oracle_brief)
 
-    if not recommendation.get("primary"):
-        st.warning(recommendation.get("reason", "No loadout recommendation available."))
+    if recommendation.get("status") in {"missing_stop", "oracle_pending"}:
+        st.warning(recommendation.get("reason", "No SessionBrief loadout recommendation available."))
         return
 
-    natural_goal_text = loadout_clean(recommendation.get("natural_goal"))
-    natural_goal_source = loadout_clean(recommendation.get("natural_goal_source"))
-    primary_reason = loadout_clean(recommendation.get("primary_reason"))
-    streak_text = loadout_clean(recommendation.get("scorestreaks")) or "Scorestreaks not required"
+    attachment_text = "<br>".join(
+        loadout_html(item)
+        for item in recommendation.get("attachments", [])
+    ) or "No attachments returned by Oracle."
 
-    skill_tracks = loadout_clean(recommendation.get("skill_tracks"))
-    if skill_tracks and skill_tracks != "N/A":
-        streak_text += " | Skill Tracks: " + skill_tracks
+    preferred_modes = " · ".join(recommendation.get("preferred_modes", [])[:4]) or "Not modelled"
+    playstyle = "<br>".join(
+        loadout_html(item)
+        for item in recommendation.get("playstyle", [])[:3]
+    ) or "No Mission Knowledge playstyle returned."
 
-    template_notes = loadout_clean(recommendation.get("reason"))
+    field_priorities = "<br>".join(
+        loadout_html(item)
+        for item in recommendation.get("field_priorities", [])[:4]
+    ) or "No field priorities returned."
 
-    if oracle_ready:
-        card_title = "TTK Oracle Build"
-        primary_subtitle = f"Primary: {ttk_oracle.get('weapon')}"
-        primary_attachment_label = "TTK Oracle Attachments"
-        primary_attachment_text = ttk_oracle.get("attachments") or "No attachment list returned."
-        notes = (
-            f"TTK Oracle locked the Commander-assigned weapon for {ttk_oracle.get('mode')} "
-            f"at {ttk_oracle.get('enemy_health')} HP using {ttk_oracle.get('attachment_count', 5)} trusted attachment(s). {template_notes}"
+    warning_text = "<br>".join(
+        loadout_html(item)
+        for item in recommendation.get("warnings", [])[:4]
+    ) or "No active warnings."
+
+    raw_ttk = recommendation.get("raw_ttk_ms")
+    practical_ttk = recommendation.get("practical_ttk_ms")
+    oracle_score = recommendation.get("oracle_score")
+
+    raw_ttk_value = _format_brief_number(raw_ttk, ".0f", "")
+    practical_ttk_value = _format_brief_number(practical_ttk, ".0f", "")
+    oracle_score_text = _format_brief_number(oracle_score, ".3f")
+
+    raw_ttk_text = f"{raw_ttk_value} ms" if raw_ttk_value else "n/a"
+    practical_ttk_text = f"{practical_ttk_value} ms" if practical_ttk_value else "n/a"
+
+    if recommendation.get("loadout_ready"):
+        loadout_lab_text = (
+            f"Secondary: {loadout_clean(recommendation.get('secondary')) or 'N/A'}<br>"
+            f"Wildcard: {loadout_clean(recommendation.get('wildcard')) or 'N/A'}<br>"
+            f"Perks: {loadout_clean(recommendation.get('perks')) or 'N/A'}<br>"
+            f"Tactical: {loadout_clean(recommendation.get('tactical')) or 'N/A'} · "
+            f"Lethal: {loadout_clean(recommendation.get('lethal')) or 'N/A'}<br>"
+            f"Field Upgrade: {loadout_clean(recommendation.get('field_upgrade')) or 'N/A'}<br>"
+            f"Scorestreaks: {loadout_clean(recommendation.get('scorestreaks')) or 'N/A'}"
         )
-        oracle_section_html = f"""
-            <div class="recording-section">
-                <span>Oracle Readout</span>
-                <p>
-                    Raw TTK: {loadout_html(f"{ttk_oracle.get('raw_ttk_ms', 0):.0f} ms")} ·
-                    Practical TTK: {loadout_html(f"{ttk_oracle.get('practical_ttk_ms', 0):.0f} ms")} ·
-                    ADS: {loadout_html(f"{ttk_oracle.get('ads_ms', 0):.0f} ms")} ·
-                    Sprint-to-fire: {loadout_html(f"{ttk_oracle.get('sprint_to_fire_ms', 0):.0f} ms")} ·
-                    Recoil: {loadout_html(f"{ttk_oracle.get('recoil', 0):.1f}")}
-                </p>
-            </div>
-
-            <div class="recording-section">
-                <span>Oracle Scenario</span>
-                <p>
-                    {loadout_html(ttk_oracle.get("fight_type"))} ·
-                    {loadout_html(ttk_oracle.get("build_goal"))} ·
-                    Enemy health: {loadout_html(ttk_oracle.get("enemy_health"))} HP
-                </p>
-            </div>
-        """
     else:
-        card_title = loadout_clean(recommendation.get("template_name")) or "Loadout Template"
-        primary_subtitle = f"Primary: {recommendation.get('primary')}"
-        primary_attachment_label = "Primary Attachments"
-        primary_attachment_text = recommendation.get("primary_attachments") or "No trusted Commander attachment build available."
-        oracle_reason = loadout_clean(ttk_oracle.get("reason"))
-        notes = template_notes
-        if oracle_reason:
-            notes = f"Template fallback. TTK Oracle: {oracle_reason} {template_notes}".strip()
-        oracle_section_html = ""
+        loadout_lab_text = (
+            "Loadout Lab has not attached a class object to this SessionBrief yet.<br>"
+            "No legacy template fallback was used."
+        )
+
+    mission_label = (
+        loadout_clean(recommendation.get("mission_label"))
+        or "Mission Intelligence"
+    )
+    mission_confidence = (
+        loadout_clean(recommendation.get("mission_confidence"))
+        or "unknown"
+    )
 
     render_recording_markup(
         f"""
         <div class="recording-card loadout-card">
-            <div class="recording-eyebrow">LOADOUT COMMANDER</div>
-            <div class="recording-title">{loadout_html(card_title)}</div>
-            <div class="recording-subtitle">{loadout_html(primary_subtitle)}</div>
+            <div class="recording-eyebrow">SESSION BRIEF LOADOUT</div>
+            <div class="recording-title">{loadout_html(recommendation.get("primary"))}</div>
+            <div class="recording-subtitle">Oracle exact weapon build · {loadout_html(mission_label)} · confidence {loadout_html(mission_confidence)}</div>
 
             <div class="recording-grid">
                 <div>
-                    <span>Secondary</span>
-                    <strong>{loadout_html(recommendation.get("secondary") or "N/A")}</strong>
+                    <span>Raw TTK</span>
+                    <strong>{loadout_html(raw_ttk_text)}</strong>
                 </div>
                 <div>
-                    <span>Wildcard</span>
-                    <strong>{loadout_html(recommendation.get("wildcard") or "N/A")}</strong>
+                    <span>Practical TTK</span>
+                    <strong>{loadout_html(practical_ttk_text)}</strong>
                 </div>
                 <div>
-                    <span>Field Upgrade</span>
-                    <strong>{loadout_html(recommendation.get("field_upgrade") or "N/A")}</strong>
+                    <span>Oracle Score</span>
+                    <strong>{loadout_html(oracle_score_text)}</strong>
                 </div>
             </div>
 
             <div class="recording-section">
-                <span>{loadout_html(primary_attachment_label)}</span>
-                <p>{loadout_html(primary_attachment_text)}</p>
+                <span>Build</span>
+                <p>{attachment_text}</p>
             </div>
 
             <div class="recording-section">
-                <span>Attachment Source</span>
-                <p>{loadout_html(recommendation.get("primary_attachment_source") or ttk_oracle.get("attachment_trust_note") or "Unknown")}</p>
+                <span>Loadout Lab</span>
+                <p>{loadout_html(loadout_lab_text).replace("&lt;br&gt;", "<br>")}</p>
             </div>
 
             <div class="recording-section">
-                <span>Why This Primary</span>
-                <p>{loadout_html(primary_reason or "Primary selected from the active objective and nearest natural weapon goal.")}</p>
+                <span>Preferred Modes</span>
+                <p>{loadout_html(preferred_modes)}</p>
             </div>
 
             <div class="recording-section">
-                <span>Natural Weapon Goal</span>
-                <p>{loadout_html(natural_goal_text or "No natural weapon goal found.")}<br><strong>Source:</strong> {loadout_html(natural_goal_source or "Unknown")}</p>
-            </div>
-
-            {oracle_section_html}
-
-            <div class="recording-section">
-                <span>Secondary Attachments</span>
-                <p>{loadout_html(recommendation.get("secondary_attachments") or "N/A")}</p>
+                <span>Playstyle</span>
+                <p>{playstyle}</p>
             </div>
 
             <div class="recording-section">
-                <span>Equipment / Perks</span>
-                <p>Tactical: {loadout_html(recommendation.get("tactical") or "N/A")} · Lethal: {loadout_html(recommendation.get("lethal") or "N/A")} · Perks: {loadout_html(recommendation.get("perks") or "N/A")}</p>
+                <span>Field Priorities</span>
+                <p>{field_priorities}</p>
             </div>
 
             <div class="recording-section">
-                <span>Streaks / Skill Tracks</span>
-                <p>{loadout_html(streak_text)}</p>
+                <span>Warnings</span>
+                <p>{warning_text}</p>
             </div>
 
-            <div class="recording-rule">{loadout_html(notes)}</div>
+            <div class="recording-rule">{loadout_html(recommendation.get("reason"))}</div>
         </div>
         """
     )
@@ -4646,7 +4324,7 @@ with tab_mission:
     render_queued_celebrations()
 
     if plan and plan.get("stops"):
-        plan = attach_loadouts_to_plan(plan, st.session_state.bo7_tasks)
+        plan = strip_legacy_loadouts(plan)
         plan = attach_series_context_to_plan(
             plan,
             summarise_tasks(st.session_state.bo7_tasks),
@@ -4657,6 +4335,50 @@ with tab_mission:
         st.markdown(f"<div class='order-mode'>☣ {plan['mode']} — SESSION PLAN ACTIVE</div>", unsafe_allow_html=True)
 
         render_series_context_panel(plan)
+
+        active_oracle_stop = active_stop_for_timing(plan)
+        oracle_brief = None
+        oracle_error = ""
+
+        if active_oracle_stop and stop_is_oracle_eligible(active_oracle_stop):
+            active_oracle_key = oracle_cache_key(active_oracle_stop, plan)
+
+            if st.session_state.get("bo7_oracle_brief_key") != active_oracle_key:
+                st.session_state.pop("bo7_oracle_session_brief", None)
+                st.session_state.pop("bo7_oracle_session_error", None)
+
+                try:
+                    with st.spinner("ORACLE PREPARING ACTIVE MISSION..."):
+                        mission_profile = stop_to_mission_profile(active_oracle_stop, plan)
+                        st.session_state.bo7_oracle_session_brief = prepare_session_from_mission(
+                            mission_profile,
+                            optimiser_mode="Fast",
+                            candidate_limit_per_slot=2,
+                            top_n=1,
+                        )
+                        save_current_commander_session(
+                            plan=plan,
+                            stop=active_oracle_stop,
+                            session_brief=st.session_state.bo7_oracle_session_brief,
+                            status="active",
+                        )
+                        st.session_state.bo7_oracle_brief_key = active_oracle_key
+                except (ValueError, FileNotFoundError) as error:
+                    st.session_state.bo7_oracle_session_error = str(error)
+                    st.session_state.bo7_oracle_brief_key = active_oracle_key
+
+            oracle_brief = st.session_state.get("bo7_oracle_session_brief")
+            oracle_error = st.session_state.get("bo7_oracle_session_error")
+
+            if oracle_brief is not None:
+                st.markdown("### ACTIVE MISSION LOADOUT")
+                render_session_brief(oracle_brief)
+                st.divider()
+            elif oracle_error:
+                st.warning(
+                    "Oracle could not prepare this active stop. "
+                    f"Commander plan remains usable. Detail: {oracle_error}"
+                )
 
         obs_cols = st.columns([1, 1, 3])
         with obs_cols[0]:
@@ -4698,7 +4420,7 @@ with tab_mission:
 
         if recording_mode:
             render_recording_order_card(plan)
-            render_recording_loadout_card(plan)
+            render_recording_loadout_card(plan, oracle_brief)
             render_recording_director_card(plan)
             render_recording_debrief_card(plan)
             st.divider()
@@ -5000,6 +4722,32 @@ with tab_mission:
                         if csv_updated:
                             reload_commander_from_csv()
 
+                            advanced_plan, next_weapon_stop = advance_plan_after_completed_stop(
+                                plan=st.session_state.get("bo7_session_plan") or plan,
+                                completed_stop=stop,
+                                tasks=st.session_state.bo7_tasks,
+                                completed_task_ids=resolved_stop_ids(),
+                            )
+                            st.session_state.bo7_session_plan = strip_legacy_loadouts(advanced_plan)
+
+                            st.session_state.pop("bo7_oracle_session_brief", None)
+                            st.session_state.pop("bo7_oracle_session_error", None)
+                            st.session_state.pop("bo7_oracle_brief_key", None)
+
+                            if next_weapon_stop:
+                                queue_celebration(
+                                    "🛰️ NEXT MISSION ACQUIRED",
+                                    (
+                                        f"{next_weapon_stop.get('weapon', 'Weapon')} now advances to "
+                                        f"{next_weapon_stop.get('camo') or next_weapon_stop.get('challenge_text') or 'the next challenge'}. "
+                                        "Oracle will prepare the replacement loadout."
+                                    ),
+                                    "minor",
+                                    label="Mission Chain",
+                                    stat="Auto-advanced",
+                                    footer="Same weapon retained. New challenge constraints loaded.",
+                                )
+
                         st.rerun()
 
                 with col2:
@@ -5178,7 +4926,7 @@ with tab_mission:
                     avoided_mode=plan.get("avoided_mode", st.session_state.bo7_form_avoided_mode),
                 )
  
-                st.session_state.bo7_session_plan = attach_loadouts_to_plan(new_plan, st.session_state.bo7_tasks)
+                st.session_state.bo7_session_plan = strip_legacy_loadouts(new_plan)
                 st.rerun()
  
         with col_b:
@@ -5418,7 +5166,7 @@ with tab_mission:
                 avoided_mode=avoided_mode,
             )
 
-            st.session_state.bo7_session_plan = attach_loadouts_to_plan(new_plan, st.session_state.bo7_tasks)
+            st.session_state.bo7_session_plan = strip_legacy_loadouts(new_plan)
             st.rerun()
 
         if st.button("GENERATE NO-THINKING PLAN", use_container_width=True):
@@ -5452,7 +5200,7 @@ with tab_mission:
                 avoided_mode="Global Cleanup",
             )
 
-            st.session_state.bo7_session_plan = attach_loadouts_to_plan(new_plan, st.session_state.bo7_tasks)
+            st.session_state.bo7_session_plan = strip_legacy_loadouts(new_plan)
             st.rerun()
 
 # -- Account -- 

@@ -1,0 +1,332 @@
+{
+  "schema_version": 1,
+  "saved_at": "2026-07-14T11:03:40.420087+00:00",
+  "status": "active",
+  "mission_id": "",
+  "task_id": "Camo:Multiplayer:Singularity:MK35 ISR:Military 4",
+  "weapon": "MK35 ISR",
+  "challenge": "Reach 30 total Headshots to start. 6 military camos remaining for MK35 ISR: 30 \u2192 40 \u2192 50 \u2192 60 \u2192 70 \u2192 80. Stay on MK35 ISR until the final military target is reached: 80 total headshots.",
+  "mode": "Multiplayer",
+  "stop_number": 1,
+  "session_brief": {
+    "mission": {
+      "mode": "Multiplayer",
+      "weapon_id": "MK35 ISR",
+      "target": "Military 4\u20139 (6 remaining)",
+      "challenge_type": "camo",
+      "challenge_name": "Reach 30 total Headshots to start. 6 military camos remaining for MK35 ISR: 30 \u2192 40 \u2192 50 \u2192 60 \u2192 70 \u2192 80. Stay on MK35 ISR until the final military target is reached: 80 total headshots.",
+      "remaining": null,
+      "stats_profile": "multiplayer",
+      "session_id": "",
+      "constraints": {
+        "enemy_health": 100,
+        "attachment_count": 5
+      },
+      "preferences": {},
+      "metadata": {
+        "source": "completion_commander",
+        "task_id": "Camo:Multiplayer:Singularity:MK35 ISR:Military 4",
+        "stop_number": 1,
+        "chain": "Singularity",
+        "weapon_class": "Assault Rifles",
+        "recommended_mode": "Small-map / high-engagement playlist",
+        "estimated_minutes": 25
+      }
+    },
+    "weapon_build": {
+      "weapon_id": "",
+      "weapon_name": "MK35 ISR",
+      "weapon_class": "assault_rifle",
+      "attachments": [
+        "18.7in Bowen Alleron Barrel",
+        "3mW Motion Strike Laser",
+        "LTI Stentorian Brake",
+        "Bowen X-25 IR",
+        "Sarsen Sprint Grip"
+      ],
+      "slots": [
+        "barrel",
+        "laser",
+        "muzzle",
+        "optic",
+        "rear_grip"
+      ],
+      "raw_ttk_ms": 299.07,
+      "practical_ttk_ms": 372.54,
+      "oracle_score": 0.6954841538887319,
+      "stats": {
+        "gun_name": "MK35 ISR",
+        "weapon_class": "assault_rifle",
+        "attachments": "18.7in Bowen Alleron Barrel | 3mW Motion Strike Laser | LTI Stentorian Brake | Bowen X-25 IR | Sarsen Sprint Grip",
+        "slots": "barrel | laser | muzzle | optic | rear_grip",
+        "modelled_attachment_count": 5,
+        "unmodelled_attachments_ignored": 7,
+        "attachment_effects": "18.7in Bowen Alleron Barrel: range%: 40% || 3mW Motion Strike Laser: range%: 19% || LTI Stentorian Brake: fire rate%: 7% | horizontal recoil%: -20% || Bowen X-25 IR: ads%: 5% | jump ads%: 5% | gun kick%: -50% || Sarsen Sprint Grip: sprint to fire%: -38% | jump sprint to fire%: -37%",
+        "attachment_trust_note": "Only modelled attachments were allowed. Ignored 7 zero-effect or unmodelled conversion row(s).",
+        "challenge_requirements": "",
+        "challenge_required_slots": "",
+        "optimiser_mode": "Fast",
+        "slot_candidate_limit": 2,
+        "damage_close": 24.0,
+        "range_close_m": 69.972,
+        "damage_mid": 19.0,
+        "range_mid_m": 69.972,
+        "damage_long": 19.0,
+        "head_damage_close": 27.0,
+        "head_damage_mid": 21.0,
+        "head_damage_long": 21.0,
+        "fire_rate_rpm": 802.5,
+        "ads_ms": 273.0,
+        "sprint_to_fire_ms": 148.8,
+        "recoil": 8.82,
+        "bullet_velocity": 650.0,
+        "mag_size": 30.0,
+        "mags": 3.0,
+        "slide_to_fire_pct": 0.0,
+        "dive_to_fire_pct": 0.0,
+        "hipfire_spread_pct": 0.0,
+        "jump_hipfire_spread_pct": 0.0,
+        "slide_hipfire_spread_pct": 0.0,
+        "dive_hipfire_spread_pct": 0.0,
+        "damage": 21.0,
+        "damage_model": "headshot",
+        "range_m": 69.972,
+        "shots_to_kill": 5,
+        "raw_ttk_ms": 299.07,
+        "is_shotgun": false,
+        "shotgun_one_shot_potential": "",
+        "shotgun_two_shot_consistency": "",
+        "shotgun_range_coverage": "",
+        "shotgun_handling_index": "",
+        "shotgun_mag_safety": "",
+        "shotgun_truth_score": "",
+        "shotgun_truth_note": "",
+        "damage_per_mag": 630.0,
+        "practical_ttk_ms": 372.54,
+        "build_reason_summary": "Military Camo Headshots uses headshot damage for shots-to-kill, then rewards stability and handling so headshots are easier to repeat. At 100 HP this build models 21 damage per headshot hit and needs 5 shot(s) in the selected mixed fights profile.",
+        "score_weight_summary": "recoil 38% | ads ms 19% | sprint to fire ms 14% | bullet velocity 11% | range m 9% | practical ttk ms 6% | damage per mag 3%",
+        "optic_status": "Bowen X-25 IR was selected by the optimiser, not forced by a challenge lock.",
+        "selected_attachment_notes": "18.7in Bowen Alleron Barrel [barrel] - range gain. Modelled effects: range +40%. || 3mW Motion Strike Laser [laser] - range gain. Modelled effects: range +19%. || LTI Stentorian Brake [muzzle] - stability gain. Modelled effects: fire rate +7%; horizontal recoil -20%. || Bowen X-25 IR [optic] - thermal optic, stability gain, ADS penalty. Modelled effects: ADS +5%; jump ADS +5%; gun kick -50%. || Sarsen Sprint Grip [rear_grip] - faster sprint-to-fire. Modelled effects: sprint-to-fire -38%; jump sprint-to-fire -37%.",
+        "rejected_breakpoint_notes": "16.5in Greaves Bellum Barrel [barrel] raises head damage 21->24.7, but it still needs 5 shot(s) at 100 HP. The Oracle rejected the trade because recoil/practical TTK worsened (8.8->11.6, 373->378 ms).",
+        "lab_evidence_json": "{\"weapon\": \"MK35 ISR\", \"weapon_class\": \"assault_rifle\", \"map_type\": \"Small map / Resurgence\", \"fight_type\": \"Mixed fights\", \"build_goal\": \"Military Camo Headshots\", \"enemy_health\": 100, \"damage_model\": \"headshot\", \"damage\": 21.0, \"shots_to_kill\": 5, \"raw_ttk_ms\": 299.07, \"practical_ttk_ms\": 372.54, \"recoil\": 8.82, \"ads_ms\": 273.0, \"sprint_to_fire_ms\": 148.8, \"challenge_requirements\": \"\", \"challenge_required_slots\": \"\", \"score_weights\": {\"recoil\": 0.3818181818181818, \"ads_ms\": 0.19090909090909092, \"sprint_to_fire_ms\": 0.13636363636363638, \"bullet_velocity\": 0.10909090909090907, \"range_m\": 0.09090909090909091, \"practical_ttk_ms\": 0.06363636363636364, \"damage_per_mag\": 0.027272727272727268}, \"selected_attachments\": [{\"name\": \"18.7in Bowen Alleron Barrel\", \"slot\": \"barrel\", \"modelled_effects\": [\"range +40%\"], \"raw_stat_text\": \"Damage range 42 m to 59 m (+40%)\", \"optic_zoom\": 0.0, \"optic_type\": \"nan\", \"attachment_type\": \"nan\", \"verification_status\": \"verified\", \"verification_notes\": \"Numeric effects parsed from MK35 ISR Gunsmith screenshot\"}, {\"name\": \"3mW Motion Strike Laser\", \"slot\": \"laser\", \"modelled_effects\": [\"range +19%\"], \"raw_stat_text\": \"Damage range 42 m to 50 m (+19%)\", \"optic_zoom\": 0.0, \"optic_type\": \"nan\", \"attachment_type\": \"nan\", \"verification_status\": \"verified\", \"verification_notes\": \"Numeric effects parsed from MK35 ISR Gunsmith screenshot\"}, {\"name\": \"LTI Stentorian Brake\", \"slot\": \"muzzle\", \"modelled_effects\": [\"fire rate +7%\", \"horizontal recoil -20%\"], \"raw_stat_text\": \"Fire Rate +7%; Horizontal Recoil Control -20%\", \"optic_zoom\": 0.0, \"optic_type\": \"nan\", \"attachment_type\": \"nan\", \"verification_status\": \"verified\", \"verification_notes\": \"Numeric effects parsed from MK35 ISR Gunsmith screenshot\"}, {\"name\": \"Bowen X-25 IR\", \"slot\": \"optic\", \"modelled_effects\": [\"ADS +5%\", \"jump ADS +5%\", \"gun kick -50%\"], \"raw_stat_text\": \"Thermal optic. Recoil Gun Kick 14.20->7.10 -50%; Aim Down Sight Speed 260->273 ms +5%; Jump Aim Down Sight Speed 347->365 ms +5%.\", \"optic_zoom\": 0.0, \"optic_type\": \"thermal\", \"attachment_type\": \"nan\", \"verification_status\": \"needs_review\", \"verification_notes\": \"Optic zoom not visible or inferable from the exact optic name. Thermal imaging behaviour not fully modelled.\"}, {\"name\": \"Sarsen Sprint Grip\", \"slot\": \"rear_grip\", \"modelled_effects\": [\"sprint-to-fire -38%\", \"jump sprint-to-fire -37%\"], \"raw_stat_text\": \"Sprint To Fire -38%; Jump Sprint To Fire -37%\", \"optic_zoom\": 0.0, \"optic_type\": \"nan\", \"attachment_type\": \"nan\", \"verification_status\": \"verified\", \"verification_notes\": \"Numeric effects parsed from MK35 ISR Gunsmith screenshot\"}], \"rejected_headshot_breakpoint_notes\": [\"16.5in Greaves Bellum Barrel [barrel] raises head damage 21->24.7, but it still needs 5 shot(s) at 100 HP. The Oracle rejected the trade because recoil/practical TTK worsened (8.8->11.6, 373->378 ms).\"]}",
+        "oracle_score": 0.6954841538887319,
+        "recoil_score": 0.8537477785134335,
+        "ads_ms_score": 0.5651539489582169,
+        "sprint_to_fire_ms_score": 0.7834129008349138,
+        "bullet_velocity_score": 0.08960573476702513,
+        "range_m_score": 1.0,
+        "practical_ttk_ms_score": 0.7644507103351044,
+        "damage_per_mag_score": 0.2
+      },
+      "confidence": {},
+      "reasoning": [
+        "18.7in Bowen Alleron Barrel [barrel] - range gain. Modelled effects: range +40%.",
+        "3mW Motion Strike Laser [laser] - range gain. Modelled effects: range +19%.",
+        "LTI Stentorian Brake [muzzle] - stability gain. Modelled effects: fire rate +7%; horizontal recoil -20%.",
+        "Bowen X-25 IR [optic] - thermal optic, stability gain, ADS penalty. Modelled effects: ADS +5%; jump ADS +5%; gun kick -50%.",
+        "Sarsen Sprint Grip [rear_grip] - faster sprint-to-fire. Modelled effects: sprint-to-fire -38%; jump sprint-to-fire -37%."
+      ],
+      "warnings": [],
+      "evidence": {
+        "weapon": "MK35 ISR",
+        "weapon_class": "assault_rifle",
+        "map_type": "Small map / Resurgence",
+        "fight_type": "Mixed fights",
+        "build_goal": "Military Camo Headshots",
+        "enemy_health": 100,
+        "damage_model": "headshot",
+        "damage": 21.0,
+        "shots_to_kill": 5,
+        "raw_ttk_ms": 299.07,
+        "practical_ttk_ms": 372.54,
+        "recoil": 8.82,
+        "ads_ms": 273.0,
+        "sprint_to_fire_ms": 148.8,
+        "challenge_requirements": "",
+        "challenge_required_slots": "",
+        "score_weights": {
+          "recoil": 0.3818181818181818,
+          "ads_ms": 0.19090909090909092,
+          "sprint_to_fire_ms": 0.13636363636363638,
+          "bullet_velocity": 0.10909090909090907,
+          "range_m": 0.09090909090909091,
+          "practical_ttk_ms": 0.06363636363636364,
+          "damage_per_mag": 0.027272727272727268
+        },
+        "selected_attachments": [
+          {
+            "name": "18.7in Bowen Alleron Barrel",
+            "slot": "barrel",
+            "modelled_effects": [
+              "range +40%"
+            ],
+            "raw_stat_text": "Damage range 42 m to 59 m (+40%)",
+            "optic_zoom": 0.0,
+            "optic_type": "nan",
+            "attachment_type": "nan",
+            "verification_status": "verified",
+            "verification_notes": "Numeric effects parsed from MK35 ISR Gunsmith screenshot"
+          },
+          {
+            "name": "3mW Motion Strike Laser",
+            "slot": "laser",
+            "modelled_effects": [
+              "range +19%"
+            ],
+            "raw_stat_text": "Damage range 42 m to 50 m (+19%)",
+            "optic_zoom": 0.0,
+            "optic_type": "nan",
+            "attachment_type": "nan",
+            "verification_status": "verified",
+            "verification_notes": "Numeric effects parsed from MK35 ISR Gunsmith screenshot"
+          },
+          {
+            "name": "LTI Stentorian Brake",
+            "slot": "muzzle",
+            "modelled_effects": [
+              "fire rate +7%",
+              "horizontal recoil -20%"
+            ],
+            "raw_stat_text": "Fire Rate +7%; Horizontal Recoil Control -20%",
+            "optic_zoom": 0.0,
+            "optic_type": "nan",
+            "attachment_type": "nan",
+            "verification_status": "verified",
+            "verification_notes": "Numeric effects parsed from MK35 ISR Gunsmith screenshot"
+          },
+          {
+            "name": "Bowen X-25 IR",
+            "slot": "optic",
+            "modelled_effects": [
+              "ADS +5%",
+              "jump ADS +5%",
+              "gun kick -50%"
+            ],
+            "raw_stat_text": "Thermal optic. Recoil Gun Kick 14.20->7.10 -50%; Aim Down Sight Speed 260->273 ms +5%; Jump Aim Down Sight Speed 347->365 ms +5%.",
+            "optic_zoom": 0.0,
+            "optic_type": "thermal",
+            "attachment_type": "nan",
+            "verification_status": "needs_review",
+            "verification_notes": "Optic zoom not visible or inferable from the exact optic name. Thermal imaging behaviour not fully modelled."
+          },
+          {
+            "name": "Sarsen Sprint Grip",
+            "slot": "rear_grip",
+            "modelled_effects": [
+              "sprint-to-fire -38%",
+              "jump sprint-to-fire -37%"
+            ],
+            "raw_stat_text": "Sprint To Fire -38%; Jump Sprint To Fire -37%",
+            "optic_zoom": 0.0,
+            "optic_type": "nan",
+            "attachment_type": "nan",
+            "verification_status": "verified",
+            "verification_notes": "Numeric effects parsed from MK35 ISR Gunsmith screenshot"
+          }
+        ],
+        "rejected_headshot_breakpoint_notes": [
+          "16.5in Greaves Bellum Barrel [barrel] raises head damage 21->24.7, but it still needs 5 shot(s) at 100 HP. The Oracle rejected the trade because recoil/practical TTK worsened (8.8->11.6, 373->378 ms)."
+        ]
+      }
+    },
+    "loadout": null,
+    "field_plan": {
+      "recommended_modes": [
+        "Domination",
+        "Hardpoint",
+        "Control-style objective respawn",
+        "Small-map objective respawn"
+      ],
+      "avoid_modes": [
+        "Search & Destroy",
+        "Team Deathmatch if lobbies are slow or scattered"
+      ],
+      "map_size": "Small",
+      "playstyle": "",
+      "engagement_range": "",
+      "priorities": [
+        "Play predictable objective traffic instead of chasing random spawns.",
+        "Hold chest-to-head height lanes and let enemies enter the reticle.",
+        "Prioritise recoil control, visual clarity, and flinch resistance over pure raw TTK.",
+        "Build around repeated objective contact and survivability.",
+        "Use cover around flags or hills rather than wide roaming routes.",
+        "Maximise attempts per minute. Do not waste time in low-engagement playlists."
+      ],
+      "notes": [],
+      "warnings": [],
+      "estimated_minutes": null,
+      "evidence": {}
+    },
+    "confidence": {},
+    "warnings": [],
+    "evidence": {
+      "architecture_version": "mission_profile_v2",
+      "source": "mission_exact_weapon_optimiser",
+      "mission_inputs": {
+        "mission": {
+          "mode": "Multiplayer",
+          "weapon_id": "MK35 ISR",
+          "target": "Military 4\u20139 (6 remaining)",
+          "challenge_type": "camo",
+          "challenge_name": "Reach 30 total Headshots to start. 6 military camos remaining for MK35 ISR: 30 \u2192 40 \u2192 50 \u2192 60 \u2192 70 \u2192 80. Stay on MK35 ISR until the final military target is reached: 80 total headshots.",
+          "remaining": null,
+          "stats_profile": "multiplayer",
+          "session_id": "",
+          "constraints": {
+            "enemy_health": 100,
+            "attachment_count": 5
+          },
+          "preferences": {},
+          "metadata": {
+            "source": "completion_commander",
+            "task_id": "Camo:Multiplayer:Singularity:MK35 ISR:Military 4",
+            "stop_number": 1,
+            "chain": "Singularity",
+            "weapon_class": "Assault Rifles",
+            "recommended_mode": "Small-map / high-engagement playlist",
+            "estimated_minutes": 25
+          }
+        },
+        "stats_profile": "multiplayer",
+        "build_goal": "Military Camo Headshots",
+        "fight_type": "Mixed fights",
+        "tactical_goal": "Headshot grinding",
+        "map_size": "Small",
+        "map_type": "Small map / Resurgence",
+        "playlist_style": "Fast respawn objective",
+        "optic_preference": "Non-thermal preferred",
+        "enemy_health": 100,
+        "attachment_count": 5,
+        "challenge": {
+          "requirement": "",
+          "rules": [],
+          "required_attachment_count": 0,
+          "summary": "Challenge lock active, but no usable requirement has been entered.",
+          "role_scope": "Primary weapon"
+        },
+        "warnings": [],
+        "tactical_context": {
+          "build_goal": "Military Camo Headshots",
+          "fight_type": "Mixed fights",
+          "challenge_requirements": "",
+          "tactical_goal": "Headshot grinding",
+          "map_size": "Small",
+          "map_type": "Small map / Resurgence",
+          "playlist_style": "Fast respawn objective",
+          "optic_preference": "Non-thermal preferred"
+        },
+        "optimiser_kwargs": {
+          "enemy_health": 100,
+          "map_type": "Small map / Resurgence",
+          "fight_type": "Mixed fights",
+          "build_goal": "Military Camo Headshots",
+          "attachment_count": 5,
+          "forced_attachment_rules": []
+        }
+      },
+      "optimiser_mode": "Fast",
+      "candidate_limit_per_slot": 2,
+      "candidate_count_returned": 1
+    }
+  }
+}

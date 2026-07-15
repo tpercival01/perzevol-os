@@ -14,15 +14,22 @@ from modules.warzone.killchain_engine import (
 from modules.warzone.loadout_architect import (
     ENERGY_OPTIONS,
     MODE_OPTIONS,
-    attach_loadouts_to_plan,
     build_generation_profile,
     clean,
     copyable_plan_text,
     generate_quick_plan,
-    load_loadout_templates,
     recording_lines_for_plan,
 )
 from modules.warzone.series_director import attach_series_context_to_plan
+from modules.warzone.commander_oracle import (
+    oracle_cache_key,
+    stop_is_oracle_eligible,
+    stop_to_mission_profile,
+    strip_legacy_loadouts,
+)
+from modules.warzone.commander_session import save_current_commander_session
+from modules.warzone.session_builder import prepare_session_from_mission
+from modules.warzone.session_console import render_session_brief
 
 st.set_page_config(
     page_title="Perzevol OS - Commander Launch",
@@ -410,10 +417,65 @@ def render_mode_candidates(plan: dict):
             )
 
 
+
+def first_oracle_eligible_stop(plan: dict) -> dict:
+    for stop in plan.get("stops", []) or []:
+        if stop_is_oracle_eligible(stop):
+            return stop
+    return {}
+
+
+def prepare_launch_oracle_brief(plan: dict):
+    stop = first_oracle_eligible_stop(plan)
+
+    if not stop:
+        st.session_state.pop("bo7_launch_oracle_brief", None)
+        st.session_state.pop("bo7_launch_oracle_error", None)
+        st.session_state.pop("bo7_launch_oracle_key", None)
+        return None
+
+    cache_key = oracle_cache_key(stop, plan)
+
+    if (
+        st.session_state.get("bo7_launch_oracle_key") == cache_key
+        and st.session_state.get("bo7_launch_oracle_brief") is not None
+    ):
+        return st.session_state.bo7_launch_oracle_brief
+
+    try:
+        mission_profile = stop_to_mission_profile(stop, plan)
+
+        with st.spinner("ORACLE PREPARING FIRST MISSION..."):
+            brief = prepare_session_from_mission(
+                mission_profile,
+                optimiser_mode="Fast",
+                candidate_limit_per_slot=2,
+                top_n=1,
+            )
+
+        st.session_state.bo7_launch_oracle_brief = brief
+        st.session_state.bo7_launch_oracle_key = cache_key
+        st.session_state.pop("bo7_launch_oracle_error", None)
+
+        save_current_commander_session(
+            plan=plan,
+            stop=stop,
+            session_brief=brief,
+            status="prepared",
+        )
+        return brief
+
+    except (ValueError, FileNotFoundError) as error:
+        st.session_state.pop("bo7_launch_oracle_brief", None)
+        st.session_state.bo7_launch_oracle_error = str(error)
+        st.session_state.bo7_launch_oracle_key = cache_key
+        return None
+
 def render_plan(plan: dict, tasks: list[dict]):
-    templates = load_loadout_templates()
-    plan = attach_loadouts_to_plan(plan, tasks, templates)
+    templates = []
+    plan = strip_legacy_loadouts(plan)
     plan = attach_series_context_to_plan(plan, summarise_tasks(tasks), load_completion_state())
+    plan["loadout_source"] = plan.get("loadout_source") or "oracle_pending"
     st.session_state.bo7_quick_launch_plan = plan
     save_latest_launch_plan(plan)
 
@@ -448,6 +510,47 @@ def render_plan(plan: dict, tasks: list[dict]):
 
     render_mode_candidates(plan)
 
+
+    oracle_brief = prepare_launch_oracle_brief(plan)
+
+    if oracle_brief is not None:
+        st.markdown("### FIRST MISSION PREPARED")
+        render_session_brief(oracle_brief)
+
+        launch_cols = st.columns(2)
+
+        with launch_cols[0]:
+            if st.button(
+                "START SESSION",
+                type="primary",
+                use_container_width=True,
+                key="commander_launch_start_session",
+            ):
+                first_stop = first_oracle_eligible_stop(plan)
+
+                st.session_state.bo7_session_plan = plan
+                st.session_state.bo7_quick_launch_plan = plan
+                st.session_state.bo7_oracle_session_brief = oracle_brief
+                st.session_state.bo7_oracle_brief_key = oracle_cache_key(first_stop, plan)
+                st.session_state.pop("bo7_oracle_session_error", None)
+
+                st.switch_page("pages/03_Warzone.py")
+
+        with launch_cols[1]:
+            if st.button(
+                "OPEN OBS VIEW",
+                use_container_width=True,
+                key="commander_launch_open_obs",
+            ):
+                st.switch_page("pages/06_Commander_Record.py")
+
+        st.divider()
+    elif st.session_state.get("bo7_launch_oracle_error"):
+        st.warning(
+            "Commander generated the route, but Oracle could not prepare the first "
+            f"weapon stop. Detail: {st.session_state.bo7_launch_oracle_error}"
+        )
+
     if not stops:
         st.warning("No stops returned for this combination. Try ANY MODE, TRACKER CLEANUP, or a lower energy route.")
         return
@@ -472,10 +575,24 @@ def render_plan(plan: dict, tasks: list[dict]):
                 label_visibility="collapsed",
             )
 
+    first_prepared_stop = first_oracle_eligible_stop(plan)
+
     for stop in stops:
-        loadout = stop.get("loadout") or {}
         companion_objectives = stop.get("companion_objectives", []) or []
         companion_text = " · ".join(companion_objectives[:4]) if companion_objectives else "None assigned"
+
+        if clean(stop.get("task_id")) == clean(first_prepared_stop.get("task_id")) and oracle_brief is not None:
+            oracle_status = (
+                "Prepared above. Weapon build, legal secondary, perks, equipment, "
+                "scorestreaks and field plan are ready."
+            )
+        elif stop_is_oracle_eligible(stop):
+            oracle_status = (
+                "Queued. Oracle will prepare this weapon when the stop becomes active, "
+                "using its exact challenge constraints."
+            )
+        else:
+            oracle_status = "No weapon optimisation required for this objective."
 
         render_html(
             f"""
@@ -497,21 +614,8 @@ def render_plan(plan: dict, tasks: list[dict]):
                 </div>
 
                 <div class="detail-box">
-                    <span>Loadout</span>
-                    <p>
-                        <strong>Template:</strong> {esc(loadout.get("template_name"))}<br>
-                        <strong>Primary:</strong> {esc(loadout.get("primary"))}<br>
-                        <strong>Why this primary:</strong> {esc(loadout.get("primary_reason"))}<br>
-                        <strong>Natural goal:</strong> {esc(loadout.get("natural_goal"))}<br>
-                        <strong>Goal source:</strong> {esc(loadout.get("natural_goal_source"))}<br>
-                        <strong>Attachments:</strong> {esc(loadout.get("primary_attachments"))}<br>
-                        <strong>Attachment source:</strong> {esc(loadout.get("primary_attachment_source") or loadout.get("ttk_oracle_note") or "Unknown")}<br>
-                        <strong>Secondary:</strong> {esc(loadout.get("secondary"))} · {esc(loadout.get("secondary_attachments"))}<br>
-                        <strong>Wildcard:</strong> {esc(loadout.get("wildcard"))}<br>
-                        <strong>Perks:</strong> {esc(loadout.get("perks"))}<br>
-                        <strong>Tactical / Lethal / Field:</strong> {esc(loadout.get("tactical"))} / {esc(loadout.get("lethal"))} / {esc(loadout.get("field_upgrade"))}<br>
-                        <strong>Scorestreaks:</strong> {esc(loadout.get("scorestreaks"))}
-                    </p>
+                    <span>Oracle Status</span>
+                    <p>{esc(oracle_status)}</p>
                 </div>
 
                 <div class="detail-box">
@@ -563,10 +667,15 @@ def render_matrix(tasks: list[dict], task_summary: dict, completion_state: dict)
                         energy=energy,
                         mode=mode,
                         tasks=tasks,
-                        attach_loadouts=True,
+                        attach_loadouts=False,
                     )
+                    plan = strip_legacy_loadouts(plan)
                     plan = attach_series_context_to_plan(plan, task_summary, completion_state)
+                    plan["loadout_source"] = "oracle_pending"
                     st.session_state.bo7_quick_launch_plan = plan
+                    st.session_state.pop("bo7_launch_oracle_brief", None)
+                    st.session_state.pop("bo7_launch_oracle_error", None)
+                    st.session_state.pop("bo7_launch_oracle_key", None)
                     save_latest_launch_plan(plan)
                     st.rerun()
 
@@ -614,6 +723,9 @@ def main():
         with col_a:
             if st.button("CLEAR QUICK PLAN", use_container_width=True):
                 st.session_state.bo7_quick_launch_plan = None
+                st.session_state.pop("bo7_launch_oracle_brief", None)
+                st.session_state.pop("bo7_launch_oracle_error", None)
+                st.session_state.pop("bo7_launch_oracle_key", None)
                 clear_latest_launch_plan()
                 st.rerun()
 
@@ -626,8 +738,9 @@ def main():
 
         with col_c:
             if st.button("SEND TO MISSION CONTROL", use_container_width=True, type="primary"):
-                mission_plan = attach_loadouts_to_plan(plan, tasks)
+                mission_plan = strip_legacy_loadouts(dict(plan))
                 mission_plan = attach_series_context_to_plan(mission_plan, task_summary, completion_state)
+                mission_plan["loadout_source"] = mission_plan.get("loadout_source") or "oracle_pending"
                 st.session_state.bo7_session_plan = mission_plan
                 st.session_state.bo7_quick_launch_plan = mission_plan
                 save_latest_launch_plan(mission_plan)
