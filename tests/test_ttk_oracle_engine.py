@@ -10,6 +10,8 @@ from modules.warzone.ttk_oracle_engine import (
     apply_attachment_to_stats,
     get_compatible_attachments,
     optimise_single_weapon_build,
+    combo_has_attachment_conflicts,
+    exact_ttk_primary_stage_sort_key,
 )
 
 
@@ -292,3 +294,47 @@ def test_verification_rows_show_expected_before_after_stats():
     assert len(verification) == 1
     assert verification.iloc[0]["base_ads_ms"] == 520
     assert verification.iloc[0]["expected_ads_ms"] == 468
+
+
+def test_parallel_foregrip_cannot_pair_with_optic():
+    combo = (
+        pd.Series({
+            "attachment_id": "parallel_foregrip",
+            "attachment_name": "Parallel Foregrip",
+            "slot": "underbarrel",
+        }),
+        pd.Series({
+            "attachment_id": "test_optic",
+            "attachment_name": "Test Reflex",
+            "slot": "optic",
+        }),
+    )
+
+    assert combo_has_attachment_conflicts(combo)
+
+
+def test_exact_ttk_primary_stage_ignores_support_practical_changes():
+    base = {
+        "raw_ttk_ms": 800,
+        "damage": 30,
+        "shots_to_kill": 10,
+        "practical_ttk_ms": 950,
+    }
+    supported = {
+        "raw_ttk_ms": 800,
+        "damage": 30,
+        "shots_to_kill": 10,
+        "practical_ttk_ms": 850,
+        "ads_ms": 300,
+        "recoil": 10,
+    }
+
+    assert exact_ttk_primary_stage_sort_key(
+        base,
+        build_goal="Fastest TTK",
+        fight_type="Mid range",
+    ) == exact_ttk_primary_stage_sort_key(
+        supported,
+        build_goal="Fastest TTK",
+        fight_type="Mid range",
+    )

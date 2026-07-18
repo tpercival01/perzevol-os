@@ -1,5 +1,6 @@
 from pathlib import Path
 from datetime import datetime
+import json
 import re
 
 import streamlit as st
@@ -26,7 +27,10 @@ from modules.warzone.challenge_rules import (
     build_challenge_constraints,
     split_challenge_rules_by_scope,
 )
-from modules.warzone.weapon_session import build_weapon_session
+from modules.warzone.weapon_session import (
+    build_weapon_session,
+    challenge_adjusted_oracle_context,
+)
 from modules.warzone.weapon_lab import (
     BUILD_GOALS,
     FIGHT_TYPES,
@@ -66,6 +70,35 @@ from modules.warzone.field_planner import (
     TACTICAL_PLAYLIST_STYLE_OPTIONS,
     build_tactical_advice,
 )
+from modules.warzone.meta_baselines import (
+    attachment_fields as meta_attachment_fields,
+    load_meta_loadouts,
+    loadout_attachment_values,
+    matching_meta_loadouts,
+    normalise_meta_challenge_tag,
+    upsert_meta_loadout,
+)
+from modules.warzone.ttk_data_health import build_ttk_data_health_report
+from modules.warzone.best_ttk_cache import (
+    BEST_TTK_CACHE_DIR,
+    best_ttk_cache_key,
+    clear_best_ttk_cache as clear_best_ttk_cache_files,
+    load_best_ttk_cache,
+    save_best_ttk_cache,
+    wrap_best_ttk_session,
+)
+
+try:
+    from modules.warzone.ttk_oracle_engine import (
+        calculate_practical_ttk_ms,
+        combo_has_attachment_conflicts,
+    )
+except ImportError:
+    def calculate_practical_ttk_ms(stats: dict) -> float:
+        return safe_float(stats.get("practical_ttk_ms", stats.get("raw_ttk_ms", 0)), 0.0)
+
+    def combo_has_attachment_conflicts(combo) -> bool:
+        return False
 
 
 st.set_page_config(
@@ -673,6 +706,12 @@ TTK_DATA_DIR = Path("data/bo7_ttk")
 MASTER_ATTACHMENTS_PATH = TTK_DATA_DIR / "attachments.csv"
 MASTER_GUNS_PATH = TTK_DATA_DIR / "guns.csv"
 
+
+def oracle_console_block(lines: list[str]) -> str:
+    return "\n".join(f"> {line}" for line in lines[-18:])
+
+
+
 PROFILED_GUN_COLUMNS = [
     "gun_id",
     "gun_name",
@@ -996,6 +1035,33 @@ def challenge_attachment_count_override(
     return apply_attachment_count_requirement(current_count, required_count)
 
 
+def challenge_min_attachment_count(required_attachment_count) -> int:
+    try:
+        return max(0, int(required_attachment_count or 0))
+    except (TypeError, ValueError):
+        return 0
+
+
+def attachment_budget_run_summary(
+    *,
+    attachment_count: int,
+    min_attachment_count: int = 0,
+    attachment_count_mode: str = "up_to",
+) -> str:
+    mode = str(attachment_count_mode or "").strip().lower()
+    minimum = max(0, int(min_attachment_count or 0))
+    maximum = max(0, int(attachment_count or 0))
+
+    if mode in {"up_to", "upto", "budget", "best_within_budget", "variable", "auto"}:
+        if minimum > 0 and minimum < maximum:
+            return f"Oracle will search builds from {minimum} to {maximum} attachments and keep whichever scores best."
+        if minimum >= maximum and maximum > 0:
+            return f"Oracle must use {maximum} attachment(s) because the challenge requires it."
+        return f"Oracle will search builds using up to {maximum} attachments and keep whichever scores best."
+
+    return f"Oracle will search exact {maximum}-attachment builds."
+
+
 
 def render_tactical_context_controls() -> dict:
     st.subheader("TACTICAL CONTEXT")
@@ -1278,6 +1344,8 @@ def render_optimizer_workload_estimate(
     optimiser_mode: str,
     slot_candidate_limit: int,
     forced_attachment_rules=None,
+    min_attachment_count: int = 0,
+    attachment_count_mode: str = "exact",
 ):
     workload = estimate_optimizer_combo_count(
         guns=guns_subset,
@@ -1290,6 +1358,8 @@ def render_optimizer_workload_estimate(
         optimiser_mode=optimiser_mode,
         candidate_limit_per_slot=slot_candidate_limit,
         forced_attachment_rules=forced_attachment_rules,
+        min_attachment_count=min_attachment_count,
+        attachment_count_mode=attachment_count_mode,
     )
 
     if workload.empty:
@@ -1309,7 +1379,12 @@ def render_optimizer_workload_estimate(
         f"across {buildable_count} buildable weapon(s)."
     )
 
-    if optimiser_mode == "Deep" and estimated_combinations > 250_000:
+    if optimiser_mode == "Exact TTK":
+        st.caption(
+            message
+            + " Exact TTK uses a lethality-core scan plus Pareto support fill, so this is not a full comfort brute-force."
+        )
+    elif optimiser_mode == "Deep" and estimated_combinations > 250_000:
         st.warning(
             message
             + " This is a heavy deep pass. Use FAST PASS first unless you are validating a final Episode 2 build."
@@ -1320,24 +1395,25 @@ def render_optimizer_workload_estimate(
         st.caption(message)
 
     with st.expander("Workload detail", expanded=False):
+        detail_columns = [
+            "gun_name",
+            "weapon_class",
+            "attachment_count",
+            "attachment_count_mode",
+            "min_attachment_count",
+            "optimiser_mode",
+            "usable_slots",
+            "pool_rows_after_pruning",
+            "estimated_combinations",
+            "ignored_rows",
+            "slot_pool_summary",
+            "challenge_requirements",
+            "challenge_required_slots",
+            "challenge_missing",
+            "buildable",
+        ]
         st.dataframe(
-            workload[
-                [
-                    "gun_name",
-                    "weapon_class",
-                    "attachment_count",
-                    "optimiser_mode",
-                    "usable_slots",
-                    "pool_rows_after_pruning",
-                    "estimated_combinations",
-                    "ignored_rows",
-                    "slot_pool_summary",
-                    "challenge_requirements",
-                    "challenge_required_slots",
-                    "challenge_missing",
-                    "buildable",
-                ]
-            ],
+            workload[[column for column in detail_columns if column in workload.columns]],
             use_container_width=True,
             hide_index=True,
         )
@@ -3148,6 +3224,18 @@ def render_single_weapon_result(best: pd.Series, enemy_health: int, confidence: 
     if confidence:
         render_confidence_badge(confidence)
 
+    selected_count = best.get("selected_attachment_count", "")
+    attachment_budget = best.get("attachment_budget", best.get("attachment_count", ""))
+    attachment_count_mode = str(best.get("attachment_count_mode", "") or "").strip()
+    min_attachment_count = best.get("min_attachment_count", "")
+
+    if selected_count != "":
+        mode_text = "up-to-budget" if attachment_count_mode == "up_to" else (attachment_count_mode or "exact")
+        min_text = f" | minimum {min_attachment_count}" if str(min_attachment_count or "").strip() not in {"", "0", "0.0"} else ""
+        st.caption(
+            f"Attachment search: {mode_text} | budget {attachment_budget} | selected {selected_count}{min_text}."
+        )
+
     challenge_note = str(best.get("challenge_requirements", "") or "").strip()
     if challenge_note:
         st.warning(f"CHALLENGE LOCK ACTIVE: {challenge_note}")
@@ -3199,6 +3287,9 @@ def render_single_weapon_result(best: pd.Series, enemy_health: int, confidence: 
 
         CHALLENGE LOCK:
         {best.get('challenge_requirements', 'None') or 'None'}
+
+        ATTACHMENT SEARCH:
+        Budget {best.get('attachment_budget', best.get('attachment_count', ''))} | selected {best.get('selected_attachment_count', '') or 'not recorded'}
 
         ATTACHMENTS:
         {best['attachments']}
@@ -4585,6 +4676,64 @@ if data_warnings:
         for warning in data_warnings:
             st.warning(warning)
 
+try:
+    data_health = build_ttk_data_health_report(active_stats_profile=active_stats_profile)
+except Exception as error:
+    st.warning(f"Data health audit could not run: {error}")
+    data_health = None
+
+if data_health:
+    health_summary = data_health.get("summary", {})
+    health_issue_count = (
+        int(health_summary.get("malformed_attachment_rows", 0) or 0)
+        + int(health_summary.get("malformed_gun_rows", 0) or 0)
+        + int(health_summary.get("conversion_risk_rows", 0) or 0)
+        + int(health_summary.get("missing_conflict_columns", 0) or 0)
+    )
+
+    if health_issue_count:
+        with st.expander(f"🧬 CSV HEALTH GUARD: {health_issue_count} issue(s)", expanded=False):
+            summary_cols = st.columns(4)
+            summary_cols[0].metric("Gun rows", health_summary.get("gun_rows", 0))
+            summary_cols[1].metric("Attachment rows", health_summary.get("attachment_rows", 0))
+            summary_cols[2].metric("Malformed attachments", health_summary.get("malformed_attachment_rows", 0))
+            summary_cols[3].metric("Conversion risks", health_summary.get("conversion_risk_rows", 0))
+
+            unsafe_weapons = str(health_summary.get("unsafe_weapons", "") or "").strip()
+            if unsafe_weapons:
+                st.error(f"Do not validate final builds for these weapons yet: {unsafe_weapons}")
+
+            missing_conflict_columns = data_health.get("missing_conflict_columns", [])
+            if missing_conflict_columns:
+                st.warning(
+                    "CSV schema is missing conflict columns: "
+                    + ", ".join(missing_conflict_columns)
+                    + ". Hardcoded conflict rules may still work, but legality should move into data."
+                )
+
+            malformed_attachments = data_health.get("malformed_attachment_rows")
+            if malformed_attachments is not None and not malformed_attachments.empty:
+                st.error("Malformed attachment rows can shift values into the wrong columns. Fix these before trusting that weapon.")
+                st.dataframe(malformed_attachments, use_container_width=True, hide_index=True)
+
+            malformed_guns = data_health.get("malformed_gun_rows")
+            if malformed_guns is not None and not malformed_guns.empty:
+                st.error("Malformed gun rows found.")
+                st.dataframe(malformed_guns, use_container_width=True, hide_index=True)
+
+            conversion_risks = data_health.get("conversion_risks")
+            if conversion_risks is not None and not conversion_risks.empty:
+                st.warning(
+                    "These rows look like conversion, pellet, ammo or alternate-fire attachments but are not blocked. "
+                    "Mark as conversion_unmodelled unless the changed profile is fully modelled."
+                )
+                st.dataframe(conversion_risks, use_container_width=True, hide_index=True)
+
+            unlock_coverage = data_health.get("unlock_coverage")
+            if unlock_coverage is not None and not unlock_coverage.empty:
+                st.caption("Current-level reliability by weapon. Max-level theorycraft is unaffected by unknown unlocks.")
+                st.dataframe(unlock_coverage, use_container_width=True, hide_index=True)
+
 data_ready = bool(weapon_names) and not guns.empty and not attachments.empty
 
 if not data_ready:
@@ -4593,13 +4742,14 @@ if not data_ready:
         "Testing tools remain available below so the CSV rebuild can continue."
     )
 
-tactical_context = render_tactical_context_controls()
+with st.expander("Advanced tactical context", expanded=False):
+    tactical_context = render_tactical_context_controls()
 
-operations_tab, testing_tab, single_tab, two_gun_tab, full_loadout_tab = st.tabs(
+single_tab, operations_tab, testing_tab, two_gun_tab, full_loadout_tab = st.tabs(
     [
-        "🛰️ OPERATIONS",
-        "🧪 TESTING",
-        "🔫 SINGLE GUN",
+        "🎯 BEST TTK",
+        "🛰️ MISSION PREP",
+        "🧪 DATA / TESTING",
         "⚔️ TWO GUN",
         "🎒 FULL LOADOUT",
     ]
@@ -5024,340 +5174,1060 @@ with testing_tab:
                 hide_index=True,
             )
 
-with single_tab:
-    st.subheader("SINGLE GUN ATTACHMENT OPTIMISER")
+SIMPLE_CHALLENGE_OPTIONS = [
+    "No challenge / Best TTK",
+    "Headshots",
+    "Point Blank Kills",
+    "One Shot Kills",
+    "Longshots",
+    "Hipfire Kills",
+    "Close Range Kills",
+    "Melee Kills",
+    "5+ attachments",
+    "8 attachments",
+    "Any suppressor",
+    "Underbarrel launcher",
+    "4.0x+ optic",
+    "Any optic / reticle",
+]
+
+
+def _simple_challenge_context(challenge: str, weapon_class: str) -> dict:
+    challenge_text = str(challenge or "").strip()
+    challenge_key = challenge_text.lower()
+
+    build_goal = "Fastest TTK"
+    fight_type = "Mid range"
+    map_type = "Small map / Resurgence"
+
+    if challenge_key in {"headshots", "military camo headshots"}:
+        build_goal = "Military Camo Headshots"
+        fight_type = "Mid range"
+
+    elif any(term in challenge_key for term in ["point blank", "hipfire", "hip fire", "close range", "melee"]):
+        build_goal = "Aggressive mobility"
+        fight_type = "Close range"
+
+    elif "one shot" in challenge_key:
+        build_goal = "One-shot consistency" if "One-shot consistency" in BUILD_GOALS else "Fastest TTK"
+        fight_type = "Close range" if str(weapon_class or "").strip().lower() == "shotgun" else "Mid range"
+
+    elif "longshot" in challenge_key or "long shot" in challenge_key or "4.0x" in challenge_key or "4x" in challenge_key:
+        build_goal = "Long-range consistency" if "Long-range consistency" in BUILD_GOALS else "Low recoil beam"
+        fight_type = "Long range"
+        map_type = "Large map / Battle Royale"
+
+    adjusted = challenge_adjusted_oracle_context(
+        build_goal=build_goal,
+        fight_type=fight_type,
+        challenge_requirements="" if challenge_key.startswith("no challenge") else challenge_text,
+        weapon_class=weapon_class,
+    )
+
+    return {
+        "build_goal": str(adjusted.get("build_goal", build_goal) or build_goal),
+        "fight_type": str(adjusted.get("fight_type", fight_type) or fight_type),
+        "map_type": map_type,
+        "changed": bool(adjusted.get("changed")),
+        "base_build_goal": build_goal,
+        "base_fight_type": fight_type,
+    }
+
+
+def _simple_challenge_constraints(challenge: str) -> tuple[list[dict], int, str]:
+    challenge_text = str(challenge or "").strip()
+
+    if not challenge_text or challenge_text == "No challenge / Best TTK":
+        return [], 0, ""
+
+    soft_only = {
+        "Headshots",
+        "Point Blank Kills",
+        "One Shot Kills",
+        "Longshots",
+        "Hipfire Kills",
+        "Close Range Kills",
+        "Melee Kills",
+    }
+
+    if challenge_text in soft_only:
+        return [], 0, challenge_text
+
+    constraints = build_challenge_constraints(
+        requirement=challenge_text,
+        custom_text="",
+        role_scope="Both weapons",
+    )
+
+    return constraints.rules, constraints.required_attachment_count, constraints.summary
+
+
+def _split_pipe_cell_for_ttk(value) -> list[str]:
+    text = str(value or "").strip()
+    if not text:
+        return []
+    if "|" in text:
+        return [part.strip() for part in text.split("|") if part.strip()]
+    return [text]
+
+
+def _selected_build_unlock_summary(
+    *,
+    best: pd.Series,
+    attachments: pd.DataFrame,
+    current_level,
+) -> dict:
+    names = _split_pipe_cell_for_ttk(best.get("attachments", ""))
+    name_keys = {slugify_for_ttk(name) for name in names if name}
+
+    if not name_keys or attachments.empty or "attachment_name" not in attachments.columns:
+        return {
+            "required_level": "",
+            "locked_now": [],
+        }
+
+    working = attachments.copy()
+    working["_name_key"] = working["attachment_name"].fillna("").astype(str).apply(slugify_for_ttk)
+    selected_rows = working[working["_name_key"].isin(name_keys)].copy()
+
+    if selected_rows.empty:
+        return {
+            "required_level": "",
+            "locked_now": [],
+        }
+
+    levels = pd.to_numeric(selected_rows.get("unlock_level", ""), errors="coerce").fillna(0)
+    required_level = int(levels.max()) if not levels.empty and levels.max() > 0 else ""
+
+    try:
+        current = int(float(current_level)) if current_level not in {None, ""} else None
+    except (TypeError, ValueError):
+        current = None
+
+    locked_now = []
+    if current is not None:
+        for _, row in selected_rows.iterrows():
+            level = safe_float(row.get("unlock_level", 0), 0.0)
+            if level > current:
+                locked_now.append(
+                    f"{row.get('attachment_name', 'Attachment')} · level {int(level)}"
+                )
+
+    return {
+        "required_level": required_level,
+        "locked_now": locked_now,
+    }
+
+
+def _selected_weapon_series(weapon_name: str) -> pd.Series | None:
+    matches = guns[guns["gun_name"].astype(str).eq(str(weapon_name or ""))]
+    if matches.empty:
+        return None
+    return matches.iloc[0]
+
+
+def _selected_weapon_id(weapon_name: str) -> str:
+    row = _selected_weapon_series(weapon_name)
+    if row is None:
+        return slugify_for_ttk(weapon_name)
+    return slugify_for_ttk(row.get("gun_id", "") or weapon_name)
+
+
+def _compatible_attachment_rows_for_weapon(weapon_name: str) -> pd.DataFrame:
+    row = _selected_weapon_series(weapon_name)
+    if row is None:
+        return pd.DataFrame()
+    return get_compatible_attachments(row, attachments)
+
+
+def _oracle_attachment_ids_from_best(
+    *,
+    best: pd.Series,
+    selected_weapon: str,
+) -> tuple[list[str], list[str]]:
+    names = _split_pipe_cell_for_ttk(best.get("attachments", ""))
+    slots = _split_pipe_cell_for_ttk(best.get("slots", ""))
+    compatible = _compatible_attachment_rows_for_weapon(selected_weapon)
+
+    if compatible.empty:
+        return [], ["No compatible attachment rows were found for this weapon."]
+
+    ids: list[str] = []
+    warnings: list[str] = []
+    used_ids: set[str] = set()
+
+    working = compatible.copy()
+    working["_name_key"] = working["attachment_name"].apply(slugify_for_ttk) if "attachment_name" in working.columns else ""
+    working["_slot_key"] = working["slot"].apply(slugify_for_ttk) if "slot" in working.columns else ""
+
+    for index, name in enumerate(names):
+        name_key = slugify_for_ttk(name)
+        slot = slots[index] if index < len(slots) else ""
+        slot_key = slugify_for_ttk(slot)
+
+        candidates = working[working["_name_key"].eq(name_key)].copy()
+
+        if slot_key and not candidates.empty:
+            slot_candidates = candidates[candidates["_slot_key"].eq(slot_key)].copy()
+            if not slot_candidates.empty:
+                candidates = slot_candidates
+
+        if candidates.empty:
+            warnings.append(f"Could not map Oracle attachment '{name}' back to an attachment_id.")
+            continue
+
+        chosen = candidates.iloc[0]
+        attachment_id = str(chosen.get("attachment_id", "") or "").strip()
+
+        if not attachment_id:
+            warnings.append(f"Oracle attachment '{name}' has no attachment_id.")
+            continue
+
+        if attachment_id in used_ids:
+            warnings.append(f"Duplicate attachment_id skipped: {attachment_id}.")
+            continue
+
+        ids.append(attachment_id)
+        used_ids.add(attachment_id)
+
+    return ids, warnings
+
+
+def render_save_oracle_as_meta_button(
+    *,
+    best: pd.Series,
+    selected_weapon: str,
+    simple_challenge: str,
+    label: str,
+) -> None:
+    attachment_ids, warnings = _oracle_attachment_ids_from_best(
+        best=best,
+        selected_weapon=selected_weapon,
+    )
+
+    if warnings:
+        with st.expander("Oracle to Meta mapping warnings", expanded=False):
+            for warning in warnings:
+                st.warning(warning)
+
+    if not attachment_ids:
+        st.caption("Oracle build cannot be saved as a meta baseline because no attachment IDs were mapped.")
+        return
+
+    challenge_tag = normalise_meta_challenge_tag(simple_challenge)
+    weapon_row = _selected_weapon_series(selected_weapon)
+    weapon_id = _selected_weapon_id(selected_weapon)
+
+    save_key = (
+        f"save_oracle_meta_{slugify_for_ttk(selected_weapon)}_"
+        f"{challenge_tag}_{label.lower().replace(' ', '_')}"
+    )
+
+    if st.button(
+        f"SAVE {label.upper()} AS META BASELINE",
+        use_container_width=True,
+        key=save_key,
+    ):
+        row = {
+            "loadout_name": f"{selected_weapon} Oracle {label}",
+            "source": "oracle",
+            "stats_profile": active_stats_profile,
+            "weapon_id": weapon_id,
+            "weapon_name": str(weapon_row.get("gun_name", selected_weapon) if weapon_row is not None else selected_weapon),
+            "challenge_tag": challenge_tag,
+            "enemy_health": str(int(enemy_health)),
+            "notes": "Saved from Oracle BEST TTK result.",
+            "verification_status": "oracle_generated",
+        }
+
+        for field, attachment_id in zip(meta_attachment_fields(), attachment_ids):
+            row[field] = attachment_id
+
+        upsert_meta_loadout(row)
+        st.success("Oracle build saved as a meta baseline.")
+        st.rerun()
+
+
+def _attachment_display_label(row: pd.Series) -> str:
+    name = str(row.get("attachment_name", "") or "").strip()
+    slot = str(row.get("slot", "") or "").strip()
+    attachment_id = str(row.get("attachment_id", "") or "").strip()
+
+    bits = [name]
+    if slot:
+        bits.append(slot)
+    if attachment_id:
+        bits.append(attachment_id)
+
+    return " · ".join(bit for bit in bits if bit)
+
+
+def _meta_attachment_choice_maps(compatible: pd.DataFrame) -> tuple[list[str], dict[str, str]]:
+    if compatible.empty:
+        return [""], {"": ""}
+
+    working = compatible.copy()
+    working["_display"] = working.apply(_attachment_display_label, axis=1)
+    working = working.sort_values(["slot", "attachment_name"], kind="stable")
+
+    display_to_id = {"": ""}
+    options = [""]
+
+    for _, row in working.iterrows():
+        display = str(row.get("_display", "") or "").strip()
+        attachment_id = str(row.get("attachment_id", "") or "").strip()
+
+        if not display or not attachment_id:
+            continue
+
+        if display in display_to_id:
+            continue
+
+        display_to_id[display] = attachment_id
+        options.append(display)
+
+    return options, display_to_id
+
+
+def _resolve_meta_attachment_rows(
+    attachment_values: list[str],
+    compatible: pd.DataFrame,
+) -> tuple[pd.DataFrame, list[str]]:
+    if compatible.empty:
+        return pd.DataFrame(), list(attachment_values)
+
+    working = compatible.copy()
+    working["_id_key"] = working.get("attachment_id", "").astype(str).apply(slugify_for_ttk)
+    working["_name_key"] = working.get("attachment_name", "").astype(str).apply(slugify_for_ttk)
+
+    selected_rows = []
+    missing = []
+    used_indices = set()
+
+    for value in attachment_values:
+        raw = str(value or "").strip()
+        if not raw:
+            continue
+
+        key = slugify_for_ttk(raw)
+        matches = working[
+            working["_id_key"].eq(key)
+            | working["_name_key"].eq(key)
+        ]
+
+        if matches.empty:
+            missing.append(raw)
+            continue
+
+        match_index = matches.index[0]
+        if match_index in used_indices:
+            continue
+
+        used_indices.add(match_index)
+        selected_rows.append(working.loc[match_index].drop(labels=["_id_key", "_name_key"], errors="ignore"))
+
+    if not selected_rows:
+        return pd.DataFrame(), missing
+
+    return pd.DataFrame(selected_rows).reset_index(drop=True), missing
+
+
+def _preview_meta_loadout(
+    *,
+    meta_row: pd.Series,
+    selected_weapon: str,
+    build_goal: str,
+    fight_type: str,
+) -> dict:
+    gun = _selected_weapon_series(selected_weapon)
+    compatible = _compatible_attachment_rows_for_weapon(selected_weapon)
+    attachment_values = loadout_attachment_values(meta_row)
+    selected_attachments, missing = _resolve_meta_attachment_rows(attachment_values, compatible)
+
+    warnings = []
+    if missing:
+        warnings.append("Missing attachment row(s): " + ", ".join(missing))
+
+    if selected_attachments.empty:
+        warnings.append("No matched attachments for this baseline.")
+
+    combo_dicts = [row.to_dict() for _, row in selected_attachments.iterrows()]
+    illegal_conflict = combo_has_attachment_conflicts(combo_dicts) if combo_dicts else False
+    if illegal_conflict:
+        warnings.append("Illegal attachment conflict detected.")
+
+    duplicate_slots = []
+    if not selected_attachments.empty and "slot" in selected_attachments.columns:
+        slot_counts = selected_attachments["slot"].astype(str).str.strip().value_counts()
+        duplicate_slots = [slot for slot, count in slot_counts.items() if slot and count > 1]
+        if duplicate_slots:
+            warnings.append("Duplicate slot(s): " + ", ".join(duplicate_slots))
+
+    if gun is None:
+        return {
+            "valid": False,
+            "warnings": ["Weapon row was not found."],
+            "attachments": " | ".join(attachment_values),
+        }
+
+    preview = build_loadout_preview(
+        gun,
+        selected_attachments,
+        enemy_health=int(enemy_health),
+        fight_type=fight_type,
+        build_goal=build_goal,
+    )
+
+    preview["damage_per_mag"] = safe_float(preview.get("damage", 0), 0.0) * safe_float(preview.get("mag_size", 0), 0.0)
+    preview["practical_ttk_ms"] = calculate_practical_ttk_ms(preview)
+    preview["selected_attachment_count"] = len(selected_attachments)
+    preview["attachments"] = " | ".join(
+        str(row.get("attachment_name", "") or "").strip()
+        for _, row in selected_attachments.iterrows()
+        if str(row.get("attachment_name", "") or "").strip()
+    )
+    preview["slots"] = " | ".join(
+        str(row.get("slot", "") or "").strip()
+        for _, row in selected_attachments.iterrows()
+        if str(row.get("slot", "") or "").strip()
+    )
+    preview["meta_loadout_id"] = str(meta_row.get("meta_loadout_id", "") or "")
+    preview["loadout_name"] = str(meta_row.get("loadout_name", "") or "")
+    preview["source"] = str(meta_row.get("source", "") or "")
+    preview["verification_status"] = str(meta_row.get("verification_status", "") or "")
+    preview["warnings"] = warnings
+    preview["valid"] = not warnings
+
+    return preview
+
+
+def render_meta_baseline_editor(
+    *,
+    selected_weapon: str,
+    simple_challenge: str,
+):
+    st.markdown("### Meta Baselines")
     st.caption(
-        "Pick one weapon, then let the Oracle brute-force its legal attachment combinations. "
-        "Optimum build stays at the top; deeper testing stays in the Testing tab."
+        "Save known season builds here. The Oracle will compare against them after a BEST TTK run, "
+        "but it will not silently replace the Oracle result."
+    )
+
+    weapon_row = _selected_weapon_series(selected_weapon)
+    weapon_id = _selected_weapon_id(selected_weapon)
+    challenge_tag = normalise_meta_challenge_tag(simple_challenge)
+    compatible = _compatible_attachment_rows_for_weapon(selected_weapon)
+    options, display_to_id = _meta_attachment_choice_maps(compatible)
+
+    existing = matching_meta_loadouts(
+        load_meta_loadouts(),
+        stats_profile=active_stats_profile,
+        weapon_id=weapon_id,
+        weapon_name=selected_weapon,
+        challenge_tag=challenge_tag,
+        enemy_health=int(enemy_health),
+    )
+
+    if not existing.empty:
+        with st.expander("Saved baselines for this weapon/challenge", expanded=False):
+            display_columns = [
+                "loadout_name",
+                "source",
+                "challenge_tag",
+                "enemy_health",
+                "verification_status",
+                *meta_attachment_fields(),
+                "notes",
+            ]
+            st.dataframe(
+                existing[[column for column in display_columns if column in existing.columns]],
+                use_container_width=True,
+                hide_index=True,
+            )
+
+    with st.form(f"meta_baseline_form_{weapon_id}_{challenge_tag}"):
+        form_cols = st.columns([1.2, 1, 1])
+        with form_cols[0]:
+            loadout_name = st.text_input(
+                "Loadout name",
+                value=f"{selected_weapon} meta",
+                key=f"meta_loadout_name_{weapon_id}_{challenge_tag}",
+            )
+        with form_cols[1]:
+            source = st.text_input(
+                "Source",
+                value="manual",
+                key=f"meta_loadout_source_{weapon_id}_{challenge_tag}",
+            )
+        with form_cols[2]:
+            verification_status = st.selectbox(
+                "Status",
+                ["manual", "field_tested", "community", "needs_verification"],
+                index=0,
+                key=f"meta_loadout_status_{weapon_id}_{challenge_tag}",
+            )
+
+        selected_ids = []
+        attachment_cols = st.columns(4)
+        for index, field in enumerate(meta_attachment_fields(), start=1):
+            with attachment_cols[(index - 1) % 4]:
+                choice = st.selectbox(
+                    f"Attachment {index}",
+                    options,
+                    index=0,
+                    key=f"meta_{weapon_id}_{challenge_tag}_{field}",
+                )
+                attachment_id = display_to_id.get(choice, "")
+                if attachment_id:
+                    selected_ids.append(attachment_id)
+
+        notes = st.text_area(
+            "Notes",
+            value="",
+            height=80,
+            key=f"meta_loadout_notes_{weapon_id}_{challenge_tag}",
+        )
+
+        save_meta = st.form_submit_button("SAVE META BASELINE", use_container_width=True)
+
+    if save_meta:
+        if not selected_ids:
+            st.warning("Pick at least one attachment before saving a meta baseline.")
+            return
+
+        row = {
+            "loadout_name": loadout_name or f"{selected_weapon} meta",
+            "source": source or "manual",
+            "stats_profile": active_stats_profile,
+            "weapon_id": weapon_id,
+            "weapon_name": str(weapon_row.get("gun_name", selected_weapon) if weapon_row is not None else selected_weapon),
+            "challenge_tag": challenge_tag,
+            "enemy_health": str(int(enemy_health)),
+            "notes": notes,
+            "verification_status": verification_status,
+        }
+
+        for field, attachment_id in zip(meta_attachment_fields(), selected_ids):
+            row[field] = attachment_id
+
+        upsert_meta_loadout(row)
+        st.success("Meta baseline saved.")
+        st.rerun()
+
+
+def render_meta_baseline_comparison(
+    *,
+    selected_weapon: str,
+    simple_challenge: str,
+    build_goal: str,
+    fight_type: str,
+    oracle_best: pd.Series,
+):
+    weapon_id = _selected_weapon_id(selected_weapon)
+    challenge_tag = normalise_meta_challenge_tag(simple_challenge)
+
+    matches = matching_meta_loadouts(
+        load_meta_loadouts(),
+        stats_profile=active_stats_profile,
+        weapon_id=weapon_id,
+        weapon_name=selected_weapon,
+        challenge_tag=challenge_tag,
+        enemy_health=int(enemy_health),
+    )
+
+    if matches.empty:
+        return
+
+    oracle_raw = safe_float(oracle_best.get("raw_ttk_ms", 0), 0.0)
+    oracle_practical = safe_float(oracle_best.get("practical_ttk_ms", 0), 0.0)
+
+    rows = []
+    for _, meta_row in matches.iterrows():
+        preview = _preview_meta_loadout(
+            meta_row=meta_row,
+            selected_weapon=selected_weapon,
+            build_goal=build_goal,
+            fight_type=fight_type,
+        )
+
+        raw_ttk = safe_float(preview.get("raw_ttk_ms", 0), 0.0)
+        practical_ttk = safe_float(preview.get("practical_ttk_ms", 0), 0.0)
+
+        rows.append(
+            {
+                "Loadout": preview.get("loadout_name", ""),
+                "Source": preview.get("source", ""),
+                "Status": preview.get("verification_status", ""),
+                "Meta raw TTK": raw_ttk,
+                "Oracle raw Δ": raw_ttk - oracle_raw if raw_ttk and oracle_raw else "",
+                "Meta practical TTK": practical_ttk,
+                "Oracle practical Δ": practical_ttk - oracle_practical if practical_ttk and oracle_practical else "",
+                "Count": preview.get("selected_attachment_count", 0),
+                "Attachments": preview.get("attachments", ""),
+                "Warnings": " | ".join(preview.get("warnings", [])),
+            }
+        )
+
+    st.markdown("## ORACLE VS META")
+    st.caption("Positive delta means the saved meta baseline is slower than the Oracle result.")
+
+    comparison = pd.DataFrame(rows)
+    st.dataframe(
+        comparison,
+        use_container_width=True,
+        hide_index=True,
+    )
+
+
+def _run_best_ttk_weapon_session(
+    *,
+    selected_weapon: str,
+    build_goal: str,
+    fight_type: str,
+    map_type: str,
+    challenge_summary: str,
+    challenge_rules: list[dict],
+    min_attachment_count: int,
+    attachment_unlock_mode: str,
+    console_lines: list[str] | None = None,
+):
+    console_lines = console_lines if console_lines is not None else []
+
+    cache_key = best_ttk_cache_key(
+        selected_weapon=selected_weapon,
+        build_goal=build_goal,
+        fight_type=fight_type,
+        map_type=map_type,
+        challenge_summary=challenge_summary,
+        challenge_rules=challenge_rules,
+        min_attachment_count=min_attachment_count,
+        attachment_unlock_mode=attachment_unlock_mode,
+        stats_profile=active_stats_profile,
+        enemy_health=enemy_health,
+        guns_path=MASTER_GUNS_PATH,
+        attachments_path=MASTER_ATTACHMENTS_PATH,
+    )
+
+    cached = load_best_ttk_cache(cache_key)
+    if cached is not None:
+        console_lines.append(f"CACHE HIT {attachment_unlock_mode}: {selected_weapon}")
+        return cached
+
+    console_lines.append(f"CACHE MISS {attachment_unlock_mode}: scanning {selected_weapon}")
+    console_lines.append(f"route={build_goal} | fight={fight_type} | health={enemy_health}")
+    console_lines.append("mode=Exact TTK Pareto support | core first, support frontier second")
+
+    session = build_weapon_session(
+        guns=guns,
+        attachments=attachments,
+        weapon_name=selected_weapon,
+        stats_profile=active_stats_profile,
+        map_type=map_type,
+        fight_type=fight_type,
+        build_goal=build_goal,
+        enemy_health=enemy_health,
+        attachment_count=8,
+        top_n=10,
+        optimiser_mode="Exact TTK",
+        candidate_limit_per_slot=0,
+        forced_attachment_rules=challenge_rules,
+        challenge_requirements=challenge_summary,
+        min_attachment_count=min_attachment_count,
+        attachment_count_mode="up_to",
+        attachment_unlock_mode=attachment_unlock_mode,
+        target_weapon_level=None,
+    )
+
+    save_best_ttk_cache(cache_key, session)
+    console_lines.append(f"CACHE SAVED {attachment_unlock_mode}: {cache_key[:12]}")
+
+    return wrap_best_ttk_session(
+        session,
+        cache_status="MISS_SAVED",
+        cache_key=cache_key,
+    )
+
+def _render_best_ttk_session(
+    *,
+    label: str,
+    session,
+    selected_weapon: str,
+    context: dict,
+):
+    results = session.results
+
+    if results.empty:
+        st.error(f"{label}: no valid build found.")
+        return None
+
+    best = pd.Series(results.iloc[0])
+    availability = session.availability.to_dict() if getattr(session, "availability", None) is not None else {}
+    current_level = availability.get("current_level")
+    max_level = availability.get("max_level")
+    effective_level = availability.get("effective_level")
+
+    unlock_summary = _selected_build_unlock_summary(
+        best=best,
+        attachments=attachments,
+        current_level=current_level,
+    )
+
+    st.markdown(f"## {label}")
+    metric_cols = st.columns(5)
+    metric_cols[0].metric("Raw TTK", f"{safe_float(best.get('raw_ttk_ms', 0), 0.0):.0f} ms")
+    metric_cols[1].metric("Practical TTK", f"{safe_float(best.get('practical_ttk_ms', 0), 0.0):.0f} ms")
+    metric_cols[2].metric("Damage", f"{safe_float(best.get('damage', 0), 0.0):.0f}")
+    metric_cols[3].metric("Selected", f"{int(safe_float(best.get('selected_attachment_count', best.get('attachment_count', 0)), 0.0))} / 8")
+    metric_cols[4].metric("Needed level", unlock_summary["required_level"] or "unknown")
+
+    level_bits = []
+    if current_level not in {None, ""}:
+        level_bits.append(f"current level {current_level}")
+    if max_level not in {None, ""}:
+        level_bits.append(f"unlock cap {max_level}")
+    if effective_level not in {None, ""}:
+        level_bits.append(f"effective {effective_level}")
+    if level_bits:
+        st.caption("Attachment availability: " + " · ".join(level_bits))
+
+    cache_status = str(getattr(session, "cache_status", "") or "").strip()
+    cache_key = str(getattr(session, "cache_key", "") or "").strip()
+    if cache_status == "HIT":
+        st.success(f"Loaded from BEST TTK cache · {cache_key[:12]}")
+    elif cache_status == "MISS_SAVED":
+        st.caption(f"Saved BEST TTK cache · {cache_key[:12]}")
+
+    locked_now = unlock_summary.get("locked_now", [])
+    if locked_now:
+        with st.expander("Locked attachments in this build", expanded=True):
+            for item in locked_now:
+                st.warning(item)
+
+    render_single_weapon_result(
+        best,
+        int(enemy_health),
+        single_build_confidence(best, context),
+    )
+
+    render_tactical_advice_panel(
+        tactical_advice_for_row(best, context)
+    )
+
+    return best
+
+
+with single_tab:
+    st.subheader("BEST TTK")
+    st.caption(
+        "Pick a weapon, choose the challenge, then press BEST TTK. "
+        "The Oracle uses an up-to-8 attachment budget and only forces exact counts when the challenge requires it."
     )
 
     if not data_ready:
         st.warning(f"No buildable {active_stats_profile} weapon and attachment data is loaded yet.")
     else:
-        single_cols = st.columns(4)
+        simple_cols = st.columns([1.4, 1.2, 1.2])
 
-        with single_cols[0]:
+        with simple_cols[0]:
             selected_single_weapon = st.selectbox(
                 "Weapon",
                 weapon_names,
                 index=0,
-                key="single_gun_weapon",
+                key="simple_best_ttk_weapon",
             )
 
-        with single_cols[1]:
-            single_map_type = st.selectbox(
-                "Mode profile",
-                MAP_TYPES,
+        with simple_cols[1]:
+            simple_challenge = st.selectbox(
+                "Challenge",
+                SIMPLE_CHALLENGE_OPTIONS,
                 index=0,
-                key="single_gun_map_type",
+                key="simple_best_ttk_challenge",
             )
 
-        with single_cols[2]:
-            single_fight_type = st.selectbox(
-                "Fight type",
-                FIGHT_TYPES,
-                index=1 if "Mid range" in FIGHT_TYPES else 0,
-                key="single_gun_fight_type",
-            )
-
-        with single_cols[3]:
-            single_build_goal = st.selectbox(
-                "Build goal",
-                BUILD_GOALS,
+        with simple_cols[2]:
+            level_mode = st.selectbox(
+                "Weapon level mode",
+                [
+                    "Current level only",
+                    "Max level theorycraft",
+                    "Compare current vs max",
+                ],
                 index=0,
-                key="single_gun_build_goal",
+                key="simple_best_ttk_level_mode",
             )
 
-        unlock_cols = st.columns(3)
-
-        with unlock_cols[0]:
-            single_unlock_mode_label = st.selectbox(
-                "Attachment availability",
-                ["Current weapon level", "Assume max level", "Target weapon level"],
-                index=0,
-                key="single_unlock_mode",
+        utility_cols = st.columns([1, 1, 3])
+        with utility_cols[0]:
+            show_oracle_console = st.checkbox(
+                "Show Oracle Console",
+                value=False,
+                key="simple_best_ttk_show_console",
+            )
+        with utility_cols[1]:
+            clear_best_ttk_cache = st.button(
+                "CLEAR CACHE",
+                use_container_width=True,
+                key="simple_best_ttk_clear_cache",
             )
 
-        single_unlock_mode = {
-            "Current weapon level": "current_level",
-            "Assume max level": "max_level",
-            "Target weapon level": "target_level",
-        }[single_unlock_mode_label]
+        if clear_best_ttk_cache:
+            removed_cache_files = clear_best_ttk_cache_files()
+            st.session_state.pop("ttk_simple_best_ttk", None)
+            st.success(f"Cleared BEST TTK cache ({removed_cache_files} file(s)).")
+            st.rerun()
 
-        with unlock_cols[1]:
-            single_target_level = None
-            if single_unlock_mode == "target_level":
-                single_target_level = st.number_input(
-                    "Target weapon level",
-                    min_value=1,
-                    max_value=999,
-                    value=20,
-                    step=1,
-                    key="single_target_weapon_level",
-                )
-            else:
-                st.caption("Using data/bo7_clean/weapon_prestige.csv")
-
-        with unlock_cols[2]:
-            st.caption("Blank unlock fields remain available until real unlock levels are entered.")
-
-        single_cols = st.columns(4)
-
-        with single_cols[0]:
-            single_ruleset = st.selectbox(
-                "Attachment ruleset",
-                ATTACHMENT_RULESETS,
-                index=0,
-                key="single_gun_attachment_ruleset",
-            )
-
-        with single_cols[1]:
-            single_attachment_budget = st.selectbox(
-                "Attachment budget",
-                ATTACHMENT_BUDGET_PROFILES,
-                index=0,
-                key="single_gun_attachment_budget",
-            )
-
-        with single_cols[2]:
-            single_results_count = st.slider(
-                "Candidate builds",
-                min_value=5,
-                max_value=25,
-                value=10,
-                step=5,
-                key="single_gun_results",
-            )
-
-        with single_cols[3]:
-            single_depth_profile = st.selectbox(
-                "Optimiser depth",
-                OPTIMISER_DEPTH_PROFILES,
-                index=0,
-                key="single_gun_optimiser_depth",
-            )
-
-        single_attachment_count = attachment_count_for_profile(
-            single_ruleset,
-            single_attachment_budget,
+        selected_single_gun_row = guns[guns["gun_name"] == selected_single_weapon]
+        selected_single_weapon_class = (
+            str(selected_single_gun_row.iloc[0].get("weapon_class", "") or "")
+            if not selected_single_gun_row.empty
+            else ""
         )
-        single_optimiser_mode = optimiser_mode_for_profile(single_depth_profile)
 
-        single_depth_cols = st.columns([1, 2])
+        single_challenge_rules, challenge_required_count, single_challenge_summary = _simple_challenge_constraints(
+            simple_challenge
+        )
 
-        with single_depth_cols[0]:
-            single_slot_candidate_limit = st.slider(
-                "Fast-pass candidates per slot",
-                min_value=1,
-                max_value=5,
-                value=3,
-                step=1,
-                key="single_gun_slot_candidate_limit",
+        single_min_attachment_count = challenge_min_attachment_count(challenge_required_count)
+        single_context = _simple_challenge_context(
+            simple_challenge,
+            selected_single_weapon_class,
+        )
+
+        single_effective_build_goal = single_context["build_goal"]
+        single_effective_fight_type = single_context["fight_type"]
+        single_map_type = single_context["map_type"]
+
+        st.info(
+            f"Oracle route: {single_effective_build_goal} · {single_effective_fight_type} · "
+            "up to 8 attachments."
+        )
+
+        st.caption(
+            attachment_budget_run_summary(
+                attachment_count=8,
+                min_attachment_count=single_min_attachment_count,
+                attachment_count_mode="up_to",
             )
-
-        with single_depth_cols[1]:
-            st.caption(attachment_budget_summary(single_ruleset, single_attachment_budget))
-            st.caption(optimiser_depth_summary(single_depth_profile, single_slot_candidate_limit))
-
-        single_challenge_rules, single_force_eight, single_challenge_summary, _ = render_challenge_lock_controls(
-            "single_gun",
-            allow_role_scope=False,
         )
-        single_attachment_count = challenge_attachment_count_override(
-            single_attachment_count,
-            single_force_eight,
-            single_challenge_summary,
-        )
+
+        if single_challenge_summary:
+            st.caption(f"Challenge: {single_challenge_summary}")
+
+        with st.expander("Meta Baselines", expanded=False):
+            render_meta_baseline_editor(
+                selected_weapon=selected_single_weapon,
+                simple_challenge=simple_challenge,
+            )
 
         render_optimizer_workload_estimate(
             guns_subset=guns[guns["gun_name"] == selected_single_weapon],
             attachments=attachments,
             map_type=single_map_type,
-            fight_type=single_fight_type,
-            build_goal=single_build_goal,
+            fight_type=single_effective_fight_type,
+            build_goal=single_effective_build_goal,
             enemy_health=enemy_health,
-            attachment_count=single_attachment_count,
-            optimiser_mode=single_optimiser_mode,
-            slot_candidate_limit=single_slot_candidate_limit,
+            attachment_count=8,
+            optimiser_mode="Exact TTK",
+            slot_candidate_limit=0,
             forced_attachment_rules=single_challenge_rules,
+            min_attachment_count=single_min_attachment_count,
+            attachment_count_mode="up_to",
         )
 
-        weapon_data_status = describe_weapon_build_data(
-            guns=guns,
-            attachments=attachments,
-            weapon_name=selected_single_weapon,
-            attachment_count=single_attachment_count,
+        run_best_ttk = st.button(
+            "BEST TTK",
+            type="primary",
+            use_container_width=True,
+            key="simple_best_ttk_button",
         )
 
-        if weapon_data_status.get("buildable"):
-            st.caption(
-                f"{weapon_data_status['message']} Slots: {', '.join(weapon_data_status.get('slots', []))}"
-            )
-        else:
-            st.warning(weapon_data_status["message"])
-
-        if st.button("RUN SINGLE GUN OPTIMISER", type="primary", use_container_width=True):
+        if run_best_ttk:
             start_time = time.perf_counter()
+            runs = {}
+            console_lines = [
+                f"BOOT ORACLE: {selected_single_weapon}",
+                f"CHALLENGE: {simple_challenge}",
+                f"LEVEL MODE: {level_mode}",
+                f"PROFILE: {active_stats_profile}",
+            ]
+            console_placeholder = st.empty()
 
-            with st.spinner(f"Brute-forcing {selected_single_weapon} {single_attachment_count}-attachment builds..."):
-                single_weapon_session = build_weapon_session(
-                    guns=guns,
-                    attachments=attachments,
-                    weapon_name=selected_single_weapon,
-                    stats_profile=active_stats_profile,
-                    map_type=single_map_type,
-                    fight_type=single_fight_type,
-                    build_goal=single_build_goal,
-                    enemy_health=enemy_health,
-                    attachment_count=single_attachment_count,
-                    top_n=single_results_count,
-                    optimiser_mode=single_optimiser_mode,
-                    candidate_limit_per_slot=single_slot_candidate_limit,
-                    forced_attachment_rules=single_challenge_rules,
-                    attachment_unlock_mode=single_unlock_mode,
-                    target_weapon_level=single_target_level,
+            if show_oracle_console:
+                console_placeholder.code(
+                    oracle_console_block(console_lines),
+                    language="text",
                 )
-                single_weapon_results = single_weapon_session.results
+
+            try:
+                with st.spinner(f"Oracle is running objective-exact BEST TTK for {selected_single_weapon}..."):
+                    if level_mode in {"Current level only", "Compare current vs max"}:
+                        runs["current"] = _run_best_ttk_weapon_session(
+                            selected_weapon=selected_single_weapon,
+                            build_goal=single_effective_build_goal,
+                            fight_type=single_effective_fight_type,
+                            map_type=single_map_type,
+                            challenge_summary=single_challenge_summary,
+                            challenge_rules=single_challenge_rules,
+                            min_attachment_count=single_min_attachment_count,
+                            attachment_unlock_mode="current_level",
+                            console_lines=console_lines,
+                        )
+                        if show_oracle_console:
+                            console_placeholder.code(
+                                oracle_console_block(console_lines),
+                                language="text",
+                            )
+
+                    if level_mode in {"Max level theorycraft", "Compare current vs max"}:
+                        runs["max"] = _run_best_ttk_weapon_session(
+                            selected_weapon=selected_single_weapon,
+                            build_goal=single_effective_build_goal,
+                            fight_type=single_effective_fight_type,
+                            map_type=single_map_type,
+                            challenge_summary=single_challenge_summary,
+                            challenge_rules=single_challenge_rules,
+                            min_attachment_count=single_min_attachment_count,
+                            attachment_unlock_mode="max_level",
+                            console_lines=console_lines,
+                        )
+                        if show_oracle_console:
+                            console_placeholder.code(
+                                oracle_console_block(console_lines),
+                                language="text",
+                            )
+
+            except ValueError as error:
+                st.error(str(error))
+                console_lines.append(f"ERROR: {error}")
+                runs = {}
 
             elapsed_seconds = time.perf_counter() - start_time
+            console_lines.append(f"DONE: {elapsed_seconds:.2f}s")
 
-            if single_weapon_results.empty:
-                st.error(
-                    "No valid single-gun build found. This usually means the selected weapon does not have enough entered attachment slots yet."
-                )
-            else:
-                st.session_state.ttk_last_single_build = {
-                    "elapsed_seconds": elapsed_seconds,
-                    "result": single_weapon_results.iloc[0].to_dict(),
-                    "top_results": single_weapon_results,
-                    "mode_profile": f"{active_stats_profile} | {single_map_type} | {single_ruleset}",
-                    "stats_profile": active_stats_profile,
-                    "fight_type": single_fight_type,
-                    "build_goal": single_build_goal,
-                    "enemy_health": enemy_health,
-                    "attachment_budget": single_attachment_budget,
-                    "attachment_count": single_attachment_count,
-                    "optimiser_depth": single_depth_profile,
-                    "slot_candidate_limit": single_slot_candidate_limit,
-                    "perk_package": "",
-                    "challenge_requirements": single_challenge_summary,
-                    "attachment_unlock_mode": single_unlock_mode,
-                    "target_weapon_level": single_target_level,
-                    "attachment_availability": single_weapon_session.availability.to_dict(),
-                    **tactical_context,
-                }
-
-        last_single_build = st.session_state.get("ttk_last_single_build")
-
-        if last_single_build:
-            single_weapon_results = last_single_build.get("top_results", pd.DataFrame())
-
-            if single_weapon_results.empty:
-                visible_single_results = pd.DataFrame()
-                best_single = pd.Series(last_single_build.get("result", {}))
-            else:
-                single_weapon_results = annotate_single_results_with_confidence(
-                    single_weapon_results,
-                    last_single_build,
-                )
-                visible_single_results = filter_candidate_results(
-                    single_weapon_results,
-                    candidate_trust_filter,
-                )
-                best_single = (
-                    pd.Series(visible_single_results.iloc[0])
-                    if not visible_single_results.empty
-                    else pd.Series(dtype=object)
+            if show_oracle_console:
+                console_placeholder.code(
+                    oracle_console_block(console_lines),
+                    language="text",
                 )
 
-            if visible_single_results.empty:
-                st.warning(
-                    "No single-gun candidate survives the current trust filter. "
-                    "Switch to SHOW ALL LAB CANDIDATES to inspect the raw Oracle output."
-                )
-            elif not best_single.empty:
-                availability = last_single_build.get("attachment_availability", {}) or {}
-                if availability:
-                    current_level = availability.get("current_level")
-                    max_level = availability.get("max_level")
-                    effective_level = availability.get("effective_level")
-                    eligible_count = availability.get("eligible_count", 0)
-                    total_count = availability.get("total_count", 0)
-                    locked_count = availability.get("locked_count", 0)
+            st.session_state.ttk_simple_best_ttk = {
+                "runs": runs,
+                "elapsed_seconds": elapsed_seconds,
+                "selected_weapon": selected_single_weapon,
+                "mode_profile": f"{active_stats_profile} | {single_map_type} | Best TTK",
+                "stats_profile": active_stats_profile,
+                "fight_type": single_effective_fight_type,
+                "build_goal": single_effective_build_goal,
+                "enemy_health": enemy_health,
+                "attachment_budget": "Up to 8",
+                "attachment_count": 8,
+                "min_attachment_count": single_min_attachment_count,
+                "attachment_count_mode": "up_to",
+                "optimiser_depth": "Exact TTK",
+                "slot_candidate_limit": "",
+                "perk_package": "",
+                "challenge_requirements": single_challenge_summary,
+                "simple_challenge": simple_challenge,
+                "oracle_console_lines": console_lines,
+                **tactical_context,
+            }
 
-                    level_label = (
-                        f"Current level {current_level}"
-                        if current_level is not None
-                        else "Current level unknown"
+        last_simple_build = st.session_state.get("ttk_simple_best_ttk")
+
+        if last_simple_build:
+            runs = last_simple_build.get("runs", {})
+            st.caption(
+                f"Last run: {last_simple_build.get('selected_weapon', selected_single_weapon)} · "
+                f"{last_simple_build.get('build_goal', '')} · "
+                f"{last_simple_build.get('fight_type', '')} · "
+                f"{safe_float(last_simple_build.get('elapsed_seconds', 0), 0.0):.2f}s"
+            )
+
+            if show_oracle_console and last_simple_build.get("oracle_console_lines"):
+                with st.expander("Oracle Console", expanded=True):
+                    st.code(
+                        oracle_console_block(last_simple_build.get("oracle_console_lines", [])),
+                        language="text",
                     )
-                    if max_level:
-                        level_label += f" · unlock cap {max_level}"
-                    if effective_level is not None:
-                        level_label += f" · effective {effective_level}"
 
-                    st.info(
-                        f"ATTACHMENT AVAILABILITY · {level_label} · "
-                        f"{eligible_count}/{total_count} eligible · "
-                        f"{locked_count} locked"
+            current_best = None
+            max_best = None
+
+            if "current" in runs:
+                current_best = _render_best_ttk_session(
+                    label="BEST CURRENT BUILD",
+                    session=runs["current"],
+                    selected_weapon=selected_single_weapon,
+                    context=last_simple_build,
+                )
+
+            if "max" in runs:
+                max_best = _render_best_ttk_session(
+                    label="BEST MAX-LEVEL BUILD",
+                    session=runs["max"],
+                    selected_weapon=selected_single_weapon,
+                    context=last_simple_build,
+                )
+
+            if current_best is not None and max_best is not None:
+                current_ttk = safe_float(current_best.get("practical_ttk_ms", 0), 0.0)
+                max_ttk = safe_float(max_best.get("practical_ttk_ms", 0), 0.0)
+                if current_ttk > 0 and max_ttk > 0:
+                    gain = current_ttk - max_ttk
+                    st.markdown("## LEVEL-UP VALUE")
+                    st.metric(
+                        "Max-level improvement",
+                        f"{gain:.0f} ms",
+                        help="Positive means the max-level build is faster than the current-level build.",
                     )
-                    for warning in availability.get("warnings", []) or []:
-                        st.warning(warning)
 
-                st.markdown("## OPTIMUM BUILD")
-                st.caption("FIELD TEST REQUIRED: this is a modelled candidate, not a proven meta.")
-                single_confidence = single_build_confidence(best_single, last_single_build)
-                render_single_weapon_result(
-                    best_single,
-                    int(last_single_build.get("enemy_health", enemy_health)),
-                    single_confidence,
-                )
-                render_tactical_advice_panel(
-                    tactical_advice_for_row(best_single, last_single_build)
-                )
+            comparison_best = max_best if max_best is not None else current_best
+            if comparison_best is not None:
+                comparison_weapon = last_simple_build.get("selected_weapon", selected_single_weapon)
+                comparison_challenge = last_simple_build.get("simple_challenge", simple_challenge)
 
-                st.markdown("### Candidate Builds")
-                render_candidate_filter_summary(
-                    single_weapon_results,
-                    visible_single_results,
-                    candidate_trust_filter,
+                render_meta_baseline_comparison(
+                    selected_weapon=comparison_weapon,
+                    simple_challenge=comparison_challenge,
+                    build_goal=last_simple_build.get("build_goal", single_effective_build_goal),
+                    fight_type=last_simple_build.get("fight_type", single_effective_fight_type),
+                    oracle_best=comparison_best,
                 )
 
-                single_result_columns = available_columns(
-                    visible_single_results,
-                    [
-                        "confidence",
-                        "challenge_requirements",
-                        "optimiser_mode",
-                        "slot_candidate_limit",
-                        "field_verdict",
-                        "field_feel_rating",
-                        "field_tested_at",
-                        "oracle_score",
-                        "gun_name",
-                        "weapon_class",
-                        "raw_ttk_ms",
-                        "practical_ttk_ms",
-                        "shotgun_truth_score",
-                        "shotgun_one_shot_potential",
-                        "shotgun_two_shot_consistency",
-                        "shotgun_range_coverage",
-                        "ads_ms",
-                        "sprint_to_fire_ms",
-                        "recoil",
-                        "bullet_velocity",
-                        "range_m",
-                        "damage_per_mag",
-                        "slots",
-                        "attachments",
-                        "shotgun_truth_note",
-                    ],
-                )
+                with st.expander("Save Oracle result", expanded=False):
+                    render_save_oracle_as_meta_button(
+                        best=comparison_best,
+                        selected_weapon=comparison_weapon,
+                        simple_challenge=comparison_challenge,
+                        label="Oracle build",
+                    )
 
-                st.dataframe(
-                    visible_single_results[single_result_columns],
-                    use_container_width=True,
-                    hide_index=True,
-                )
+            if runs:
+                first_session = runs.get("current") or runs.get("max")
+                result_table = first_session.results if first_session is not None else pd.DataFrame()
+                if result_table is not None and not result_table.empty:
+                    st.markdown("### Candidate builds")
+                    single_result_columns = available_columns(
+                        result_table,
+                        [
+                            "oracle_score",
+                            "gun_name",
+                            "raw_ttk_ms",
+                            "practical_ttk_ms",
+                            "damage",
+                            "shots_to_kill",
+                            "one_shot_margin",
+                            "shotgun_best_close_route",
+                            "selected_attachment_count",
+                            "slots",
+                            "attachments",
+                            "build_reason_summary",
+                        ],
+                    )
+                    st.dataframe(
+                        result_table[single_result_columns],
+                        use_container_width=True,
+                        hide_index=True,
+                    )
 
 with two_gun_tab:
     st.subheader("TWO GUN OPTIMISER")

@@ -278,7 +278,7 @@ PERK_SELECTION_OPTIONS = [
 PERK_PACKAGE_PROFILES = {
     "Aggressive": {
         "role": "Attempt farm",
-        "tags": ["mobility", "fast_respawn", "sprint", "moving", "hipfire", "pressure"],
+        "tags": ["mobility", "fast_respawn", "sprint", "moving", "hipfire", "point_blank", "close_range", "melee", "pressure"],
         "strengths": [
             "Best fit when the grind needs repeated fights and fast re-entry.",
             "Uses BO7 perk rows that favour movement, aggression, and attempt volume.",
@@ -311,7 +311,7 @@ PERK_PACKAGE_PROFILES = {
     },
     "Stealth": {
         "role": "Flank / survival",
-        "tags": ["stealth", "no_damage", "flanking", "headshots", "thermal_counter"],
+        "tags": ["stealth", "no_damage", "flanking", "headshots", "melee", "point_blank", "thermal_counter"],
         "strengths": [
             "Best fit when staying hidden, avoiding third-party deaths, or grinding careful headshots matters.",
             "Uses a Recon shell for stealth and information pressure.",
@@ -322,7 +322,7 @@ PERK_PACKAGE_PROFILES = {
     },
     "Long-range": {
         "role": "Lane holder",
-        "tags": ["longshots", "optic_4x", "headshots", "range", "stability", "stealth"],
+        "tags": ["longshots", "optic_4x", "one_shot", "headshots", "range", "stability", "stealth"],
         "strengths": [
             "Best fit for long lanes, magnified optics, and recoil-stability challenges.",
             "Uses Recon-style survival and visibility tools rather than pure entry speed.",
@@ -451,6 +451,9 @@ def recommend_wildcard_id(
     if int(attachment_count or 0) >= 8 or "8 attachment" in combined or "gunfighter" in combined:
         return "gunfighter"
 
+    if any(term in combined for term in ["melee", "point blank", "point-blank", "smoke", "stun"]):
+        return "tac_expert"
+
     if "field upgrade" in combined:
         return "prepper"
 
@@ -563,6 +566,24 @@ def standard_secondary_class_fit_score(
     if "launcher" in context or "direct hit" in context:
         scores["launcher"] += 0.35
 
+    if "melee" in context or "knife" in context:
+        scores["special"] += 0.28
+        scores["pistol"] += 0.12
+        scores["launcher"] -= 0.08
+
+    if "point blank" in context or "point-blank" in context:
+        scores["pistol"] += 0.22
+        scores["special"] += 0.08
+        scores["launcher"] -= 0.06
+
+    if "close range kill" in context or "close-range kill" in context or "close kills" in context:
+        scores["pistol"] += 0.16
+        scores["special"] += 0.05
+
+    if "one shot" in context or "one-shot" in context:
+        scores["pistol"] += 0.08
+        scores["launcher"] += 0.05
+
     headshot_terms = ["headshot", "military camo", "small", "fast respawn", "close range"]
     if any(term in context for term in headshot_terms):
         scores["pistol"] += 0.18
@@ -658,6 +679,9 @@ def recommend_standard_secondary_slot(
     if chosen_class == "launcher" and not any(term in context for term in ["scorestreak", "destroy", "objective", "launcher"]):
         warnings.append("Launcher is a support pick, not a duel winner. Treat the primary as the kill engine.")
 
+    if chosen_class == "special" and any(term in context for term in ["melee", "knife"]):
+        warnings.append("Special secondary is selected for utility pressure. Melee progress still depends on route discipline and tactical entry tools.")
+
     if chosen_class == "pistol":
         warnings.append("Pistol recommendation is role-based until pistol attachment/base-stat coverage is complete.")
 
@@ -705,6 +729,10 @@ def _goal_flags(
         "headshots": any(token in text for token in ["headshot", "headshots", "military headshots", "military camo"]),
         "objective": "objective" in text,
         "hipfire": "hipfire" in text or "hip fire" in text,
+        "point_blank": "point blank" in text or "point-blank" in text,
+        "one_shot": "one shot" in text or "one-shot" in text or "one shot kill" in text or "one-shot kill" in text,
+        "close_range": "close range kill" in text or "close-range kill" in text or "close kills" in text or "close quarter" in text,
+        "melee": "melee" in text or "knife" in text or "combat axe" in text,
         "longshots": "longshot" in text or "long shot" in text or "long-range lanes" in text,
         "moving": "moving" in text or "movement" in text,
         "sprint": "sprint" in text or "sprinting" in text,
@@ -772,21 +800,25 @@ def perk_package_fit_score(
     score = 0.0
 
     if package == "Aggressive":
-        if flags["hipfire"] or flags["moving"] or flags["sprint"] or flags["slide_dive"]:
-            score += 0.055
+        if flags["hipfire"] or flags["moving"] or flags["sprint"] or flags["slide_dive"] or flags["point_blank"] or flags["close_range"] or flags["melee"]:
+            score += 0.060
+        if flags["point_blank"] or flags["melee"]:
+            score += 0.030
         if flags["objective"] or flags["fast_respawn"]:
             score += 0.030
         if flags["headshots"]:
             score += 0.015
-        if flags["no_damage"] or flags["longshots"] or flags["optic_4x"]:
+        if flags["no_damage"] or flags["longshots"] or flags["optic_4x"] or flags["one_shot"]:
             score -= 0.010
 
     elif package == "Balanced":
         score += 0.015
-        if flags["headshots"] or flags["suppressor"]:
+        if flags["headshots"] or flags["suppressor"] or flags["close_range"]:
             score += 0.035
         if flags["objective"] or flags["weapon_levelling"]:
             score += 0.025
+        if flags["one_shot"]:
+            score += 0.020
         if flags["five_plus"] or flags["eight"]:
             score += 0.015
 
@@ -803,23 +835,29 @@ def perk_package_fit_score(
     elif package == "Stealth":
         if flags["no_damage"]:
             score += 0.060
+        if flags["melee"]:
+            score += 0.055
+        if flags["point_blank"]:
+            score += 0.030
         if flags["headshots"]:
             score += 0.040
         if flags["suppressor"]:
             score += 0.030
-        if flags["small_map"] and (flags["hipfire"] or flags["sprint"] or flags["slide_dive"]):
+        if flags["small_map"] and (flags["hipfire"] or flags["sprint"] or flags["slide_dive"]) and not flags["melee"]:
             score -= 0.010
 
     elif package == "Long-range":
-        if flags["longshots"] or flags["optic_4x"] or str(fight_type).strip() == "Long range":
+        if flags["longshots"] or flags["optic_4x"] or flags["one_shot"] or str(fight_type).strip() == "Long range":
             score += 0.060
+        if flags["one_shot"]:
+            score += 0.030
         if flags["headshots"]:
             score += 0.035
         if flags["large_map"]:
             score += 0.025
-        if flags["small_map"] and not flags["longshots"]:
+        if flags["small_map"] and not flags["longshots"] and not flags["one_shot"]:
             score -= 0.015
-        if flags["sprint"] or flags["slide_dive"] or flags["hipfire"]:
+        if flags["sprint"] or flags["slide_dive"] or flags["hipfire"] or flags["point_blank"] or flags["melee"]:
             score -= 0.020
 
     return round(score, 4)
@@ -964,7 +1002,7 @@ def loadout_item_overclock_fit_score(overclock, *, item=None, context: str = "")
         score += 0.01
 
     # Headshot and no-damage grinds reward information, first-shot advantage, and control.
-    if any(term in context for term in ["headshot", "military camo", "no damage", "longshot", "4.0x"]):
+    if any(term in context for term in ["headshot", "military camo", "no damage", "longshot", "4.0x", "one shot", "one-shot"]):
         if any(term in text for term in [
             "detection_radius", "lifetime_increase", "duration_increase",
             "team_wall_visibility", "team_minimap", "enemy_reveal", "minimap",
@@ -984,7 +1022,7 @@ def loadout_item_overclock_fit_score(overclock, *, item=None, context: str = "")
             score += 0.20
 
     # Movement and small-map challenges want fast deployment and repeatable entry tools.
-    if any(term in context for term in ["small map", "fast respawn", "hipfire", "sprint", "sliding", "diving", "wall-jumping", "moving"]):
+    if any(term in context for term in ["small map", "fast respawn", "hipfire", "point blank", "point-blank", "close range", "melee", "knife", "sprint", "sliding", "diving", "wall-jumping", "moving"]):
         if any(term in text for term in [
             "raise_speed", "detonation_speed", "throw_distance", "throw_velocity",
             "cookable", "full_flash_angle", "look_away", "movement_slow",
@@ -1267,7 +1305,7 @@ def scorestreak_fit_score(
         if any(term in text for term in ["deployable", "automated", "passive_kills"]):
             score += 0.06
 
-    if flags["longshots"] or flags["optic_4x"] or str(fight_type).strip() == "Long range":
+    if flags["longshots"] or flags["optic_4x"] or flags["one_shot"] or str(fight_type).strip() == "Long range":
         if any(term in text for term in ["recon", "advanced_recon", "precision_elimination", "target_reveal", "enemy_location_reveal"]):
             score += 0.16
         if "objective_clear" in text and cost >= 700:
@@ -1279,9 +1317,11 @@ def scorestreak_fit_score(
         if any(term in text for term in ["manual_control", "remote_controlled"]):
             score -= 0.04
 
-    if flags["hipfire"] or flags["sprint"] or flags["moving"] or flags["slide_dive"]:
-        if any(term in text for term in ["low_cost", "small_maps", "anti_personnel", "objective_clear"]):
-            score += 0.12
+    if flags["hipfire"] or flags["sprint"] or flags["moving"] or flags["slide_dive"] or flags["point_blank"] or flags["close_range"] or flags["melee"]:
+        if any(term in text for term in ["low_cost", "small_maps", "anti_personnel", "objective_clear", "recon", "radar", "minimap"]):
+            score += 0.13
+        if cost >= 1000:
+            score -= 0.06
 
     if any(term in context for term in ["scorestreak", "destroy", "destruction", "aerial", "vehicle", "launcher"]):
         if any(term in text for term in ["anti_scorestreak", "counter_equipment", "equipment_destruction", "vehicle_destruction", "air_superiority"]):
@@ -1331,7 +1371,7 @@ def scorestreak_overclock_fit_score(overclock, *, scorestreak, context: str) -> 
         if any(term in text for term in ["anti_scorestreak", "lock_on", "vehicle", "equipment_destruction", "scorestreak"]):
             score += 0.25
 
-    if any(term in context for term in ["headshot", "longshot", "no damage", "objective"]):
+    if any(term in context for term in ["headshot", "longshot", "one shot", "one-shot", "no damage", "objective", "melee", "point blank"]):
         if any(term in text for term in ["directional_enemy_indicators", "target_reveal", "enemy_ping", "radar", "minimap"]):
             score += 0.18
 
@@ -1564,6 +1604,26 @@ def build_perk_loadout_advice(
         equipment_priorities.append("Prioritise entry tools and fast-reset routes.")
         playstyle_notes.append("Route through predictable close-range paths instead of holding long lanes.")
 
+    if flags["point_blank"]:
+        reasons.append("Point blank kills need controlled entry tools and the confidence to force fights inside shotgun distance.")
+        equipment_priorities.append("Prioritise stun, smoke, or speed tools that let you cross the last few metres safely.")
+        playstyle_notes.append("Break lines of sight, enter through doors and corners, and refuse mid-lane duels.")
+
+    if flags["close_range"]:
+        reasons.append("Close-range kills need repeatable contact and quick reset tools more than passive lane holding.")
+        equipment_priorities.append("Prioritise fast-entry tactical equipment and simple lethal pressure for room clears.")
+        playstyle_notes.append("Play tight routes around objectives and interiors rather than rotating across open lanes.")
+
+    if flags["one_shot"]:
+        reasons.append("One-shot challenges reward first-shot advantage, flinch control, and holding the correct range.")
+        equipment_priorities.append("Prioritise information or lane-control tools that help you take the first clean shot.")
+        playstyle_notes.append("Do not sprint into panic fights. Pre-aim traffic and reset after every miss.")
+
+    if flags["melee"]:
+        reasons.append("Melee kills are mostly a route, stealth, and utility problem. Weapon maths is secondary.")
+        equipment_priorities.append("Prioritise smoke, stun, stealth, and survivability tools that close distance safely.")
+        playstyle_notes.append("Use chaos around objectives, flank routes, and covered gaps. Do not ego-cross open lanes.")
+
     if not reasons:
         reasons.append("No specialised perk pressure detected. Use the package as a general grind shell and field test lobby flow.")
 
@@ -1575,6 +1635,10 @@ def build_perk_loadout_advice(
         warnings.append("Long-range is stable, but may feel too passive for small-map movement challenges.")
     if flags["underbarrel_launcher"]:
         warnings.append("The Oracle cannot model blast radius, direct-hit consistency, or launcher ammo economy yet.")
+    if flags["melee"]:
+        warnings.append("Melee recommendations are tactical only. The Oracle cannot model melee lunge, swing speed, or hit registration yet.")
+    if flags["one_shot"]:
+        warnings.append("One-shot reliability depends on the entered damage model. Field test the actual one-shot range before trusting it.")
 
     warnings.extend(loadout_legality_notes)
 
@@ -1586,10 +1650,26 @@ def build_perk_loadout_advice(
         recommended_tactical = "Smoke"
         recommended_lethal = "Cluster Grenade"
         recommended_field_upgrade = "Assault Pack"
+    elif flags["melee"]:
+        recommended_tactical = "Smoke"
+        recommended_lethal = "Combat Axe"
+        recommended_field_upgrade = "Active Camo"
+    elif flags["point_blank"]:
+        recommended_tactical = "Stun Grenade"
+        recommended_lethal = "Semtex"
+        recommended_field_upgrade = "Mute Field"
+    elif flags["close_range"]:
+        recommended_tactical = "Stim Shot"
+        recommended_lethal = "Semtex"
+        recommended_field_upgrade = "Mute Field"
     elif flags["no_damage"]:
         recommended_tactical = "Smoke"
         recommended_lethal = "C4"
         recommended_field_upgrade = "Active Camo"
+    elif flags["one_shot"]:
+        recommended_tactical = "Pinpoint Grenade"
+        recommended_lethal = "Frag"
+        recommended_field_upgrade = "Tactical Insertion"
     elif flags["longshots"] or flags["optic_4x"]:
         recommended_tactical = "Pinpoint Grenade"
         recommended_lethal = "Needle Drone"

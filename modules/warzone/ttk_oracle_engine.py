@@ -132,8 +132,13 @@ MODELLED_ATTACHMENT_EFFECT_COLUMNS = [
 UNMODELLED_ATTACHMENT_NAME_HINTS = {
     "akimbo",
     "slug",
+    "dragon's breath",
+    "dragon breath",
     "launcher kit",
     "conversion",
+    "dual wield",
+    "titan wield",
+    "argus lever",
     "kit",
 }
 
@@ -472,6 +477,21 @@ def calculate_raw_ttk_ms(damage, fire_rate_rpm, enemy_health=300):
 def is_headshot_build_goal(build_goal: str = "") -> bool:
     text = normalise_match_value(build_goal)
     return "headshot" in text or "military camo" in text
+
+
+def is_one_shot_build_goal(build_goal: str = "") -> bool:
+    text = normalise_match_value(build_goal)
+    return "one shot" in text or "one-shot" in text or "one_shot" in text
+
+
+def is_long_range_build_goal(build_goal: str = "") -> bool:
+    text = normalise_match_value(build_goal).replace("_", " ")
+    return (
+        "long range" in text
+        or "long-range" in text
+        or "longshot" in text
+        or "long shot" in text
+    )
 
 
 def damage_column_for_fight_type(fight_type, build_goal: str = ""):
@@ -928,17 +948,24 @@ def default_shotgun_truth_metrics() -> dict:
         "shotgun_handling_index": "",
         "shotgun_mag_safety": "",
         "shotgun_truth_score": "",
+        "shotgun_ads_practical_ttk_ms": "",
+        "shotgun_hipfire_practical_ttk_ms": "",
+        "shotgun_slide_practical_ttk_ms": "",
+        "shotgun_best_close_ttk_ms": "",
+        "shotgun_best_close_route": "",
+        "shotgun_route_note": "",
         "shotgun_truth_note": "",
     }
 
 
 def shotgun_truth_metrics(stats: dict, enemy_health: int = 300, fight_type: str = "Close range") -> dict:
     """
-    Shotguns need a separate trust model.
+    Conservative shotgun trust model.
 
-    Without pellet-count and spread data, v1 uses conservative proxies:
-    damage bracket, effective range coverage, handling, and mag safety.
-    Field Test Log still decides whether the build is actually trusted.
+    Shotgun data is not only raw TTK. BO7 shotguns are decided by whether the
+    selected build can land the first close-range kill reliably through ADS,
+    hipfire, or slide/dive entry. This still cannot model pellet distribution,
+    so the route result is a field-testable estimate rather than a guarantee.
     """
     damage = max(0.0, float(stats.get("damage", 0.0) or 0.0))
     range_m = max(0.0, float(stats.get("range_m", 0.0) or 0.0))
@@ -953,7 +980,7 @@ def shotgun_truth_metrics(stats: dict, enemy_health: int = 300, fight_type: str 
     one_shot_potential = damage >= health
     two_shot_consistency = shots_to_kill <= 2
 
-    # Range coverage above 1.0 is useful but capped so it cannot mask bad handling.
+    # Range coverage above 1.0 is useful, but capped so it cannot mask bad handling.
     range_coverage = _clamp(range_m / max(target_range, 1.0), 0.0, 1.25)
 
     # Shotguns are usually won or lost on sprint-to-fire more than ADS.
@@ -982,9 +1009,9 @@ def shotgun_truth_metrics(stats: dict, enemy_health: int = 300, fight_type: str 
     elif range_coverage < 0.75:
         note = "DATA-LIMITED: one-shot maths exists, but range coverage is weak for this fight profile."
     else:
-        note = "SHOTGUN TRUTH V1: score uses damage bracket, range coverage, handling, and mag safety. Pellet spread still needs field testing."
+        note = "SHOTGUN TRUTH V2: score compares ADS, hipfire, and slide/dive routes, then still needs field proof for pellet reliability."
 
-    return {
+    base_metrics = {
         "is_shotgun": True,
         "shotgun_one_shot_potential": "YES" if one_shot_potential else "NO",
         "shotgun_two_shot_consistency": "YES" if two_shot_consistency else "NO",
@@ -995,14 +1022,161 @@ def shotgun_truth_metrics(stats: dict, enemy_health: int = 300, fight_type: str 
         "shotgun_truth_note": note,
     }
 
+    route_metrics = shotgun_route_metrics(
+        {
+            **stats,
+            **base_metrics,
+            "enemy_health": health,
+            "fight_type": fight_type,
+        }
+    )
+
+    return {
+        **base_metrics,
+        **route_metrics,
+    }
+
+
+def _shotgun_pct_adjustment_ms(value, *, scale: float, low: float, high: float) -> float:
+    """
+    Convert percentage-style close-range shotgun modifiers into a millisecond
+    adjustment. Negative in-game values are usually better, so they reduce the
+    estimated route time. Positive values add friction.
+    """
+    pct = numeric_cell(value, 0.0)
+    return max(low, min(high, pct * scale))
+
+
+def shotgun_route_metrics(stats: dict) -> dict:
+    """
+    Estimate the practical close-range kill route for shotguns.
+
+    ADS route: raw TTK plus ADS commitment.
+    Hipfire route: raw TTK plus sprint-to-fire and spread reliability.
+    Slide/dive route: raw TTK plus entry handling and slide/dive spread.
+
+    This does not pretend to know pellet distribution. It gives the optimiser a
+    better close-range objective than "ADS plus a generic penalty".
+    """
+    raw_ttk = numeric_cell(stats.get("raw_ttk_ms", 0), 0.0)
+    ads_ms = numeric_cell(stats.get("ads_ms", 0), 0.0)
+    sprint_to_fire_ms = numeric_cell(stats.get("sprint_to_fire_ms", 0), 0.0)
+    shots_to_kill = max(1.0, numeric_cell(stats.get("shots_to_kill", 1), 1.0))
+    truth_score = _clamp(numeric_cell(stats.get("shotgun_truth_score", 0), 0.0), 0.0, 1.0)
+    range_coverage = _clamp(numeric_cell(stats.get("shotgun_range_coverage", 0), 0.0), 0.0, 1.25)
+
+    hipfire_spread_pct = (
+        numeric_cell(stats.get("hipfire_spread_pct", 0), 0.0)
+        + numeric_cell(stats.get("jump_hipfire_spread_pct", 0), 0.0) * 0.35
+    )
+    slide_spread_pct = (
+        numeric_cell(stats.get("slide_hipfire_spread_pct", 0), 0.0)
+        + numeric_cell(stats.get("dive_hipfire_spread_pct", 0), 0.0) * 0.60
+    )
+    slide_entry_pct = (
+        numeric_cell(stats.get("slide_to_fire_pct", 0), 0.0)
+        + numeric_cell(stats.get("dive_to_fire_pct", 0), 0.0) * 0.60
+    )
+
+    extra_shot_penalty = max(0.0, shots_to_kill - 2.0) * 120.0
+    range_penalty = max(0.0, 1.0 - min(range_coverage, 1.0)) * 160.0
+    reliability_penalty = max(0.0, 1.0 - truth_score) * 190.0
+
+    hipfire_spread_adjustment = _shotgun_pct_adjustment_ms(
+        hipfire_spread_pct,
+        scale=1.15,
+        low=-90.0,
+        high=130.0,
+    )
+    slide_spread_adjustment = _shotgun_pct_adjustment_ms(
+        slide_spread_pct,
+        scale=1.05,
+        low=-80.0,
+        high=120.0,
+    )
+    slide_entry_adjustment = _shotgun_pct_adjustment_ms(
+        slide_entry_pct,
+        scale=1.25,
+        low=-100.0,
+        high=130.0,
+    )
+
+    ads_route = (
+        raw_ttk
+        + ads_ms * 0.30
+        + sprint_to_fire_ms * 0.05
+        + range_penalty * 0.65
+        + reliability_penalty
+        + extra_shot_penalty
+    )
+
+    hipfire_route = (
+        raw_ttk
+        + sprint_to_fire_ms * 0.24
+        + hipfire_spread_adjustment
+        + range_penalty * 0.85
+        + reliability_penalty * 0.90
+        + extra_shot_penalty
+    )
+
+    slide_route = (
+        raw_ttk
+        + sprint_to_fire_ms * 0.18
+        + slide_entry_adjustment
+        + slide_spread_adjustment
+        + range_penalty * 0.70
+        + reliability_penalty * 0.92
+        + extra_shot_penalty
+    )
+
+    routes = {
+        "ADS": ads_route,
+        "Hipfire": hipfire_route,
+        "Slide/dive": slide_route,
+    }
+    best_route = min(routes, key=routes.get)
+    best_value = round(max(0.0, routes[best_route]), 2)
+
+    note = (
+        f"Best close shotgun route: {best_route}. "
+        "ADS, hipfire, and slide/dive are compared using raw TTK, handling, "
+        "spread modifiers, range coverage, and shotgun truth reliability."
+    )
+
+    return {
+        "shotgun_ads_practical_ttk_ms": round(max(0.0, ads_route), 2),
+        "shotgun_hipfire_practical_ttk_ms": round(max(0.0, hipfire_route), 2),
+        "shotgun_slide_practical_ttk_ms": round(max(0.0, slide_route), 2),
+        "shotgun_best_close_ttk_ms": best_value,
+        "shotgun_best_close_route": best_route,
+        "shotgun_route_note": note,
+    }
+
 
 def calculate_shotgun_practical_ttk_ms(stats: dict) -> float:
-    raw_ttk = float(stats.get("raw_ttk_ms", 0.0) or 0.0)
-    ads_ms = float(stats.get("ads_ms", 0.0) or 0.0)
-    sprint_to_fire_ms = float(stats.get("sprint_to_fire_ms", 0.0) or 0.0)
-    shots_to_kill = float(stats.get("shots_to_kill", 1.0) or 1.0)
-    truth_score = float(stats.get("shotgun_truth_score", 0.0) or 0.0)
-    range_coverage = float(stats.get("shotgun_range_coverage", 0.0) or 0.0)
+    fight_type = str(stats.get("fight_type", "") or "").strip().lower()
+    build_goal = str(stats.get("build_goal", "") or "").strip().lower()
+
+    # Close-range shotgun work should use the fastest reliable route, not a
+    # fixed ADS-centred formula.
+    if (
+        "close" in fight_type
+        or "point blank" in build_goal
+        or "aggressive" in build_goal
+        or "hipfire" in build_goal
+    ):
+        route_value = numeric_cell(stats.get("shotgun_best_close_ttk_ms", 0), 0.0)
+        if route_value > 0:
+            return round(route_value, 2)
+
+        return round(shotgun_route_metrics(stats)["shotgun_best_close_ttk_ms"], 2)
+
+    raw_ttk = numeric_cell(stats.get("raw_ttk_ms", 0), 0.0)
+    ads_ms = numeric_cell(stats.get("ads_ms", 0), 0.0)
+    sprint_to_fire_ms = numeric_cell(stats.get("sprint_to_fire_ms", 0), 0.0)
+    shots_to_kill = numeric_cell(stats.get("shots_to_kill", 1), 1.0)
+    truth_score = _clamp(numeric_cell(stats.get("shotgun_truth_score", 0), 0.0), 0.0, 1.0)
+    range_coverage = numeric_cell(stats.get("shotgun_range_coverage", 0), 0.0)
 
     extra_shot_penalty = max(0.0, shots_to_kill - 2.0) * 120.0
     range_penalty = max(0.0, 1.0 - min(range_coverage, 1.0)) * 160.0
@@ -1037,8 +1211,9 @@ def add_shotgun_truth_to_results(results: pd.DataFrame, weights: dict) -> tuple[
     # Mixed-class optimisation already feels the shotgun penalty through practical_ttk_ms.
     if shotgun_mask.all():
         updated_weights = dict(weights)
-        updated_weights["shotgun_truth_score"] = updated_weights.get("shotgun_truth_score", 0.0) + 0.18
-        updated_weights["practical_ttk_ms"] = updated_weights.get("practical_ttk_ms", 0.0) + 0.07
+        updated_weights["shotgun_truth_score"] = updated_weights.get("shotgun_truth_score", 0.0) + 0.16
+        updated_weights["shotgun_best_close_ttk_ms"] = updated_weights.get("shotgun_best_close_ttk_ms", 0.0) + 0.18
+        updated_weights["practical_ttk_ms"] = updated_weights.get("practical_ttk_ms", 0.0) + 0.06
 
         total = sum(updated_weights.values())
         if total > 0:
@@ -1050,6 +1225,55 @@ def add_shotgun_truth_to_results(results: pd.DataFrame, weights: dict) -> tuple[
         return scored, updated_weights
 
     return scored, weights
+
+
+
+def apply_one_shot_viability_gate(
+    results: pd.DataFrame,
+    *,
+    build_goal: str,
+    enemy_health: int,
+) -> pd.DataFrame:
+    """
+    For one-shot challenges, never let handling-only builds outrank a legal
+    build that actually reaches the one-shot damage threshold.
+
+    Up-to-budget optimisation is still valid, but a One-shot consistency route
+    must first answer the core challenge question: can this build kill in one
+    shot at the selected fight profile?
+    """
+    if results.empty or not is_one_shot_build_goal(build_goal):
+        return results
+
+    gated = results.copy()
+    health = max(1.0, float(enemy_health or 1))
+
+    damage = pd.to_numeric(gated.get("damage", pd.Series([0.0] * len(gated))), errors="coerce").fillna(0.0)
+    shots = pd.to_numeric(gated.get("shots_to_kill", pd.Series([99.0] * len(gated))), errors="coerce").fillna(99.0)
+
+    if "one_shot_margin" in gated.columns:
+        margin = pd.to_numeric(gated["one_shot_margin"], errors="coerce").fillna(damage - health)
+    else:
+        margin = damage - health
+        gated["one_shot_margin"] = margin
+
+    one_shot_mask = (shots <= 1) | (margin >= 0)
+
+    if one_shot_mask.any():
+        gated = gated[one_shot_mask].copy()
+        gated["one_shot_gate_status"] = "PASSED"
+        gated["one_shot_gate_note"] = (
+            "One-shot gate active: lower-damage builds were removed because at least "
+            "one legal build reaches the one-shot threshold for this health profile."
+        )
+        return gated.reset_index(drop=True)
+
+    gated["one_shot_gate_status"] = "FAILED"
+    gated["one_shot_gate_note"] = (
+        "One-shot gate active: no legal build reaches the one-shot threshold for this health profile, "
+        "so the Oracle is showing the highest-margin fallback."
+    )
+    return gated.reset_index(drop=True)
 
 
 def build_loadout_preview(
@@ -1100,9 +1324,16 @@ def build_loadout_preview(
 
     final_stats["damage"] = final_stats[damage_column]
     final_stats["damage_model"] = "headshot" if is_headshot_build_goal(build_goal) else "body"
+    final_stats["fight_type"] = fight_type
+    final_stats["build_goal"] = build_goal
+    final_stats["enemy_health"] = int(enemy_health or 300)
     final_stats["range_m"] = effective_range_for_fight_type(final_stats, fight_type)
 
     final_stats["shots_to_kill"] = ceil(enemy_health / final_stats["damage"])
+    final_stats["one_shot_margin"] = numeric_cell(final_stats.get("damage", 0), 0.0) - float(enemy_health or 0)
+    final_stats["one_shot_ratio"] = (
+        numeric_cell(final_stats.get("damage", 0), 0.0) / max(float(enemy_health or 1), 1.0)
+    )
 
     final_stats["raw_ttk_ms"] = calculate_raw_ttk_ms(
         damage=final_stats["damage"],
@@ -1122,6 +1353,514 @@ def build_loadout_preview(
         final_stats.update(default_shotgun_truth_metrics())
 
     return final_stats
+
+
+def exact_ttk_primary_stage_sort_key(preview: dict, build_goal: str, fight_type: str) -> tuple:
+    """
+    First stage for BEST TTK.
+
+    This key chooses lethality only. Comfort support is added afterwards, so this
+    must not include practical TTK, ADS, recoil or route handling. Otherwise a
+    good support attachment changes the key and gets rejected as if it broke the
+    raw-TTK breakpoint.
+    """
+    raw_ttk = numeric_cell(preview.get("raw_ttk_ms", 999999), 999999)
+    damage = numeric_cell(preview.get("damage", 0), 0)
+    shots_to_kill = numeric_cell(preview.get("shots_to_kill", 99), 99)
+    one_shot_margin = numeric_cell(preview.get("one_shot_margin", -999999), -999999)
+
+    if is_one_shot_build_goal(build_goal):
+        return (
+            shots_to_kill,
+            -one_shot_margin,
+            raw_ttk,
+        )
+
+    return (
+        raw_ttk,
+        shots_to_kill,
+        -damage,
+    )
+
+
+def _attachment_id_set(combo) -> set[str]:
+    return {
+        normalise_match_key(attachment.get("attachment_id", ""))
+        for attachment in combo
+        if normalise_match_key(attachment.get("attachment_id", ""))
+    }
+
+
+def _attachment_slot_set(combo) -> set[str]:
+    return {
+        normalise_slot_value(attachment.get("slot", ""))
+        for attachment in combo
+        if normalise_slot_value(attachment.get("slot", ""))
+    }
+
+
+def _filter_attachments_for_remaining_slots(
+    attachments: pd.DataFrame,
+    *,
+    used_slots: set[str],
+    used_ids: set[str],
+) -> pd.DataFrame:
+    if attachments.empty:
+        return attachments.copy()
+
+    filtered = attachments.copy()
+    filtered["_slot_key"] = filtered["slot"].apply(normalise_slot_value)
+    filtered["_attachment_key"] = filtered["attachment_id"].apply(normalise_match_key)
+
+    filtered = filtered[
+        ~filtered["_slot_key"].isin(used_slots)
+        & ~filtered["_attachment_key"].isin(used_ids)
+    ].copy()
+
+    return filtered.drop(columns=["_slot_key", "_attachment_key"], errors="ignore").reset_index(drop=True)
+
+
+def _top_exact_candidates(candidates: list[tuple], limit: int) -> list[tuple]:
+    if not candidates:
+        return []
+
+    return sorted(candidates, key=lambda item: item[0])[:max(1, int(limit or 1))]
+
+
+def _exact_support_state_dominates(candidate_key: tuple, other_key: tuple) -> bool:
+    """
+    Pareto dominance for exact support states.
+
+    A state can only dominate another when every exact sort metric is at least
+    as good and at least one metric is better. This keeps real trade-offs alive
+    while removing builds that cannot win later.
+    """
+    max_len = max(len(candidate_key), len(other_key))
+
+    candidate_values = list(candidate_key) + [0.0] * (max_len - len(candidate_key))
+    other_values = list(other_key) + [0.0] * (max_len - len(other_key))
+
+    at_least_as_good = True
+    strictly_better = False
+
+    for candidate_value, other_value in zip(candidate_values, other_values):
+        candidate_number = numeric_cell(candidate_value, 0.0)
+        other_number = numeric_cell(other_value, 0.0)
+
+        if candidate_number > other_number:
+            at_least_as_good = False
+            break
+
+        if candidate_number < other_number:
+            strictly_better = True
+
+    return at_least_as_good and strictly_better
+
+
+def _dedupe_exact_support_states(states: list[tuple]) -> list[tuple]:
+    deduped: dict[tuple, tuple] = {}
+
+    for key, combo, preview in states:
+        identity = tuple(sorted(attachment_row_key(attachment) for attachment in combo))
+        existing = deduped.get(identity)
+
+        if existing is None or key < existing[0]:
+            deduped[identity] = (key, combo, preview)
+
+    return list(deduped.values())
+
+
+def _pareto_prune_exact_support_states(
+    states: list[tuple],
+    *,
+    state_limit: int = 768,
+) -> tuple[list[tuple], int, bool]:
+    """
+    Keep the exact support frontier instead of brute-forcing every comfort combo.
+
+    The frontier keeps all non-dominated trade-offs. A large safety cap prevents
+    pathological data from hanging Streamlit; normal weapon pools should not hit
+    it after slot-by-slot Pareto pruning.
+    """
+    if not states:
+        return [], 0, False
+
+    candidates = sorted(_dedupe_exact_support_states(states), key=lambda item: item[0])
+    kept: list[tuple] = []
+    pruned_count = 0
+
+    for state in candidates:
+        key = state[0]
+
+        if any(_exact_support_state_dominates(existing[0], key) for existing in kept):
+            pruned_count += 1
+            continue
+
+        kept = [
+            existing
+            for existing in kept
+            if not _exact_support_state_dominates(key, existing[0])
+        ]
+        kept.append(state)
+
+    kept = sorted(kept, key=lambda item: item[0])
+    capped = False
+
+    if state_limit and len(kept) > int(state_limit):
+        kept = kept[:int(state_limit)]
+        capped = True
+
+    return kept, pruned_count, capped
+
+
+def _exact_support_slot_groups(
+    attachments: pd.DataFrame,
+    *,
+    used_slots: set[str],
+    used_ids: set[str],
+) -> list[tuple[str, list]]:
+    remaining = _filter_attachments_for_remaining_slots(
+        attachments,
+        used_slots=used_slots,
+        used_ids=used_ids,
+    )
+
+    if remaining.empty:
+        return []
+
+    slot_groups: list[tuple[str, list]] = []
+
+    for slot, group in remaining.groupby("slot", sort=True):
+        clean_slot = normalise_slot_value(slot)
+
+        if not clean_slot or clean_slot in used_slots:
+            continue
+
+        rows = [row for _, row in group.iterrows()]
+        if rows:
+            slot_groups.append((clean_slot, rows))
+
+    return slot_groups
+
+
+def _select_exact_pareto_support_states(
+    *,
+    gun,
+    core_combo: tuple,
+    core_preview: dict,
+    comfort_pool: pd.DataFrame,
+    best_primary_key: tuple,
+    build_goal: str,
+    fight_type: str,
+    enemy_health: int,
+    max_count: int,
+    minimum: int,
+    support_front_limit: int = 768,
+) -> tuple[list[tuple], int, int, bool]:
+    """
+    Fill support slots without generating the full product space.
+
+    Each slot is evaluated, then the state list is Pareto-pruned. This still
+    checks every attachment option as it enters the build, but it does not keep
+    dominated partial builds that can no longer beat an existing state.
+    """
+    core_slots = _attachment_slot_set(core_combo)
+    core_ids = _attachment_id_set(core_combo)
+
+    slot_groups = _exact_support_slot_groups(
+        comfort_pool,
+        used_slots=core_slots,
+        used_ids=core_ids,
+    )
+
+    initial_key = exact_ttk_sort_key(
+        core_preview,
+        build_goal=build_goal,
+        fight_type=fight_type,
+    )
+    states: list[tuple] = [(initial_key, core_combo, core_preview)]
+    scanned_support_states = 0
+    pruned_support_states = 0
+    front_was_capped = False
+
+    for _, slot_attachments in slot_groups:
+        next_states = list(states)
+
+        for _, combo, _ in states:
+            if len(combo) >= max_count:
+                continue
+
+            for attachment in slot_attachments:
+                combined_combo = tuple([*combo, attachment])
+
+                if len(combined_combo) > max_count:
+                    continue
+
+                if combo_has_attachment_conflicts(combined_combo):
+                    continue
+
+                scanned_support_states += 1
+
+                preview = build_loadout_preview_from_combo(
+                    gun=gun,
+                    combo=combined_combo,
+                    enemy_health=enemy_health,
+                    fight_type=fight_type,
+                    build_goal=build_goal,
+                )
+
+                # Support fill is only allowed around the winning raw breakpoint.
+                # If a row somehow changes the primary key, keep the strict TTK
+                # contract and drop it.
+                if exact_ttk_primary_stage_sort_key(
+                    preview,
+                    build_goal=build_goal,
+                    fight_type=fight_type,
+                ) != best_primary_key:
+                    continue
+
+                sort_key = exact_ttk_sort_key(
+                    preview,
+                    build_goal=build_goal,
+                    fight_type=fight_type,
+                )
+                next_states.append((sort_key, combined_combo, preview))
+
+        before_prune = len(next_states)
+        states, pruned_count, capped = _pareto_prune_exact_support_states(
+            next_states,
+            state_limit=support_front_limit,
+        )
+        pruned_support_states += pruned_count + max(0, before_prune - len(states) - pruned_count)
+        front_was_capped = front_was_capped or capped
+
+    final_states = [
+        state
+        for state in states
+        if minimum <= len(state[1]) <= max_count
+    ]
+
+    if not final_states and minimum <= len(core_combo) <= max_count:
+        final_states = states[:1]
+
+    final_states = sorted(final_states, key=lambda item: item[0])
+    return final_states, scanned_support_states, pruned_support_states, front_was_capped
+
+
+def optimise_exact_ttk_two_stage_for_gun(
+    *,
+    gun,
+    compatible_attachments: pd.DataFrame,
+    full_compatible_attachments: pd.DataFrame,
+    map_type: str,
+    fight_type: str,
+    build_goal: str,
+    enemy_health: int,
+    attachment_count: int,
+    top_n: int,
+    required_slots,
+    min_attachment_count: int,
+    attachment_count_mode: str,
+    challenge_labels,
+    unmodelled_attachments_ignored: int,
+) -> list[dict]:
+    """
+    Exact BEST TTK without the million-build trap.
+
+    Stage 1 checks every legal lethality-changing combo and finds the fastest raw
+    breakpoint. Stage 2 keeps that breakpoint, then fills support slots with a
+    Pareto frontier instead of brute-forcing every comfort product.
+    """
+    if compatible_attachments.empty:
+        return []
+
+    working = compatible_attachments.copy()
+    working["_raw_ttk_effect_count"] = working.apply(
+        lambda row: attachment_raw_ttk_effect_count(row, build_goal),
+        axis=1,
+    )
+
+    core_pool = working[working["_raw_ttk_effect_count"] > 0].reset_index(drop=True)
+    comfort_pool = working[working["_raw_ttk_effect_count"] <= 0].reset_index(drop=True)
+
+    max_count = max(0, int(attachment_count or 0))
+    minimum = max(0, int(min_attachment_count or 0))
+    keep_limit = max(1, int(top_n or 10)) * 4
+    core_keep_limit = max(16, int(top_n or 10) * 4)
+    support_front_limit = 768
+
+    core_candidates: list[tuple] = []
+    scanned_core_count = 0
+
+    if core_pool.empty:
+        core_iterable = [tuple()]
+    else:
+        core_iterable = generate_legal_attachment_combos(
+            compatible_attachments=core_pool,
+            attachment_count=max_count,
+            required_slots=required_slots,
+            min_attachment_count=0,
+            attachment_count_mode="up_to",
+        )
+
+    for core_combo in core_iterable:
+        if len(core_combo) > max_count:
+            continue
+
+        if combo_has_attachment_conflicts(core_combo):
+            continue
+
+        scanned_core_count += 1
+
+        preview = build_loadout_preview_from_combo(
+            gun=gun,
+            combo=core_combo,
+            enemy_health=enemy_health,
+            fight_type=fight_type,
+            build_goal=build_goal,
+        )
+        primary_key = exact_ttk_primary_stage_sort_key(
+            preview,
+            build_goal=build_goal,
+            fight_type=fight_type,
+        )
+        core_candidates.append((primary_key, core_combo, preview))
+
+        if len(core_candidates) > core_keep_limit * 4:
+            core_candidates = _top_exact_candidates(core_candidates, core_keep_limit)
+
+    core_candidates = _top_exact_candidates(core_candidates, core_keep_limit)
+
+    if not core_candidates:
+        return []
+
+    best_primary_key = core_candidates[0][0]
+    best_core_candidates = [
+        item
+        for item in core_candidates
+        if item[0] == best_primary_key
+    ][:core_keep_limit]
+
+    # Keep a small number of near-best cores only as an escape hatch for odd
+    # data. They are not allowed to outrank the winning raw breakpoint because
+    # Stage 2 filters against best_primary_key.
+    if len(best_core_candidates) < min(core_keep_limit, len(core_candidates)):
+        best_core_identities = {
+            tuple(sorted(attachment_row_key(attachment) for attachment in item[1]))
+            for item in best_core_candidates
+        }
+
+        for item in core_candidates:
+            identity = tuple(sorted(attachment_row_key(attachment) for attachment in item[1]))
+            if identity in best_core_identities:
+                continue
+            best_core_candidates.append(item)
+            best_core_identities.add(identity)
+            if len(best_core_candidates) >= min(core_keep_limit, max(int(top_n or 10) * 2, 12)):
+                break
+
+    best_candidates: list[tuple] = []
+    scanned_support_count = 0
+    pruned_support_count = 0
+    support_front_capped = False
+
+    for _, core_combo, core_preview in best_core_candidates:
+        support_states, scanned_count, pruned_count, capped = _select_exact_pareto_support_states(
+            gun=gun,
+            core_combo=core_combo,
+            core_preview=core_preview,
+            comfort_pool=comfort_pool,
+            best_primary_key=best_primary_key,
+            build_goal=build_goal,
+            fight_type=fight_type,
+            enemy_health=enemy_health,
+            max_count=max_count,
+            minimum=minimum,
+            support_front_limit=support_front_limit,
+        )
+
+        scanned_support_count += scanned_count
+        pruned_support_count += pruned_count
+        support_front_capped = support_front_capped or capped
+        best_candidates.extend(support_states)
+
+        if len(best_candidates) > keep_limit * 4:
+            best_candidates = _top_exact_candidates(best_candidates, keep_limit)
+
+    best_candidates = _top_exact_candidates(best_candidates, keep_limit)
+
+    challenge_summary = " | ".join(challenge_labels)
+    challenge_required_slots = " | ".join(sorted(required_slots))
+    rows: list[dict] = []
+
+    for rank, (sort_key, combo, preview) in enumerate(best_candidates, start=1):
+        selected_attachments = pd.DataFrame(combo)
+        selected_attachment_names = combo_attachment_names(combo)
+        selected_attachment_slots = combo_attachment_slots(combo)
+        selected_attachment_count = len(selected_attachment_slots)
+
+        explanation = explain_weapon_build(
+            gun=gun,
+            selected_attachments=selected_attachments,
+            full_compatible_attachments=full_compatible_attachments,
+            preview=preview,
+            map_type=map_type,
+            fight_type=fight_type,
+            build_goal=build_goal,
+            enemy_health=enemy_health,
+            challenge_requirements=challenge_summary,
+            challenge_required_slots=challenge_required_slots,
+        )
+
+        cap_note = (
+            f" Support frontier safety cap {support_front_limit} was reached; validate with field testing."
+            if support_front_capped
+            else ""
+        )
+
+        rows.append(
+            {
+                "gun_name": gun["gun_name"],
+                "weapon_class": gun["weapon_class"],
+                "attachments": " | ".join(selected_attachment_names) if selected_attachment_names else "Base weapon only",
+                "slots": " | ".join(selected_attachment_slots),
+                "selected_attachment_count": selected_attachment_count,
+                "attachment_budget": f"up to {attachment_count}" if attachment_count_mode == "up_to" else f"exactly {attachment_count}",
+                "attachment_count_mode": attachment_count_mode,
+                "min_attachment_count": min_attachment_count,
+                "modelled_attachment_count": int(
+                    selected_attachments.get("_modelled_effect_count", pd.Series(dtype=float)).fillna(0).astype(float).gt(0).sum()
+                ) if "_modelled_effect_count" in selected_attachments.columns else len(selected_attachments),
+                "unmodelled_attachments_ignored": unmodelled_attachments_ignored,
+                "attachment_effects": combo_attachment_effects(combo),
+                "attachment_trust_note": (
+                    f"Exact BEST TTK checked {scanned_core_count:,} lethality combo(s), "
+                    f"examined {scanned_support_count:,} support state(s), and Pareto-pruned "
+                    f"{pruned_support_count:,} dominated state(s). It kept the fastest raw-TTK "
+                    f"breakpoint, then chose the best legal support build around it."
+                    f"{cap_note} Ignored {unmodelled_attachments_ignored} zero-effect or unmodelled conversion row(s)."
+                ),
+                "challenge_requirements": challenge_summary,
+                "challenge_required_slots": challenge_required_slots,
+                "optimiser_mode": "Exact TTK",
+                "slot_candidate_limit": "",
+                "exact_ttk_rank": rank,
+                "exact_ttk_sort_key": str(sort_key),
+                "exact_ttk_core_checked": scanned_core_count,
+                "exact_ttk_support_states_checked": scanned_support_count,
+                "exact_ttk_support_states_pruned": pruned_support_count,
+                "exact_ttk_support_front_capped": support_front_capped,
+                "oracle_score": round(1 / (1 + rank), 6),
+                **exact_ttk_sort_columns_from_key(sort_key),
+                **preview,
+                **explanation,
+            }
+        )
+
+    return rows
+
+
+
 
 MAP_TYPES = [
     "Small map / Resurgence",
@@ -1143,6 +1882,8 @@ BUILD_GOALS = [
     "Balanced meta build",
     "Low recoil beam",
     "Aggressive mobility",
+    "One-shot consistency",
+    "Long-range consistency",
 ]
 
 
@@ -1152,9 +1893,17 @@ LOWER_IS_BETTER = {
     "ads_ms",
     "sprint_to_fire_ms",
     "recoil",
+    "shots_to_kill",
+    "shotgun_best_close_ttk_ms",
+    "shotgun_ads_practical_ttk_ms",
+    "shotgun_hipfire_practical_ttk_ms",
+    "shotgun_slide_practical_ttk_ms",
 }
 
 HIGHER_IS_BETTER = {
+    "damage",
+    "one_shot_margin",
+    "one_shot_ratio",
     "bullet_velocity",
     "range_m",
     "mag_size",
@@ -1179,6 +1928,12 @@ SHOTGUN_TRUTH_COLUMNS = [
     "shotgun_handling_index",
     "shotgun_mag_safety",
     "shotgun_truth_score",
+    "shotgun_ads_practical_ttk_ms",
+    "shotgun_hipfire_practical_ttk_ms",
+    "shotgun_slide_practical_ttk_ms",
+    "shotgun_best_close_ttk_ms",
+    "shotgun_best_close_route",
+    "shotgun_route_note",
     "shotgun_truth_note",
 ]
 
@@ -1406,7 +2161,9 @@ def calculate_practical_ttk_ms(stats):
 
 
 def build_scenario_weights(map_type, fight_type, build_goal):
-    if build_goal == "Military Camo Headshots":
+    goal_key = normalise_match_value(build_goal)
+
+    if goal_key == "military camo headshots":
         weights = {
             "recoil": 0.42,
             "ads_ms": 0.16,
@@ -1417,7 +2174,7 @@ def build_scenario_weights(map_type, fight_type, build_goal):
             "damage_per_mag": 0.03,
         }
 
-    elif build_goal == "Special Camo TTK":
+    elif goal_key == "special camo ttk":
         weights = {
             "raw_ttk_ms": 0.55,
             "practical_ttk_ms": 0.25,
@@ -1426,14 +2183,14 @@ def build_scenario_weights(map_type, fight_type, build_goal):
             "damage_per_mag": 0.06,
         }
 
-    elif build_goal == "Fastest TTK":
+    elif goal_key == "fastest ttk":
         weights = {
             "raw_ttk_ms": 0.70,
             "practical_ttk_ms": 0.20,
             "damage_per_mag": 0.10,
         }
 
-    elif build_goal == "Low recoil beam":
+    elif goal_key == "low recoil beam":
         weights = {
             "recoil": 0.40,
             "practical_ttk_ms": 0.20,
@@ -1442,7 +2199,7 @@ def build_scenario_weights(map_type, fight_type, build_goal):
             "damage_per_mag": 0.05,
         }
 
-    elif build_goal == "Aggressive mobility":
+    elif goal_key == "aggressive mobility":
         weights = {
             "practical_ttk_ms": 0.25,
             "ads_ms": 0.25,
@@ -1450,6 +2207,35 @@ def build_scenario_weights(map_type, fight_type, build_goal):
             "recoil": 0.10,
             "damage_per_mag": 0.10,
             "range_m": 0.05,
+        }
+
+    elif is_one_shot_build_goal(build_goal):
+        weights = {
+            # One-shot challenges are about the damage breakpoint first.
+            # Raw TTK alone is not enough because every true one-shot build has
+            # 0 ms raw TTK. Damage margin keeps useful damage attachments alive.
+            "shots_to_kill": 0.28,
+            "one_shot_margin": 0.24,
+            "damage": 0.14,
+            "raw_ttk_ms": 0.10,
+            "range_m": 0.10,
+            "bullet_velocity": 0.08,
+            "ads_ms": 0.04,
+            "recoil": 0.02,
+        }
+
+    elif is_long_range_build_goal(build_goal):
+        weights = {
+            # Longshot challenges are about making the weapon stable and lethal
+            # at the selected long-range damage profile, not just chasing raw TTK.
+            "range_m": 0.26,
+            "bullet_velocity": 0.22,
+            "recoil": 0.18,
+            "practical_ttk_ms": 0.12,
+            "raw_ttk_ms": 0.08,
+            "ads_ms": 0.06,
+            "damage": 0.04,
+            "damage_per_mag": 0.04,
         }
 
     else:
@@ -1467,6 +2253,7 @@ def build_scenario_weights(map_type, fight_type, build_goal):
         weights["ads_ms"] = weights.get("ads_ms", 0) + 0.10
         weights["sprint_to_fire_ms"] = weights.get("sprint_to_fire_ms", 0) + 0.10
         weights["practical_ttk_ms"] = weights.get("practical_ttk_ms", 0) + 0.05
+        weights["shotgun_best_close_ttk_ms"] = weights.get("shotgun_best_close_ttk_ms", 0) + 0.08
 
     elif fight_type == "Mid range":
         weights["practical_ttk_ms"] = weights.get("practical_ttk_ms", 0) + 0.10
@@ -1498,6 +2285,7 @@ def build_scenario_weights(map_type, fight_type, build_goal):
         metric: weight / total
         for metric, weight in weights.items()
     }
+
 
 
 def add_oracle_scores(results, weights):
@@ -1811,6 +2599,21 @@ def build_goal_reason_summary(build_goal: str, fight_type: str, enemy_health: in
         return (
             f"{build_goal} favours raw TTK first, then practical TTK and damage-per-mag as tie-breakers. "
             f"At {enemy_health} HP this build needs {shots} shot(s) in the selected {fight_type.lower()} profile."
+        )
+
+    if is_one_shot_build_goal(build_goal):
+        margin = numeric_cell(preview.get("one_shot_margin", 0), 0.0)
+        margin_text = f"+{format_metric_value(margin)}" if margin > 0 else format_metric_value(margin)
+        return (
+            f"{build_goal} favours reaching the fewest shots-to-kill first, then damage margin above {enemy_health} HP, "
+            f"range, velocity and handling. This build models {format_metric_value(damage)} damage, "
+            f"{shots} shot(s), and a one-shot margin of {margin_text}."
+        )
+
+    if is_long_range_build_goal(build_goal):
+        return (
+            f"{build_goal} favours long-range damage, range coverage, bullet velocity, recoil stability and practical TTK. "
+            f"At {enemy_health} HP this build models {format_metric_value(damage)} damage and needs {shots} shot(s) in the selected {fight_type.lower()} profile."
         )
 
     return (
@@ -2259,6 +3062,227 @@ LOWER_IS_BETTER_ATTACHMENT = {
 }
 
 
+
+RAW_TTK_BODY_EFFECT_COLUMNS = [
+    "damage_pct",
+    "fire_rate_pct",
+]
+
+RAW_TTK_HEAD_EFFECT_COLUMNS = [
+    "damage_pct",
+    "fire_rate_pct",
+    "head_damage_pct",
+    "head_damage_close_pct",
+    "head_damage_mid_pct",
+    "head_damage_long_pct",
+    "head_damage_close_add",
+    "head_damage_mid_add",
+    "head_damage_long_add",
+    "head_damage_close",
+    "head_damage_mid",
+    "head_damage_long",
+    "head_multiplier",
+    "head_multiplier_pct",
+]
+
+
+def attachment_raw_ttk_effect_count(attachment, build_goal: str = "") -> int:
+    """
+    Count only effects that can change raw TTK for the current objective.
+
+    This lets the BEST TTK route check every attachment row, then safely remove
+    attachments that cannot alter the primary TTK calculation.
+    """
+    columns = RAW_TTK_HEAD_EFFECT_COLUMNS if (
+        is_headshot_build_goal(build_goal) or is_one_shot_build_goal(build_goal)
+    ) else RAW_TTK_BODY_EFFECT_COLUMNS
+
+    return sum(
+        1
+        for column in columns
+        if abs(numeric_cell(attachment.get(column, 0), 0.0)) > 0
+    )
+
+
+def exact_ttk_can_use_raw_ttk_only_pool(
+    *,
+    build_goal: str,
+    challenge_labels=None,
+    min_attachment_count: int = 0,
+    required_slots=None,
+) -> bool:
+    """
+    Strict BEST TTK path.
+
+    For "No challenge / Best TTK", recoil, optics, magazines, handling and
+    movement cannot improve raw TTK. They should not create millions of fake
+    candidate builds or make the Oracle choose filler attachments.
+    """
+    if normalise_match_value(build_goal) != "fastest ttk":
+        return False
+
+    if challenge_labels:
+        return False
+
+    if required_slots:
+        return False
+
+    try:
+        if int(min_attachment_count or 0) > 0:
+            return False
+    except (TypeError, ValueError):
+        return False
+
+    return True
+
+
+def reduce_attachment_pool_for_strict_raw_ttk(
+    compatible_attachments: pd.DataFrame,
+    *,
+    build_goal: str,
+) -> pd.DataFrame:
+    """
+    Keep only attachments that can change raw TTK.
+
+    This is not a speed heuristic. For the strict BEST TTK objective, attachments
+    with no damage/fire-rate/head-damage effect cannot beat or improve a raw TTK
+    result. They are still checked and deliberately excluded from the primary
+    TTK search.
+    """
+    if compatible_attachments.empty:
+        return compatible_attachments.copy()
+
+    updated = compatible_attachments.copy()
+    updated["_raw_ttk_effect_count"] = updated.apply(
+        lambda row: attachment_raw_ttk_effect_count(row, build_goal),
+        axis=1,
+    )
+
+    return updated[updated["_raw_ttk_effect_count"] > 0].reset_index(drop=True)
+
+
+def _row_text_for_conflicts(attachment) -> str:
+    return " ".join(
+        str(attachment.get(column, "") or "")
+        for column in [
+            "attachment_id",
+            "attachment_name",
+            "attachment_type",
+            "raw_stat_text",
+            "verification_notes",
+        ]
+    ).lower().replace("_", " ")
+
+
+def attachment_conflict_slots(attachment) -> set[str]:
+    """
+    Optional generic conflict support for attachments that block another slot.
+
+    CSV columns supported:
+    - conflicts_with_slots
+    - conflict_slots
+    - incompatible_slots
+
+    Built-in known rule:
+    - Parallel Foregrip cannot be combined with an optic.
+    """
+    conflict_values = []
+
+    for column in [
+        "conflicts_with_slots",
+        "conflict_slots",
+        "incompatible_slots",
+    ]:
+        conflict_values.extend(split_list_cell(attachment.get(column, "")))
+
+    conflicts = {
+        normalise_slot_value(value)
+        for value in conflict_values
+        if str(value or "").strip()
+    }
+
+    row_text = _row_text_for_conflicts(attachment)
+    if "parallel foregrip" in row_text:
+        conflicts.add("optic")
+
+    own_slot = normalise_slot_value(attachment.get("slot", ""))
+    conflicts.discard(own_slot)
+
+    return {slot for slot in conflicts if slot}
+
+
+def attachment_conflict_ids(attachment) -> set[str]:
+    values = []
+    for column in [
+        "conflicts_with_attachment_ids",
+        "conflict_attachment_ids",
+        "incompatible_attachment_ids",
+    ]:
+        values.extend(split_list_cell(attachment.get(column, "")))
+
+    return {
+        normalise_match_key(value)
+        for value in values
+        if str(value or "").strip()
+    }
+
+
+def attachment_conflict_name_terms(attachment) -> set[str]:
+    values = []
+    for column in [
+        "conflicts_with_attachment_names",
+        "conflict_attachment_names",
+        "incompatible_attachment_names",
+    ]:
+        values.extend(split_list_cell(attachment.get(column, "")))
+
+    return {
+        normalise_match_value(value)
+        for value in values
+        if str(value or "").strip()
+    }
+
+
+def combo_has_attachment_conflicts(combo) -> bool:
+    selected_slots = {
+        normalise_slot_value(attachment.get("slot", ""))
+        for attachment in combo
+        if normalise_slot_value(attachment.get("slot", ""))
+    }
+    selected_ids = {
+        normalise_match_key(attachment.get("attachment_id", ""))
+        for attachment in combo
+        if normalise_match_key(attachment.get("attachment_id", ""))
+    }
+    selected_names = [
+        normalise_match_value(attachment.get("attachment_name", ""))
+        for attachment in combo
+        if normalise_match_value(attachment.get("attachment_name", ""))
+    ]
+
+    for attachment in combo:
+        slot_conflicts = attachment_conflict_slots(attachment)
+        if slot_conflicts.intersection(selected_slots):
+            return True
+
+        id_conflicts = attachment_conflict_ids(attachment)
+        own_id = normalise_match_key(attachment.get("attachment_id", ""))
+        other_ids = selected_ids - {own_id}
+        if id_conflicts.intersection(other_ids):
+            return True
+
+        name_terms = attachment_conflict_name_terms(attachment)
+        own_name = normalise_match_value(attachment.get("attachment_name", ""))
+        other_names = [name for name in selected_names if name != own_name]
+        if name_terms and any(
+            term and term in name
+            for term in name_terms
+            for name in other_names
+        ):
+            return True
+
+    return False
+
 def attachment_dominates(a, b) -> bool:
     """
     Returns True if attachment `a` is strictly at least as good as `b`
@@ -2266,7 +3290,19 @@ def attachment_dominates(a, b) -> bool:
 
     Only considers stats that actually affect scoring.
     A dominated attachment can never appear in the optimal build.
+
+    Conflict safety: an attachment with extra slot/attachment conflicts cannot
+    dominate a less restrictive attachment.
     """
+    if attachment_conflict_slots(a) - attachment_conflict_slots(b):
+        return False
+
+    if attachment_conflict_ids(a) - attachment_conflict_ids(b):
+        return False
+
+    if attachment_conflict_name_terms(a) - attachment_conflict_name_terms(b):
+        return False
+
     at_least_as_good_on_all = True
     strictly_better_on_one = False
 
@@ -2337,13 +3373,74 @@ def _clean_required_slots(required_slots=None) -> set[str]:
     }
 
 
+def normalise_attachment_count_mode(value: str = "exact") -> str:
+    text = normalise_schema_value(value)
+
+    if text in {"up_to", "upto", "budget", "best_within_budget", "variable", "auto"}:
+        return "up_to"
+
+    return "exact"
+
+
+def attachment_count_values(
+    *,
+    attachment_count: int,
+    required_slots=None,
+    min_attachment_count: int | None = None,
+    attachment_count_mode: str = "exact",
+    available_slot_count: int | None = None,
+) -> list[int]:
+    """
+    Return legal attachment counts for the current budget model.
+
+    ``exact`` preserves the old behaviour: a 5-build means exactly five slots.
+    ``up_to`` treats attachment_count as a budget: the Oracle may use fewer slots
+    when fewer attachments score better for the requested goal.
+    """
+    try:
+        max_count = max(0, int(attachment_count or 0))
+    except (TypeError, ValueError):
+        max_count = 0
+
+    try:
+        minimum = max(0, int(min_attachment_count or 0))
+    except (TypeError, ValueError):
+        minimum = 0
+
+    required_slot_names = _clean_required_slots(required_slots)
+    required_count = len(required_slot_names)
+    mode = normalise_attachment_count_mode(attachment_count_mode)
+
+    if mode == "exact":
+        minimum = max_count
+    else:
+        minimum = max(minimum, required_count)
+
+    maximum = max_count
+    if available_slot_count is not None:
+        try:
+            maximum = min(maximum, max(0, int(available_slot_count or 0)))
+        except (TypeError, ValueError):
+            maximum = max_count
+
+    if required_count > maximum:
+        return []
+
+    if minimum > maximum:
+        return []
+
+    return list(range(minimum, maximum + 1))
+
+
 def generate_legal_attachment_combos(
     compatible_attachments,
     attachment_count,
     required_slots=None,
+    min_attachment_count: int | None = None,
+    attachment_count_mode: str = "exact",
 ):
     """
-    Exact legal build generator.
+    Legal build generator.
 
     Instead of trying every attachment combination and rejecting duplicate slots,
     this groups attachments by slot first, then only generates builds with one
@@ -2354,6 +3451,15 @@ def generate_legal_attachment_combos(
     """
 
     if compatible_attachments.empty:
+        legal_counts = attachment_count_values(
+            attachment_count=attachment_count,
+            required_slots=required_slots,
+            min_attachment_count=min_attachment_count,
+            attachment_count_mode=attachment_count_mode,
+            available_slot_count=0,
+        )
+        if 0 in legal_counts:
+            yield tuple()
         return
 
     slot_groups = {}
@@ -2372,12 +3478,6 @@ def generate_legal_attachment_combos(
     slot_names = sorted(slot_groups.keys())
     required_slot_names = _clean_required_slots(required_slots)
 
-    if len(slot_names) < attachment_count:
-        return
-
-    if len(required_slot_names) > attachment_count:
-        return
-
     if any(slot not in slot_groups for slot in required_slot_names):
         return
 
@@ -2387,29 +3487,43 @@ def generate_legal_attachment_combos(
         if slot not in required_slot_names
     ]
 
-    optional_count = attachment_count - len(required_slot_names)
+    for count in attachment_count_values(
+        attachment_count=attachment_count,
+        required_slots=required_slot_names,
+        min_attachment_count=min_attachment_count,
+        attachment_count_mode=attachment_count_mode,
+        available_slot_count=len(slot_names),
+    ):
+        optional_count = count - len(required_slot_names)
 
-    for optional_slots in combinations(optional_slot_names, optional_count):
-        selected_slots = sorted([*required_slot_names, *optional_slots])
-        grouped_options = [
-            slot_groups[slot]
-            for slot in selected_slots
-        ]
+        if optional_count < 0:
+            continue
 
-        for combo in product(*grouped_options):
-            yield combo
+        for optional_slots in combinations(optional_slot_names, optional_count):
+            selected_slots = sorted([*required_slot_names, *optional_slots])
+            grouped_options = [
+                slot_groups[slot]
+                for slot in selected_slots
+            ]
+
+            for combo in product(*grouped_options):
+                if combo_has_attachment_conflicts(combo):
+                    continue
+                yield combo
 
 
 def estimate_legal_attachment_combo_count(
     slot_counts: dict[str, int],
     attachment_count: int,
     required_slots=None,
+    min_attachment_count: int | None = None,
+    attachment_count_mode: str = "exact",
 ) -> int:
     """
     Count legal one-attachment-per-slot combinations without generating them.
 
-    This powers the TTK page's workload warning so 8-attachment scans are visible
-    before a deep brute-force pass starts.
+    This powers the TTK page's workload warning so heavy scans are visible before
+    a deep brute-force pass starts.
     """
     normalised_slot_counts = {}
 
@@ -2421,12 +3535,6 @@ def estimate_legal_attachment_combo_count(
     slot_names = sorted(normalised_slot_counts.keys())
     required_slot_names = _clean_required_slots(required_slots)
 
-    if len(slot_names) < attachment_count:
-        return 0
-
-    if len(required_slot_names) > attachment_count:
-        return 0
-
     if any(slot not in slot_names for slot in required_slot_names):
         return 0
 
@@ -2436,18 +3544,28 @@ def estimate_legal_attachment_combo_count(
         if slot not in required_slot_names
     ]
 
-    optional_count = attachment_count - len(required_slot_names)
-
     total = 0
 
-    for optional_slots in combinations(optional_slot_names, optional_count):
-        selected_slots = sorted([*required_slot_names, *optional_slots])
-        product_count = 1
+    for count in attachment_count_values(
+        attachment_count=attachment_count,
+        required_slots=required_slot_names,
+        min_attachment_count=min_attachment_count,
+        attachment_count_mode=attachment_count_mode,
+        available_slot_count=len(slot_names),
+    ):
+        optional_count = count - len(required_slot_names)
 
-        for slot in selected_slots:
-            product_count *= int(normalised_slot_counts.get(slot, 0) or 0)
+        if optional_count < 0:
+            continue
 
-        total += product_count
+        for optional_slots in combinations(optional_slot_names, optional_count):
+            selected_slots = sorted([*required_slot_names, *optional_slots])
+            product_count = 1
+
+            for slot in selected_slots:
+                product_count *= int(normalised_slot_counts.get(slot, 0) or 0)
+
+            total += product_count
 
     return int(total)
 
@@ -2776,6 +3894,8 @@ def estimate_optimizer_combo_count(
     optimiser_mode: str = "Fast",
     candidate_limit_per_slot: int = 3,
     forced_attachment_rules=None,
+    min_attachment_count: int | None = None,
+    attachment_count_mode: str = "exact",
 ) -> pd.DataFrame:
     """
     Estimate the build search space using the same slot rules and pool pruning
@@ -2793,7 +3913,21 @@ def estimate_optimizer_combo_count(
         ]
 
     rows = []
-    use_fast_mode = normalise_match_value(optimiser_mode) != "deep"
+    optimiser_mode_key = normalise_match_value(optimiser_mode)
+    use_exact_ttk_mode = optimiser_mode_key in {
+        "exact ttk",
+        "exact_ttk",
+        "exact best ttk",
+        "best ttk exact",
+        "streaming exact ttk",
+    }
+    use_fast_mode = optimiser_mode_key != "deep" and not use_exact_ttk_mode
+    attachment_count_mode = normalise_attachment_count_mode(attachment_count_mode)
+
+    try:
+        min_attachment_count = max(0, int(min_attachment_count or 0))
+    except (TypeError, ValueError):
+        min_attachment_count = 0
 
     for _, gun in filtered_guns.iterrows():
         full_compatible_attachments = get_compatible_attachments(
@@ -2812,13 +3946,59 @@ def estimate_optimizer_combo_count(
             forced_attachment_rules=forced_attachment_rules,
         )
 
+        if use_exact_ttk_mode and exact_ttk_can_use_raw_ttk_only_pool(
+            build_goal=build_goal,
+            challenge_labels=challenge_labels,
+            min_attachment_count=min_attachment_count,
+            required_slots=required_slots,
+        ):
+            # Workload estimate shows the small lethality stage. The actual
+            # Exact TTK run then fills the best raw-TTK breakpoint with comfort
+            # attachments, which is far cheaper than the old one-million-build
+            # full Cartesian scan.
+            compatible_attachments = reduce_attachment_pool_for_strict_raw_ttk(
+                compatible_attachments,
+                build_goal=build_goal,
+            )
+
+        if compatible_attachments.empty and not missing_challenges:
+            legal_counts = attachment_count_values(
+                attachment_count=attachment_count,
+                required_slots=required_slots,
+                min_attachment_count=min_attachment_count,
+                attachment_count_mode=attachment_count_mode,
+                available_slot_count=0,
+            )
+            if 0 in legal_counts:
+                rows.append(
+                    {
+                        "gun_name": gun.get("gun_name", ""),
+                        "weapon_class": gun.get("weapon_class", ""),
+                        "attachment_count": attachment_count,
+                        "attachment_count_mode": attachment_count_mode,
+                        "min_attachment_count": min_attachment_count,
+                        "optimiser_mode": "Exact TTK" if use_exact_ttk_mode else ("Fast" if use_fast_mode else "Deep"),
+                        "full_compatible_rows": full_compatible_count,
+                        "modelled_rows": modelled_compatible_count,
+                        "ignored_rows": ignored_count,
+                        "usable_slots": 0,
+                        "pool_rows_after_pruning": 0,
+                        "estimated_combinations": 1,
+                        "slot_pool_summary": "base weapon only",
+                        "challenge_requirements": " | ".join(challenge_labels),
+                        "challenge_missing": "",
+                        "buildable": True,
+                    }
+                )
+                continue
+
         if compatible_attachments.empty or missing_challenges:
             rows.append(
                 {
                     "gun_name": gun.get("gun_name", ""),
                     "weapon_class": gun.get("weapon_class", ""),
                     "attachment_count": attachment_count,
-                    "optimiser_mode": "Fast" if use_fast_mode else "Deep",
+                    "optimiser_mode": "Exact TTK" if use_exact_ttk_mode else ("Fast" if use_fast_mode else "Deep"),
                     "full_compatible_rows": full_compatible_count,
                     "modelled_rows": modelled_compatible_count,
                     "ignored_rows": ignored_count,
@@ -2833,22 +4013,33 @@ def estimate_optimizer_combo_count(
             )
             continue
 
-        if len(required_slots) > attachment_count:
+        pre_prune_slot_count = int(compatible_attachments["slot"].dropna().nunique())
+        pre_prune_legal_counts = attachment_count_values(
+            attachment_count=attachment_count,
+            required_slots=required_slots,
+            min_attachment_count=min_attachment_count,
+            attachment_count_mode=attachment_count_mode,
+            available_slot_count=pre_prune_slot_count,
+        )
+
+        if not pre_prune_legal_counts:
             rows.append(
                 {
                     "gun_name": gun.get("gun_name", ""),
                     "weapon_class": gun.get("weapon_class", ""),
                     "attachment_count": attachment_count,
-                    "optimiser_mode": "Fast" if use_fast_mode else "Deep",
+                    "attachment_count_mode": attachment_count_mode,
+                    "min_attachment_count": min_attachment_count,
+                    "optimiser_mode": "Exact TTK" if use_exact_ttk_mode else ("Fast" if use_fast_mode else "Deep"),
                     "full_compatible_rows": full_compatible_count,
                     "modelled_rows": modelled_compatible_count,
                     "ignored_rows": ignored_count,
-                    "usable_slots": int(compatible_attachments["slot"].dropna().nunique()),
+                    "usable_slots": pre_prune_slot_count,
                     "pool_rows_after_pruning": len(compatible_attachments),
                     "estimated_combinations": 0,
                     "slot_pool_summary": "",
                     "challenge_requirements": " | ".join(challenge_labels),
-                    "challenge_missing": "Too many required slots for attachment budget",
+                    "challenge_missing": "Required slots do not fit attachment budget",
                     "buildable": False,
                 }
             )
@@ -2878,6 +4069,8 @@ def estimate_optimizer_combo_count(
             slot_counts=slot_counts,
             attachment_count=attachment_count,
             required_slots=required_slots,
+            min_attachment_count=min_attachment_count,
+            attachment_count_mode=attachment_count_mode,
         )
 
         rows.append(
@@ -2885,7 +4078,9 @@ def estimate_optimizer_combo_count(
                 "gun_name": gun.get("gun_name", ""),
                 "weapon_class": gun.get("weapon_class", ""),
                 "attachment_count": attachment_count,
-                "optimiser_mode": "Fast" if use_fast_mode else "Deep",
+                "attachment_count_mode": attachment_count_mode,
+                "min_attachment_count": min_attachment_count,
+                "optimiser_mode": "Exact TTK" if use_exact_ttk_mode else ("Fast" if use_fast_mode else "Deep"),
                 "full_compatible_rows": full_compatible_count,
                 "modelled_rows": modelled_compatible_count,
                 "ignored_rows": ignored_count,
@@ -2949,12 +4144,32 @@ def attachment_fast_candidate_score(attachment, map_type, fight_type, build_goal
     bullet_velocity_weight = 0.8
     mag_weight = 0.7
 
+    one_shot_goal = "one shot" in build_goal_text or "one-shot" in build_goal_text or "one_shot" in build_goal_text
+    long_range_goal = (
+        "long range" in build_goal_text
+        or "long-range" in build_goal_text
+        or "longshot" in build_goal_text
+        or "long shot" in build_goal_text
+    )
+
     if "headshot" in build_goal_text or "military camo" in build_goal_text:
         recoil_weight += 1.8
         ads_weight += 0.3
         sprint_to_fire_weight += 0.2
         range_weight += 0.5
         bullet_velocity_weight += 0.4
+
+    if one_shot_goal:
+        range_weight += 1.0
+        bullet_velocity_weight += 0.8
+        ads_weight += 0.25
+        recoil_weight += 0.35
+
+    if long_range_goal:
+        range_weight += 1.2
+        bullet_velocity_weight += 1.0
+        recoil_weight += 0.8
+        ads_weight += 0.15
 
     if "special camo" in build_goal_text or "ttk" in build_goal_text:
         ads_weight += 0.3
@@ -2976,8 +4191,9 @@ def attachment_fast_candidate_score(attachment, map_type, fight_type, build_goal
         bullet_velocity_weight += 0.5
         mag_weight += 0.4
 
-    score += numeric_cell(attachment.get("damage_pct", 0), 0.0) * 4.0
-    if is_headshot_build_goal(build_goal):
+    damage_weight = 8.0 if one_shot_goal else 4.0
+    score += numeric_cell(attachment.get("damage_pct", 0), 0.0) * damage_weight
+    if is_headshot_build_goal(build_goal) or one_shot_goal:
         head_damage_score = (
             numeric_cell(attachment.get("head_damage_pct", 0), 0.0)
             + numeric_cell(attachment.get("head_damage_close_pct", 0), 0.0)
@@ -3076,11 +4292,15 @@ def reduce_attachment_pool_for_fast_mode(
             if index is not None and index not in forced_indices:
                 forced_indices.append(index)
 
-        if is_headshot_build_goal(build_goal):
+        if is_headshot_build_goal(build_goal) or is_one_shot_build_goal(build_goal):
+            force(best_index_by_numeric(group, "damage_pct", prefer_high=True))
             force(best_index_by_numeric(group, "head_damage_pct", prefer_high=True))
             force(best_index_by_numeric(group, "head_damage_close_pct", prefer_high=True))
             force(best_index_by_numeric(group, "head_damage_mid_pct", prefer_high=True))
             force(best_index_by_numeric(group, "head_damage_long_pct", prefer_high=True))
+            force(best_index_by_numeric(group, "head_damage_close_add", prefer_high=True))
+            force(best_index_by_numeric(group, "head_damage_mid_add", prefer_high=True))
+            force(best_index_by_numeric(group, "head_damage_long_add", prefer_high=True))
             force(best_index_by_numeric(group, "head_multiplier_pct", prefer_high=True))
 
         if clean_slot == "magazine":
@@ -3164,6 +4384,204 @@ def reduce_attachment_pool_for_fast_mode(
 
     return reduced.reset_index(drop=True)
 
+
+def exact_ttk_sort_key(preview: dict, build_goal: str, fight_type: str) -> tuple:
+    """
+    Exhaustive BEST TTK objective.
+
+    This is deliberately not the general Oracle score. The simplified BEST TTK
+    button should answer the fastest-build question first, while still keeping
+    challenge-specific tie breakers.
+    """
+    raw_ttk = numeric_cell(preview.get("raw_ttk_ms", 999999), 999999)
+    practical_ttk = numeric_cell(preview.get("practical_ttk_ms", 999999), 999999)
+    recoil = numeric_cell(preview.get("recoil", 999999), 999999)
+    ads_ms = numeric_cell(preview.get("ads_ms", 999999), 999999)
+    sprint_to_fire_ms = numeric_cell(preview.get("sprint_to_fire_ms", 999999), 999999)
+    damage = numeric_cell(preview.get("damage", 0), 0)
+    shots_to_kill = numeric_cell(preview.get("shots_to_kill", 99), 99)
+    one_shot_margin = numeric_cell(preview.get("one_shot_margin", -999999), -999999)
+
+    if is_one_shot_build_goal(build_goal):
+        return (
+            shots_to_kill,
+            -one_shot_margin,
+            practical_ttk,
+            ads_ms,
+            recoil,
+        )
+
+    if is_shotgun_weapon_class(preview.get("weapon_class", "")) and (
+        str(fight_type or "").strip().lower() == "close range"
+        or "point blank" in normalise_match_value(build_goal)
+        or "hipfire" in normalise_match_value(build_goal)
+        or "aggressive" in normalise_match_value(build_goal)
+    ):
+        shotgun_ttk = numeric_cell(
+            preview.get("shotgun_best_close_ttk_ms", practical_ttk),
+            practical_ttk,
+        )
+        return (
+            shotgun_ttk,
+            shots_to_kill,
+            -damage,
+            sprint_to_fire_ms,
+            ads_ms,
+        )
+
+    if is_long_range_build_goal(build_goal):
+        return (
+            practical_ttk,
+            recoil,
+            -numeric_cell(preview.get("range_m", 0), 0),
+            -numeric_cell(preview.get("bullet_velocity", 0), 0),
+            raw_ttk,
+        )
+
+    if is_headshot_build_goal(build_goal):
+        return (
+            practical_ttk,
+            recoil,
+            raw_ttk,
+            ads_ms,
+        )
+
+    return (
+        raw_ttk,
+        practical_ttk,
+        shots_to_kill,
+        ads_ms,
+        recoil,
+    )
+
+
+def exact_ttk_sort_columns_from_key(sort_key: tuple) -> dict:
+    padded = list(sort_key)[:8]
+    while len(padded) < 8:
+        padded.append(0.0)
+
+    return {
+        f"exact_ttk_sort_{index}": numeric_cell(value, 0.0)
+        for index, value in enumerate(padded)
+    }
+
+
+def combo_attachment_names(combo) -> list[str]:
+    return [
+        str(attachment.get("attachment_name", "") or "").strip()
+        for attachment in combo
+        if str(attachment.get("attachment_name", "") or "").strip()
+    ]
+
+
+def combo_attachment_slots(combo) -> list[str]:
+    return [
+        str(attachment.get("slot", "") or "").strip()
+        for attachment in combo
+        if str(attachment.get("slot", "") or "").strip()
+    ]
+
+
+def combo_attachment_effects(combo) -> str:
+    parts = []
+
+    for attachment in combo:
+        name = str(attachment.get("attachment_name", "") or "").strip()
+        effect = str(attachment.get("_effect_summary", "") or "").strip()
+        if name or effect:
+            parts.append(f"{name}: {effect}".strip(": "))
+
+    return " || ".join(parts)
+
+
+def build_loadout_preview_from_combo(
+    gun,
+    combo,
+    *,
+    enemy_health: int,
+    fight_type: str,
+    build_goal: str,
+) -> dict:
+    """
+    Same output as build_loadout_preview(), but avoids creating a pandas
+    DataFrame for every candidate. This is the key speed-up for exhaustive
+    single-weapon BEST TTK scans.
+    """
+    damage_close = numeric_cell(gun.get("damage_close", 0), 0.0)
+    damage_mid = numeric_cell(gun.get("damage_mid", 0), damage_close)
+    damage_long = numeric_cell(gun.get("damage_long", 0), damage_mid)
+    range_close = numeric_cell(gun.get("range_close_m", 0), 0.0)
+    range_mid = numeric_cell(gun.get("range_mid_m", 0), range_close)
+
+    final_stats = {
+        "damage_close": damage_close,
+        "range_close_m": range_close,
+        "damage_mid": damage_mid,
+        "range_mid_m": range_mid,
+        "damage_long": damage_long,
+        "head_damage_close": numeric_cell(gun.get("head_damage_close", damage_close), damage_close),
+        "head_damage_mid": numeric_cell(gun.get("head_damage_mid", damage_mid), damage_mid),
+        "head_damage_long": numeric_cell(gun.get("head_damage_long", damage_long), damage_long),
+        "fire_rate_rpm": numeric_cell(gun.get("fire_rate_rpm", 0), 0.0),
+        "ads_ms": numeric_cell(gun.get("ads_ms", 0), 0.0),
+        "sprint_to_fire_ms": numeric_cell(gun.get("sprint_to_fire_ms", 0), 0.0),
+        "recoil": base_recoil_value(gun),
+        "bullet_velocity": numeric_cell(gun.get("bullet_velocity", 0), 0.0),
+        "mag_size": numeric_cell(gun.get("mag_size", 0), 0.0),
+        "mags": numeric_cell(gun.get("mags", 0), 0.0),
+        "slide_to_fire_pct": 0.0,
+        "dive_to_fire_pct": 0.0,
+        "hipfire_spread_pct": 0.0,
+        "jump_hipfire_spread_pct": 0.0,
+        "slide_hipfire_spread_pct": 0.0,
+        "dive_hipfire_spread_pct": 0.0,
+        "weapon_class": str(gun.get("weapon_class", "")),
+    }
+
+    for attachment in combo:
+        final_stats = apply_attachment_to_stats(final_stats, attachment)
+
+    damage_column = damage_column_for_fight_type(fight_type, build_goal)
+
+    if damage_column not in final_stats:
+        damage_column = damage_column_for_fight_type(fight_type)
+
+    final_stats["damage"] = final_stats[damage_column]
+    final_stats["damage_model"] = "headshot" if is_headshot_build_goal(build_goal) else "body"
+    final_stats["fight_type"] = fight_type
+    final_stats["build_goal"] = build_goal
+    final_stats["enemy_health"] = int(enemy_health or 300)
+    final_stats["range_m"] = effective_range_for_fight_type(final_stats, fight_type)
+    final_stats["shots_to_kill"] = ceil(enemy_health / final_stats["damage"])
+    final_stats["one_shot_margin"] = numeric_cell(final_stats.get("damage", 0), 0.0) - float(enemy_health or 0)
+    final_stats["one_shot_ratio"] = (
+        numeric_cell(final_stats.get("damage", 0), 0.0) / max(float(enemy_health or 1), 1.0)
+    )
+
+    final_stats["raw_ttk_ms"] = calculate_raw_ttk_ms(
+        damage=final_stats["damage"],
+        fire_rate_rpm=final_stats["fire_rate_rpm"],
+        enemy_health=enemy_health,
+    )
+
+    if is_shotgun_weapon_class(final_stats.get("weapon_class", "")):
+        final_stats.update(
+            shotgun_truth_metrics(
+                final_stats,
+                enemy_health=enemy_health,
+                fight_type=fight_type,
+            )
+        )
+    else:
+        final_stats.update(default_shotgun_truth_metrics())
+
+    final_stats["damage_per_mag"] = (
+        float(final_stats["damage"]) * float(final_stats["mag_size"])
+    )
+    final_stats["practical_ttk_ms"] = calculate_practical_ttk_ms(final_stats)
+
+    return final_stats
+
 def optimise_loadouts_for_scenario(
     guns,
     attachments,
@@ -3177,6 +4595,8 @@ def optimise_loadouts_for_scenario(
     optimiser_mode="Fast",
     candidate_limit_per_slot=3,
     forced_attachment_rules=None,
+    min_attachment_count: int | None = None,
+    attachment_count_mode: str = "exact",
 ):
     if guns.empty or attachments.empty:
         return pd.DataFrame()
@@ -3190,7 +4610,21 @@ def optimise_loadouts_for_scenario(
         ]
 
     rows = []
-    use_fast_mode = normalise_match_value(optimiser_mode) != "deep"
+    optimiser_mode_key = normalise_match_value(optimiser_mode)
+    use_exact_ttk_mode = optimiser_mode_key in {
+        "exact ttk",
+        "exact_ttk",
+        "exact best ttk",
+        "best ttk exact",
+        "streaming exact ttk",
+    }
+    use_fast_mode = optimiser_mode_key != "deep" and not use_exact_ttk_mode
+    attachment_count_mode = normalise_attachment_count_mode(attachment_count_mode)
+
+    try:
+        min_attachment_count = max(0, int(min_attachment_count or 0))
+    except (TypeError, ValueError):
+        min_attachment_count = 0
 
     for _, gun in filtered_guns.iterrows():
         full_compatible_attachments = get_compatible_attachments(
@@ -3208,12 +4642,16 @@ def optimise_loadouts_for_scenario(
             forced_attachment_rules=forced_attachment_rules,
         )
 
-        if missing_challenges or len(required_slots) > attachment_count:
-            continue
-
         unique_slot_count = compatible_attachments["slot"].dropna().nunique()
+        legal_attachment_counts = attachment_count_values(
+            attachment_count=attachment_count,
+            required_slots=required_slots,
+            min_attachment_count=min_attachment_count,
+            attachment_count_mode=attachment_count_mode,
+            available_slot_count=unique_slot_count,
+        )
 
-        if unique_slot_count < attachment_count:
+        if missing_challenges or not legal_attachment_counts:
             continue
 
         compatible_attachments = prune_dominated_attachments(compatible_attachments)
@@ -3230,12 +4668,149 @@ def optimise_loadouts_for_scenario(
         else:
             compatible_attachments = prune_dominated_attachments(compatible_attachments)
 
+        if use_exact_ttk_mode and exact_ttk_can_use_raw_ttk_only_pool(
+            build_goal=build_goal,
+            challenge_labels=challenge_labels,
+            min_attachment_count=min_attachment_count,
+            required_slots=required_slots,
+        ):
+            rows.extend(
+                optimise_exact_ttk_two_stage_for_gun(
+                    gun=gun,
+                    compatible_attachments=compatible_attachments,
+                    full_compatible_attachments=full_compatible_attachments,
+                    map_type=map_type,
+                    fight_type=fight_type,
+                    build_goal=build_goal,
+                    enemy_health=enemy_health,
+                    attachment_count=attachment_count,
+                    top_n=top_n,
+                    required_slots=required_slots,
+                    min_attachment_count=min_attachment_count,
+                    attachment_count_mode=attachment_count_mode,
+                    challenge_labels=challenge_labels,
+                    unmodelled_attachments_ignored=unmodelled_attachments_ignored,
+                )
+            )
+            continue
+
+        if use_exact_ttk_mode:
+            scanned_count = 0
+            best_candidates: list[tuple[tuple, tuple, dict]] = []
+            keep_limit = max(1, int(top_n or 10)) * 4
+
+            for combo in generate_legal_attachment_combos(
+                compatible_attachments=compatible_attachments,
+                attachment_count=attachment_count,
+                required_slots=required_slots,
+                min_attachment_count=min_attachment_count,
+                attachment_count_mode=attachment_count_mode,
+            ):
+                scanned_count += 1
+
+                preview = build_loadout_preview_from_combo(
+                    gun=gun,
+                    combo=combo,
+                    enemy_health=enemy_health,
+                    fight_type=fight_type,
+                    build_goal=build_goal,
+                )
+
+                sort_key = exact_ttk_sort_key(
+                    preview,
+                    build_goal=build_goal,
+                    fight_type=fight_type,
+                )
+
+                best_candidates.append((sort_key, combo, preview))
+
+                # Keep memory bounded while still scanning every legal build.
+                if len(best_candidates) > keep_limit * 3:
+                    best_candidates = sorted(
+                        best_candidates,
+                        key=lambda item: item[0],
+                    )[:keep_limit]
+
+            best_candidates = sorted(
+                best_candidates,
+                key=lambda item: item[0],
+            )[:keep_limit]
+
+            challenge_summary = " | ".join(challenge_labels)
+            challenge_required_slots = " | ".join(sorted(required_slots))
+
+            for rank, (sort_key, combo, preview) in enumerate(best_candidates, start=1):
+                selected_attachments = pd.DataFrame(combo)
+                selected_attachment_names = combo_attachment_names(combo)
+                selected_attachment_slots = combo_attachment_slots(combo)
+                selected_attachment_count = len(selected_attachment_slots)
+
+                explanation = explain_weapon_build(
+                    gun=gun,
+                    selected_attachments=selected_attachments,
+                    full_compatible_attachments=full_compatible_attachments,
+                    preview=preview,
+                    map_type=map_type,
+                    fight_type=fight_type,
+                    build_goal=build_goal,
+                    enemy_health=enemy_health,
+                    challenge_requirements=challenge_summary,
+                    challenge_required_slots=challenge_required_slots,
+                )
+
+                rows.append(
+                    {
+                        "gun_name": gun["gun_name"],
+                        "weapon_class": gun["weapon_class"],
+                        "attachments": " | ".join(selected_attachment_names) if selected_attachment_names else "Base weapon only",
+                        "slots": " | ".join(selected_attachment_slots),
+                        "selected_attachment_count": selected_attachment_count,
+                        "attachment_budget": f"up to {attachment_count}" if attachment_count_mode == "up_to" else f"exactly {attachment_count}",
+                        "attachment_count_mode": attachment_count_mode,
+                        "min_attachment_count": min_attachment_count,
+                        "modelled_attachment_count": int(
+                            selected_attachments.get("_modelled_effect_count", pd.Series(dtype=float)).fillna(0).astype(float).gt(0).sum()
+                        ) if "_modelled_effect_count" in selected_attachments.columns else len(selected_attachments),
+                        "unmodelled_attachments_ignored": unmodelled_attachments_ignored,
+                        "attachment_effects": combo_attachment_effects(combo),
+                        "attachment_trust_note": (
+                            f"Exact BEST TTK checked {scanned_count:,} legal build(s). "
+                            f"Ignored {unmodelled_attachments_ignored} zero-effect or unmodelled conversion row(s)."
+                        ),
+                        "challenge_requirements": challenge_summary,
+                        "challenge_required_slots": challenge_required_slots,
+                        "optimiser_mode": "Exact TTK",
+                        "slot_candidate_limit": "",
+                        "exact_ttk_rank": rank,
+                        "exact_ttk_sort_key": str(sort_key),
+                        "oracle_score": round(1 / (1 + rank), 6),
+                        **exact_ttk_sort_columns_from_key(sort_key),
+                        **preview,
+                        **explanation,
+                    }
+                )
+
+            continue
+
         for combo in generate_legal_attachment_combos(
             compatible_attachments=compatible_attachments,
             attachment_count=attachment_count,
             required_slots=required_slots,
+            min_attachment_count=min_attachment_count,
+            attachment_count_mode=attachment_count_mode,
         ):
             selected_attachments = pd.DataFrame(combo)
+            selected_attachment_names = (
+                selected_attachments["attachment_name"].tolist()
+                if not selected_attachments.empty and "attachment_name" in selected_attachments.columns
+                else []
+            )
+            selected_attachment_slots = (
+                selected_attachments["slot"].tolist()
+                if not selected_attachments.empty and "slot" in selected_attachments.columns
+                else []
+            )
+            selected_attachment_count = len(selected_attachment_slots)
 
             preview = build_loadout_preview(
                 gun=gun,
@@ -3270,12 +4845,12 @@ def optimise_loadouts_for_scenario(
                 {
                     "gun_name": gun["gun_name"],
                     "weapon_class": gun["weapon_class"],
-                    "attachments": " | ".join(
-                        selected_attachments["attachment_name"].tolist()
-                    ),
-                    "slots": " | ".join(
-                        selected_attachments["slot"].tolist()
-                    ),
+                    "attachments": " | ".join(selected_attachment_names) if selected_attachment_names else "Base weapon only",
+                    "slots": " | ".join(selected_attachment_slots),
+                    "selected_attachment_count": selected_attachment_count,
+                    "attachment_budget": f"up to {attachment_count}" if attachment_count_mode == "up_to" else f"exactly {attachment_count}",
+                    "attachment_count_mode": attachment_count_mode,
+                    "min_attachment_count": min_attachment_count,
                     "modelled_attachment_count": int(
                         selected_attachments.get("_modelled_effect_count", pd.Series(dtype=float)).fillna(0).astype(float).gt(0).sum()
                     ) if "_modelled_effect_count" in selected_attachments.columns else len(selected_attachments),
@@ -3290,7 +4865,7 @@ def optimise_loadouts_for_scenario(
                     ),
                     "challenge_requirements": challenge_summary,
                     "challenge_required_slots": challenge_required_slots,
-                    "optimiser_mode": "Fast" if use_fast_mode else "Deep",
+                    "optimiser_mode": "Exact TTK" if use_exact_ttk_mode else ("Fast" if use_fast_mode else "Deep"),
                     "slot_candidate_limit": int(candidate_limit_per_slot) if use_fast_mode else "",
                     **preview,
                     **explanation,
@@ -3301,6 +4876,40 @@ def optimise_loadouts_for_scenario(
         return pd.DataFrame()
 
     results = pd.DataFrame(rows)
+
+    results = apply_one_shot_viability_gate(
+        results,
+        build_goal=build_goal,
+        enemy_health=enemy_health,
+    )
+
+    if use_exact_ttk_mode:
+        sort_columns = [
+            column
+            for column in [f"exact_ttk_sort_{index}" for index in range(8)]
+            if column in results.columns
+        ]
+
+        if sort_columns:
+            for column in sort_columns:
+                results[column] = pd.to_numeric(results[column], errors="coerce").fillna(0.0)
+
+            results = (
+                results
+                .sort_values(sort_columns, ascending=True)
+                .head(top_n)
+                .reset_index(drop=True)
+            )
+        else:
+            results = results.head(top_n).reset_index(drop=True)
+
+        results["exact_ttk_rank"] = range(1, len(results) + 1)
+        results["oracle_score"] = [
+            round(1 / (rank + 1), 6)
+            for rank in range(1, len(results) + 1)
+        ]
+
+        return results
 
     weights = build_scenario_weights(
         map_type=map_type,
@@ -3416,6 +5025,8 @@ def describe_weapon_build_data(
     attachments: pd.DataFrame,
     weapon_name: str,
     attachment_count: int = 5,
+    min_attachment_count: int | None = None,
+    attachment_count_mode: str = "exact",
 ) -> dict:
     """
     Reports whether a selected weapon has enough trusted attachment data to build.
@@ -3461,7 +5072,23 @@ def describe_weapon_build_data(
     compatible_slots = len(slots)
     trusted_slots = len(trusted_slots_list)
     ignored_attachments = max(0, compatible_count - trusted_count)
-    buildable = trusted_slots >= attachment_count
+    attachment_count_mode = normalise_attachment_count_mode(attachment_count_mode)
+
+    try:
+        minimum = max(0, int(min_attachment_count or 0))
+    except (TypeError, ValueError):
+        minimum = 0
+
+    if attachment_count_mode == "exact":
+        required_trusted_slots = int(attachment_count or 0)
+    else:
+        required_trusted_slots = minimum
+
+    buildable = (
+        trusted_slots >= required_trusted_slots
+        if required_trusted_slots > 0
+        else trusted_slots > 0
+    )
 
     if buildable:
         message = (
@@ -3477,7 +5104,7 @@ def describe_weapon_build_data(
     else:
         message = (
             f"{gun['gun_name']} only has {trusted_slots} trusted/modelled slot(s): "
-            f"{', '.join(trusted_slots_list)}. Needs {attachment_count} for this run. "
+            f"{', '.join(trusted_slots_list)}. Needs {required_trusted_slots} for this run. "
             f"Ignoring {ignored_attachments} zero-effect or unmodelled conversion row(s)."
         )
 
@@ -3508,6 +5135,8 @@ def optimise_single_weapon_build(
     optimiser_mode: str = "Fast",
     candidate_limit_per_slot: int = 3,
     forced_attachment_rules=None,
+    min_attachment_count: int | None = None,
+    attachment_count_mode: str = "up_to",
 ) -> pd.DataFrame:
     """
     Brute-force the best build for one exact Commander-assigned weapon.
@@ -3525,6 +5154,8 @@ def optimise_single_weapon_build(
         attachments=attachments,
         weapon_name=weapon_name,
         attachment_count=attachment_count,
+        min_attachment_count=min_attachment_count,
+        attachment_count_mode=attachment_count_mode,
     )
 
     if not data_status.get("buildable", False):
@@ -3543,6 +5174,8 @@ def optimise_single_weapon_build(
         optimiser_mode=optimiser_mode,
         candidate_limit_per_slot=candidate_limit_per_slot,
         forced_attachment_rules=forced_attachment_rules,
+        min_attachment_count=min_attachment_count,
+        attachment_count_mode=attachment_count_mode,
     )
 
 

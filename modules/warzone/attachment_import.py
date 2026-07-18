@@ -76,6 +76,7 @@ def parse_codmunity_attachment_html(
     compatible_guns: str = "",
     source: str = "codmunity.gg",
     source_date: str = "",
+    stats_profile: str = DEFAULT_STATS_PROFILE,
 ) -> pd.DataFrame:
     """
     Parses copied Codmunity attachment-table HTML into Oracle attachment rows.
@@ -86,6 +87,7 @@ def parse_codmunity_attachment_html(
     """
     rows = []
     html_text = str(html_text or "")
+    stats_profile = normalise_stats_profile(stats_profile, DEFAULT_STATS_PROFILE)
 
     for row_html in re.findall(r"<tr\b[^>]*>(.*?)</tr>", html_text, flags=re.I | re.S):
         name_match = re.search(

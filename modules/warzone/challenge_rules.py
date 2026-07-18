@@ -14,10 +14,58 @@ CHALLENGE_REQUIREMENT_OPTIONS = [
     "Underbarrel launcher",
     "4.0x+ optic",
     "Any optic / reticle",
+    "Point Blank Kills",
+    "One Shot Kills",
+    "Close Range Kills",
+    "Melee Kills",
     "Specific attachment name contains",
     "5+ attachments",
     "8 attachments",
 ]
+
+
+CHALLENGE_INTENT_REQUIREMENTS = {
+    "Point Blank Kills": {
+        "summary": "Challenge intent: point blank kills",
+        "tags": [
+            "point_blank",
+            "close_range",
+            "hipfire",
+            "sprint_to_fire",
+            "mobility",
+        ],
+    },
+    "One Shot Kills": {
+        "summary": "Challenge intent: one shot kills",
+        "tags": [
+            "one_shot",
+            "damage_breakpoint",
+            "ads",
+            "flinch_resistance",
+            "range",
+        ],
+    },
+    "Close Range Kills": {
+        "summary": "Challenge intent: close range kills",
+        "tags": [
+            "close_range",
+            "practical_ttk",
+            "ads",
+            "sprint_to_fire",
+            "mobility",
+        ],
+    },
+    "Melee Kills": {
+        "summary": "Challenge intent: melee kills",
+        "tags": [
+            "melee",
+            "stealth",
+            "mobility",
+            "survivability",
+            "utility",
+        ],
+    },
+}
 
 CHALLENGE_ROLE_SCOPES = [
     "Primary weapon",
@@ -33,10 +81,22 @@ class ChallengeConstraints:
     required_attachment_count: int = 0
     summary: str = ""
     role_scope: str = "Both weapons"
+    intent_tags: list[str] = field(default_factory=list)
 
     @property
     def active(self) -> bool:
-        return bool(self.rules or self.required_attachment_count)
+        return bool(self.rules or self.required_attachment_count or self.intent_tags)
+
+
+def challenge_intent_tags(requirement: str) -> list[str]:
+    requirement = str(requirement or "").strip()
+    return list(
+        CHALLENGE_INTENT_REQUIREMENTS.get(requirement, {}).get("tags", [])
+    )
+
+
+def challenge_is_intent_only(requirement: str) -> bool:
+    return bool(challenge_intent_tags(requirement))
 
 
 def challenge_rules_from_selection(
@@ -132,6 +192,10 @@ def challenge_summary(
             for rule in rules
         )
 
+    intent = CHALLENGE_INTENT_REQUIREMENTS.get(str(requirement or "").strip())
+    if intent:
+        return str(intent.get("summary", "Challenge intent active"))
+
     return "Challenge lock active, but no usable requirement has been entered."
 
 
@@ -142,6 +206,7 @@ def build_challenge_constraints(
 ) -> ChallengeConstraints:
     rules = challenge_rules_from_selection(requirement, custom_text)
     required_count = challenge_required_attachment_count(requirement)
+    intent_tags = challenge_intent_tags(requirement)
 
     return ChallengeConstraints(
         requirement=str(requirement or "").strip(),
@@ -153,6 +218,7 @@ def build_challenge_constraints(
             required_attachment_count=required_count,
         ),
         role_scope=str(role_scope or "Both weapons").strip() or "Both weapons",
+        intent_tags=intent_tags,
     )
 
 
@@ -194,9 +260,12 @@ def apply_attachment_count_requirement(
 __all__ = [
     "CHALLENGE_REQUIREMENT_OPTIONS",
     "CHALLENGE_ROLE_SCOPES",
+    "CHALLENGE_INTENT_REQUIREMENTS",
     "ChallengeConstraints",
     "apply_attachment_count_requirement",
     "build_challenge_constraints",
+    "challenge_intent_tags",
+    "challenge_is_intent_only",
     "challenge_required_attachment_count",
     "challenge_requires_eight_attachments",
     "challenge_rules_from_selection",

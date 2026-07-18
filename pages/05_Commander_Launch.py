@@ -32,8 +32,8 @@ from modules.warzone.session_builder import prepare_session_from_mission
 from modules.warzone.session_console import render_session_brief
 
 st.set_page_config(
-    page_title="Perzevol OS - Commander Launch",
-    page_icon="🚀",
+    page_title="Perzevol OS - Tonight's Grind",
+    page_icon="🎮",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -445,7 +445,7 @@ def prepare_launch_oracle_brief(plan: dict):
     try:
         mission_profile = stop_to_mission_profile(stop, plan)
 
-        with st.spinner("ORACLE PREPARING FIRST MISSION..."):
+        with st.spinner("BUILDING TONIGHT'S FIRST CLASS..."):
             brief = prepare_session_from_mission(
                 mission_profile,
                 optimiser_mode="Fast",
@@ -485,13 +485,13 @@ def render_plan(plan: dict, tasks: list[dict]):
     render_html(
         f"""
         <div class="plan-card">
-            <div class="plan-title">{esc(plan.get("quick_button_label", "Commander Plan"))}</div>
-            <div class="plan-subtitle">{esc(plan.get("quick_description", "Generated route."))}</div>
+            <div class="plan-title">TONIGHT\'S GRIND READY</div>
+            <div class="plan-subtitle">{esc(plan.get("quick_description", "Your route, first class and field plan are ready."))}</div>
             <div class="mini-grid">
                 <div><span>Energy</span><strong>{esc(plan.get("quick_energy_label", "Unknown"))}</strong></div>
                 <div><span>Mode</span><strong>{esc(plan.get("mode", "Unknown"))}</strong></div>
                 <div><span>Stops</span><strong>{esc(len(stops))}</strong></div>
-                <div><span>Rule</span><strong>No reroll</strong></div>
+                <div><span>Rule</span><strong>Follow plan</strong></div>
             </div>
             <div class="mini-grid">
                 <div><span>Time</span><strong>{esc(plan.get("available_minutes", "?"))} min</strong></div>
@@ -514,14 +514,14 @@ def render_plan(plan: dict, tasks: list[dict]):
     oracle_brief = prepare_launch_oracle_brief(plan)
 
     if oracle_brief is not None:
-        st.markdown("### FIRST MISSION PREPARED")
+        st.markdown("### TONIGHT\'S FIRST MISSION")
         render_session_brief(oracle_brief)
 
         launch_cols = st.columns(2)
 
         with launch_cols[0]:
             if st.button(
-                "START SESSION",
+                "START PLAYING",
                 type="primary",
                 use_container_width=True,
                 key="commander_launch_start_session",
@@ -547,7 +547,7 @@ def render_plan(plan: dict, tasks: list[dict]):
         st.divider()
     elif st.session_state.get("bo7_launch_oracle_error"):
         st.warning(
-            "Commander generated the route, but Oracle could not prepare the first "
+            "Tonight\'s Grind generated the route, but Oracle could not prepare the first "
             f"weapon stop. Detail: {st.session_state.bo7_launch_oracle_error}"
         )
 
@@ -558,7 +558,7 @@ def render_plan(plan: dict, tasks: list[dict]):
     copy_col, script_col = st.columns(2)
 
     with copy_col:
-        with st.expander("Copyable plan text", expanded=False):
+        with st.expander("Copy tonight\'s plan", expanded=False):
             st.text_area(
                 "Copyable plan",
                 value=copyable_plan_text(plan, tasks, templates),
@@ -567,7 +567,7 @@ def render_plan(plan: dict, tasks: list[dict]):
             )
 
     with script_col:
-        with st.expander("Recording lines", expanded=False):
+        with st.expander("Creator notes", expanded=False):
             st.text_area(
                 "Recording lines",
                 value=recording_lines_for_plan(plan),
@@ -623,7 +623,7 @@ def render_plan(plan: dict, tasks: list[dict]):
                     <p>{esc(companion_text)}</p>
                 </div>
 
-                <div class="rule-strip">Complete this, bank it, move to the next stop.</div>
+                <div class="rule-strip">Play this, bank progress, then move to the next stop.</div>
             </div>
             """
         )
@@ -634,7 +634,7 @@ def render_matrix(tasks: list[dict], task_summary: dict, completion_state: dict)
         """
         <div class="matrix-wrap">
             <div class="commander-subtitle">
-                Pick one button. Rows are energy. Columns are mode. ANY MODE means the Commander chooses the mode.
+                Pick one session button. Rows are energy. Columns are mode. ANY MODE lets Perzevol choose the easiest useful grind.
             </div>
         </div>
         """
@@ -683,9 +683,9 @@ def render_matrix(tasks: list[dict], task_summary: dict, completion_state: dict)
 def main():
     render_css()
 
-    st.markdown("<div class='commander-title'>Commander Launch</div>", unsafe_allow_html=True)
+    st.markdown("<div class='commander-title'>Tonight\'s Grind</div>", unsafe_allow_html=True)
     st.markdown(
-        "<div class='commander-subtitle'>Every energy and mode combination. One click gives objectives plus loadout.</div>",
+        "<div class='commander-subtitle'>Sit down, press one button, get tonight\'s challenges, guns, attachments, perks and field plan.</div>",
         unsafe_allow_html=True,
     )
 
@@ -703,7 +703,7 @@ def main():
         restored_plan = load_latest_launch_plan()
         if restored_plan:
             st.session_state.bo7_quick_launch_plan = restored_plan
-            st.caption("Recovered latest Commander Launch plan from disk.")
+            st.caption("Recovered latest Tonight\'s Grind plan from disk.")
 
     st.divider()
 
@@ -721,7 +721,7 @@ def main():
         col_a, col_b, col_c = st.columns(3)
 
         with col_a:
-            if st.button("CLEAR QUICK PLAN", use_container_width=True):
+            if st.button("CLEAR TONIGHT\'S GRIND", use_container_width=True):
                 st.session_state.bo7_quick_launch_plan = None
                 st.session_state.pop("bo7_launch_oracle_brief", None)
                 st.session_state.pop("bo7_launch_oracle_error", None)
@@ -730,14 +730,14 @@ def main():
                 st.rerun()
 
         with col_b:
-            if st.button("OPEN OBS RECORD VIEW", use_container_width=True):
+            if st.button("OPEN OBS VIEW", use_container_width=True):
                 try:
                     st.switch_page("pages/06_Commander_Record.py")
                 except Exception:
                     st.info("Open BO7: OBS Record View from the sidebar.")
 
         with col_c:
-            if st.button("SEND TO MISSION CONTROL", use_container_width=True, type="primary"):
+            if st.button("OPEN MISSION CONTROL", use_container_width=True, type="primary"):
                 mission_plan = strip_legacy_loadouts(dict(plan))
                 mission_plan = attach_series_context_to_plan(mission_plan, task_summary, completion_state)
                 mission_plan["loadout_source"] = mission_plan.get("loadout_source") or "oracle_pending"
@@ -752,9 +752,9 @@ def main():
                 try:
                     st.switch_page("pages/03_Warzone.py")
                 except Exception:
-                    st.success("Plan sent to Mission Control. Open BO7: Completion Commander from the sidebar.")
+                    st.success("Plan sent to Mission Control. Open BO7: Mission Control from the sidebar.")
     else:
-        st.info("Choose any energy/mode combination above. The Commander will generate the route and loadouts here.")
+        st.info("Pick one session button above. Perzevol will generate tonight\'s challenge route and full first class here.")
 
 
 if __name__ == "__main__":
